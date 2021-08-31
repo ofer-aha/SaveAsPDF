@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SaveAsPDF", "OutlookAddIn1\SaveAsPDF.csproj", "{51DE98BC-96A4-4C95-BAF7-CFE8D615F224}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A0CC1DEB-350A-49C3-90A8-1032537B71A9}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{51DE98BC-96A4-4C95-BAF7-CFE8D615F224}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51DE98BC-96A4-4C95-BAF7-CFE8D615F224}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51DE98BC-96A4-4C95-BAF7-CFE8D615F224}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51DE98BC-96A4-4C95-BAF7-CFE8D615F224}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C1CFA8E9-3368-4C7C-B1DE-76D2AEC09D86}
+	EndGlobalSection
+EndGlobal
