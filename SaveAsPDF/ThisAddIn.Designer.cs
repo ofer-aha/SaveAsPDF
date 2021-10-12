@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 #pragma warning disable 414
-namespace SaveAsPDF1 {
+namespace SaveAsPDF {
     
     
     /// 

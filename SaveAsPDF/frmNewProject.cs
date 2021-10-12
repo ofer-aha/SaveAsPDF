@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SaveAsPDF1
+namespace SaveAsPDF
 {
-    public partial class frmSettings : Form
+    public partial class frmNewProject : Form
     {
-        public frmSettings()
+        public frmNewProject()
         {
             InitializeComponent();
         }
