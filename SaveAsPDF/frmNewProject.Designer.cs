@@ -36,6 +36,9 @@ namespace SaveAsPDF
             this.txtProjectId = new System.Windows.Forms.TextBox();
             this.dgvDefaultSubFolders = new System.Windows.Forms.DataGridView();
             this.tvDefaultSubFolders = new System.Windows.Forms.TreeView();
+            this.btmNewProject = new System.Windows.Forms.Button();
+            this.btnAddNode = new System.Windows.Forms.Button();
+            this.txtNode = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDefaultSubFolders)).BeginInit();
             this.SuspendLayout();
             // 
@@ -90,11 +93,42 @@ namespace SaveAsPDF
             this.tvDefaultSubFolders.Size = new System.Drawing.Size(224, 150);
             this.tvDefaultSubFolders.TabIndex = 5;
             // 
+            // btmNewProject
+            // 
+            this.btmNewProject.Location = new System.Drawing.Point(296, 367);
+            this.btmNewProject.Name = "btmNewProject";
+            this.btmNewProject.Size = new System.Drawing.Size(126, 23);
+            this.btmNewProject.TabIndex = 6;
+            this.btmNewProject.Text = "צור פרויקט חדש";
+            this.btmNewProject.UseVisualStyleBackColor = true;
+            this.btmNewProject.Click += new System.EventHandler(this.btmNewProject_Click);
+            // 
+            // btnAddNode
+            // 
+            this.btnAddNode.Location = new System.Drawing.Point(70, 293);
+            this.btnAddNode.Name = "btnAddNode";
+            this.btnAddNode.Size = new System.Drawing.Size(75, 23);
+            this.btnAddNode.TabIndex = 7;
+            this.btnAddNode.Text = "node";
+            this.btnAddNode.UseVisualStyleBackColor = true;
+            this.btnAddNode.Click += new System.EventHandler(this.btnAddNode_Click);
+            // 
+            // txtNode
+            // 
+            this.txtNode.Location = new System.Drawing.Point(70, 110);
+            this.txtNode.Name = "txtNode";
+            this.txtNode.Size = new System.Drawing.Size(224, 20);
+            this.txtNode.TabIndex = 8;
+            this.txtNode.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
             // frmNewProject
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.txtNode);
+            this.Controls.Add(this.btnAddNode);
+            this.Controls.Add(this.btmNewProject);
             this.Controls.Add(this.tvDefaultSubFolders);
             this.Controls.Add(this.dgvDefaultSubFolders);
             this.Controls.Add(this.txtProjectId);
@@ -119,5 +153,8 @@ namespace SaveAsPDF
         private System.Windows.Forms.TextBox txtProjectId;
         private System.Windows.Forms.DataGridView dgvDefaultSubFolders;
         private System.Windows.Forms.TreeView tvDefaultSubFolders;
+        private System.Windows.Forms.Button btmNewProject;
+        private System.Windows.Forms.Button btnAddNode;
+        private System.Windows.Forms.TextBox txtNode;
     }
 }

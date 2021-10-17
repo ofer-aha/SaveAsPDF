@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SaveAsPDF.Models;
+
 
 namespace SaveAsPDF
 {
@@ -15,6 +17,16 @@ namespace SaveAsPDF
         public frmNewProject()
         {
             InitializeComponent();
+        }
+
+        private void btmNewProject_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void btnAddNode_Click(object sender, EventArgs e)
+        {
+            tvDefaultSubFolders.Nodes.Add(txtNode.Text);
         }
     }
 }
