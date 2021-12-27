@@ -7,6 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using SaveAsPDF.Models;
+using System.Windows.Forms;
+using System.Runtime.Remoting.Messaging;
+using SaveAsPDF.Properties;
 
 namespace SaveAsPDF.Helpers
 {
@@ -24,14 +27,14 @@ namespace SaveAsPDF.Helpers
         public static string ProjectFullPath(this string projectNumber)
         {
 
-            string rootDrive = GlobalConfig.rootDrive;
+            string rootDrive = Settings.Default.rootDrive;
             string output = rootDrive;
             
 
             if (projectNumber == null || projectNumber.Length == 0)
             {
                 //Default return: root drive.
-                output = GlobalConfig.rootDrive;
+                output = Settings.Default.rootDrive;
             }
             else
             {
@@ -97,7 +100,7 @@ namespace SaveAsPDF.Helpers
 
         public static string SafeFileName( this string inTXT)
         {
-            string pattern = @"[\\/:*?""<>|]";
+            string pattern = @"[\/:*?""<>|]";
             //Regex rg = new Regex(pattern);
             
             return Regex.Replace(inTXT, pattern, "").Trim();
@@ -107,7 +110,7 @@ namespace SaveAsPDF.Helpers
         /// Create hidden folder
         /// </summary>
         /// <param name="folder"> string represnting the hidden folder name to create</param>
-        public static void CreateHiddenFolder( this string folder)
+        public static void CreateHiddenFolder( string folder)
         {
             if (!Directory.Exists(folder))
             {
@@ -121,7 +124,7 @@ namespace SaveAsPDF.Helpers
         /// if the folder already exists it will name it Folder (2)... Folder (2) (2) and so on. 
         /// </summary>
         /// <param name="folder">string represnting the folder name to create</param>
-        public static void MkDir(this string folder)
+        public static void MkDir( string folder)
         {
             
             if (Directory.Exists(folder))
@@ -129,13 +132,42 @@ namespace SaveAsPDF.Helpers
                 int i=1;
                 folder += $" ({i + 1})";
                 MkDir(folder); 
-                   
             }
             else
             {
                 Directory.CreateDirectory(folder);
             }
         }
+        /// <summary>
+        /// Delete folder 
+        /// </summary>
+        /// <param name="folder"> the folder to be deleted as string</param>
+        public static void RmDir (string folder)
+        {
+            try
+            {
+                Directory.Delete (folder);
+            }
+            catch (Exception e)
+            {
+
+                MessageBox.Show(e.Message, "SaveAsPDF");
+            }
+        }
+
+        public static void RnDir(this DirectoryInfo di, string folder)
+        {
+            if (di == null)
+            {
+                throw new ArgumentNullException("di", "שם תיקייה לא חוקי");
+            }
+            if (string.IsNullOrEmpty(folder))
+            {
+                throw new ArgumentNullException("שם תקייה לא יכול להיות ריק", "folder");
+            }
+            di.MoveTo(Path.Combine(di.Parent.FullName, folder));
+        }
+        
     }
 
 

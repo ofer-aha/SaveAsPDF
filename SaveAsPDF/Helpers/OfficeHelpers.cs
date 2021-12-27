@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
+using SaveAsPDF.Properties;
 
 namespace SaveAsPDF.Helpers
 {
@@ -32,30 +33,30 @@ namespace SaveAsPDF.Helpers
                     isChecked = true,
                     fileName = attachment.FileName,
                     fileSize = attachment.Size.BytesToString()
-
                 };
-
-
-                output.Add(att);
+                
+                if (attachment.Size > Settings.Default.minAttachmentSize)
+                {
+                    output.Add(att);
+                }
+               
             }
             return output;
         }
         
         public static List<EmployeeModel> DgvEmployessToModel (this DataGridView dgv )
         {
-            EmployeeModel e = new EmployeeModel();
             List<EmployeeModel> output = new List<EmployeeModel>();
-            
-            foreach (DataGridViewRow row  in dgv.Rows)
+
+            foreach (DataGridViewRow row in dgv.Rows)
             {
-                int t = 0;
-                if( int.TryParse(row.Cells[0].ToString(), NumberStyles.Integer, null, out t))
+                EmployeeModel e = new EmployeeModel
                 {
-                    e.Id = t;
-                }
-                e.FirstName = row.Cells[1].ToString();
-                e.LastName = row.Cells[2].ToString();
-                e.EmailAddress = row.Cells[3].ToString();
+                    Id = (int)row.Index,
+                    FirstName = (string)row.Cells[1].Value,
+                    LastName = (string)row.Cells[2].Value,
+                    EmailAddress = (string)row.Cells[3].Value
+                };
                 output.Add(e);
             }
             return output; 

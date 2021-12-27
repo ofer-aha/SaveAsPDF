@@ -34,40 +34,61 @@ namespace SaveAsPDF
             this.btnCancel = new System.Windows.Forms.Button();
             this.txtProjectID = new System.Windows.Forms.TextBox();
             this.lblProjectID = new System.Windows.Forms.Label();
-            this.treeView1 = new System.Windows.Forms.TreeView();
+            this.menuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menueAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuDel = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuRename = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
-            this.btnFolders = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.lblFolder = new System.Windows.Forms.Label();
+            this.lblSubject = new System.Windows.Forms.Label();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnSettings = new System.Windows.Forms.Button();
             this.stsStrip = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.dgvAttachments = new System.Windows.Forms.DataGridView();
+            this.tsslStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblProjectName = new System.Windows.Forms.Label();
             this.txtProjectName = new System.Windows.Forms.TextBox();
-            this.txtFullPath = new System.Windows.Forms.TextBox();
-            this.lblEmployeeName = new System.Windows.Forms.Label();
-            this.chkbSendNote = new System.Windows.Forms.CheckBox();
-            this.rtxtNotes = new System.Windows.Forms.RichTextBox();
-            this.lblNotes = new System.Windows.Forms.Label();
-            this.btnBold = new System.Windows.Forms.Button();
-            this.btnPhoneBook = new System.Windows.Forms.Button();
-            this.lblAttachments = new System.Windows.Forms.Label();
             this.txtSubject = new System.Windows.Forms.TextBox();
-            this.chkbSelectAllAttachments = new System.Windows.Forms.CheckBox();
             this.dlgFont = new System.Windows.Forms.FontDialog();
+            this.dlgFolders = new System.Windows.Forms.FolderBrowserDialog();
+            this.btnNewProject = new System.Windows.Forms.Button();
+            this.tabNotes = new System.Windows.Forms.TabControl();
+            this.tabProjectNote = new System.Windows.Forms.TabPage();
+            this.rtxtProjectNotes = new System.Windows.Forms.RichTextBox();
+            this.btnCopyNotesToMail = new System.Windows.Forms.Button();
+            this.tabMailNotes = new System.Windows.Forms.TabPage();
+            this.btnCopyNotesToProject = new System.Windows.Forms.Button();
+            this.btnStyle = new System.Windows.Forms.Button();
+            this.rtxtNotes = new System.Windows.Forms.RichTextBox();
+            this.groupBoxEmployee = new System.Windows.Forms.GroupBox();
+            this.RemoveEmployee = new System.Windows.Forms.Button();
             this.dgvEmployees = new System.Windows.Forms.DataGridView();
             this.iD = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.firstName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lastName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.emailAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dlgFolders = new System.Windows.Forms.FolderBrowserDialog();
-            this.RemoveEmployee = new System.Windows.Forms.Button();
+            this.btnPhoneBook = new System.Windows.Forms.Button();
+            this.chkbSendNote = new System.Windows.Forms.CheckBox();
+            this.tabFilesFolders = new System.Windows.Forms.TabControl();
+            this.tabFolsers = new System.Windows.Forms.TabPage();
+            this.txtFullPath = new System.Windows.Forms.TextBox();
+            this.btnFolders = new System.Windows.Forms.Button();
+            this.tvFolders = new System.Windows.Forms.TreeView();
+            this.tabAtachments = new System.Windows.Forms.TabPage();
+            this.chkbSelectAllAttachments = new System.Windows.Forms.CheckBox();
+            this.dgvAttachments = new System.Windows.Forms.DataGridView();
+            this.txtSaveLocation = new System.Windows.Forms.TextBox();
+            this.lblSaveLocation = new System.Windows.Forms.Label();
+            this.menuTree.SuspendLayout();
             this.stsStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvAttachments)).BeginInit();
+            this.tabNotes.SuspendLayout();
+            this.tabProjectNote.SuspendLayout();
+            this.tabMailNotes.SuspendLayout();
+            this.groupBoxEmployee.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvEmployees)).BeginInit();
+            this.tabFilesFolders.SuspendLayout();
+            this.tabFolsers.SuspendLayout();
+            this.tabAtachments.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAttachments)).BeginInit();
             this.SuspendLayout();
             // 
             // btnCancel
@@ -83,18 +104,39 @@ namespace SaveAsPDF
             resources.ApplyResources(this.txtProjectID, "txtProjectID");
             this.txtProjectID.Name = "txtProjectID";
             this.txtProjectID.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtProjectID_KeyDown);
+            this.txtProjectID.MouseHover += new System.EventHandler(this.txtProjectID_MouseHover);
             // 
             // lblProjectID
             // 
             resources.ApplyResources(this.lblProjectID, "lblProjectID");
             this.lblProjectID.Name = "lblProjectID";
             // 
-            // treeView1
+            // menuTree
             // 
-            resources.ApplyResources(this.treeView1, "treeView1");
-            this.treeView1.ImageList = this.imageList;
-            this.treeView1.Name = "treeView1";
-            this.treeView1.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeView1_BeforeExpand);
+            this.menuTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menueAdd,
+            this.menuDel,
+            this.menuRename});
+            this.menuTree.Name = "cMenu_Add";
+            resources.ApplyResources(this.menuTree, "menuTree");
+            // 
+            // menueAdd
+            // 
+            this.menueAdd.Name = "menueAdd";
+            resources.ApplyResources(this.menueAdd, "menueAdd");
+            this.menueAdd.Click += new System.EventHandler(this.menueAdd_Click);
+            // 
+            // menuDel
+            // 
+            this.menuDel.Name = "menuDel";
+            resources.ApplyResources(this.menuDel, "menuDel");
+            this.menuDel.Click += new System.EventHandler(this.menuDel_Click);
+            // 
+            // menuRename
+            // 
+            this.menuRename.Name = "menuRename";
+            resources.ApplyResources(this.menuRename, "menuRename");
+            this.menuRename.Click += new System.EventHandler(this.menuRename_Click);
             // 
             // imageList
             // 
@@ -110,22 +152,10 @@ namespace SaveAsPDF
             this.imageList.Images.SetKeyName(7, "MyVideos.png");
             this.imageList.Images.SetKeyName(8, "ProgramFiles.png");
             // 
-            // btnFolders
+            // lblSubject
             // 
-            resources.ApplyResources(this.btnFolders, "btnFolders");
-            this.btnFolders.Name = "btnFolders";
-            this.btnFolders.UseVisualStyleBackColor = true;
-            this.btnFolders.Click += new System.EventHandler(this.btnFolders_Click);
-            // 
-            // label1
-            // 
-            resources.ApplyResources(this.label1, "label1");
-            this.label1.Name = "label1";
-            // 
-            // lblFolder
-            // 
-            resources.ApplyResources(this.lblFolder, "lblFolder");
-            this.lblFolder.Name = "lblFolder";
+            resources.ApplyResources(this.lblSubject, "lblSubject");
+            this.lblSubject.Name = "lblSubject";
             // 
             // btnOK
             // 
@@ -144,26 +174,14 @@ namespace SaveAsPDF
             // stsStrip
             // 
             this.stsStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
+            this.tsslStatus});
             resources.ApplyResources(this.stsStrip, "stsStrip");
             this.stsStrip.Name = "stsStrip";
             // 
-            // toolStripStatusLabel1
+            // tsslStatus
             // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            resources.ApplyResources(this.toolStripStatusLabel1, "toolStripStatusLabel1");
-            // 
-            // dgvAttachments
-            // 
-            this.dgvAttachments.AllowUserToAddRows = false;
-            this.dgvAttachments.AllowUserToDeleteRows = false;
-            this.dgvAttachments.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.dgvAttachments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            resources.ApplyResources(this.dgvAttachments, "dgvAttachments");
-            this.dgvAttachments.Name = "dgvAttachments";
-            this.dgvAttachments.RowHeadersVisible = false;
-            this.dgvAttachments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvAttachments.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvAttachments_CellDoubleClick);
+            this.tsslStatus.Name = "tsslStatus";
+            resources.ApplyResources(this.tsslStatus, "tsslStatus");
             // 
             // lblProjectName
             // 
@@ -175,24 +193,70 @@ namespace SaveAsPDF
             resources.ApplyResources(this.txtProjectName, "txtProjectName");
             this.txtProjectName.Name = "txtProjectName";
             // 
-            // txtFullPath
+            // txtSubject
             // 
-            resources.ApplyResources(this.txtFullPath, "txtFullPath");
-            this.txtFullPath.Name = "txtFullPath";
-            this.txtFullPath.ReadOnly = true;
-            this.txtFullPath.TabStop = false;
+            resources.ApplyResources(this.txtSubject, "txtSubject");
+            this.txtSubject.Name = "txtSubject";
+            this.txtSubject.ReadOnly = true;
+            this.txtSubject.TabStop = false;
             // 
-            // lblEmployeeName
+            // btnNewProject
             // 
-            resources.ApplyResources(this.lblEmployeeName, "lblEmployeeName");
-            this.lblEmployeeName.Name = "lblEmployeeName";
+            resources.ApplyResources(this.btnNewProject, "btnNewProject");
+            this.btnNewProject.Name = "btnNewProject";
+            this.btnNewProject.UseVisualStyleBackColor = true;
+            this.btnNewProject.Click += new System.EventHandler(this.btnNewProject_Click);
             // 
-            // chkbSendNote
+            // tabNotes
             // 
-            resources.ApplyResources(this.chkbSendNote, "chkbSendNote");
-            this.chkbSendNote.Name = "chkbSendNote";
-            this.chkbSendNote.UseVisualStyleBackColor = true;
-            this.chkbSendNote.CheckedChanged += new System.EventHandler(this.chkbSendNote_CheckedChanged);
+            this.tabNotes.Controls.Add(this.tabProjectNote);
+            this.tabNotes.Controls.Add(this.tabMailNotes);
+            resources.ApplyResources(this.tabNotes, "tabNotes");
+            this.tabNotes.Name = "tabNotes";
+            this.tabNotes.SelectedIndex = 0;
+            // 
+            // tabProjectNote
+            // 
+            this.tabProjectNote.Controls.Add(this.rtxtProjectNotes);
+            this.tabProjectNote.Controls.Add(this.btnCopyNotesToMail);
+            resources.ApplyResources(this.tabProjectNote, "tabProjectNote");
+            this.tabProjectNote.Name = "tabProjectNote";
+            this.tabProjectNote.UseVisualStyleBackColor = true;
+            // 
+            // rtxtProjectNotes
+            // 
+            resources.ApplyResources(this.rtxtProjectNotes, "rtxtProjectNotes");
+            this.rtxtProjectNotes.Name = "rtxtProjectNotes";
+            // 
+            // btnCopyNotesToMail
+            // 
+            resources.ApplyResources(this.btnCopyNotesToMail, "btnCopyNotesToMail");
+            this.btnCopyNotesToMail.Name = "btnCopyNotesToMail";
+            this.btnCopyNotesToMail.UseVisualStyleBackColor = true;
+            this.btnCopyNotesToMail.Click += new System.EventHandler(this.btnCopyNotesToMail_Click);
+            // 
+            // tabMailNotes
+            // 
+            this.tabMailNotes.Controls.Add(this.btnCopyNotesToProject);
+            this.tabMailNotes.Controls.Add(this.btnStyle);
+            this.tabMailNotes.Controls.Add(this.rtxtNotes);
+            resources.ApplyResources(this.tabMailNotes, "tabMailNotes");
+            this.tabMailNotes.Name = "tabMailNotes";
+            this.tabMailNotes.UseVisualStyleBackColor = true;
+            // 
+            // btnCopyNotesToProject
+            // 
+            resources.ApplyResources(this.btnCopyNotesToProject, "btnCopyNotesToProject");
+            this.btnCopyNotesToProject.Name = "btnCopyNotesToProject";
+            this.btnCopyNotesToProject.UseVisualStyleBackColor = true;
+            this.btnCopyNotesToProject.Click += new System.EventHandler(this.btnCopyNotesToProject_Click);
+            // 
+            // btnStyle
+            // 
+            resources.ApplyResources(this.btnStyle, "btnStyle");
+            this.btnStyle.Name = "btnStyle";
+            this.btnStyle.UseVisualStyleBackColor = true;
+            this.btnStyle.Click += new System.EventHandler(this.btnStyle_Click);
             // 
             // rtxtNotes
             // 
@@ -200,47 +264,27 @@ namespace SaveAsPDF
             resources.ApplyResources(this.rtxtNotes, "rtxtNotes");
             this.rtxtNotes.Name = "rtxtNotes";
             // 
-            // lblNotes
+            // groupBoxEmployee
             // 
-            resources.ApplyResources(this.lblNotes, "lblNotes");
-            this.lblNotes.Name = "lblNotes";
+            this.groupBoxEmployee.Controls.Add(this.RemoveEmployee);
+            this.groupBoxEmployee.Controls.Add(this.dgvEmployees);
+            this.groupBoxEmployee.Controls.Add(this.btnPhoneBook);
+            this.groupBoxEmployee.Controls.Add(this.chkbSendNote);
+            resources.ApplyResources(this.groupBoxEmployee, "groupBoxEmployee");
+            this.groupBoxEmployee.Name = "groupBoxEmployee";
+            this.groupBoxEmployee.TabStop = false;
             // 
-            // btnBold
+            // RemoveEmployee
             // 
-            resources.ApplyResources(this.btnBold, "btnBold");
-            this.btnBold.Name = "btnBold";
-            this.btnBold.UseVisualStyleBackColor = true;
-            this.btnBold.Click += new System.EventHandler(this.btnStyle_Click);
-            // 
-            // btnPhoneBook
-            // 
-            resources.ApplyResources(this.btnPhoneBook, "btnPhoneBook");
-            this.btnPhoneBook.Name = "btnPhoneBook";
-            this.btnPhoneBook.UseVisualStyleBackColor = true;
-            this.btnPhoneBook.Click += new System.EventHandler(this.btnPhoneBook_Click);
-            // 
-            // lblAttachments
-            // 
-            resources.ApplyResources(this.lblAttachments, "lblAttachments");
-            this.lblAttachments.Name = "lblAttachments";
-            // 
-            // txtSubject
-            // 
-            resources.ApplyResources(this.txtSubject, "txtSubject");
-            this.txtSubject.Name = "txtSubject";
-            // 
-            // chkbSelectAllAttachments
-            // 
-            resources.ApplyResources(this.chkbSelectAllAttachments, "chkbSelectAllAttachments");
-            this.chkbSelectAllAttachments.Name = "chkbSelectAllAttachments";
-            this.chkbSelectAllAttachments.UseVisualStyleBackColor = true;
-            this.chkbSelectAllAttachments.CheckedChanged += new System.EventHandler(this.chkbSelectAllAttachments_CheckedChanged);
+            resources.ApplyResources(this.RemoveEmployee, "RemoveEmployee");
+            this.RemoveEmployee.Name = "RemoveEmployee";
+            this.RemoveEmployee.UseVisualStyleBackColor = true;
+            this.RemoveEmployee.Click += new System.EventHandler(this.RemoveEmployee_Click);
             // 
             // dgvEmployees
             // 
             this.dgvEmployees.AllowUserToAddRows = false;
             this.dgvEmployees.AllowUserToDeleteRows = false;
-            this.dgvEmployees.AllowUserToOrderColumns = true;
             this.dgvEmployees.AllowUserToResizeRows = false;
             this.dgvEmployees.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvEmployees.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
@@ -253,6 +297,7 @@ namespace SaveAsPDF
             this.Column1});
             resources.ApplyResources(this.dgvEmployees, "dgvEmployees");
             this.dgvEmployees.Name = "dgvEmployees";
+            this.dgvEmployees.ReadOnly = true;
             this.dgvEmployees.RowHeadersVisible = false;
             this.dgvEmployees.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             // 
@@ -260,61 +305,138 @@ namespace SaveAsPDF
             // 
             resources.ApplyResources(this.iD, "iD");
             this.iD.Name = "iD";
+            this.iD.ReadOnly = true;
             // 
             // firstName
             // 
             resources.ApplyResources(this.firstName, "firstName");
             this.firstName.Name = "firstName";
+            this.firstName.ReadOnly = true;
             // 
             // lastName
             // 
             resources.ApplyResources(this.lastName, "lastName");
             this.lastName.Name = "lastName";
+            this.lastName.ReadOnly = true;
             // 
             // emailAddress
             // 
             resources.ApplyResources(this.emailAddress, "emailAddress");
             this.emailAddress.Name = "emailAddress";
+            this.emailAddress.ReadOnly = true;
             // 
             // Column1
             // 
             resources.ApplyResources(this.Column1, "Column1");
             this.Column1.Name = "Column1";
+            this.Column1.ReadOnly = true;
             // 
-            // RemoveEmployee
+            // btnPhoneBook
             // 
-            resources.ApplyResources(this.RemoveEmployee, "RemoveEmployee");
-            this.RemoveEmployee.Name = "RemoveEmployee";
-            this.RemoveEmployee.UseVisualStyleBackColor = true;
-            this.RemoveEmployee.Click += new System.EventHandler(this.RemoveEmployee_Click);
+            resources.ApplyResources(this.btnPhoneBook, "btnPhoneBook");
+            this.btnPhoneBook.Name = "btnPhoneBook";
+            this.btnPhoneBook.UseVisualStyleBackColor = true;
+            this.btnPhoneBook.Click += new System.EventHandler(this.btnPhoneBook_Click);
+            // 
+            // chkbSendNote
+            // 
+            resources.ApplyResources(this.chkbSendNote, "chkbSendNote");
+            this.chkbSendNote.Name = "chkbSendNote";
+            this.chkbSendNote.UseVisualStyleBackColor = true;
+            this.chkbSendNote.CheckedChanged += new System.EventHandler(this.chkbSendNote_CheckedChanged);
+            // 
+            // tabFilesFolders
+            // 
+            this.tabFilesFolders.Controls.Add(this.tabFolsers);
+            this.tabFilesFolders.Controls.Add(this.tabAtachments);
+            resources.ApplyResources(this.tabFilesFolders, "tabFilesFolders");
+            this.tabFilesFolders.Name = "tabFilesFolders";
+            this.tabFilesFolders.SelectedIndex = 0;
+            // 
+            // tabFolsers
+            // 
+            this.tabFolsers.Controls.Add(this.txtFullPath);
+            this.tabFolsers.Controls.Add(this.btnFolders);
+            this.tabFolsers.Controls.Add(this.tvFolders);
+            resources.ApplyResources(this.tabFolsers, "tabFolsers");
+            this.tabFolsers.Name = "tabFolsers";
+            this.tabFolsers.UseVisualStyleBackColor = true;
+            // 
+            // txtFullPath
+            // 
+            resources.ApplyResources(this.txtFullPath, "txtFullPath");
+            this.txtFullPath.Name = "txtFullPath";
+            this.txtFullPath.ReadOnly = true;
+            this.txtFullPath.TabStop = false;
+            // 
+            // btnFolders
+            // 
+            resources.ApplyResources(this.btnFolders, "btnFolders");
+            this.btnFolders.Name = "btnFolders";
+            this.btnFolders.UseVisualStyleBackColor = true;
+            // 
+            // tvFolders
+            // 
+            this.tvFolders.ContextMenuStrip = this.menuTree;
+            resources.ApplyResources(this.tvFolders, "tvFolders");
+            this.tvFolders.ImageList = this.imageList;
+            this.tvFolders.Name = "tvFolders";
+            this.tvFolders.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvFolders_AfterSelect);
+            // 
+            // tabAtachments
+            // 
+            this.tabAtachments.Controls.Add(this.chkbSelectAllAttachments);
+            this.tabAtachments.Controls.Add(this.dgvAttachments);
+            resources.ApplyResources(this.tabAtachments, "tabAtachments");
+            this.tabAtachments.Name = "tabAtachments";
+            this.tabAtachments.UseVisualStyleBackColor = true;
+            // 
+            // chkbSelectAllAttachments
+            // 
+            resources.ApplyResources(this.chkbSelectAllAttachments, "chkbSelectAllAttachments");
+            this.chkbSelectAllAttachments.Name = "chkbSelectAllAttachments";
+            this.chkbSelectAllAttachments.UseVisualStyleBackColor = true;
+            // 
+            // dgvAttachments
+            // 
+            this.dgvAttachments.AllowUserToAddRows = false;
+            this.dgvAttachments.AllowUserToDeleteRows = false;
+            this.dgvAttachments.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgvAttachments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            resources.ApplyResources(this.dgvAttachments, "dgvAttachments");
+            this.dgvAttachments.Name = "dgvAttachments";
+            this.dgvAttachments.RowHeadersVisible = false;
+            this.dgvAttachments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            // 
+            // txtSaveLocation
+            // 
+            resources.ApplyResources(this.txtSaveLocation, "txtSaveLocation");
+            this.txtSaveLocation.Name = "txtSaveLocation";
+            this.txtSaveLocation.ReadOnly = true;
+            // 
+            // lblSaveLocation
+            // 
+            resources.ApplyResources(this.lblSaveLocation, "lblSaveLocation");
+            this.lblSaveLocation.Name = "lblSaveLocation";
             // 
             // frmMain
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.Controls.Add(this.RemoveEmployee);
-            this.Controls.Add(this.dgvEmployees);
-            this.Controls.Add(this.chkbSelectAllAttachments);
+            this.Controls.Add(this.lblSaveLocation);
+            this.Controls.Add(this.txtSaveLocation);
+            this.Controls.Add(this.tabFilesFolders);
+            this.Controls.Add(this.groupBoxEmployee);
+            this.Controls.Add(this.tabNotes);
+            this.Controls.Add(this.btnNewProject);
             this.Controls.Add(this.txtSubject);
-            this.Controls.Add(this.lblAttachments);
-            this.Controls.Add(this.btnPhoneBook);
-            this.Controls.Add(this.btnBold);
-            this.Controls.Add(this.lblNotes);
-            this.Controls.Add(this.rtxtNotes);
-            this.Controls.Add(this.chkbSendNote);
-            this.Controls.Add(this.lblEmployeeName);
-            this.Controls.Add(this.txtFullPath);
             this.Controls.Add(this.lblProjectName);
             this.Controls.Add(this.txtProjectName);
-            this.Controls.Add(this.dgvAttachments);
             this.Controls.Add(this.stsStrip);
             this.Controls.Add(this.btnSettings);
             this.Controls.Add(this.btnOK);
-            this.Controls.Add(this.lblFolder);
-            this.Controls.Add(this.btnFolders);
-            this.Controls.Add(this.treeView1);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.lblSubject);
             this.Controls.Add(this.lblProjectID);
             this.Controls.Add(this.txtProjectID);
             this.Controls.Add(this.btnCancel);
@@ -322,10 +444,21 @@ namespace SaveAsPDF
             this.MaximizeBox = false;
             this.Name = "frmMain";
             this.Load += new System.EventHandler(this.frmMain_Load);
+            this.menuTree.ResumeLayout(false);
             this.stsStrip.ResumeLayout(false);
             this.stsStrip.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvAttachments)).EndInit();
+            this.tabNotes.ResumeLayout(false);
+            this.tabProjectNote.ResumeLayout(false);
+            this.tabMailNotes.ResumeLayout(false);
+            this.groupBoxEmployee.ResumeLayout(false);
+            this.groupBoxEmployee.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvEmployees)).EndInit();
+            this.tabFilesFolders.ResumeLayout(false);
+            this.tabFolsers.ResumeLayout(false);
+            this.tabFolsers.PerformLayout();
+            this.tabAtachments.ResumeLayout(false);
+            this.tabAtachments.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAttachments)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -335,36 +468,49 @@ namespace SaveAsPDF
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.TextBox txtProjectID;
         private System.Windows.Forms.Label lblProjectID;
-        private System.Windows.Forms.TreeView treeView1;
-        private System.Windows.Forms.Button btnFolders;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label lblFolder;
+        private System.Windows.Forms.Label lblSubject;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnSettings;
         private System.Windows.Forms.StatusStrip stsStrip;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.DataGridView dgvAttachments;
         private System.Windows.Forms.Label lblProjectName;
         private System.Windows.Forms.TextBox txtProjectName;
-        private System.Windows.Forms.TextBox txtFullPath;
-        private System.Windows.Forms.Label lblEmployeeName;
-        private System.Windows.Forms.CheckBox chkbSendNote;
-        private System.Windows.Forms.RichTextBox rtxtNotes;
-        private System.Windows.Forms.Label lblNotes;
-        private System.Windows.Forms.Button btnBold;
-        private System.Windows.Forms.Button btnPhoneBook;
-        private System.Windows.Forms.Label lblAttachments;
         private System.Windows.Forms.TextBox txtSubject;
-        private System.Windows.Forms.CheckBox chkbSelectAllAttachments;
         private System.Windows.Forms.FontDialog dlgFont;
+        private System.Windows.Forms.FolderBrowserDialog dlgFolders;
+        private System.Windows.Forms.ImageList imageList;
+        private System.Windows.Forms.Button btnNewProject;
+        private System.Windows.Forms.ContextMenuStrip menuTree;
+        private System.Windows.Forms.ToolStripMenuItem menueAdd;
+        private System.Windows.Forms.ToolStripMenuItem menuDel;
+        private System.Windows.Forms.ToolStripMenuItem menuRename;
+        private System.Windows.Forms.ToolStripStatusLabel tsslStatus;
+        private System.Windows.Forms.TabControl tabNotes;
+        private System.Windows.Forms.TabPage tabProjectNote;
+        private System.Windows.Forms.TabPage tabMailNotes;
+        private System.Windows.Forms.Button btnCopyNotesToMail;
+        private System.Windows.Forms.Button btnCopyNotesToProject;
+        private System.Windows.Forms.Button btnStyle;
+        private System.Windows.Forms.RichTextBox rtxtNotes;
+        private System.Windows.Forms.RichTextBox rtxtProjectNotes;
+        private System.Windows.Forms.GroupBox groupBoxEmployee;
+        private System.Windows.Forms.Button RemoveEmployee;
         private System.Windows.Forms.DataGridView dgvEmployees;
         private System.Windows.Forms.DataGridViewTextBoxColumn iD;
         private System.Windows.Forms.DataGridViewTextBoxColumn firstName;
         private System.Windows.Forms.DataGridViewTextBoxColumn lastName;
         private System.Windows.Forms.DataGridViewTextBoxColumn emailAddress;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
-        private System.Windows.Forms.FolderBrowserDialog dlgFolders;
-        private System.Windows.Forms.ImageList imageList;
-        private System.Windows.Forms.Button RemoveEmployee;
+        private System.Windows.Forms.Button btnPhoneBook;
+        private System.Windows.Forms.CheckBox chkbSendNote;
+        private System.Windows.Forms.TabControl tabFilesFolders;
+        private System.Windows.Forms.TabPage tabFolsers;
+        private System.Windows.Forms.TextBox txtFullPath;
+        private System.Windows.Forms.Button btnFolders;
+        private System.Windows.Forms.TreeView tvFolders;
+        private System.Windows.Forms.TabPage tabAtachments;
+        private System.Windows.Forms.CheckBox chkbSelectAllAttachments;
+        private System.Windows.Forms.DataGridView dgvAttachments;
+        private System.Windows.Forms.TextBox txtSaveLocation;
+        private System.Windows.Forms.Label lblSaveLocation;
     }
 }

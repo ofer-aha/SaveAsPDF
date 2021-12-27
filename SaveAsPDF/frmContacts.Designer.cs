@@ -31,10 +31,12 @@ namespace SaveAsPDF
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmContacts));
             this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.lblLoading = new System.Windows.Forms.Label();
             this.dgvContacs = new System.Windows.Forms.DataGridView();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.txtFilter = new System.Windows.Forms.TextBox();
             this.btnOK = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -51,18 +53,31 @@ namespace SaveAsPDF
             // 
             // splitContainer.Panel1
             // 
+            this.splitContainer.Panel1.Controls.Add(this.lblLoading);
             this.splitContainer.Panel1.Controls.Add(this.dgvContacs);
             this.splitContainer.Panel1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             // 
             // splitContainer.Panel2
             // 
+            this.splitContainer.Panel2.Controls.Add(this.label2);
             this.splitContainer.Panel2.Controls.Add(this.label1);
             this.splitContainer.Panel2.Controls.Add(this.txtFilter);
             this.splitContainer.Panel2.Controls.Add(this.btnOK);
             this.splitContainer.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.splitContainer.Size = new System.Drawing.Size(428, 340);
-            this.splitContainer.SplitterDistance = 282;
+            this.splitContainer.Size = new System.Drawing.Size(434, 378);
+            this.splitContainer.SplitterDistance = 313;
             this.splitContainer.TabIndex = 0;
+            // 
+            // lblLoading
+            // 
+            this.lblLoading.AutoSize = true;
+            this.lblLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLoading.Location = new System.Drawing.Point(138, 130);
+            this.lblLoading.Name = "lblLoading";
+            this.lblLoading.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.lblLoading.Size = new System.Drawing.Size(109, 22);
+            this.lblLoading.TabIndex = 1;
+            this.lblLoading.Text = "Loading.......";
             // 
             // dgvContacs
             // 
@@ -78,14 +93,34 @@ namespace SaveAsPDF
             this.dgvContacs.Name = "dgvContacs";
             this.dgvContacs.RowHeadersVisible = false;
             this.dgvContacs.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvContacs.Size = new System.Drawing.Size(428, 282);
+            this.dgvContacs.Size = new System.Drawing.Size(434, 313);
             this.dgvContacs.TabIndex = 0;
             this.dgvContacs.DoubleClick += new System.EventHandler(this.dgvContacs_DoubleClick);
             // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(121, 4);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(301, 13);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "שם לב: אנשי קשר ללא כתובת אי מייל לא יופיעו ברישמה";
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(195, 26);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(40, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "חיפוש";
+            // 
             // txtFilter
             // 
-            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtFilter.Location = new System.Drawing.Point(12, 20);
+            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.txtFilter.Location = new System.Drawing.Point(13, 22);
             this.txtFilter.Name = "txtFilter";
             this.txtFilter.Size = new System.Drawing.Size(176, 20);
             this.txtFilter.TabIndex = 1;
@@ -94,7 +129,7 @@ namespace SaveAsPDF
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(322, 18);
+            this.btnOK.Location = new System.Drawing.Point(328, 20);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(94, 24);
             this.btnOK.TabIndex = 0;
@@ -102,27 +137,21 @@ namespace SaveAsPDF
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(195, 24);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(40, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "חיפוש";
-            // 
             // frmContacts
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(428, 340);
+            this.ClientSize = new System.Drawing.Size(434, 378);
             this.Controls.Add(this.splitContainer);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "frmContacts";
             this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "בחר אנשי קשר";
+            this.Activated += new System.EventHandler(this.frmContacts_Activated);
             this.Load += new System.EventHandler(this.frmContacts_Load);
             this.splitContainer.Panel1.ResumeLayout(false);
+            this.splitContainer.Panel1.PerformLayout();
             this.splitContainer.Panel2.ResumeLayout(false);
             this.splitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
@@ -139,5 +168,7 @@ namespace SaveAsPDF
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.TextBox txtFilter;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblLoading;
     }
 }

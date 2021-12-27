@@ -29,31 +29,37 @@ namespace SaveAsPDF
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmNewProject));
             this.txtProjectName = new System.Windows.Forms.TextBox();
             this.lblProjectName = new System.Windows.Forms.Label();
             this.lblProjectID = new System.Windows.Forms.Label();
             this.txtProjectId = new System.Windows.Forms.TextBox();
-            this.dgvDefaultSubFolders = new System.Windows.Forms.DataGridView();
             this.tvDefaultSubFolders = new System.Windows.Forms.TreeView();
+            this.menuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menueAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuDel = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuRename = new System.Windows.Forms.ToolStripMenuItem();
             this.btmNewProject = new System.Windows.Forms.Button();
-            this.btnAddNode = new System.Windows.Forms.Button();
-            this.txtNode = new System.Windows.Forms.TextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvDefaultSubFolders)).BeginInit();
+            this.imageList = new System.Windows.Forms.ImageList(this.components);
+            this.txtProjectNotes = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lblDefaultFoldersTree = new System.Windows.Forms.Label();
+            this.btnCancel = new System.Windows.Forms.Button();
+            this.menuTree.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtProjectName
             // 
-            this.txtProjectName.Location = new System.Drawing.Point(391, 74);
+            this.txtProjectName.Location = new System.Drawing.Point(116, 81);
             this.txtProjectName.Name = "txtProjectName";
             this.txtProjectName.Size = new System.Drawing.Size(241, 20);
-            this.txtProjectName.TabIndex = 0;
-            this.txtProjectName.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.txtProjectName.TabIndex = 1;
             // 
             // lblProjectName
             // 
             this.lblProjectName.AutoSize = true;
-            this.lblProjectName.Location = new System.Drawing.Point(664, 74);
+            this.lblProjectName.Location = new System.Drawing.Point(44, 81);
             this.lblProjectName.Name = "lblProjectName";
             this.lblProjectName.Size = new System.Drawing.Size(66, 13);
             this.lblProjectName.TabIndex = 1;
@@ -63,7 +69,7 @@ namespace SaveAsPDF
             // lblProjectID
             // 
             this.lblProjectID.AutoSize = true;
-            this.lblProjectID.Location = new System.Drawing.Point(653, 45);
+            this.lblProjectID.Location = new System.Drawing.Point(33, 46);
             this.lblProjectID.Name = "lblProjectID";
             this.lblProjectID.Size = new System.Drawing.Size(77, 13);
             this.lblProjectID.TabIndex = 2;
@@ -72,74 +78,133 @@ namespace SaveAsPDF
             // 
             // txtProjectId
             // 
-            this.txtProjectId.Location = new System.Drawing.Point(391, 38);
+            this.txtProjectId.Location = new System.Drawing.Point(116, 46);
             this.txtProjectId.Name = "txtProjectId";
             this.txtProjectId.Size = new System.Drawing.Size(241, 20);
-            this.txtProjectId.TabIndex = 3;
-            this.txtProjectId.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // dgvDefaultSubFolders
-            // 
-            this.dgvDefaultSubFolders.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvDefaultSubFolders.Location = new System.Drawing.Point(391, 136);
-            this.dgvDefaultSubFolders.Name = "dgvDefaultSubFolders";
-            this.dgvDefaultSubFolders.Size = new System.Drawing.Size(241, 150);
-            this.dgvDefaultSubFolders.TabIndex = 4;
+            this.txtProjectId.TabIndex = 0;
             // 
             // tvDefaultSubFolders
             // 
-            this.tvDefaultSubFolders.Location = new System.Drawing.Point(70, 136);
+            this.tvDefaultSubFolders.ContextMenuStrip = this.menuTree;
+            this.tvDefaultSubFolders.Location = new System.Drawing.Point(507, 46);
             this.tvDefaultSubFolders.Name = "tvDefaultSubFolders";
-            this.tvDefaultSubFolders.Size = new System.Drawing.Size(224, 150);
+            this.tvDefaultSubFolders.Size = new System.Drawing.Size(224, 185);
             this.tvDefaultSubFolders.TabIndex = 5;
+            // 
+            // menuTree
+            // 
+            this.menuTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menueAdd,
+            this.menuDel,
+            this.menuRename});
+            this.menuTree.Name = "cMenu_Add";
+            this.menuTree.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.menuTree.Size = new System.Drawing.Size(138, 70);
+            // 
+            // menueAdd
+            // 
+            this.menueAdd.Name = "menueAdd";
+            this.menueAdd.Size = new System.Drawing.Size(137, 22);
+            this.menueAdd.Text = "הוסף תיקייה";
+            // 
+            // menuDel
+            // 
+            this.menuDel.Name = "menuDel";
+            this.menuDel.Size = new System.Drawing.Size(137, 22);
+            this.menuDel.Text = "מחק תיקייה";
+            // 
+            // menuRename
+            // 
+            this.menuRename.Name = "menuRename";
+            this.menuRename.Size = new System.Drawing.Size(137, 22);
+            this.menuRename.Text = "שנה שם";
             // 
             // btmNewProject
             // 
-            this.btmNewProject.Location = new System.Drawing.Point(296, 367);
+            this.btmNewProject.Location = new System.Drawing.Point(261, 329);
             this.btmNewProject.Name = "btmNewProject";
             this.btmNewProject.Size = new System.Drawing.Size(126, 23);
-            this.btmNewProject.TabIndex = 6;
-            this.btmNewProject.Text = "צור פרויקט חדש";
+            this.btmNewProject.TabIndex = 3;
+            this.btmNewProject.Text = "&צור פרויקט חדש";
             this.btmNewProject.UseVisualStyleBackColor = true;
             this.btmNewProject.Click += new System.EventHandler(this.btmNewProject_Click);
             // 
-            // btnAddNode
+            // imageList
             // 
-            this.btnAddNode.Location = new System.Drawing.Point(70, 293);
-            this.btnAddNode.Name = "btnAddNode";
-            this.btnAddNode.Size = new System.Drawing.Size(75, 23);
-            this.btnAddNode.TabIndex = 7;
-            this.btnAddNode.Text = "node";
-            this.btnAddNode.UseVisualStyleBackColor = true;
-            this.btnAddNode.Click += new System.EventHandler(this.btnAddNode_Click);
+            this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
+            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList.Images.SetKeyName(0, "Saki-NuoveXT-2-Folder-open.ico");
+            this.imageList.Images.SetKeyName(1, "FolderClosed.png");
+            this.imageList.Images.SetKeyName(2, "FolderOpen.png");
+            this.imageList.Images.SetKeyName(3, "HardDisk.ico");
+            this.imageList.Images.SetKeyName(4, "Desktop.png");
+            this.imageList.Images.SetKeyName(5, "MyDocuments.png");
+            this.imageList.Images.SetKeyName(6, "MyPictures.png");
+            this.imageList.Images.SetKeyName(7, "MyVideos.png");
+            this.imageList.Images.SetKeyName(8, "ProgramFiles.png");
             // 
-            // txtNode
+            // txtProjectNotes
             // 
-            this.txtNode.Location = new System.Drawing.Point(70, 110);
-            this.txtNode.Name = "txtNode";
-            this.txtNode.Size = new System.Drawing.Size(224, 20);
-            this.txtNode.TabIndex = 8;
-            this.txtNode.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.txtProjectNotes.Location = new System.Drawing.Point(116, 116);
+            this.txtProjectNotes.Multiline = true;
+            this.txtProjectNotes.Name = "txtProjectNotes";
+            this.txtProjectNotes.Size = new System.Drawing.Size(241, 115);
+            this.txtProjectNotes.TabIndex = 2;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(21, 116);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(89, 13);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "הערות לפרויקט:";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lblDefaultFoldersTree
+            // 
+            this.lblDefaultFoldersTree.AutoSize = true;
+            this.lblDefaultFoldersTree.Location = new System.Drawing.Point(424, 46);
+            this.lblDefaultFoldersTree.Name = "lblDefaultFoldersTree";
+            this.lblDefaultFoldersTree.Size = new System.Drawing.Size(82, 13);
+            this.lblDefaultFoldersTree.TabIndex = 11;
+            this.lblDefaultFoldersTree.Text = "מבנה התיקיות:";
+            this.lblDefaultFoldersTree.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Location = new System.Drawing.Point(402, 329);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(126, 23);
+            this.btnCancel.TabIndex = 4;
+            this.btnCancel.Text = "&ביטול";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // frmNewProject
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.txtNode);
-            this.Controls.Add(this.btnAddNode);
+            this.ClientSize = new System.Drawing.Size(743, 364);
+            this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.lblDefaultFoldersTree);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.txtProjectNotes);
             this.Controls.Add(this.btmNewProject);
             this.Controls.Add(this.tvDefaultSubFolders);
-            this.Controls.Add(this.dgvDefaultSubFolders);
             this.Controls.Add(this.txtProjectId);
             this.Controls.Add(this.lblProjectID);
             this.Controls.Add(this.lblProjectName);
             this.Controls.Add(this.txtProjectName);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "frmNewProject";
             this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.RightToLeftLayout = true;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "פרויקט חדש";
-            ((System.ComponentModel.ISupportInitialize)(this.dgvDefaultSubFolders)).EndInit();
+            this.menuTree.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -151,10 +216,16 @@ namespace SaveAsPDF
         private System.Windows.Forms.Label lblProjectName;
         private System.Windows.Forms.Label lblProjectID;
         private System.Windows.Forms.TextBox txtProjectId;
-        private System.Windows.Forms.DataGridView dgvDefaultSubFolders;
         private System.Windows.Forms.TreeView tvDefaultSubFolders;
         private System.Windows.Forms.Button btmNewProject;
-        private System.Windows.Forms.Button btnAddNode;
-        private System.Windows.Forms.TextBox txtNode;
+        private System.Windows.Forms.ImageList imageList;
+        private System.Windows.Forms.ContextMenuStrip menuTree;
+        private System.Windows.Forms.ToolStripMenuItem menueAdd;
+        private System.Windows.Forms.ToolStripMenuItem menuDel;
+        private System.Windows.Forms.ToolStripMenuItem menuRename;
+        private System.Windows.Forms.TextBox txtProjectNotes;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblDefaultFoldersTree;
+        private System.Windows.Forms.Button btnCancel;
     }
 }

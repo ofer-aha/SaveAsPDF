@@ -17,10 +17,13 @@ using Font = Microsoft.Office.Interop.Word.Font;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using word = Microsoft.Office.Interop.Word;
 using System.Configuration;
+using Exception = System.Exception;
+using SaveAsPDF.Properties;
 
 namespace SaveAsPDF
 {
-    public partial class frmMain : Form, IEmployeeRequester
+    
+    public partial class frmMain : Form, IEmployeeRequester, INewProjectRequester
     {
         private List<EmployeeModel> employees = new List<EmployeeModel>();
         private ProjectModel project = new ProjectModel();
@@ -31,11 +34,14 @@ namespace SaveAsPDF
         private string xmlProjectFile;
         private string xmlEmploeeysFile;
 
+        private bool dataLoaded = false;
+
+        private TreeNode mySelectedNode;
         public frmMain()
         {
             InitializeComponent();
 
-           
+
             dgvEmployees.Columns[0].Visible = false;
             dgvEmployees.Columns[1].HeaderText = "שם פרטי";
             dgvEmployees.Columns[2].HeaderText = "שם מפשחה";
@@ -49,6 +55,7 @@ namespace SaveAsPDF
             MailItem mi = null;
             MailItem mailItem = ThisAddIn.TypeOfMailitem(mi);
 
+            
 
             if (mailItem is MailItem)
             {
@@ -56,7 +63,7 @@ namespace SaveAsPDF
                 chkbSelectAllAttachments.Text = "הסר הכל";
                 txtSubject.Text = mailItem.Subject;
                 txtSubject.ReadOnly = true;
-                txtSubject.TextAlign = HorizontalAlignment.Right;
+                //txtSubject.TextAlign = HorizontalAlignment.Right;
 
                 //load the list from model
                 dgvAttachments.DataSource = mailItem.AttachmetsToModel();
@@ -70,8 +77,8 @@ namespace SaveAsPDF
             }
             else
             {
-                MessageBox.Show("Not a Mail Item");
-                this.Close();
+                MessageBox.Show("יש לבחור הודעות דואר אלקטרוני בלבד", "SaveAsPDF");
+                Close();
             }
             //string tmpFoder = @System.IO.Path.GetTempPath();
 
@@ -110,7 +117,7 @@ namespace SaveAsPDF
                 if (di.IsReady == true)
                     node.Nodes.Add("...");
 
-                treeView1.Nodes.Add(node);
+                tvFolders.Nodes.Add(node);
             }
         }
 
@@ -122,13 +129,13 @@ namespace SaveAsPDF
         }
         private void btnFolders_Click(object sender, EventArgs e)
         {
-            
+
 
             var Dialog = new FolderPicker();
 
             if (!Directory.Exists(sPath))
             {
-                Dialog.InputPath = GlobalConfig.rootDrive;
+                Dialog.InputPath = Settings.Default.rootDrive;
             }
             else
             {
@@ -137,120 +144,165 @@ namespace SaveAsPDF
 
             if (Dialog.ShowDialog(Handle) == true)
             {
-                
-                treeView1.Nodes.Clear();
-                treeView1.Nodes.Add(TreeHelper.TraverseDirectory(Dialog.ResultPath));
+
+                tvFolders.Nodes.Clear();
+                tvFolders.Nodes.Add(TreeHelper.TraverseDirectory(Dialog.ResultPath));
             }
         }
         private void txtProjectID_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                // construct the full path for evrithig
-                sPath = txtProjectID.Text.Trim().ProjectFullPath();
-                xmlSaveAsPdfFolder = $"{sPath}{GlobalConfig.xmlSaveAsPdfFolder}";
-                xmlProjectFile = $"{xmlSaveAsPdfFolder}{GlobalConfig.xmlProjectFile}";
-                xmlEmploeeysFile = $"{xmlSaveAsPdfFolder}{GlobalConfig.xmlEmploeeysFile}";
+                ClearForm();
+                
+                LoadXmls();
+                btnOK.Focus();
+                dataLoaded = true;    
 
+            }
+        }
+        /// <summary>
+        /// Load the XML files for this project to the modules
+        /// </summary>
+        private void LoadXmls()
+        {
+            
+            // construct the full path for evrithig
+            sPath = txtProjectID.Text.Trim().ProjectFullPath();
+            xmlSaveAsPdfFolder = $"{sPath}{Settings.Default.xmlSaveAsPdfFolder}";
+            xmlProjectFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlProjectFile}";
+            xmlEmploeeysFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlEmploeeysFile}";
 
+            if (Directory.Exists(sPath))
+            {
+                //Create .SaveAsPDF
+                FileFoldersHelper.CreateHiddenFolder(sPath);
 
-                //if project's folder don't exist - create it 
-                //same for SaveAsPDF's default hidden subfolser 
-                if (!Directory.Exists(xmlSaveAsPdfFolder))
-                {
-                    if (!Directory.Exists(sPath))
-                    {
-                        Directory.CreateDirectory(sPath);
-                    }
-                    FileFoldersHelper.CreateHiddenFolder(xmlSaveAsPdfFolder);
-                }
-                //load the XML file to project model
                 if (File.Exists(xmlProjectFile))
                 {
-                    project = xmlProjectFile.XmlProjectFileToModel();
-                    txtProjectName.Text = project.ProjectName;
-                    chkbSendNote.Checked = project.NoteEmployee;
+                //load the XML file to project model
+                project = xmlProjectFile.XmlProjectFileToModel();
+                    
+                    if (project != null)
+                    {
+                        txtProjectName.Text =  project.ProjectName;
+                        chkbSendNote.Checked = project.NoteEmployee;
+                        rtxtProjectNotes.Text = project.ProjectNotes;
+                    }
                 }
-                else
-                {
-                    project.ProjectNumber = txtProjectID.Text.Trim();
-                    //TODO: form new project with default folders creation
-
-                }
-
                 dgvEmployees.Rows.Clear();
                 //load the XML file to Emploeeys listbox
                 if (File.Exists(xmlEmploeeysFile))
                 {
                     employees = xmlEmploeeysFile.XmlEmloyeesFileToModel();
-                    
-                    foreach (EmployeeModel em in employees)
+                    if (employees != null)
                     {
-                        dgvEmployees.Rows.Add(em.Id, em.FirstName, em.LastName, em.EmailAddress);
+                        foreach (EmployeeModel em in employees)
+                        {
+                            dgvEmployees.Rows.Add(em.Id, em.FirstName, em.LastName, em.EmailAddress);
+                        }
                     }
                 }
-                
-                
-                txtFullPath.Text = sPath;
-                treeView1.Nodes.Clear();
-                DirectoryInfo d = new DirectoryInfo(sPath);
-                //treeView1.Nodes.Add(TreeHelper.TraverseDirectory(sPath));
-                //treeView1.Nodes.AddRange(TreeHelper.getFolderNodes(sPath, true).ToArray());
-                treeView1.Nodes.Add(TreeHelper.CreateDirectoryNode(d));
+            }
+
+            txtFullPath.Text = sPath;
+            tvFolders.Nodes.Clear();
+            DirectoryInfo d = new DirectoryInfo(sPath);
+            tvFolders.Nodes.Add(TreeHelper.CreateDirectoryNode(d));
+        }
+
+        private void ClearForm()
+        {
+            foreach (var c in this.Controls)
+            {
+                if (c is TextBox)
+                {
+                    if (((TextBox)c).Name != "txtProjectID")
+                    {
+                        ((TextBox)c).Clear();
+                    }
+                    
+                }
+                rtxtNotes.Clear();
+                rtxtProjectNotes.Clear();
+
 
             }
         }
-
         private void btnOK_Click(object sender, EventArgs e)
         {
-
-            //TODO: before doing ANYTHING make sure there is a project number to begin with
-
-            #region MailItem
-
-            MailItem mi = null;
-            MailItem mailItem = ThisAddIn.TypeOfMailitem(mi);
-
-            #endregion
-
-            #region Populate Models
-
-            //build project modele
-            if (txtProjectName.Text != "")
+            if (ValidateForm())
             {
+                if (dataLoaded == false)
+                {
+                    LoadXmls(); 
+                }
+
+                #region MailItem
+
+                MailItem mi = null;
+                MailItem mailItem = ThisAddIn.TypeOfMailitem(mi);
+
+                #endregion
+
+                #region Populate Models
+
+                //build project modele
+                
                 project.ProjectName = txtProjectName.Text;
                 project.ProjectNumber = txtProjectID.Text;
                 project.NoteEmployee = chkbSendNote.Checked;
+                project.ProjectNotes = rtxtProjectNotes.Text;
+                
+                //build the Employees model
+                //List<EmployeeModel> employees = new List<EmployeeModel>();
+                employees = dgvEmployees.DgvEmployessToModel();
+                #endregion
+
+                #region Creat XML files for the models
+
+                //create the SaveAsPDF hidden folder
+                FileFoldersHelper.CreateHiddenFolder(xmlSaveAsPdfFolder);
+
+                //create project XML file
+                XmlFileHelper.ProjectModelToXmlFile(project, xmlProjectFile);
+
+                //create the employees XML file from List<EmployeeModel> 
+                XmlFileHelper.EmployeesModelToXmlFile(employees, xmlEmploeeysFile);
+                #endregion
+
+
+                //TODO: inject more data to the file befor converting to PDF
+
+                //save the mailItem to the current working directory. 
+                //OfficeHelpers.SaveToPDF(mailItem, lblFolder.Text); 
+
+                //TODO: what about attuchment saveing? 
+
+            }
+            Close();
+        }
+        /// <summary>
+        /// making sure nothing is missing before closeing the form
+        /// and creating the PDF file
+        /// </summary>
+        /// <returns>False if validation fails</returns>
+        private bool ValidateForm()
+        {
+            bool output = true;
+            
+            if (string.IsNullOrEmpty(txtProjectID.Text))
+            {
+                output = false;
             }
 
+            if (string.IsNullOrEmpty(txtProjectName.Text))
+            {
+                output = false;
+            }
 
-            //build the Employees model
-            //List<EmployeeModel> employees = new List<EmployeeModel>();
-            employees = dgvEmployees.DgvEmployessToModel();
-            #endregion
-
-            #region Creat XML files for the models
-                        
-            //create the SaveAsPDF hidden folder
-            FileFoldersHelper.CreateHiddenFolder(xmlSaveAsPdfFolder);
-
-            //create project XML file
-            XmlFileHelper.ProjectModelToXmlFile(project, xmlProjectFile);
-
-            //create the employees XML file from List<EmployeeModel> 
-            XmlFileHelper.EmployeesModelToXmlFile(employees, xmlEmploeeysFile);
-            #endregion
-
-
-            //TODO: inject more data to the file befor converting to PDF
-
-            //save the mailItem to the current working directory. 
-            //OfficeHelpers.SaveToPDF(mailItem, lblFolder.Text); 
-
-            //TODO: what about attuchment saveing? 
-
+            return output;
         }
-
 
         private void BtnSettings_Click(object sender, EventArgs e)
         {
@@ -260,7 +312,8 @@ namespace SaveAsPDF
 
         private void dgvAttachments_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            //TODO: make somthing meaningfull
+            //TODO: save attachment to temp folder 
+            //TODO: exec. the file using default file asociating 
             MessageBox.Show(dgvAttachments.CurrentCell.Value.ToString());
         }
 
@@ -282,12 +335,16 @@ namespace SaveAsPDF
 
         private void chkbSendNote_CheckedChanged(object sender, EventArgs e)
         {
-            SendEmailToEmployee("somthing");
+            foreach (EmployeeModel employee in employees)
+            {
+                SendEmailToEmployee(employee.EmailAddress);
+            }
+            
         }
 
         private void SendEmailToEmployee(string text)
         {
-           //TODO: send email
+            //TODO: send email
             MessageBox.Show($"Send email to {text}");
         }
 
@@ -315,15 +372,29 @@ namespace SaveAsPDF
 
         public void EmployeeComplete(EmployeeModel model)
         {
-            employees.Add(model);
+            bool found = false;
+            
+            foreach (DataGridViewRow row  in dgvEmployees.Rows)
+            {
+               if (row.Cells[3].Value.ToString() == model.EmailAddress)
+               {
+                    found = true;
+               }
+            }
 
-            dgvEmployees.Rows.Add(model.Id.ToString(),
-                                    model.FirstName,
-                                    model.LastName,
-                                    model.EmailAddress);
+            if (!found)
+            {
+                //add new emplyee to the list 
+                employees.Add(model);
+                dgvEmployees.Rows.Add(model.Id.ToString(),
+                                        model.FirstName,
+                                        model.LastName,
+                                        model.EmailAddress);
+            }
+            
         }
 
-        private void treeView1_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        private void tvFolders_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
             if (e.Node.Nodes.Count > 0)
             {
@@ -356,7 +427,7 @@ namespace SaveAsPDF
                         }
                         catch (System.Exception ex)
                         {
-                            MessageBox.Show(ex.Message, "DirectoryLister",
+                            MessageBox.Show(ex.Message, "SaveAsPDF: treeView1_BeforeExpand",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                         finally
@@ -368,7 +439,7 @@ namespace SaveAsPDF
             }
         }
 
-   
+
         private void RemoveEmployee_Click(object sender, EventArgs e)
         {
             //if (e.KeyCode == Keys.Delete)
@@ -385,5 +456,103 @@ namespace SaveAsPDF
 
         }
 
+        private void btnNewProject_Click(object sender, EventArgs e)
+        {
+            frmNewProject frm = new frmNewProject();
+            frm.ShowDialog(this);
+        }
+
+        public void NewProjectComplete(ProjectModel model)
+        {
+            project = model;
+
+            txtProjectID.Text = project.ProjectNumber;
+            txtProjectName.Text = project.ProjectName;
+            rtxtProjectNotes.Text = project.ProjectNotes;
+            //TODO!: refresh folder treeview
+
+        }
+
+        private void inputBox_Validating(object sender, InputBoxValidatingArgs e)
+        {
+            if (e.Text.Trim().Length == 0)
+            {
+                e.Cancel = true;
+                e.Message = "חובה למלא";
+            }
+        }
+
+
+        private void menueAdd_Click(object sender, EventArgs e)
+        {
+            TreeHelper.AddNode(tvFolders, mySelectedNode);
+            try
+            {
+                FileFoldersHelper.MkDir(sPath +  mySelectedNode.Name);
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message, "SaveAsPDF");
+            }
+        }
+
+        private void menuDel_Click(object sender, EventArgs e)
+        {
+            TreeHelper.DelNode(tvFolders,mySelectedNode);
+            try
+            {
+                FileFoldersHelper.RmDir(sPath + mySelectedNode.Name);
+            }
+            catch (Exception ex )
+            {
+
+                MessageBox.Show(ex.Message, "SaveAsPDF");
+            }
+            
+        }
+
+        private void menuRename_Click(object sender, EventArgs e)
+        {
+            string oldName = sPath + tvFolders.SelectedNode.Name;
+            DirectoryInfo directoryInfo = new DirectoryInfo(oldName);
+
+            TreeHelper.RenameNode(tvFolders, mySelectedNode);
+
+            try
+            {
+                directoryInfo.RnDir(tvFolders.SelectedNode.Name);
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message, "SaveAsPDF");
+            }
+
+        }
+
+        private void txtProjectID_MouseHover(object sender, EventArgs e)
+        {
+            tsslStatus.Enabled = true;
+            tsslStatus.Text = "מספר פרויקט כפי שמופיע במסטרפלן";
+        }
+
+        private void btnCopyNotesToMail_Click(object sender, EventArgs e)
+        {
+            rtxtNotes.Text = rtxtNotes.Text + "\n" + rtxtProjectNotes.Text;
+        }
+
+        private void btnCopyNotesToProject_Click(object sender, EventArgs e)
+        {
+            rtxtProjectNotes.Text = rtxtProjectNotes.Text + "\n" + rtxtNotes.Text;
+        }
+
+        private void tvFolders_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            TreeNode CurrentNode = e.Node;
+            string fullpath = CurrentNode.FullPath;
+            txtSaveLocation.Text = Settings.Default.rootDrive + fullpath;    
+
+        }
     }
 }

@@ -21,14 +21,17 @@ namespace SaveAsPDF.Models
         /// </summary>
         public string ProjectName { get; set; }
         /// <summary>
-        /// The employee(s) responsible for the project
+        /// Send mail notification to the employee(s) responsible for the project?
         /// </summary>
         public bool NoteEmployee { get; set; }
         /// <summary>
         /// The Default project sub folders
         /// </summary>
         public List<string> SubFolders { get; set; }
-
+        /// <summary>
+        /// General project notes left by the user
+        /// </summary>
+        public string ProjectNotes { get; set; }
 
     }
 }

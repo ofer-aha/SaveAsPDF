@@ -28,24 +28,22 @@ namespace SaveAsPDF.Helpers
             {
                 foreach (Outlook.ContactItem item in ContactItems)
                 {
-                    EmployeeModel employee = new EmployeeModel();
-                    employee.EmailAddress = item.Email1Address;
-                    employee.FirstName = item.FirstName;
-                    employee.LastName = item.LastName;
-                    
-                    
-                    output.Add(employee);
+                    if (!string.IsNullOrEmpty(item.Email1Address))
+                    {
+                        EmployeeModel employee = new EmployeeModel();
+                        employee.EmailAddress = item.Email1Address;
+                        employee.FirstName = item.FirstName;
+                        employee.LastName = item.LastName;
 
+                        output.Add(employee);
 
-                    //output = item.FirstName + "\n";
-                    //output += item.LastName;
-                    //TestTextBox.Text = output;
+                    }
+
                 }
             }
             catch (System.Runtime.InteropServices.COMException ex)
             {
-                //TestTextBox.Text = ex.ToString();
-                MessageBox.Show(ex.ToString());
+                MessageBox.Show(ex.Message,"SaveAsPDF");
             }
             return output;
             

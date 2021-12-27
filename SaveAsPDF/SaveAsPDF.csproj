@@ -207,8 +207,13 @@
     <Compile Include="frmNewProject.Designer.cs">
       <DependentUpon>frmNewProject.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ConfigHelpers.cs" />
+    <Compile Include="Helpers\InputBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Helpers\OutlookProcessor.cs" />
     <Compile Include="IEmployeeRequester.cs" />
+    <Compile Include="INewProjectRequester.cs" />
     <Compile Include="Models\AttachmentsModel.cs" />
     <Compile Include="Models\DocumentModel.cs" />
     <Compile Include="Models\EmployeeModel.cs" />
@@ -219,13 +224,13 @@
     <Compile Include="frmMain.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="GlobalConfig.cs" />
     <Compile Include="Microsoft\Office\Interop\Outlook\application.cs" />
     <Compile Include="Helpers\FileFoldersHelper.cs" />
     <Compile Include="Helpers\OfficeHelpers.cs" />
     <Compile Include="Models\ProjectModel.cs" />
     <Compile Include="Helpers\TreeHelper.cs" />
     <Compile Include="Helpers\XmlFileHelper.cs" />
+    <Compile Include="Models\SettingsModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -238,6 +243,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmNewProject.resx">
       <DependentUpon>frmNewProject.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Helpers\InputBox.resx">
+      <DependentUpon>InputBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -261,6 +269,9 @@
       <Link>.editorconfig</Link>
     </None>
     <None Include="app.config" />
+    <None Include="DefaultTree.fld">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="OutlookAddIn1_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

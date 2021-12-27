@@ -1,5 +1,27 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="SaveAsPDF.Properties" GeneratedClassName="Settings">
   <Profiles />
-  <Settings />
+  <Settings>
+    <Setting Name="rootDrive" Type="System.String" Scope="User">
+      <Value Profile="(Default)">J:\</Value>
+    </Setting>
+    <Setting Name="xmlSaveAsPdfFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.SaveAsPDF\</Value>
+    </Setting>
+    <Setting Name="xmlProjectFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.SaveAsPDF_Project.xml</Value>
+    </Setting>
+    <Setting Name="xmlEmploeeysFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.SaveAsPDF_Emploeeys.xml</Value>
+    </Setting>
+    <Setting Name="defaultTreeFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DefaultTree.fld</Value>
+    </Setting>
+    <Setting Name="defaultFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="minAttachmentSize" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8192</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>
