@@ -1,36 +1,25 @@
 ﻿using Microsoft.Office.Interop.Outlook;
-using Microsoft.Office.Interop.Word;
-using SaveAsPDF.Models;
 using SaveAsPDF.Helpers;
-
+using SaveAsPDF.Models;
+using SaveAsPDF.Properties;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Font = Microsoft.Office.Interop.Word.Font;
-using Outlook = Microsoft.Office.Interop.Outlook;
-using word = Microsoft.Office.Interop.Word;
-using System.Configuration;
 using Exception = System.Exception;
-using SaveAsPDF.Properties;
 
 namespace SaveAsPDF
 {
-    
+
     public partial class frmMain : Form, IEmployeeRequester, INewProjectRequester
     {
         private List<EmployeeModel> employees = new List<EmployeeModel>();
         private ProjectModel project = new ProjectModel();
 
         // construct the full path for evrithig
-        private string sPath;
-        private string xmlSaveAsPdfFolder;
+        private DirectoryInfo sPath;
+        private DirectoryInfo xmlSaveAsPdfFolder;
         private string xmlProjectFile;
         private string xmlEmploeeysFile;
 
@@ -55,7 +44,7 @@ namespace SaveAsPDF
             MailItem mi = null;
             MailItem mailItem = ThisAddIn.TypeOfMailitem(mi);
 
-            
+
 
             if (mailItem is MailItem)
             {
@@ -125,21 +114,19 @@ namespace SaveAsPDF
         private void btnCancel_Click(object sender, EventArgs e)
         {
             //close the form - do  nothing
-            this.Close();
+            Close();
         }
         private void btnFolders_Click(object sender, EventArgs e)
         {
-
-
             var Dialog = new FolderPicker();
 
-            if (!Directory.Exists(sPath))
+            if (!sPath.Exists)
             {
                 Dialog.InputPath = Settings.Default.rootDrive;
             }
             else
             {
-                Dialog.InputPath = sPath;
+                Dialog.InputPath = sPath.FullName;
             }
 
             if (Dialog.ShowDialog(Handle) == true)
@@ -154,10 +141,10 @@ namespace SaveAsPDF
             if (e.KeyCode == Keys.Enter)
             {
                 ClearForm();
-                
+
                 LoadXmls();
                 btnOK.Focus();
-                dataLoaded = true;    
+                dataLoaded = true;
 
             }
         }
@@ -166,26 +153,29 @@ namespace SaveAsPDF
         /// </summary>
         private void LoadXmls()
         {
-            
-            // construct the full path for evrithig
+            // construct the full path for evrything
             sPath = txtProjectID.Text.Trim().ProjectFullPath();
-            xmlSaveAsPdfFolder = $"{sPath}{Settings.Default.xmlSaveAsPdfFolder}";
+            xmlSaveAsPdfFolder = new DirectoryInfo(Path.Combine(sPath.FullName,Settings.Default.xmlSaveAsPdfFolder));
             xmlProjectFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlProjectFile}";
             xmlEmploeeysFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlEmploeeysFile}";
 
-            if (Directory.Exists(sPath))
+            DateTime date = DateTime.Now;
+            txtSaveLocation.Text = Settings.Default.defaultFolder.Replace("_מספר_פרויקט_\\", sPath.FullName);
+            txtSaveLocation.Text = txtSaveLocation.Text.Replace("_תאריך_", date.ToString("dd.MM.yyyy"));
+                                    
+            if (sPath.Exists)
             {
                 //Create .SaveAsPDF
-                FileFoldersHelper.CreateHiddenFolder(sPath);
+                FileFoldersHelper.CreateHiddenFolder(sPath.FullName);
 
                 if (File.Exists(xmlProjectFile))
                 {
-                //load the XML file to project model
-                project = xmlProjectFile.XmlProjectFileToModel();
-                    
+                    //load the XML file to project model
+                    project = xmlProjectFile.XmlProjectFileToModel();
+
                     if (project != null)
                     {
-                        txtProjectName.Text =  project.ProjectName;
+                        txtProjectName.Text = project.ProjectName;
                         chkbSendNote.Checked = project.NoteEmployee;
                         rtxtProjectNotes.Text = project.ProjectNotes;
                     }
@@ -205,15 +195,15 @@ namespace SaveAsPDF
                 }
             }
 
-            txtFullPath.Text = sPath;
+            txtFullPath.Text = sPath.FullName;
             tvFolders.Nodes.Clear();
-            DirectoryInfo d = new DirectoryInfo(sPath);
-            tvFolders.Nodes.Add(TreeHelper.CreateDirectoryNode(d));
+            tvFolders.Nodes.Add(TreeHelper.CreateDirectoryNode(sPath));
+            tvFolders.ExpandAll();
         }
 
         private void ClearForm()
         {
-            foreach (var c in this.Controls)
+            foreach (var c in Controls)
             {
                 if (c is TextBox)
                 {
@@ -221,7 +211,7 @@ namespace SaveAsPDF
                     {
                         ((TextBox)c).Clear();
                     }
-                    
+
                 }
                 rtxtNotes.Clear();
                 rtxtProjectNotes.Clear();
@@ -235,7 +225,7 @@ namespace SaveAsPDF
             {
                 if (dataLoaded == false)
                 {
-                    LoadXmls(); 
+                    LoadXmls();
                 }
 
                 #region MailItem
@@ -248,12 +238,12 @@ namespace SaveAsPDF
                 #region Populate Models
 
                 //build project modele
-                
+
                 project.ProjectName = txtProjectName.Text;
                 project.ProjectNumber = txtProjectID.Text;
                 project.NoteEmployee = chkbSendNote.Checked;
                 project.ProjectNotes = rtxtProjectNotes.Text;
-                
+
                 //build the Employees model
                 //List<EmployeeModel> employees = new List<EmployeeModel>();
                 employees = dgvEmployees.DgvEmployessToModel();
@@ -262,7 +252,7 @@ namespace SaveAsPDF
                 #region Creat XML files for the models
 
                 //create the SaveAsPDF hidden folder
-                FileFoldersHelper.CreateHiddenFolder(xmlSaveAsPdfFolder);
+                FileFoldersHelper.CreateHiddenFolder(xmlSaveAsPdfFolder.FullName);
 
                 //create project XML file
                 XmlFileHelper.ProjectModelToXmlFile(project, xmlProjectFile);
@@ -275,7 +265,7 @@ namespace SaveAsPDF
                 //TODO: inject more data to the file befor converting to PDF
 
                 //save the mailItem to the current working directory. 
-                //OfficeHelpers.SaveToPDF(mailItem, lblFolder.Text); 
+                //OfficeHelpers.SaveToPDF(mailItem, txtSaveLocation.Text); 
 
                 //TODO: what about attuchment saveing? 
 
@@ -290,7 +280,7 @@ namespace SaveAsPDF
         private bool ValidateForm()
         {
             bool output = true;
-            
+
             if (string.IsNullOrEmpty(txtProjectID.Text))
             {
                 output = false;
@@ -313,6 +303,7 @@ namespace SaveAsPDF
         private void dgvAttachments_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             //TODO: save attachment to temp folder 
+            //string tmpFoder = @System.IO.Path.GetTempPath();
             //TODO: exec. the file using default file asociating 
             MessageBox.Show(dgvAttachments.CurrentCell.Value.ToString());
         }
@@ -339,7 +330,7 @@ namespace SaveAsPDF
             {
                 SendEmailToEmployee(employee.EmailAddress);
             }
-            
+
         }
 
         private void SendEmailToEmployee(string text)
@@ -373,25 +364,25 @@ namespace SaveAsPDF
         public void EmployeeComplete(EmployeeModel model)
         {
             bool found = false;
-            
-            foreach (DataGridViewRow row  in dgvEmployees.Rows)
+
+            foreach (DataGridViewRow row in dgvEmployees.Rows)
             {
-               if (row.Cells[3].Value.ToString() == model.EmailAddress)
-               {
+                if (row.Cells[3].Value.ToString() == model.EmailAddress)
+                {
                     found = true;
-               }
+                }
             }
 
             if (!found)
             {
-                //add new emplyee to the list 
+                //add new employee(s) to the list 
                 employees.Add(model);
                 dgvEmployees.Rows.Add(model.Id.ToString(),
                                         model.FirstName,
                                         model.LastName,
                                         model.EmailAddress);
             }
-            
+
         }
 
         private void tvFolders_BeforeExpand(object sender, TreeViewCancelEventArgs e)
@@ -425,7 +416,7 @@ namespace SaveAsPDF
                             node.ImageIndex = 12;
                             node.SelectedImageIndex = 12;
                         }
-                        catch (System.Exception ex)
+                        catch (Exception ex)
                         {
                             MessageBox.Show(ex.Message, "SaveAsPDF: treeView1_BeforeExpand",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -469,7 +460,7 @@ namespace SaveAsPDF
             txtProjectID.Text = project.ProjectNumber;
             txtProjectName.Text = project.ProjectName;
             rtxtProjectNotes.Text = project.ProjectNotes;
-            //TODO!: refresh folder treeview
+            //TODO: refresh folder treeview
 
         }
 
@@ -485,49 +476,46 @@ namespace SaveAsPDF
 
         private void menueAdd_Click(object sender, EventArgs e)
         {
-            TreeHelper.AddNode(tvFolders, mySelectedNode);
+            TreeHelper.AddNode(tvFolders, mySelectedNode,"New Folder");
             try
             {
-                FileFoldersHelper.MkDir(sPath +  mySelectedNode.Name);
+                FileFoldersHelper.MkDir(sPath.Parent.FullName + "\\" + mySelectedNode.FullPath);
+                //tvFolders.Nodes.Clear();
+                //DirectoryInfo d = new DirectoryInfo(sPath);
+                //tvFolders.Nodes.Add(TreeHelper.CreateDirectoryNode(d));
+                //tvFolders.ExpandAll();
+
             }
             catch (Exception ex)
             {
 
-                MessageBox.Show(ex.Message, "SaveAsPDF");
+                MessageBox.Show(ex.Message, "SaveAsPDF:menueAdd_Click");
             }
         }
 
         private void menuDel_Click(object sender, EventArgs e)
         {
-            TreeHelper.DelNode(tvFolders,mySelectedNode);
-            try
+            if (MessageBox.Show("האם למחוק תיקייה ואת כל הקבצים והתיקיות שהיא מכילה?\n" + 
+                            sPath.Parent.FullName + "\\" + mySelectedNode.FullPath, "SaveAsPDF", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                FileFoldersHelper.RmDir(sPath + mySelectedNode.Name);
-            }
-            catch (Exception ex )
-            {
+                FileFoldersHelper.RmDir(sPath.Parent.FullName + "\\" + mySelectedNode.FullPath);
 
-                MessageBox.Show(ex.Message, "SaveAsPDF");
+                TreeHelper.DelNode(tvFolders, mySelectedNode);
+
             }
-            
         }
 
         private void menuRename_Click(object sender, EventArgs e)
         {
-            string oldName = sPath + tvFolders.SelectedNode.Name;
+           
+            string oldName = sPath.Parent.FullName + "\\" + mySelectedNode.FullPath;
             DirectoryInfo directoryInfo = new DirectoryInfo(oldName);
 
             TreeHelper.RenameNode(tvFolders, mySelectedNode);
+            //tvFolders.Refresh();
+            mySelectedNode = tvFolders.SelectedNode;
 
-            try
-            {
-                directoryInfo.RnDir(tvFolders.SelectedNode.Name);
-            }
-            catch (Exception ex)
-            {
-
-                MessageBox.Show(ex.Message, "SaveAsPDF");
-            }
+            
 
         }
 
@@ -551,7 +539,61 @@ namespace SaveAsPDF
         {
             TreeNode CurrentNode = e.Node;
             string fullpath = CurrentNode.FullPath;
-            txtSaveLocation.Text = Settings.Default.rootDrive + fullpath;    
+            mySelectedNode = CurrentNode;
+            
+            txtSaveLocation.Text =  sPath.Parent.FullName + "\\" + fullpath;
+
+        }
+
+        private void tvFolders_MouseDown(object sender, MouseEventArgs e)
+        {
+            //mySelectedNode = tvFolders.GetNodeAt(e.X, e.Y);
+            //txtSaveLocation.Text = Settings.Default.rootDrive + mySelectedNode.FullPath;
+        }
+
+        private void tvFolders_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            if (e.Label != null)
+            {
+                if (e.Label.Length > 0)
+                {
+                    if (e.Label.IndexOfAny(new char[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) == -1)
+                    {
+                        // Stop editing without canceling the label change.
+                        e.Node.EndEdit(false);
+                    }
+                    else
+                    {
+                        /* Cancel the label edit action, inform the user, and
+                           place the node in edit mode again. */
+                        e.CancelEdit = true;
+                        MessageBox.Show("שם לא חוקי.\n" +
+                           "אין להשתמש בתווים הבאים \n'\\', '/', ':', '*', '?', '<', '>', '|' '\"' ",
+                           "עריכת שם");
+                        e.Node.BeginEdit();
+                    }
+                }
+                else
+                {
+                    // Cancel the label edit action, inform the user, and
+                    // place the node in edit mode again. 
+                    e.CancelEdit = true;
+                    MessageBox.Show("שם לא חוקי.\nלא ניתן ליצור שם ריק. חובה תו אחד לפחות", "עריכת שם");
+                    e.Node.BeginEdit();
+                }
+
+                try
+                {
+                    DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(sPath.Parent.FullName, e.Node.FullPath));
+                    directoryInfo.RnDir(sPath.Parent.FullName +"\\"+ mySelectedNode.Parent.FullPath +"\\"+ e.Label );
+                }
+                catch (Exception ex)
+                {
+
+                    MessageBox.Show(ex.Message + "\n" + Path.Combine(sPath.Parent.FullName, mySelectedNode.FullPath), "SaveAsPDF:tvFolders_AfterLabelEdit");
+                }
+
+            }
 
         }
     }

@@ -1,19 +1,15 @@
-﻿using System;
+﻿using SaveAsPDF.Properties;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml;
-using Microsoft.Office.Interop.Word;
-using SaveAsPDF.Models;
-using SaveAsPDF.Properties;
 
 namespace SaveAsPDF.Helpers
 {
-    public  class TreeHelper
+    public class TreeHelper
     {
         //XmlDocument xmlDocument;
         //TreeNode mySelectedNode;
@@ -29,21 +25,23 @@ namespace SaveAsPDF.Helpers
 
             try
             {
+
                 foreach (var directory in directoryInfo.GetDirectories())
                 {
-                    directoryNode.Nodes.Add(CreateDirectoryNode(directory));
+
+                    if (!directory.Attributes.HasFlag(FileAttributes.Hidden))
+                    {
+                        directoryNode.Nodes.Add(CreateDirectoryNode(directory));
+                    }
+
                 }
 
 
-                //foreach (var file in directoryInfo.GetFiles())
-                //{
-                //    directoryNode.Nodes.Add(new TreeNode(file.Name) { ImageIndex = 0 });
-                //}
             }
             catch (Exception ex)
             {
 
-                MessageBox.Show(ex.Message, "SaveAsPDF");
+                MessageBox.Show(ex.Message, "SaveAsPDF:CreateDirectoryNode");
 
             }
 
@@ -66,6 +64,7 @@ namespace SaveAsPDF.Helpers
                     DirectoryInfo di = new DirectoryInfo(d);
                     TreeNode tn = new TreeNode(di.Name);
                     tn.Tag = di;
+                    tn.ToolTipText = d;
                     int subCount = 0;
                     try { subCount = Directory.GetDirectories(d).Length; }
                     catch { /* ignore accessdenied */  }
@@ -77,12 +76,17 @@ namespace SaveAsPDF.Helpers
                     {
                         tn.Expand();   //  **
                     }
-                    nodes.Add(tn); 
+                    nodes.Add(tn);
                 }
             }
             return nodes;
         }
-        private static bool IsHidden (string sDir)
+        /// <summary>
+        /// Test is a directory is hidden
+        /// </summary>
+        /// <param name="sDir"></param>
+        /// <returns></returns>
+        private static bool IsHidden(string sDir)
         {
             DirectoryInfo dir = new DirectoryInfo(sDir);
             if (dir.Attributes.HasFlag(FileAttributes.Hidden))
@@ -91,7 +95,7 @@ namespace SaveAsPDF.Helpers
             }
             return false;
         }
-        public static  TreeNode TraverseDirectory(string path)
+        public static TreeNode TraverseDirectory(string path)
         {
             TreeNode result = new TreeNode(path);
             Cursor.Current = Cursors.WaitCursor; //show the user we are doning somthing..... "the compuer is thinking"
@@ -118,7 +122,11 @@ namespace SaveAsPDF.Helpers
                 return result;
             }
         }
-
+        /// <summary>
+        /// Rename the node name
+        /// </summary>
+        /// <param name="treeView"></param>
+        /// <param name="mySelectedNode"></param>
         public static void RenameNode(TreeView treeView, TreeNode mySelectedNode)
         {
             if (mySelectedNode != null && mySelectedNode.Parent != null)
@@ -137,17 +145,21 @@ namespace SaveAsPDF.Helpers
             }
         }
 
- 
-   
 
-        public static void AddNode(TreeView treeView, TreeNode mySelectedNode)
+        /// <summary>
+        /// Add Node to treeview
+        /// </summary>
+        /// <param name="treeView"></param>
+        /// <param name="mySelectedNode"></param>
+        /// <param name="lable"></param>
+        public static void AddNode(TreeView treeView, TreeNode mySelectedNode, string lable)
         {
-            mySelectedNode = treeView.SelectedNode.Nodes.Add("חדש");
+            mySelectedNode = treeView.SelectedNode.Nodes.Add(lable);
 
             treeView.SelectedNode = mySelectedNode;
             mySelectedNode.Expand();
 
-            RenameNode(treeView,mySelectedNode);
+            RenameNode(treeView, mySelectedNode);
         }
 
         public static void DelNode(TreeView treeView, TreeNode mySelectedNode)
@@ -164,6 +176,26 @@ namespace SaveAsPDF.Helpers
             }
 
         }
+
+        /// <summary>
+        /// Return the root node's name as strig
+        /// </summary>
+        /// <param name="tv"></param>
+        /// <returns></returns>
+        public static String RootNodeName(TreeView tv)
+        {
+            string output = "";
+            foreach (TreeNode n in tv.Nodes)
+            {
+                if (n.Parent == null)
+                {
+                    output = n.Text;
+                }
+            }
+            return output;
+
+        }
+
         /// <summary>
         /// Convert a node to List of Strings full path  
         /// </summary>
@@ -260,13 +292,12 @@ namespace SaveAsPDF.Helpers
 
             // Process the lines.
             trv.Nodes.Clear();
-            Dictionary<int, TreeNode> parents =
-                new Dictionary<int, TreeNode>();
+            Dictionary<int, TreeNode> parents = new Dictionary<int, TreeNode>();
+
             foreach (string text_line in lines)
             {
                 // See how many tabs are at the start of the line.
-                int level = text_line.Length -
-                    text_line.TrimStart('\t').Length;
+                int level = text_line.Length - text_line.TrimStart('\t').Length;
 
                 // Add the new node.
                 if (level == 0)
@@ -276,36 +307,8 @@ namespace SaveAsPDF.Helpers
                 parents[level].EnsureVisible();
             }
         }
-        public static void RestTree(TreeView treeView)
-        {
-            treeView.Nodes.Clear();
 
-            treeView.Nodes.Add("מספר_פרויקט");
-            treeView.SelectedNode = treeView.Nodes[0];
 
-            TreeNode node = treeView.SelectedNode.Nodes.Add("DWG");
-            node.Parent.Nodes.Add("מכתבים");
-            node.Parent.Nodes.Add("OLD");
-            node.Parent.Nodes.Add("PDF");
-            node = treeView.SelectedNode.Nodes.Add("אישור ציוד");
-            node.Nodes.Add("לוח חשמל ראשי");
-            node.Nodes.Add("דיזל גנרטור");
-            node.Nodes.Add("גופי תאורה");
-            node = treeView.SelectedNode.Nodes.Add("התקבל");
-            node.Nodes.Add("אדריכלות");
-            node.Nodes.Add("קונסטרוקציה");
-            node.Nodes.Add("מיזוג אויר");
-            node.Nodes.Add("בטיחות");
-            node.Nodes.Add("כבישים");
-            node = treeView.SelectedNode.Nodes.Add("נשלח");
-            node.Nodes.Add("אדריכלות");
-            node.Nodes.Add("קונסטרוקציה");
-            node.Nodes.Add("מיזוג אויר");
-            node.Nodes.Add("בטיחות");
-            node.Nodes.Add("כבישים");
-
-            treeView.ExpandAll();
-        }
         /// <summary>
         /// Load the default folder tree from the default folder free file.
         /// If the folder tree file does not exist a default folder tree will be loaded
@@ -328,7 +331,7 @@ namespace SaveAsPDF.Helpers
             else
             {
                 //Default tree file was not found -  create a new default free file
-                string defaultTree = "<מספר פרויקט>\n" +
+                string defaultTree = "_מספר_פרויקט_\n" +
                     "\tDWG\n" +
                     "\tמכתבים\n" +
                     "\tOLD\n" +
@@ -355,7 +358,6 @@ namespace SaveAsPDF.Helpers
 
             }
         }
-
 
     }
 }

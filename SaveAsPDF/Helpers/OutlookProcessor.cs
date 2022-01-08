@@ -21,12 +21,12 @@ namespace SaveAsPDF.Helpers
             List<EmployeeModel> output = new List<EmployeeModel>();
             
             Outlook.Application app = new Outlook.Application();
-            Outlook.NameSpace NameSpace = app.GetNamespace("MAPI");
-            Outlook.MAPIFolder ContactsFolder = NameSpace.GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
-            Outlook.Items ContactItems = ContactsFolder.Items;
+            NameSpace NameSpace = app.GetNamespace("MAPI");
+            MAPIFolder ContactsFolder = NameSpace.GetDefaultFolder(OlDefaultFolders.olFolderContacts);
+            Items ContactItems = ContactsFolder.Items;
             try
             {
-                foreach (Outlook.ContactItem item in ContactItems)
+                foreach (ContactItem item in ContactItems)
                 {
                     if (!string.IsNullOrEmpty(item.Email1Address))
                     {
@@ -36,7 +36,7 @@ namespace SaveAsPDF.Helpers
                         employee.LastName = item.LastName;
 
                         output.Add(employee);
-
+                        
                     }
 
                 }

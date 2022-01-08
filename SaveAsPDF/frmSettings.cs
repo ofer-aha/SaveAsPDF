@@ -28,7 +28,7 @@ namespace SaveAsPDF
         {
 
             txtRootFolder.Text = Settings.Default.rootDrive; 
-            txtDefaultFolfer.Text = Settings.Default.defaultFolder;
+            txtDefaultFolder.Text = Settings.Default.defaultFolder;
             txtMinAttSize.Text = Settings.Default.minAttachmentSize.ToString();
             TreeHelper.LoadDefaultTree(tvProjectSubFolders);
 
@@ -40,9 +40,6 @@ namespace SaveAsPDF
                 fList.AddRange(TreeHelper.ListNodesPath(node));
             }
             settingsModel.ProjectFolders = fList;
-
-            cbDefaultFolder.DataSource = settingsModel.ProjectFolders;
-            cbDefaultFolder.Refresh();
             formChanged = false;
 
         }
@@ -103,7 +100,7 @@ namespace SaveAsPDF
 
         private void menueAdd_Click(object sender, System.EventArgs e)
         {
-            TreeHelper.AddNode(tvProjectSubFolders, mySelectedNode);
+            TreeHelper.AddNode(tvProjectSubFolders, mySelectedNode,"New Folder");
             formChanged = true;    
         }
 
@@ -141,7 +138,7 @@ namespace SaveAsPDF
            
             formChanged = false;
 
-            Settings.Default.defaultFolder = txtDefaultFolfer.Text;
+            Settings.Default.defaultFolder = txtDefaultFolder.Text;
             Settings.Default.rootDrive = txtRootFolder.Text;
             Settings.Default.minAttachmentSize = int.Parse(txtMinAttSize.Text);
 
@@ -152,22 +149,6 @@ namespace SaveAsPDF
 
         }
 
-        private void btnDefaultTree_Click(object sender, System.EventArgs e)
-        {
-            TreeHelper.RestTree(tvProjectSubFolders);
-            SettingsModel settingsModel = new SettingsModel();
-            List<string> fList = new List<string>();
-
-            foreach (TreeNode node in tvProjectSubFolders.Nodes)
-            {
-                fList.AddRange(TreeHelper.ListNodesPath(node));
-            }
-            settingsModel.ProjectFolders = fList;
-
-            cbDefaultFolder.DataSource = settingsModel.ProjectFolders;
-            cbDefaultFolder.Refresh();
-
-        }
 
 
         private void btnSaveSettings_Click(object sender, System.EventArgs e)
@@ -230,11 +211,23 @@ namespace SaveAsPDF
             }
         }
 
-        private void btnRestTree_Click(object sender, EventArgs e)
-        {
-            tvProjectSubFolders.Nodes.Clear();
-            TreeHelper.RestTree(tvProjectSubFolders);
-        }
+    
+        //private void btnDefaultTree_Click(object sender, System.EventArgs e)
+        //{
+        //    TreeHelper.RestTree(tvProjectSubFolders);
+        //    SettingsModel settingsModel = new SettingsModel();
+        //    List<string> fList = new List<string>();
+
+        //    foreach (TreeNode node in tvProjectSubFolders.Nodes)
+        //    {
+        //        fList.AddRange(TreeHelper.ListNodesPath(node));
+        //    }
+        //    settingsModel.ProjectFolders = fList;
+
+        //    cbDefaultFolder.DataSource = settingsModel.ProjectFolders;
+        //    cbDefaultFolder.Refresh();
+
+        //}
 
 
         private void btnLoadDefaultTree_Click(object sender, EventArgs e)
@@ -242,17 +235,31 @@ namespace SaveAsPDF
             TreeHelper.LoadDefaultTree(tvProjectSubFolders);
         }
 
-        private void cbDefaultFolder_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-            txtDefaultFolfer.Text = cbDefaultFolder.SelectedItem.ToString();
-
-            formChanged = true;
-
-        }
 
         private void txtMinAttSize_TextChanged(object sender, EventArgs e)
         {
             formChanged = true;
+        }
+
+        private void tvProjectSubFolders_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+        }
+
+        private void btnFolderSelect_Click(object sender, EventArgs e)
+        {
+            TreeNode CurrentNode = tvProjectSubFolders.SelectedNode;
+            string fullpath = CurrentNode.FullPath;
+            txtDefaultFolder.Text = fullpath;
+            formChanged = true;
+
+        }
+
+        private void menuAddDate_Click(object sender, EventArgs e)
+        {
+            
+            TreeHelper.AddNode(tvProjectSubFolders, mySelectedNode, "_תאריך_");
+            formChanged = true;
+
         }
     }
 }

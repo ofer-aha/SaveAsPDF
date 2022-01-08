@@ -19,7 +19,11 @@ namespace SaveAsPDF.Helpers
     {
 
      
-
+        /// <summary>
+        /// Create an attachments list 
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
         public static List<AttachmentsModel> AttachmetsToModel(this Outlook.MailItem email)
         {
             List<AttachmentsModel> output = new List<AttachmentsModel>();

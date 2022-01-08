@@ -49,12 +49,6 @@ namespace SaveAsPDF
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            //EmployeeModel employee = new EmployeeModel
-            //{
-            //    FirstName = dgvContacs.SelectedRows[0].Cells[1].Value.ToString(),
-            //    LastName = dgvContacs.SelectedRows[0].Cells[2].Value.ToString(),
-            //    EmailAddress = dgvContacs.SelectedRows[0].Cells[3].Value.ToString()
-            //};
 
             EmployeeModel employee = new EmployeeModel();
             if (dgvContacs.SelectedRows[0].Cells[1].Value == null)

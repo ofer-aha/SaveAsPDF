@@ -78,6 +78,7 @@ namespace SaveAsPDF
             this.dgvAttachments = new System.Windows.Forms.DataGridView();
             this.txtSaveLocation = new System.Windows.Forms.TextBox();
             this.lblSaveLocation = new System.Windows.Forms.Label();
+            this.process1 = new System.Diagnostics.Process();
             this.menuTree.SuspendLayout();
             this.stsStrip.SuspendLayout();
             this.tabNotes.SuspendLayout();
@@ -142,15 +143,14 @@ namespace SaveAsPDF
             // 
             this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
             this.imageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList.Images.SetKeyName(0, "Saki-NuoveXT-2-Folder-open.ico");
+            this.imageList.Images.SetKeyName(0, "FolderOpen.png");
             this.imageList.Images.SetKeyName(1, "FolderClosed.png");
-            this.imageList.Images.SetKeyName(2, "FolderOpen.png");
-            this.imageList.Images.SetKeyName(3, "HardDisk.ico");
-            this.imageList.Images.SetKeyName(4, "Desktop.png");
-            this.imageList.Images.SetKeyName(5, "MyDocuments.png");
-            this.imageList.Images.SetKeyName(6, "MyPictures.png");
-            this.imageList.Images.SetKeyName(7, "MyVideos.png");
-            this.imageList.Images.SetKeyName(8, "ProgramFiles.png");
+            this.imageList.Images.SetKeyName(2, "HardDisk.ico");
+            this.imageList.Images.SetKeyName(3, "Desktop.png");
+            this.imageList.Images.SetKeyName(4, "MyDocuments.png");
+            this.imageList.Images.SetKeyName(5, "MyPictures.png");
+            this.imageList.Images.SetKeyName(6, "MyVideos.png");
+            this.imageList.Images.SetKeyName(7, "ProgramFiles.png");
             // 
             // lblSubject
             // 
@@ -374,6 +374,7 @@ namespace SaveAsPDF
             resources.ApplyResources(this.btnFolders, "btnFolders");
             this.btnFolders.Name = "btnFolders";
             this.btnFolders.UseVisualStyleBackColor = true;
+            this.btnFolders.Click += new System.EventHandler(this.btnFolders_Click);
             // 
             // tvFolders
             // 
@@ -381,7 +382,10 @@ namespace SaveAsPDF
             resources.ApplyResources(this.tvFolders, "tvFolders");
             this.tvFolders.ImageList = this.imageList;
             this.tvFolders.Name = "tvFolders";
+            this.tvFolders.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.tvFolders_AfterLabelEdit);
+            this.tvFolders.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvFolders_BeforeExpand);
             this.tvFolders.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvFolders_AfterSelect);
+            this.tvFolders.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tvFolders_MouseDown);
             // 
             // tabAtachments
             // 
@@ -396,6 +400,7 @@ namespace SaveAsPDF
             resources.ApplyResources(this.chkbSelectAllAttachments, "chkbSelectAllAttachments");
             this.chkbSelectAllAttachments.Name = "chkbSelectAllAttachments";
             this.chkbSelectAllAttachments.UseVisualStyleBackColor = true;
+            this.chkbSelectAllAttachments.CheckedChanged += new System.EventHandler(this.chkbSelectAllAttachments_CheckedChanged);
             // 
             // dgvAttachments
             // 
@@ -407,6 +412,7 @@ namespace SaveAsPDF
             this.dgvAttachments.Name = "dgvAttachments";
             this.dgvAttachments.RowHeadersVisible = false;
             this.dgvAttachments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvAttachments.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvAttachments_CellDoubleClick);
             // 
             // txtSaveLocation
             // 
@@ -418,6 +424,16 @@ namespace SaveAsPDF
             // 
             resources.ApplyResources(this.lblSaveLocation, "lblSaveLocation");
             this.lblSaveLocation.Name = "lblSaveLocation";
+            // 
+            // process1
+            // 
+            this.process1.StartInfo.Domain = "";
+            this.process1.StartInfo.LoadUserProfile = false;
+            this.process1.StartInfo.Password = null;
+            this.process1.StartInfo.StandardErrorEncoding = null;
+            this.process1.StartInfo.StandardOutputEncoding = null;
+            this.process1.StartInfo.UserName = "";
+            this.process1.SynchronizingObject = this;
             // 
             // frmMain
             // 
@@ -443,6 +459,7 @@ namespace SaveAsPDF
             this.HelpButton = true;
             this.MaximizeBox = false;
             this.Name = "frmMain";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.menuTree.ResumeLayout(false);
             this.stsStrip.ResumeLayout(false);
@@ -512,5 +529,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.DataGridView dgvAttachments;
         private System.Windows.Forms.TextBox txtSaveLocation;
         private System.Windows.Forms.Label lblSaveLocation;
+        private System.Diagnostics.Process process1;
     }
 }

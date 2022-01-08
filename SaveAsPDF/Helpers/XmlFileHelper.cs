@@ -178,9 +178,9 @@ namespace SaveAsPDF.Helpers
                 };
                 output.Add(em);
             }
-                       
+
+            //xmlDoc.Save(xmlFile);
             return output;
-            xmlDoc.Save(xmlFile);
         }
 
         //public static List<string> XmlEmlpoyeesFileToList(this string xmlFile)

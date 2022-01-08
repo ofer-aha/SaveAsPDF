@@ -40,8 +40,8 @@ namespace SaveAsPDF
             this.menueAdd = new System.Windows.Forms.ToolStripMenuItem();
             this.menuDel = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRename = new System.Windows.Forms.ToolStripMenuItem();
-            this.btmNewProject = new System.Windows.Forms.Button();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
+            this.btmNewProject = new System.Windows.Forms.Button();
             this.txtProjectNotes = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.lblDefaultFoldersTree = new System.Windows.Forms.Label();
@@ -86,10 +86,15 @@ namespace SaveAsPDF
             // tvDefaultSubFolders
             // 
             this.tvDefaultSubFolders.ContextMenuStrip = this.menuTree;
+            this.tvDefaultSubFolders.ImageIndex = 0;
+            this.tvDefaultSubFolders.ImageList = this.imageList;
             this.tvDefaultSubFolders.Location = new System.Drawing.Point(507, 46);
             this.tvDefaultSubFolders.Name = "tvDefaultSubFolders";
+            this.tvDefaultSubFolders.SelectedImageIndex = 0;
             this.tvDefaultSubFolders.Size = new System.Drawing.Size(224, 185);
             this.tvDefaultSubFolders.TabIndex = 5;
+            this.tvDefaultSubFolders.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.tvDefaultSubFolders_AfterLabelEdit);
+            this.tvDefaultSubFolders.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvDefaultSubFolders_AfterSelect);
             // 
             // menuTree
             // 
@@ -104,20 +109,37 @@ namespace SaveAsPDF
             // menueAdd
             // 
             this.menueAdd.Name = "menueAdd";
-            this.menueAdd.Size = new System.Drawing.Size(137, 22);
+            this.menueAdd.Size = new System.Drawing.Size(180, 22);
             this.menueAdd.Text = "הוסף תיקייה";
+            this.menueAdd.Click += new System.EventHandler(this.menueAdd_Click);
             // 
             // menuDel
             // 
             this.menuDel.Name = "menuDel";
-            this.menuDel.Size = new System.Drawing.Size(137, 22);
+            this.menuDel.Size = new System.Drawing.Size(180, 22);
             this.menuDel.Text = "מחק תיקייה";
+            this.menuDel.Click += new System.EventHandler(this.menuDel_Click);
             // 
             // menuRename
             // 
             this.menuRename.Name = "menuRename";
             this.menuRename.Size = new System.Drawing.Size(137, 22);
             this.menuRename.Text = "שנה שם";
+            this.menuRename.Click += new System.EventHandler(this.menuRename_Click);
+            // 
+            // imageList
+            // 
+            this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
+            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList.Images.SetKeyName(0, "FolderClosed.png");
+            this.imageList.Images.SetKeyName(1, "Saki-NuoveXT-2-Folder-open.ico");
+            this.imageList.Images.SetKeyName(2, "FolderOpen.png");
+            this.imageList.Images.SetKeyName(3, "HardDisk.ico");
+            this.imageList.Images.SetKeyName(4, "Desktop.png");
+            this.imageList.Images.SetKeyName(5, "MyDocuments.png");
+            this.imageList.Images.SetKeyName(6, "MyPictures.png");
+            this.imageList.Images.SetKeyName(7, "MyVideos.png");
+            this.imageList.Images.SetKeyName(8, "ProgramFiles.png");
             // 
             // btmNewProject
             // 
@@ -128,20 +150,6 @@ namespace SaveAsPDF
             this.btmNewProject.Text = "&צור פרויקט חדש";
             this.btmNewProject.UseVisualStyleBackColor = true;
             this.btmNewProject.Click += new System.EventHandler(this.btmNewProject_Click);
-            // 
-            // imageList
-            // 
-            this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
-            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList.Images.SetKeyName(0, "Saki-NuoveXT-2-Folder-open.ico");
-            this.imageList.Images.SetKeyName(1, "FolderClosed.png");
-            this.imageList.Images.SetKeyName(2, "FolderOpen.png");
-            this.imageList.Images.SetKeyName(3, "HardDisk.ico");
-            this.imageList.Images.SetKeyName(4, "Desktop.png");
-            this.imageList.Images.SetKeyName(5, "MyDocuments.png");
-            this.imageList.Images.SetKeyName(6, "MyPictures.png");
-            this.imageList.Images.SetKeyName(7, "MyVideos.png");
-            this.imageList.Images.SetKeyName(8, "ProgramFiles.png");
             // 
             // txtProjectNotes
             // 

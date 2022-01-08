@@ -19,19 +19,19 @@ namespace SaveAsPDF.Helpers
         
         /// <summary>
         /// Extention method: 
+        /// <list>
         /// Construct the full project path based on the project's number (NOT ID) 
         /// so project 1234 => j:\12\1234 
+        /// </list>
         /// </summary>
         /// <param name="projectNumber"> The project name</param>
         /// <returns> string representing the project's path, default value is rootDrive</returns>
-        public static string ProjectFullPath(this string projectNumber)
+        public static DirectoryInfo ProjectFullPath(this string projectNumber)
         {
-
             string rootDrive = Settings.Default.rootDrive;
             string output = rootDrive;
-            
-
             if (projectNumber == null || projectNumber.Length == 0)
+
             {
                 //Default return: root drive.
                 output = Settings.Default.rootDrive;
@@ -56,6 +56,7 @@ namespace SaveAsPDF.Helpers
                 {
                     //more complicated project id: XXX-X or XXX-XX or XXX-X-XX well you catch my point....
                     string[] split = projectNumber.Split('-'); //split the projectid to parts
+                    
                     if (split[0].Length == 3)
                     {
                         output += $"0{split[0]}".Substring(0, 2);
@@ -94,11 +95,12 @@ namespace SaveAsPDF.Helpers
 
                 output += $"\\{projectNumber}\\";
             }
-            return output;
+            DirectoryInfo di = new DirectoryInfo(output);
+            return di;
         }
 
 
-        public static string SafeFileName( this string inTXT)
+        public static string SafeFileName(this string inTXT)
         {
             string pattern = @"[\/:*?""<>|]";
             //Regex rg = new Regex(pattern);
@@ -110,7 +112,7 @@ namespace SaveAsPDF.Helpers
         /// Create hidden folder
         /// </summary>
         /// <param name="folder"> string represnting the hidden folder name to create</param>
-        public static void CreateHiddenFolder( string folder)
+        public static void CreateHiddenFolder(string folder)
         {
             if (!Directory.Exists(folder))
             {
@@ -124,9 +126,15 @@ namespace SaveAsPDF.Helpers
         /// if the folder already exists it will name it Folder (2)... Folder (2) (2) and so on. 
         /// </summary>
         /// <param name="folder">string represnting the folder name to create</param>
-        public static void MkDir( string folder)
+        public static void MkDir(string folder)
         {
+            if (string.IsNullOrEmpty(folder))
+            {
+                throw new ArgumentNullException("MkDir:folder", "שם תקייה לא יכול להיות ריק");
+            }
             
+           // folder = folder.SafeFileName(); 
+
             if (Directory.Exists(folder))
             {
                 int i=1;
@@ -139,35 +147,67 @@ namespace SaveAsPDF.Helpers
             }
         }
         /// <summary>
-        /// Delete folder 
+        /// Delete folder recursiv
         /// </summary>
-        /// <param name="folder"> the folder to be deleted as string</param>
+        /// <param name="folder">The folder to be deleted as string</param>
         public static void RmDir (string folder)
         {
+            if (string.IsNullOrEmpty(folder))
+            {
+                throw new ArgumentNullException("RnDir:folder", "שם תקייה לא יכול להיות ריק");
+            }
+
+            string[] dirs = Directory.GetDirectories(folder);
+            foreach (string dir in dirs)
+            {
+                RmDir(dir);
+            }
+
             try
             {
-                Directory.Delete (folder);
+                Directory.Delete(folder + "\\", true); 
             }
             catch (Exception e)
             {
-
-                MessageBox.Show(e.Message, "SaveAsPDF");
+                MessageBox.Show(e.Message + "\n" + folder, "SaveAsPDF");
             }
-        }
 
+        }
+        /// <summary>
+        /// Rename directory
+        /// </summary>
+        /// <param name="di">Directory object</param>
+        /// <param name="folder">New name for the directory</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public static void RnDir(this DirectoryInfo di, string folder)
         {
             if (di == null)
             {
-                throw new ArgumentNullException("di", "שם תיקייה לא חוקי");
+                throw new ArgumentNullException("RmDir:di", "שם תיקייה לא חוקי");
             }
+            
             if (string.IsNullOrEmpty(folder))
             {
-                throw new ArgumentNullException("שם תקייה לא יכול להיות ריק", "folder");
+                throw new ArgumentNullException("RmDir:folder","שם תקייה לא יכול להיות ריק" );
             }
-            di.MoveTo(Path.Combine(di.Parent.FullName, folder));
+           
+            di.MoveTo( folder);
         }
-        
+        ///// <summary>
+        ///// Returns the project parent folder as string 
+        ///// </summary>
+        ///// <param name="pFolder"></param>
+        ///// <returns></returns>
+        //public static string ProjectParent( string pFolder)
+        //{
+        //    string[] sTemp = pFolder.Split('\\');
+        //    string output = "";
+        //    for (int i = 0; i < sTemp.Length - 2; i++)
+        //    {
+        //        output += sTemp[i]; 
+        //    }
+        //    return  output + "\\";
+        //}
     }
 
 
