@@ -166,8 +166,7 @@ namespace SaveAsPDF
             if (sPath.Exists)
             {
                 //Create .SaveAsPDF
-                FileFoldersHelper.CreateHiddenFolder(sPath.FullName);
-
+                sPath.FullName.CreateHiddenFolder();
                 if (File.Exists(xmlProjectFile))
                 {
                     //load the XML file to project model
@@ -252,13 +251,14 @@ namespace SaveAsPDF
                 #region Creat XML files for the models
 
                 //create the SaveAsPDF hidden folder
-                FileFoldersHelper.CreateHiddenFolder(xmlSaveAsPdfFolder.FullName);
+                xmlSaveAsPdfFolder.FullName.CreateHiddenFolder();
 
                 //create project XML file
-                XmlFileHelper.ProjectModelToXmlFile(project, xmlProjectFile);
+                xmlProjectFile.ProjectModelToXmlFile(project);
 
                 //create the employees XML file from List<EmployeeModel> 
-                XmlFileHelper.EmployeesModelToXmlFile(employees, xmlEmploeeysFile);
+                xmlEmploeeysFile.EmployeesModelToXmlFile(employees);
+
                 #endregion
 
 
@@ -476,7 +476,8 @@ namespace SaveAsPDF
 
         private void menueAdd_Click(object sender, EventArgs e)
         {
-            TreeHelper.AddNode(tvFolders, mySelectedNode,"New Folder");
+            
+            tvFolders.AddNode(mySelectedNode);
             try
             {
                 FileFoldersHelper.MkDir(sPath.Parent.FullName + "\\" + mySelectedNode.FullPath);
@@ -499,7 +500,7 @@ namespace SaveAsPDF
             {
                 FileFoldersHelper.RmDir(sPath.Parent.FullName + "\\" + mySelectedNode.FullPath);
 
-                TreeHelper.DelNode(tvFolders, mySelectedNode);
+                tvFolders.DelNode(mySelectedNode);
 
             }
         }
@@ -510,7 +511,7 @@ namespace SaveAsPDF
             string oldName = sPath.Parent.FullName + "\\" + mySelectedNode.FullPath;
             DirectoryInfo directoryInfo = new DirectoryInfo(oldName);
 
-            TreeHelper.RenameNode(tvFolders, mySelectedNode);
+            tvFolders.RenameNode(mySelectedNode);
             //tvFolders.Refresh();
             mySelectedNode = tvFolders.SelectedNode;
 
@@ -584,7 +585,7 @@ namespace SaveAsPDF
                 try
                 {
                     DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(sPath.Parent.FullName, e.Node.FullPath));
-                    directoryInfo.RnDir(sPath.Parent.FullName +"\\"+ mySelectedNode.Parent.FullPath +"\\"+ e.Label );
+                    directoryInfo.RnDir($"{sPath.Parent.FullName}\\{mySelectedNode.Parent.FullPath}\\{e.Label}"); //e.Label = new name
                 }
                 catch (Exception ex)
                 {
@@ -607,7 +608,7 @@ namespace SaveAsPDF
         private void menuAddDate_Click(object sender, EventArgs e)
         {
             DateTime date = DateTime.Now;   
-            TreeHelper.AddNode(tvFolders, mySelectedNode, date.ToString("dd.MM.yyyy"));
+            tvFolders.AddNode(mySelectedNode, date.ToString("dd.MM.yyyy"));
         }
     }
 }

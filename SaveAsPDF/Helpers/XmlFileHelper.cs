@@ -20,7 +20,7 @@ namespace SaveAsPDF.Helpers
        /// </summary>
        /// <param name="project">ProjectModel</param>
        /// <param name="path">The path for the .SaveAsPDF hidden folder</param>
-        public static void ProjectModelToXmlFile(ProjectModel project, string path)
+        public static void ProjectModelToXmlFile(this string path ,ProjectModel project)
         {
             // Create the XmlDocument.
             XmlDocument doc = new XmlDocument();
@@ -63,7 +63,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="employees">Employee Model</param>
         /// <param name="path">File Name as string</param>
-        public static void EmployeesModelToXmlFile(List<EmployeeModel> employees, string path)
+        public static void EmployeesModelToXmlFile(this string path, List<EmployeeModel> employees)
         {
 
             XmlDocument doc = new XmlDocument();

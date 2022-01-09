@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace SaveAsPDF.Helpers
 {
-    public class TreeHelper
+    public static class TreeHelper
     {
         //XmlDocument xmlDocument;
         //TreeNode mySelectedNode;
@@ -59,7 +59,7 @@ namespace SaveAsPDF.Helpers
             List<TreeNode> nodes = new List<TreeNode>();
             foreach (string d in dirs)
             {
-                if (!IsHidden(d))
+                if (!d.IsHidden())
                 {
                     DirectoryInfo di = new DirectoryInfo(d);
                     TreeNode tn = new TreeNode(di.Name);
@@ -67,7 +67,7 @@ namespace SaveAsPDF.Helpers
                     tn.ToolTipText = d;
                     int subCount = 0;
                     try { subCount = Directory.GetDirectories(d).Length; }
-                    catch { /* ignore accessdenied */  }
+                    catch { /* ignore access denied */  }
                     if (subCount > 0)
                     {
                         tn.Nodes.Add("...");
@@ -86,7 +86,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="sDir"></param>
         /// <returns></returns>
-        private static bool IsHidden(string sDir)
+        private static bool IsHidden(this string sDir)
         {
             DirectoryInfo dir = new DirectoryInfo(sDir);
             if (dir.Attributes.HasFlag(FileAttributes.Hidden))
@@ -103,7 +103,7 @@ namespace SaveAsPDF.Helpers
             {
                 foreach (string subdirectory in Directory.GetDirectories(path))
                 {
-                    if (!IsHidden(subdirectory))
+                    if (!subdirectory.IsHidden())
                     {
                         TraverseDirectory(subdirectory);
                         string[] s = subdirectory.Split('\\');
@@ -123,11 +123,11 @@ namespace SaveAsPDF.Helpers
             }
         }
         /// <summary>
-        /// Rename the node name
+        /// Rename the node name accoring to user typing
         /// </summary>
         /// <param name="treeView"></param>
         /// <param name="mySelectedNode"></param>
-        public static void RenameNode(TreeView treeView, TreeNode mySelectedNode)
+        public static void RenameNode(this TreeView treeView, TreeNode mySelectedNode)
         {
             if (mySelectedNode != null && mySelectedNode.Parent != null)
             {
@@ -144,8 +144,13 @@ namespace SaveAsPDF.Helpers
                    "Editing of root nodes is not allowed.", "Invalid selection");
             }
         }
-
-        public static void RenameNode(TreeView treeView, TreeNode mySelectedNode, string newName)
+        /// <summary>
+        /// Rename the node name to 'newName' parameter
+        /// </summary>
+        /// <param name="treeView"></param>
+        /// <param name="mySelectedNode"></param>
+        /// <param name="newName"></param>
+        public static void RenameNode(this TreeView treeView, TreeNode mySelectedNode, string newName)
         {
             if (mySelectedNode != null && mySelectedNode.Parent != null)
             {
@@ -170,7 +175,7 @@ namespace SaveAsPDF.Helpers
         /// <param name="treeView"></param>
         /// <param name="mySelectedNode"></param>
         /// <param name="lable"></param>
-        public static void AddNode(TreeView treeView, TreeNode mySelectedNode, string lable)
+        public static void AddNode(this TreeView treeView, TreeNode mySelectedNode, string lable)
         {
             mySelectedNode = treeView.SelectedNode.Nodes.Add(lable);
 
@@ -179,12 +184,25 @@ namespace SaveAsPDF.Helpers
 
             if (lable != Settings.Default.dateTag)
             {
-                RenameNode(treeView, mySelectedNode);
+                treeView.RenameNode(mySelectedNode);
             }
                        
         }
+        /// <summary>
+        /// Add node to tree with default node name "New Folder"
+        /// </summary>
+        /// <param name="treeView"></param>
+        /// <param name="mySelectedNode"></param>
+        public static void AddNode(this TreeView treeView, TreeNode mySelectedNode)
+        {
+            mySelectedNode = treeView.SelectedNode.Nodes.Add("New Folder");
 
-        public static void DelNode(TreeView treeView, TreeNode mySelectedNode)
+            treeView.SelectedNode = mySelectedNode;
+            mySelectedNode.Expand();
+
+        }
+
+        public static void DelNode(this TreeView treeView, TreeNode mySelectedNode)
         {
             TreeNode node = treeView.SelectedNode;
 
@@ -302,7 +320,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="file_name"></param>
         /// <param name="trv"></param>
-        public static void LoadTreeViewFromFile(string file_name, TreeView trv)
+        public static void LoadTreeViewFromFile(this TreeView trv, string file_name)
         {
             // Get the file's contents.
             string file_contents = File.ReadAllText(file_name);
@@ -336,7 +354,7 @@ namespace SaveAsPDF.Helpers
         /// If the folder tree file does not exist a default folder tree will be loaded
         /// </summary>
         /// <param name="treeView"></param>
-        public static void LoadDefaultTree(TreeView treeView)
+        public static void LoadDefaultTree(this TreeView treeView)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             string location = assembly.CodeBase;
@@ -348,7 +366,7 @@ namespace SaveAsPDF.Helpers
 
             if (File.Exists(defaultTreeFileName))
             {
-                TreeHelper.LoadTreeViewFromFile(defaultTreeFileName, treeView);
+                treeView.LoadTreeViewFromFile(defaultTreeFileName);
             }
             else
             {
@@ -376,7 +394,7 @@ namespace SaveAsPDF.Helpers
                     "\t\tכבישים\n ";
 
                 File.WriteAllText(defaultTreeFileName, defaultTree);
-                TreeHelper.LoadTreeViewFromFile(defaultTreeFileName, treeView);
+                treeView.LoadTreeViewFromFile(defaultTreeFileName);
 
             }
         }

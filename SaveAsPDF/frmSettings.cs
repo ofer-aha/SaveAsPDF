@@ -30,7 +30,7 @@ namespace SaveAsPDF
             txtRootFolder.Text = Settings.Default.rootDrive; 
             txtDefaultFolder.Text = Settings.Default.defaultFolder;
             txtMinAttSize.Text = Settings.Default.minAttachmentSize.ToString();
-            TreeHelper.LoadDefaultTree(tvProjectSubFolders);
+            tvProjectSubFolders.LoadDefaultTree();
 
             SettingsModel settingsModel = new SettingsModel();
             List<string> fList = new List<string>();
@@ -100,19 +100,19 @@ namespace SaveAsPDF
 
         private void menueAdd_Click(object sender, System.EventArgs e)
         {
-            TreeHelper.AddNode(tvProjectSubFolders, mySelectedNode,"New Folder");
+            tvProjectSubFolders.AddNode(mySelectedNode);
             formChanged = true;    
         }
 
         private void menuDel_Click(object sender, System.EventArgs e)
         {
-            TreeHelper.DelNode(tvProjectSubFolders, mySelectedNode);
+            tvProjectSubFolders.DelNode(mySelectedNode);
             formChanged = true;    
         }
 
         private void menuRename_Click(object sender, System.EventArgs e)
         {
-            TreeHelper.RenameNode(tvProjectSubFolders, mySelectedNode);
+            tvProjectSubFolders.RenameNode(mySelectedNode);
             formChanged = true;
         }
 
@@ -203,7 +203,7 @@ namespace SaveAsPDF
 
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                TreeHelper.LoadTreeViewFromFile(dlg.FileName, tvProjectSubFolders);
+                tvProjectSubFolders.LoadTreeViewFromFile(dlg.FileName);
             }
 
         }
@@ -241,7 +241,7 @@ namespace SaveAsPDF
 
         private void btnLoadDefaultTree_Click(object sender, EventArgs e)
         {
-            TreeHelper.LoadDefaultTree(tvProjectSubFolders);
+            tvProjectSubFolders.LoadDefaultTree();
         }
 
 
@@ -266,7 +266,7 @@ namespace SaveAsPDF
         private void menuAddDate_Click(object sender, EventArgs e)
         {
             
-            TreeHelper.AddNode(tvProjectSubFolders, mySelectedNode, Settings.Default.dateTag);
+            tvProjectSubFolders.AddNode(mySelectedNode, Settings.Default.dateTag);  
             formChanged = true;
 
         }

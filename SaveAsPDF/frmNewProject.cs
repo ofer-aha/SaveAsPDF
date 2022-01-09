@@ -23,7 +23,7 @@ namespace SaveAsPDF
 
         private void LoadSettings()
         {
-            TreeHelper.LoadDefaultTree(tvDefaultSubFolders);
+            tvDefaultSubFolders.LoadDefaultTree();
 
         }
 
@@ -82,20 +82,19 @@ namespace SaveAsPDF
 
         private void menueAdd_Click(object sender, System.EventArgs e)
         {
-            TreeHelper.AddNode(tvDefaultSubFolders, mySelectedNode, "New Folder");
+            tvDefaultSubFolders.AddNode(mySelectedNode);
             
         }
 
         private void menuDel_Click(object sender, System.EventArgs e)
         {
-            TreeHelper.DelNode(tvDefaultSubFolders, mySelectedNode);
+            tvDefaultSubFolders.DelNode(mySelectedNode);
             
         }
 
         private void menuRename_Click(object sender, System.EventArgs e)
         {
-            TreeHelper.RenameNode(tvDefaultSubFolders, mySelectedNode);
-            
+            tvDefaultSubFolders.RenameNode(mySelectedNode); 
         }
 
         private void tvDefaultSubFolders_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)

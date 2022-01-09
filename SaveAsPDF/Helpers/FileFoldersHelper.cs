@@ -105,7 +105,7 @@ namespace SaveAsPDF.Helpers
         /// Create hidden folder
         /// </summary>
         /// <param name="folder"> string represnting the hidden folder name to create</param>
-        public static void CreateHiddenFolder(string folder)
+        public static void CreateHiddenFolder(this string folder)
         {
             if (!Directory.Exists(folder))
             {
@@ -117,7 +117,7 @@ namespace SaveAsPDF.Helpers
          
         /// <summary>
         /// Create a new folder
-        /// if the folder already exists it will name it Folder (2)... Folder (2) (2) and so on. 
+        /// if the folder already exists it will name it New Folder (2)... New Folder (3)  and so on. 
         /// </summary>
         /// <param name="folder">string represnting the folder name to create</param>
         public static void MkDir(string folder)
