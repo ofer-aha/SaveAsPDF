@@ -52,7 +52,7 @@ namespace SaveAsPDF
                 chkbSelectAllAttachments.Text = "הסר הכל";
                 txtSubject.Text = mailItem.Subject;
                 txtSubject.ReadOnly = true;
-                //txtSubject.TextAlign = HorizontalAlignment.Right;
+                
 
                 //load the list from model
                 dgvAttachments.DataSource = mailItem.AttachmetsToModel();
@@ -160,8 +160,8 @@ namespace SaveAsPDF
             xmlEmploeeysFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlEmploeeysFile}";
 
             DateTime date = DateTime.Now;
-            txtSaveLocation.Text = Settings.Default.defaultFolder.Replace("_מספר_פרויקט_\\", sPath.FullName);
-            txtSaveLocation.Text = txtSaveLocation.Text.Replace("_תאריך_", date.ToString("dd.MM.yyyy"));
+            txtSaveLocation.Text = Settings.Default.defaultFolder.Replace($"{Settings.Default.projectRootTag}\\", sPath.FullName);
+            txtSaveLocation.Text = txtSaveLocation.Text.Replace(Settings.Default.dateTag, date.ToString("dd.MM.yyyy"));
                                     
             if (sPath.Exists)
             {
@@ -480,10 +480,9 @@ namespace SaveAsPDF
             try
             {
                 FileFoldersHelper.MkDir(sPath.Parent.FullName + "\\" + mySelectedNode.FullPath);
-                //tvFolders.Nodes.Clear();
-                //DirectoryInfo d = new DirectoryInfo(sPath);
-                //tvFolders.Nodes.Add(TreeHelper.CreateDirectoryNode(d));
-                //tvFolders.ExpandAll();
+                tvFolders.Nodes.Clear();
+                tvFolders.Nodes.Add(TreeHelper.CreateDirectoryNode(sPath));
+                tvFolders.ExpandAll();
 
             }
             catch (Exception ex)
@@ -595,6 +594,20 @@ namespace SaveAsPDF
 
             }
 
+        }
+
+        private void menuRefresh_Click(object sender, EventArgs e)
+        {
+            tvFolders.Nodes.Clear();
+            tvFolders.Nodes.Add(TreeHelper.CreateDirectoryNode(sPath));
+            tvFolders.ExpandAll();
+
+        }
+
+        private void menuAddDate_Click(object sender, EventArgs e)
+        {
+            DateTime date = DateTime.Now;   
+            TreeHelper.AddNode(tvFolders, mySelectedNode, date.ToString("dd.MM.yyyy"));
         }
     }
 }

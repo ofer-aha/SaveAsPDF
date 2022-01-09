@@ -79,6 +79,9 @@ namespace SaveAsPDF
             this.txtSaveLocation = new System.Windows.Forms.TextBox();
             this.lblSaveLocation = new System.Windows.Forms.Label();
             this.process1 = new System.Diagnostics.Process();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuRefresh = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuAddDate = new System.Windows.Forms.ToolStripMenuItem();
             this.menuTree.SuspendLayout();
             this.stsStrip.SuspendLayout();
             this.tabNotes.SuspendLayout();
@@ -116,19 +119,24 @@ namespace SaveAsPDF
             // 
             this.menuTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menueAdd,
+            this.menuAddDate,
             this.menuDel,
-            this.menuRename});
+            this.menuRename,
+            this.toolStripSeparator1,
+            this.menuRefresh});
             this.menuTree.Name = "cMenu_Add";
             resources.ApplyResources(this.menuTree, "menuTree");
             // 
             // menueAdd
             // 
+            this.menueAdd.Image = global::SaveAsPDF.Properties.Resources.FolderClose;
             this.menueAdd.Name = "menueAdd";
             resources.ApplyResources(this.menueAdd, "menueAdd");
             this.menueAdd.Click += new System.EventHandler(this.menueAdd_Click);
             // 
             // menuDel
             // 
+            this.menuDel.Image = global::SaveAsPDF.Properties.Resources.close_big;
             this.menuDel.Name = "menuDel";
             resources.ApplyResources(this.menuDel, "menuDel");
             this.menuDel.Click += new System.EventHandler(this.menuDel_Click);
@@ -435,6 +443,23 @@ namespace SaveAsPDF
             this.process1.StartInfo.UserName = "";
             this.process1.SynchronizingObject = this;
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            resources.ApplyResources(this.toolStripSeparator1, "toolStripSeparator1");
+            // 
+            // menuRefresh
+            // 
+            this.menuRefresh.Name = "menuRefresh";
+            resources.ApplyResources(this.menuRefresh, "menuRefresh");
+            this.menuRefresh.Click += new System.EventHandler(this.menuRefresh_Click);
+            // 
+            // menuAddDate
+            // 
+            this.menuAddDate.Name = "menuAddDate";
+            resources.ApplyResources(this.menuAddDate, "menuAddDate");
+            this.menuAddDate.Click += new System.EventHandler(this.menuAddDate_Click);
+            // 
             // frmMain
             // 
             resources.ApplyResources(this, "$this");
@@ -530,5 +555,8 @@ namespace SaveAsPDF
         private System.Windows.Forms.TextBox txtSaveLocation;
         private System.Windows.Forms.Label lblSaveLocation;
         private System.Diagnostics.Process process1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem menuRefresh;
+        private System.Windows.Forms.ToolStripMenuItem menuAddDate;
     }
 }

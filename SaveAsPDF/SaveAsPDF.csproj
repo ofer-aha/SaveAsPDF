@@ -211,6 +211,7 @@
     <Compile Include="Helpers\InputBox.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Helpers\MailLogic.cs" />
     <Compile Include="Helpers\OutlookProcessor.cs" />
     <Compile Include="IEmployeeRequester.cs" />
     <Compile Include="INewProjectRequester.cs" />
@@ -311,6 +312,15 @@
     <None Include="Resources\arrow2.gif" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\syntax1.gif" />
+    <None Include="Resources\close_big.PNG" />
+    <None Include="Resources\close_small.PNG" />
+    <None Include="Resources\FolderClose.bmp" />
+    <None Include="Resources\FolderOpen.bmp" />
+    <None Include="Resources\logo.png" />
+    <None Include="Resources\min_big.PNG" />
+    <None Include="Resources\min_small.PNG" />
+    <None Include="Resources\MyComputer.bmp" />
     <Content Include="Resources\SaveAsPDF32.ico" />
   </ItemGroup>
   <ItemGroup>

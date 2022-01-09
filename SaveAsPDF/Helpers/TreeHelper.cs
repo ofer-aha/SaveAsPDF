@@ -145,6 +145,24 @@ namespace SaveAsPDF.Helpers
             }
         }
 
+        public static void RenameNode(TreeView treeView, TreeNode mySelectedNode, string newName)
+        {
+            if (mySelectedNode != null && mySelectedNode.Parent != null)
+            {
+                //treeView.SelectedNode = mySelectedNode;
+                treeView.SelectedNode.Name = newName;
+                //if (!mySelectedNode.IsEditing)
+                //{
+                //    mySelectedNode.BeginEdit();
+                //}
+            }
+            else
+            {
+                MessageBox.Show("No tree node selected or selected node is a root node.\n" +
+                   "Editing of root nodes is not allowed.", "Invalid selection");
+            }
+        }
+
 
         /// <summary>
         /// Add Node to treeview
@@ -159,7 +177,11 @@ namespace SaveAsPDF.Helpers
             treeView.SelectedNode = mySelectedNode;
             mySelectedNode.Expand();
 
-            RenameNode(treeView, mySelectedNode);
+            if (lable != Settings.Default.dateTag)
+            {
+                RenameNode(treeView, mySelectedNode);
+            }
+                       
         }
 
         public static void DelNode(TreeView treeView, TreeNode mySelectedNode)

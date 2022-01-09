@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace SaveAsPDF.Helpers
 {
-  
+
     public static class TextHelpers
     {
-    /// <summary>
-    /// convert the file size to "humen" readle figurs 
-    /// </summary>
-    /// <param name="byteCount"></param>
-    /// <returns>String XXKB/MB/GB</returns>
+        /// <summary>
+        /// convert the file size to "humen" readle figurs 
+        /// </summary>
+        /// <param name="byteCount"></param>
+        /// <returns>String XXKB/MB/GB</returns>
         public static String BytesToString(this int byteCount)
         {
             string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
@@ -41,10 +41,22 @@ namespace SaveAsPDF.Helpers
             if (s.Length > 0)
             {
                 var regex = new Regex(@"^([0-9a-zA-Z]([\+\-_\.][0-9a-zA-Z]+)*)+@(([0-9a-zA-Z][-\w]*[0-9a-zA-Z]*\.)+[a-zA-Z0-9]{2,17})$");
-                output =  regex.IsMatch(s);
+                output = regex.IsMatch(s);
             }
-            return output; 
-        } 
+            return output;
+        }
 
+        public static string GetBetween(string strSource, string strStart, string strEnd)
+        {
+            if (strSource.Contains(strStart) && strSource.Contains(strEnd))
+            {
+                int Start, End;
+                Start = strSource.IndexOf(strStart, 0) + strStart.Length;
+                End = strSource.IndexOf(strEnd, Start);
+                return strSource.Substring(Start, End - Start);
+            }
+            return "";
+
+        }
     }
 }

@@ -106,5 +106,29 @@ namespace SaveAsPDF.Properties {
                 this["minAttachmentSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("_תאריך_")]
+        public string dateTag {
+            get {
+                return ((string)(this["dateTag"]));
+            }
+            set {
+                this["dateTag"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("_מספר_פרויקט_")]
+        public string projectRootTag {
+            get {
+                return ((string)(this["projectRootTag"]));
+            }
+            set {
+                this["projectRootTag"] = value;
+            }
+        }
     }
 }

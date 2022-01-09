@@ -1,22 +1,15 @@
-﻿using System;
-using System.Configuration;
+﻿using SaveAsPDF.Properties;
+using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using SaveAsPDF.Models;
 using System.Windows.Forms;
-using System.Runtime.Remoting.Messaging;
-using SaveAsPDF.Properties;
 
 namespace SaveAsPDF.Helpers
 {
     public static class FileFoldersHelper
 
     {
-        
+
         /// <summary>
         /// Extention method: 
         /// <list>
@@ -56,7 +49,7 @@ namespace SaveAsPDF.Helpers
                 {
                     //more complicated project id: XXX-X or XXX-XX or XXX-X-XX well you catch my point....
                     string[] split = projectNumber.Split('-'); //split the projectid to parts
-                    
+
                     if (split[0].Length == 3)
                     {
                         output += $"0{split[0]}".Substring(0, 2);
@@ -84,7 +77,7 @@ namespace SaveAsPDF.Helpers
                         if (!Directory.Exists($"{output}\\{split[0]}-{split[1]}\\{projectNumber}\\"))
                         {
 
-                            output +=  $"-{split[1]}";
+                            output += $"-{split[1]}";
                         }
                         else
                         {
@@ -104,7 +97,7 @@ namespace SaveAsPDF.Helpers
         {
             string pattern = @"[\/:*?""<>|]";
             //Regex rg = new Regex(pattern);
-            
+
             return Regex.Replace(inTXT, pattern, "").Trim();
         }
 
@@ -121,6 +114,7 @@ namespace SaveAsPDF.Helpers
             }
         }
 
+         
         /// <summary>
         /// Create a new folder
         /// if the folder already exists it will name it Folder (2)... Folder (2) (2) and so on. 
@@ -132,14 +126,22 @@ namespace SaveAsPDF.Helpers
             {
                 throw new ArgumentNullException("MkDir:folder", "שם תקייה לא יכול להיות ריק");
             }
-            
-           // folder = folder.SafeFileName(); 
+
+            // folder = folder.SafeFileName(); 
 
             if (Directory.Exists(folder))
             {
-                int i=1;
-                folder += $" ({i + 1})";
-                MkDir(folder); 
+                int i = 0;
+                if (int.TryParse(TextHelpers.GetBetween(folder, "(", ")"), out i))
+                {
+                    folder = folder.Replace($"({i})", $"({i+1})");
+                    MkDir(folder); 
+                }
+                else
+                {
+                    folder += " (2)";
+                    MkDir(folder);
+                }
             }
             else
             {
@@ -150,7 +152,7 @@ namespace SaveAsPDF.Helpers
         /// Delete folder recursiv
         /// </summary>
         /// <param name="folder">The folder to be deleted as string</param>
-        public static void RmDir (string folder)
+        public static void RmDir(string folder)
         {
             if (string.IsNullOrEmpty(folder))
             {
@@ -165,7 +167,7 @@ namespace SaveAsPDF.Helpers
 
             try
             {
-                Directory.Delete(folder + "\\", true); 
+                Directory.Delete(folder + "\\", true);
             }
             catch (Exception e)
             {
@@ -185,13 +187,13 @@ namespace SaveAsPDF.Helpers
             {
                 throw new ArgumentNullException("RmDir:di", "שם תיקייה לא חוקי");
             }
-            
+
             if (string.IsNullOrEmpty(folder))
             {
-                throw new ArgumentNullException("RmDir:folder","שם תקייה לא יכול להיות ריק" );
+                throw new ArgumentNullException("RmDir:folder", "שם תקייה לא יכול להיות ריק");
             }
-           
-            di.MoveTo( folder);
+
+            di.MoveTo(folder);
         }
         ///// <summary>
         ///// Returns the project parent folder as string 

@@ -146,6 +146,8 @@ namespace SaveAsPDF
             
             Settings.Default.Save();
             Settings.Default.Upgrade();
+            
+            SaveDefaultTree();
 
         }
 
@@ -174,6 +176,13 @@ namespace SaveAsPDF
 
         private void btnSaveDefaultTree_Click(object sender, EventArgs e)
         {
+            SaveDefaultTree();
+
+        }
+
+        private void SaveDefaultTree()
+        {
+
             Assembly assembly = Assembly.GetExecutingAssembly();
             string location = assembly.CodeBase;
             string fullPath = new Uri(location).LocalPath; // path including the dll 
@@ -257,9 +266,15 @@ namespace SaveAsPDF
         private void menuAddDate_Click(object sender, EventArgs e)
         {
             
-            TreeHelper.AddNode(tvProjectSubFolders, mySelectedNode, "_תאריך_");
+            TreeHelper.AddNode(tvProjectSubFolders, mySelectedNode, Settings.Default.dateTag);
             formChanged = true;
 
+        }
+
+        private void menuAppendDate_Click(object sender, EventArgs e)
+        {
+            //tvProjectSubFolders.SelectedNode.Name += Settings.Default.dateTag;
+            TreeHelper.RenameNode(tvProjectSubFolders, mySelectedNode,  mySelectedNode.Name + Settings.Default.dateTag);
         }
     }
 }

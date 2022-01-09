@@ -23,5 +23,11 @@
     <Setting Name="minAttachmentSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">8192</Value>
     </Setting>
+    <Setting Name="dateTag" Type="System.String" Scope="User">
+      <Value Profile="(Default)">_תאריך_</Value>
+    </Setting>
+    <Setting Name="projectRootTag" Type="System.String" Scope="User">
+      <Value Profile="(Default)">_מספר_פרויקט_</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

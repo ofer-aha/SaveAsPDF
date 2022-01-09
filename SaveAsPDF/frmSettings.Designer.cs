@@ -34,7 +34,6 @@ namespace SaveAsPDF
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSettings));
             this.bntCancel = new System.Windows.Forms.Button();
             this.menuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.menueAdd = new System.Windows.Forms.ToolStripMenuItem();
             this.menuDel = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRename = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
@@ -60,8 +59,10 @@ namespace SaveAsPDF
             this.label3 = new System.Windows.Forms.Label();
             this.txtMinAttSize = new System.Windows.Forms.TextBox();
             this.lblMinAttSize = new System.Windows.Forms.Label();
-            this.menuAddDate = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.menueAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuAddDate = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuAppendDate = new System.Windows.Forms.ToolStripMenuItem();
             this.menuTree.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBoxDefaultFolder.SuspendLayout();
@@ -83,31 +84,26 @@ namespace SaveAsPDF
             // 
             this.menuTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menueAdd,
+            this.menuAddDate,
             this.menuDel,
-            this.menuRename});
+            this.menuRename,
+            this.menuAppendDate});
             this.menuTree.Name = "cMenu_Add";
-            this.menuTree.Size = new System.Drawing.Size(138, 70);
-            // 
-            // menueAdd
-            // 
-            this.menueAdd.Name = "menueAdd";
-            this.menueAdd.Size = new System.Drawing.Size(180, 22);
-            this.menueAdd.Text = "הוסף תיקייה";
-            this.menueAdd.Click += new System.EventHandler(this.menueAdd_Click);
+            this.menuTree.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.menuTree.Size = new System.Drawing.Size(202, 136);
             // 
             // menuDel
             // 
+            this.menuDel.Image = global::SaveAsPDF.Properties.Resources.close_big;
             this.menuDel.Name = "menuDel";
-            this.menuDel.Size = new System.Drawing.Size(180, 22);
+            this.menuDel.Size = new System.Drawing.Size(201, 22);
             this.menuDel.Text = "מחק תיקייה";
             this.menuDel.Click += new System.EventHandler(this.menuDel_Click);
             // 
             // menuRename
             // 
-            this.menuRename.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuAddDate});
             this.menuRename.Name = "menuRename";
-            this.menuRename.Size = new System.Drawing.Size(180, 22);
+            this.menuRename.Size = new System.Drawing.Size(201, 22);
             this.menuRename.Text = "שנה שם";
             this.menuRename.Click += new System.EventHandler(this.menuRename_Click);
             // 
@@ -344,12 +340,27 @@ namespace SaveAsPDF
             this.lblMinAttSize.TabIndex = 0;
             this.lblMinAttSize.Text = "גודל מינימאלי לקבצים מצורפים:";
             // 
+            // menueAdd
+            // 
+            this.menueAdd.Image = global::SaveAsPDF.Properties.Resources.FolderClose;
+            this.menueAdd.Name = "menueAdd";
+            this.menueAdd.Size = new System.Drawing.Size(201, 22);
+            this.menueAdd.Text = "הוסף תיקייה";
+            this.menueAdd.Click += new System.EventHandler(this.menueAdd_Click);
+            // 
             // menuAddDate
             // 
             this.menuAddDate.Name = "menuAddDate";
-            this.menuAddDate.Size = new System.Drawing.Size(180, 22);
+            this.menuAddDate.Size = new System.Drawing.Size(201, 22);
             this.menuAddDate.Text = "הוסף תאריך";
             this.menuAddDate.Click += new System.EventHandler(this.menuAddDate_Click);
+            // 
+            // menuAppendDate
+            // 
+            this.menuAppendDate.Name = "menuAppendDate";
+            this.menuAppendDate.Size = new System.Drawing.Size(201, 22);
+            this.menuAppendDate.Text = "הוסף תאריך לשם תיקייה";
+            this.menuAppendDate.Click += new System.EventHandler(this.menuAppendDate_Click);
             // 
             // frmSettings
             // 
@@ -416,7 +427,8 @@ namespace SaveAsPDF
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnFolderSelect;
-        private System.Windows.Forms.ToolStripMenuItem menuAddDate;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.ToolStripMenuItem menuAddDate;
+        private System.Windows.Forms.ToolStripMenuItem menuAppendDate;
     }
 }
