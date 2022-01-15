@@ -109,14 +109,14 @@ namespace SaveAsPDF
             // menueAdd
             // 
             this.menueAdd.Name = "menueAdd";
-            this.menueAdd.Size = new System.Drawing.Size(180, 22);
+            this.menueAdd.Size = new System.Drawing.Size(137, 22);
             this.menueAdd.Text = "הוסף תיקייה";
             this.menueAdd.Click += new System.EventHandler(this.menueAdd_Click);
             // 
             // menuDel
             // 
             this.menuDel.Name = "menuDel";
-            this.menuDel.Size = new System.Drawing.Size(180, 22);
+            this.menuDel.Size = new System.Drawing.Size(137, 22);
             this.menuDel.Text = "מחק תיקייה";
             this.menuDel.Click += new System.EventHandler(this.menuDel_Click);
             // 
@@ -204,6 +204,7 @@ namespace SaveAsPDF
             this.Controls.Add(this.lblProjectID);
             this.Controls.Add(this.lblProjectName);
             this.Controls.Add(this.txtProjectName);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;

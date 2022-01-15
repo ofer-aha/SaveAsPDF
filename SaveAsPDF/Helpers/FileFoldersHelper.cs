@@ -120,14 +120,13 @@ namespace SaveAsPDF.Helpers
         /// if the folder already exists it will name it New Folder (2)... New Folder (3)  and so on. 
         /// </summary>
         /// <param name="folder">string represnting the folder name to create</param>
-        public static void MkDir(string folder)
+        public static string MkDir(string folder)
         {
+            string output=folder;
             if (string.IsNullOrEmpty(folder))
             {
                 throw new ArgumentNullException("MkDir:folder", "שם תקייה לא יכול להיות ריק");
             }
-
-            // folder = folder.SafeFileName(); 
 
             if (Directory.Exists(folder))
             {
@@ -135,18 +134,21 @@ namespace SaveAsPDF.Helpers
                 if (int.TryParse(TextHelpers.GetBetween(folder, "(", ")"), out i))
                 {
                     folder = folder.Replace($"({i})", $"({i+1})");
+                    output = folder;
                     MkDir(folder); 
                 }
                 else
                 {
-                    folder += " (2)";
-                    MkDir(folder);
+                    output = $"{folder} (2)";
+                    MkDir(output);
                 }
             }
             else
             {
                 Directory.CreateDirectory(folder);
+                
             }
+            return output;
         }
         /// <summary>
         /// Delete folder recursiv

@@ -177,16 +177,26 @@ namespace SaveAsPDF.Helpers
         /// <param name="lable"></param>
         public static void AddNode(this TreeView treeView, TreeNode mySelectedNode, string lable)
         {
-            mySelectedNode = treeView.SelectedNode.Nodes.Add(lable);
-
-            treeView.SelectedNode = mySelectedNode;
-            mySelectedNode.Expand();
-
-            if (lable != Settings.Default.dateTag)
+            if(treeView.SelectedNode != null)
             {
-                treeView.RenameNode(mySelectedNode);
+                if (!string.IsNullOrEmpty(lable))
+                {
+                    mySelectedNode = treeView.SelectedNode.Nodes.Add(lable);
+
+                    treeView.SelectedNode = mySelectedNode;
+                    mySelectedNode.Expand();
+
+                    if (lable != Settings.Default.dateTag)
+                    {
+                        treeView.RenameNode(mySelectedNode);
+                    }
+                }
+                else
+                {
+                    //if Lable is Null add default node name 
+                    treeView.AddNode(mySelectedNode);
+                }
             }
-                       
         }
         /// <summary>
         /// Add node to tree with default node name "New Folder"
@@ -195,11 +205,14 @@ namespace SaveAsPDF.Helpers
         /// <param name="mySelectedNode"></param>
         public static void AddNode(this TreeView treeView, TreeNode mySelectedNode)
         {
-            mySelectedNode = treeView.SelectedNode.Nodes.Add("New Folder");
+            if (treeView.SelectedNode != null)
+            {
+                mySelectedNode = treeView.SelectedNode.Nodes.Add("New Folder");
 
-            treeView.SelectedNode = mySelectedNode;
-            mySelectedNode.Expand();
+                treeView.SelectedNode = mySelectedNode;
+                mySelectedNode.Expand();
 
+            }
         }
 
         public static void DelNode(this TreeView treeView, TreeNode mySelectedNode)

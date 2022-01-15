@@ -36,8 +36,11 @@ namespace SaveAsPDF
             this.lblProjectID = new System.Windows.Forms.Label();
             this.menuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menueAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuAddDate = new System.Windows.Forms.ToolStripMenuItem();
             this.menuDel = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRename = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.lblSubject = new System.Windows.Forms.Label();
             this.btnOK = new System.Windows.Forms.Button();
@@ -79,9 +82,6 @@ namespace SaveAsPDF
             this.txtSaveLocation = new System.Windows.Forms.TextBox();
             this.lblSaveLocation = new System.Windows.Forms.Label();
             this.process1 = new System.Diagnostics.Process();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.menuRefresh = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuAddDate = new System.Windows.Forms.ToolStripMenuItem();
             this.menuTree.SuspendLayout();
             this.stsStrip.SuspendLayout();
             this.tabNotes.SuspendLayout();
@@ -134,6 +134,12 @@ namespace SaveAsPDF
             resources.ApplyResources(this.menueAdd, "menueAdd");
             this.menueAdd.Click += new System.EventHandler(this.menueAdd_Click);
             // 
+            // menuAddDate
+            // 
+            this.menuAddDate.Name = "menuAddDate";
+            resources.ApplyResources(this.menuAddDate, "menuAddDate");
+            this.menuAddDate.Click += new System.EventHandler(this.menuAddDate_Click);
+            // 
             // menuDel
             // 
             this.menuDel.Image = global::SaveAsPDF.Properties.Resources.close_big;
@@ -146,6 +152,17 @@ namespace SaveAsPDF
             this.menuRename.Name = "menuRename";
             resources.ApplyResources(this.menuRename, "menuRename");
             this.menuRename.Click += new System.EventHandler(this.menuRename_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            resources.ApplyResources(this.toolStripSeparator1, "toolStripSeparator1");
+            // 
+            // menuRefresh
+            // 
+            this.menuRefresh.Name = "menuRefresh";
+            resources.ApplyResources(this.menuRefresh, "menuRefresh");
+            this.menuRefresh.Click += new System.EventHandler(this.menuRefresh_Click);
             // 
             // imageList
             // 
@@ -443,23 +460,6 @@ namespace SaveAsPDF
             this.process1.StartInfo.UserName = "";
             this.process1.SynchronizingObject = this;
             // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            resources.ApplyResources(this.toolStripSeparator1, "toolStripSeparator1");
-            // 
-            // menuRefresh
-            // 
-            this.menuRefresh.Name = "menuRefresh";
-            resources.ApplyResources(this.menuRefresh, "menuRefresh");
-            this.menuRefresh.Click += new System.EventHandler(this.menuRefresh_Click);
-            // 
-            // menuAddDate
-            // 
-            this.menuAddDate.Name = "menuAddDate";
-            resources.ApplyResources(this.menuAddDate, "menuAddDate");
-            this.menuAddDate.Click += new System.EventHandler(this.menuAddDate_Click);
-            // 
             // frmMain
             // 
             resources.ApplyResources(this, "$this");
@@ -481,6 +481,7 @@ namespace SaveAsPDF
             this.Controls.Add(this.lblProjectID);
             this.Controls.Add(this.txtProjectID);
             this.Controls.Add(this.btnCancel);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.HelpButton = true;
             this.MaximizeBox = false;
             this.Name = "frmMain";

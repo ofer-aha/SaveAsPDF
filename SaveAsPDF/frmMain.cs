@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Windows.Forms;
 using Exception = System.Exception;
 
@@ -476,46 +477,64 @@ namespace SaveAsPDF
 
         private void menueAdd_Click(object sender, EventArgs e)
         {
-            
-            tvFolders.AddNode(mySelectedNode);
             try
             {
-                FileFoldersHelper.MkDir(sPath.Parent.FullName + "\\" + mySelectedNode.FullPath);
-                tvFolders.Nodes.Clear();
-                tvFolders.Nodes.Add(TreeHelper.CreateDirectoryNode(sPath));
-                tvFolders.ExpandAll();
-
+                string[] tf = FileFoldersHelper.MkDir($"{sPath.Parent.FullName}\\{mySelectedNode.FullPath}\\New Folder").Split('\\');
+                tvFolders.AddNode(mySelectedNode, tf[tf.Length - 1]);
             }
             catch (Exception ex)
             {
-
                 MessageBox.Show(ex.Message, "SaveAsPDF:menueAdd_Click");
+            }
+        }
+        private void menuAddDate_Click(object sender, EventArgs e)
+        {
+            DateTime date = DateTime.Now;
+            try
+            {
+                string[] tf = FileFoldersHelper.MkDir($"{sPath.Parent.FullName}\\{mySelectedNode.FullPath}\\{date.ToString("dd.MM.yyyy")}").Split('\\');
+                tvFolders.AddNode(mySelectedNode, tf[tf.Length - 1]);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "SaveAsPDF:menueAddDate_Click");
             }
         }
 
         private void menuDel_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("האם למחוק תיקייה ואת כל הקבצים והתיקיות שהיא מכילה?\n" + 
-                            sPath.Parent.FullName + "\\" + mySelectedNode.FullPath, "SaveAsPDF", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (mySelectedNode.Parent != null)
             {
-                FileFoldersHelper.RmDir(sPath.Parent.FullName + "\\" + mySelectedNode.FullPath);
-
-                tvFolders.DelNode(mySelectedNode);
-
+                if (MessageBox.Show("האם למחוק תיקייה ואת כל הקבצים והתיקיות שהיא מכילה?\n" +
+                        $"{sPath.Parent.FullName}\\{mySelectedNode.FullPath}", "SaveAsPDF", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    FileFoldersHelper.RmDir($"{sPath.Parent.FullName}\\{mySelectedNode.FullPath}");
+                    tvFolders.DelNode(mySelectedNode);
+                }
+            }
+            else
+            {
+                MessageBox.Show("לא ניתן למחוק את התיקייה הראשית בפרויקט", "SaveAsPDF"); 
             }
         }
 
         private void menuRename_Click(object sender, EventArgs e)
         {
            
-            string oldName = sPath.Parent.FullName + "\\" + mySelectedNode.FullPath;
+            string oldName = $"{sPath.Parent.FullName}\\{mySelectedNode.FullPath}";
             DirectoryInfo directoryInfo = new DirectoryInfo(oldName);
 
             tvFolders.RenameNode(mySelectedNode);
             //tvFolders.Refresh();
             mySelectedNode = tvFolders.SelectedNode;
+ 
 
-            
+        }
+        private void menuRefresh_Click(object sender, EventArgs e)
+        {
+            tvFolders.Nodes.Clear();
+            tvFolders.Nodes.Add(TreeHelper.CreateDirectoryNode(sPath));
+            tvFolders.ExpandAll();
 
         }
 
@@ -597,18 +616,6 @@ namespace SaveAsPDF
 
         }
 
-        private void menuRefresh_Click(object sender, EventArgs e)
-        {
-            tvFolders.Nodes.Clear();
-            tvFolders.Nodes.Add(TreeHelper.CreateDirectoryNode(sPath));
-            tvFolders.ExpandAll();
 
-        }
-
-        private void menuAddDate_Click(object sender, EventArgs e)
-        {
-            DateTime date = DateTime.Now;   
-            tvFolders.AddNode(mySelectedNode, date.ToString("dd.MM.yyyy"));
-        }
     }
 }
