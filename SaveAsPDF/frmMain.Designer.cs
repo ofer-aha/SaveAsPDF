@@ -68,7 +68,6 @@ namespace SaveAsPDF
             this.firstName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lastName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.emailAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnPhoneBook = new System.Windows.Forms.Button();
             this.chkbSendNote = new System.Windows.Forms.CheckBox();
             this.tabFilesFolders = new System.Windows.Forms.TabControl();
@@ -318,8 +317,7 @@ namespace SaveAsPDF
             this.iD,
             this.firstName,
             this.lastName,
-            this.emailAddress,
-            this.Column1});
+            this.emailAddress});
             resources.ApplyResources(this.dgvEmployees, "dgvEmployees");
             this.dgvEmployees.Name = "dgvEmployees";
             this.dgvEmployees.ReadOnly = true;
@@ -349,12 +347,6 @@ namespace SaveAsPDF
             resources.ApplyResources(this.emailAddress, "emailAddress");
             this.emailAddress.Name = "emailAddress";
             this.emailAddress.ReadOnly = true;
-            // 
-            // Column1
-            // 
-            resources.ApplyResources(this.Column1, "Column1");
-            this.Column1.Name = "Column1";
-            this.Column1.ReadOnly = true;
             // 
             // btnPhoneBook
             // 
@@ -435,6 +427,7 @@ namespace SaveAsPDF
             this.dgvAttachments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             resources.ApplyResources(this.dgvAttachments, "dgvAttachments");
             this.dgvAttachments.Name = "dgvAttachments";
+            this.dgvAttachments.ReadOnly = true;
             this.dgvAttachments.RowHeadersVisible = false;
             this.dgvAttachments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvAttachments.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvAttachments_CellDoubleClick);
@@ -538,11 +531,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.GroupBox groupBoxEmployee;
         private System.Windows.Forms.Button RemoveEmployee;
         private System.Windows.Forms.DataGridView dgvEmployees;
-        private System.Windows.Forms.DataGridViewTextBoxColumn iD;
-        private System.Windows.Forms.DataGridViewTextBoxColumn firstName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn lastName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn emailAddress;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
         private System.Windows.Forms.Button btnPhoneBook;
         private System.Windows.Forms.CheckBox chkbSendNote;
         private System.Windows.Forms.TabControl tabFilesFolders;
@@ -559,5 +547,9 @@ namespace SaveAsPDF
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem menuRefresh;
         private System.Windows.Forms.ToolStripMenuItem menuAddDate;
+        private System.Windows.Forms.DataGridViewTextBoxColumn iD;
+        private System.Windows.Forms.DataGridViewTextBoxColumn firstName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn lastName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn emailAddress;
     }
 }

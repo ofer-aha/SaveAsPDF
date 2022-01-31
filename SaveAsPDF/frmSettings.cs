@@ -143,15 +143,9 @@ namespace SaveAsPDF
             Settings.Default.minAttachmentSize = int.Parse(txtMinAttSize.Text);
 
             //save the new settings
-            
-            Settings.Default.Save();
-            Settings.Default.Upgrade();
-            
             SaveDefaultTree();
 
         }
-
-
 
         private void btnSaveSettings_Click(object sender, System.EventArgs e)
         {

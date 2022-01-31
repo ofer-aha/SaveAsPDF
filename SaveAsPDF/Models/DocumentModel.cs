@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Outlook;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,11 +12,11 @@ namespace SaveAsPDF.Models
         /// <summary>
         /// To: field from the mailItem 
         /// </summary>
-        public List<string> ToField { get; set; }
+        public string ToField { get; set; }
         /// <summary>
         /// From: field from mailItem
         /// </summary>
-        public List<string> FromField { get; set; }
+        public string FromField { get; set; }
         /// <summary>
         /// CC: field from mailItem
         /// </summary>
@@ -35,7 +36,7 @@ namespace SaveAsPDF.Models
         /// <summary>
         /// List of Attachment objects 
         /// </summary>
-        public List<AttachmentsModel> Attachments { get; set; }
+        public List<Attachment> Attachments { get; set; }
 
 
     }

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using Exception = System.Exception;
 
@@ -27,6 +28,13 @@ namespace SaveAsPDF
         private bool dataLoaded = false;
 
         private TreeNode mySelectedNode;
+
+        private static MailItem mi = null;
+        private MailItem mailItem = ThisAddIn.TypeOfMailitem(mi);
+
+
+        DocumentModel oDoc = new DocumentModel();
+
         public frmMain()
         {
             InitializeComponent();
@@ -36,34 +44,53 @@ namespace SaveAsPDF
             dgvEmployees.Columns[1].HeaderText = "שם פרטי";
             dgvEmployees.Columns[2].HeaderText = "שם מפשחה";
             dgvEmployees.Columns[3].HeaderText = "אימייל";
-            dgvEmployees.Columns[4].Visible = false;
+            //dgvEmployees.Columns[4].Visible = false;
+
+            //Load the context menue to the rich textboxes 
+            rtxtNotes.EnableContextMenu();
+            rtxtProjectNotes.EnableContextMenu();
 
 
         }
         private void frmMain_Load(object sender, EventArgs e)
         {
-            MailItem mi = null;
-            MailItem mailItem = ThisAddIn.TypeOfMailitem(mi);
+            //MailItem mi = null;
+            //MailItem mailItem = ThisAddIn.TypeOfMailitem(mi);
+            
+            sPath = txtProjectID.Text.ProjectFullPath();
 
-
-
-            if (mailItem is MailItem)
+            if (mailItem is MailItem && mailItem != null)
             {
+                //oDoc.LoadMailItem(mailItem);
+
                 chkbSelectAllAttachments.Checked = true;
                 chkbSelectAllAttachments.Text = "הסר הכל";
                 txtSubject.Text = mailItem.Subject;
-                txtSubject.ReadOnly = true;
-                
+                txtSaveLocation.Text = sPath.FullName;
 
                 //load the list from model
-                dgvAttachments.DataSource = mailItem.AttachmetsToModel();
-
+                //dgvAttachments.DataSource =  mailItem.AttachmetsToModel();
+                
+                BindingSource source = new BindingSource();
+                source.DataSource = mailItem.AttachmetsToModel();  //ailItem.GetMailAttachments().AttachmentsToString();
+                dgvAttachments.DataSource = source;
+                
                 dgvAttachments.Columns[0].Visible = false;
-                dgvAttachments.Columns[1].HeaderText = "";
-                dgvAttachments.Columns[2].HeaderText = "שם קובץ";
+
+                dgvAttachments.Columns[1].HeaderText = "V";
+                dgvAttachments.Columns[1].ReadOnly = false;
+              
+                dgvAttachments.Columns[2].HeaderText = "שם קובץ"; 
                 dgvAttachments.Columns[2].ReadOnly = true;
-                dgvAttachments.Columns[3].HeaderText = "גודל";
+                dgvAttachments.Columns[3].HeaderText= "גודל";
                 dgvAttachments.Columns[3].ReadOnly = true;
+
+
+                //dgvAttachments.DataSource = mailItem.GetMailAttachments().AttachmentsToString();
+
+
+
+
             }
             else
             {
@@ -159,11 +186,11 @@ namespace SaveAsPDF
             xmlSaveAsPdfFolder = new DirectoryInfo(Path.Combine(sPath.FullName,Settings.Default.xmlSaveAsPdfFolder));
             xmlProjectFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlProjectFile}";
             xmlEmploeeysFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlEmploeeysFile}";
+            
 
             DateTime date = DateTime.Now;
-            txtSaveLocation.Text = Settings.Default.defaultFolder.Replace($"{Settings.Default.projectRootTag}\\", sPath.FullName);
-            txtSaveLocation.Text = txtSaveLocation.Text.Replace(Settings.Default.dateTag, date.ToString("dd.MM.yyyy"));
-                                    
+            txtSaveLocation.Text = Settings.Default.defaultFolder.Replace($"{Settings.Default.projectRootTag}\\", sPath.FullName).Replace(Settings.Default.dateTag, date.ToString("dd.MM.yyyy"));
+
             if (sPath.Exists)
             {
                 //Create .SaveAsPDF
@@ -203,37 +230,19 @@ namespace SaveAsPDF
 
         private void ClearForm()
         {
-            foreach (var c in Controls)
-            {
-                if (c is TextBox)
-                {
-                    if (((TextBox)c).Name != "txtProjectID")
-                    {
-                        ((TextBox)c).Clear();
-                    }
-
-                }
-                rtxtNotes.Clear();
-                rtxtProjectNotes.Clear();
-
-
-            }
+            txtProjectName.Clear();
+            txtFullPath.Clear();
+            txtSaveLocation.Clear();
+            rtxtNotes.Clear();
         }
         private void btnOK_Click(object sender, EventArgs e)
         {
             if (ValidateForm())
             {
-                if (dataLoaded == false)
+                if (!dataLoaded )
                 {
                     LoadXmls();
                 }
-
-                #region MailItem
-
-                MailItem mi = null;
-                MailItem mailItem = ThisAddIn.TypeOfMailitem(mi);
-
-                #endregion
 
                 #region Populate Models
 
@@ -245,7 +254,6 @@ namespace SaveAsPDF
                 project.ProjectNotes = rtxtProjectNotes.Text;
 
                 //build the Employees model
-                //List<EmployeeModel> employees = new List<EmployeeModel>();
                 employees = dgvEmployees.DgvEmployessToModel();
                 #endregion
 
@@ -262,13 +270,19 @@ namespace SaveAsPDF
 
                 #endregion
 
+                DirectoryInfo directory = new DirectoryInfo(txtSaveLocation.Text);
+                if (!directory.Exists)
+                {
+                    FileFoldersHelper.MkDir(directory.FullName);
+                }
+
+                //save the mailItem to the current working directory. 
+                mailItem.SaveToPDF(txtSaveLocation.Text);
+                mailItem.SaveAttchments(txtSaveLocation.Text,false);
+                
 
                 //TODO: inject more data to the file befor converting to PDF
 
-                //save the mailItem to the current working directory. 
-                //OfficeHelpers.SaveToPDF(mailItem, txtSaveLocation.Text); 
-
-                //TODO: what about attuchment saveing? 
 
             }
             Close();
@@ -303,9 +317,10 @@ namespace SaveAsPDF
 
         private void dgvAttachments_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            //TODO: save attachment to temp folder 
+            //TODO: Open attachment when double clicking it on the list
+            //1. save attachment to temp folder 
             //string tmpFoder = @System.IO.Path.GetTempPath();
-            //TODO: exec. the file using default file asociating 
+            //2. exec. the file using default file asociating 
             MessageBox.Show(dgvAttachments.CurrentCell.Value.ToString());
         }
 
