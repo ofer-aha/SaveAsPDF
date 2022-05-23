@@ -34,13 +34,6 @@ namespace SaveAsPDF
             this.btnCancel = new System.Windows.Forms.Button();
             this.txtProjectID = new System.Windows.Forms.TextBox();
             this.lblProjectID = new System.Windows.Forms.Label();
-            this.menuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.menueAdd = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuAddDate = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuDel = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuRename = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.menuRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.lblSubject = new System.Windows.Forms.Label();
             this.btnOK = new System.Windows.Forms.Button();
@@ -80,8 +73,6 @@ namespace SaveAsPDF
             this.dgvAttachments = new System.Windows.Forms.DataGridView();
             this.txtSaveLocation = new System.Windows.Forms.TextBox();
             this.lblSaveLocation = new System.Windows.Forms.Label();
-            this.process1 = new System.Diagnostics.Process();
-            this.menuTree.SuspendLayout();
             this.stsStrip.SuspendLayout();
             this.tabNotes.SuspendLayout();
             this.tabProjectNote.SuspendLayout();
@@ -113,55 +104,6 @@ namespace SaveAsPDF
             // 
             resources.ApplyResources(this.lblProjectID, "lblProjectID");
             this.lblProjectID.Name = "lblProjectID";
-            // 
-            // menuTree
-            // 
-            this.menuTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menueAdd,
-            this.menuAddDate,
-            this.menuDel,
-            this.menuRename,
-            this.toolStripSeparator1,
-            this.menuRefresh});
-            this.menuTree.Name = "cMenu_Add";
-            resources.ApplyResources(this.menuTree, "menuTree");
-            // 
-            // menueAdd
-            // 
-            this.menueAdd.Image = global::SaveAsPDF.Properties.Resources.FolderClose;
-            this.menueAdd.Name = "menueAdd";
-            resources.ApplyResources(this.menueAdd, "menueAdd");
-            this.menueAdd.Click += new System.EventHandler(this.menueAdd_Click);
-            // 
-            // menuAddDate
-            // 
-            this.menuAddDate.Name = "menuAddDate";
-            resources.ApplyResources(this.menuAddDate, "menuAddDate");
-            this.menuAddDate.Click += new System.EventHandler(this.menuAddDate_Click);
-            // 
-            // menuDel
-            // 
-            this.menuDel.Image = global::SaveAsPDF.Properties.Resources.close_big;
-            this.menuDel.Name = "menuDel";
-            resources.ApplyResources(this.menuDel, "menuDel");
-            this.menuDel.Click += new System.EventHandler(this.menuDel_Click);
-            // 
-            // menuRename
-            // 
-            this.menuRename.Name = "menuRename";
-            resources.ApplyResources(this.menuRename, "menuRename");
-            this.menuRename.Click += new System.EventHandler(this.menuRename_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            resources.ApplyResources(this.toolStripSeparator1, "toolStripSeparator1");
-            // 
-            // menuRefresh
-            // 
-            this.menuRefresh.Name = "menuRefresh";
-            resources.ApplyResources(this.menuRefresh, "menuRefresh");
-            this.menuRefresh.Click += new System.EventHandler(this.menuRefresh_Click);
             // 
             // imageList
             // 
@@ -216,6 +158,7 @@ namespace SaveAsPDF
             // 
             resources.ApplyResources(this.txtProjectName, "txtProjectName");
             this.txtProjectName.Name = "txtProjectName";
+            this.txtProjectName.ReadOnly = true;
             // 
             // txtSubject
             // 
@@ -395,7 +338,6 @@ namespace SaveAsPDF
             // 
             // tvFolders
             // 
-            this.tvFolders.ContextMenuStrip = this.menuTree;
             resources.ApplyResources(this.tvFolders, "tvFolders");
             this.tvFolders.ImageList = this.imageList;
             this.tvFolders.Name = "tvFolders";
@@ -423,11 +365,12 @@ namespace SaveAsPDF
             // 
             this.dgvAttachments.AllowUserToAddRows = false;
             this.dgvAttachments.AllowUserToDeleteRows = false;
+            this.dgvAttachments.AllowUserToResizeColumns = false;
+            this.dgvAttachments.AllowUserToResizeRows = false;
             this.dgvAttachments.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvAttachments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             resources.ApplyResources(this.dgvAttachments, "dgvAttachments");
             this.dgvAttachments.Name = "dgvAttachments";
-            this.dgvAttachments.ReadOnly = true;
             this.dgvAttachments.RowHeadersVisible = false;
             this.dgvAttachments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvAttachments.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvAttachments_CellDoubleClick);
@@ -442,16 +385,6 @@ namespace SaveAsPDF
             // 
             resources.ApplyResources(this.lblSaveLocation, "lblSaveLocation");
             this.lblSaveLocation.Name = "lblSaveLocation";
-            // 
-            // process1
-            // 
-            this.process1.StartInfo.Domain = "";
-            this.process1.StartInfo.LoadUserProfile = false;
-            this.process1.StartInfo.Password = null;
-            this.process1.StartInfo.StandardErrorEncoding = null;
-            this.process1.StartInfo.StandardOutputEncoding = null;
-            this.process1.StartInfo.UserName = "";
-            this.process1.SynchronizingObject = this;
             // 
             // frmMain
             // 
@@ -480,7 +413,6 @@ namespace SaveAsPDF
             this.Name = "frmMain";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Load += new System.EventHandler(this.frmMain_Load);
-            this.menuTree.ResumeLayout(false);
             this.stsStrip.ResumeLayout(false);
             this.stsStrip.PerformLayout();
             this.tabNotes.ResumeLayout(false);
@@ -515,10 +447,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.FolderBrowserDialog dlgFolders;
         private System.Windows.Forms.ImageList imageList;
         private System.Windows.Forms.Button btnNewProject;
-        private System.Windows.Forms.ContextMenuStrip menuTree;
-        private System.Windows.Forms.ToolStripMenuItem menueAdd;
-        private System.Windows.Forms.ToolStripMenuItem menuDel;
-        private System.Windows.Forms.ToolStripMenuItem menuRename;
         private System.Windows.Forms.ToolStripStatusLabel tsslStatus;
         private System.Windows.Forms.TabControl tabNotes;
         private System.Windows.Forms.TabPage tabProjectNote;
@@ -543,10 +471,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.DataGridView dgvAttachments;
         private System.Windows.Forms.TextBox txtSaveLocation;
         private System.Windows.Forms.Label lblSaveLocation;
-        private System.Diagnostics.Process process1;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem menuRefresh;
-        private System.Windows.Forms.ToolStripMenuItem menuAddDate;
         private System.Windows.Forms.DataGridViewTextBoxColumn iD;
         private System.Windows.Forms.DataGridViewTextBoxColumn firstName;
         private System.Windows.Forms.DataGridViewTextBoxColumn lastName;

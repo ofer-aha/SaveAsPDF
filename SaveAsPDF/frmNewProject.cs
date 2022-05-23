@@ -17,7 +17,9 @@ namespace SaveAsPDF
         public frmNewProject()
         {
             InitializeComponent();
-
+            txtProjectNotes.EnableContextMenu();
+            txtProjectId.EnableContextMenu();   
+            txtProjectName.EnableContextMenu();
             LoadSettings();
         }
 

@@ -45,14 +45,16 @@
             // 
             // SaveAsPDF
             // 
+            this.SaveAsPDF.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
+            this.SaveAsPDF.ControlId.OfficeId = "TabMail";
             this.SaveAsPDF.Groups.Add(this.SaveAsPDFgrp);
-            this.SaveAsPDF.Label = "SaveAsPDF";
+            this.SaveAsPDF.Label = "TabMail";
             this.SaveAsPDF.Name = "SaveAsPDF";
             // 
             // SaveAsPDFgrp
             // 
             this.SaveAsPDFgrp.Items.Add(this.buttonDemo);
-            this.SaveAsPDFgrp.Label = "Main";
+            this.SaveAsPDFgrp.Label = "SaveAsPDF";
             this.SaveAsPDFgrp.Name = "SaveAsPDFgrp";
             // 
             // buttonDemo

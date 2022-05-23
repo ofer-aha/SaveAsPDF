@@ -320,8 +320,6 @@ namespace SaveAsPDF.Helpers
             {
                 WriteNodeIntoString(0, node, sb);
             }
-
-
             // Write the result into the file.
             File.WriteAllText(file_name, sb.ToString());
         }
@@ -339,9 +337,7 @@ namespace SaveAsPDF.Helpers
             string file_contents = File.ReadAllText(file_name);
 
             // Break the file into lines.
-            string[] lines = file_contents.Split(
-                new char[] { '\r', '\n' },
-                StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = file_contents.Split(new char[] { '\r', '\n' },StringSplitOptions.RemoveEmptyEntries);
 
             // Process the lines.
             trv.Nodes.Clear();
