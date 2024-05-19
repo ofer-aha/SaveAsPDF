@@ -45,7 +45,11 @@ namespace SaveAsPDF.Helpers
             }
             return output;
         }
-
+        /// <summary>
+        /// convert DataGridView to Model 
+        /// </summary>
+        /// <param name="dgv"></param>
+        /// <returns></returns>
         public static List<EmployeeModel> DgvEmployessToModel(this DataGridView dgv)
         {
             List<EmployeeModel> output = new List<EmployeeModel>();
@@ -63,17 +67,25 @@ namespace SaveAsPDF.Helpers
             }
             return output;
         }
-
+        /// <summary>
+        /// Convert DataGridView to String 
+        /// </summary>
+        /// <param name="dgv"></param>
+        /// <returns></returns>
         public static string dgvEmployeesToString(this DataGridView dgv)
         {
-            string output = "<p align=\"right\">מתכנן אחראי";
-            output += "<table \"width:auto\" align=\"right\"><tr><th style=\"text-align:center\">אימייל</th><th style=\"text-align:center\">שם משפחה</th><th style=\"text-align:center\">שם פרטי</th></tr>";
+
+            string output = $"<p><table \"width:auto\" align=\"right\">" +
+                            $"<tr><th colspan=\"3\" style=\"text-align:center\">מתכנן אחראי</th></tr>";
+            // $"</table></p><br>";
+
+                    output += "<tr><th style=\"text-align:center\">אימייל</th><th style=\"text-align:center\">שם משפחה</th><th style=\"text-align:center\">שם פרטי</th></tr>";
+            //output += "<table \"width:auto\" align=\"right\"><tr><th style=\"text-align:center\">אימייל</th><th style=\"text-align:center\">שם משפחה</th><th style=\"text-align:center\">שם פרטי</th></tr>";
 
             foreach (DataGridViewRow row in dgv.Rows)
             {
                 output += $"<tr><td style=\"text-align:left\">{row.Cells[3].Value.ToString()}</td><td style=\"text-align:right\">{row.Cells[2].Value.ToString()}</td><td style=\"text-align:right\">{row.Cells[1].Value.ToString()}</td>";
             }
-
             return output + "</table></p><br>";
         }
 
@@ -126,8 +138,8 @@ namespace SaveAsPDF.Helpers
             //                false, //UseISO19005_1
             //                misValue);//FixedFormatExtClassPtr
 
-            oDOC.SaveAs2(@oFileName, //file name 
-                            word.WdExportFormat.wdExportFormatPDF);//export format
+            oDOC.SaveAs2(@oFileName,  //file name 
+                            WdExportFormat.wdExportFormatPDF);//export format
         }
 
         /// <summary>
@@ -172,23 +184,6 @@ namespace SaveAsPDF.Helpers
                 }
                 output += "<p>";
 
-
-                //    for (int i = 1; i <= mailAttachments.Count; i++)
-                //{
-                //    Outlook.Attachment currentAttachment = mailAttachments[i];
-                //    if (currentAttachment != null)
-                //    {
-                //        //attachmentInfo.AppendFormat("#{0}\n\rFile name: {1}\n\rFile Size: {2}\n\rType: {3}\n\n\r",
-                //        //                                i, currentAttachment.FileName, currentAttachment.Size, currentAttachment.Type);
-                //        //return new string[] { currentAttachment.FileName, currentAttachment.Size.BytesToString() }));
-
-                //        //Marshal.ReleaseComObject(currentAttachment);
-                //    }
-                //}
-                //}
-                ////    if (attachmentInfo.Length > 0)
-                //        toolStripStatusLabel1.Text = "E-mail attachments: " + attachmentInfo.ToString();
-                //Marshal.ReleaseComObject(mailAttachments);
             }
             return output;
         }
@@ -206,32 +201,28 @@ namespace SaveAsPDF.Helpers
             if (attList.Count != 0)
             {
 
-                //output += $"<p style=\"text-align:right;\"> <a href='file://{path}'>{path}</a> :ההודעה נשמרה ב " + 
-                //            $"נשמר(ו) {attList.Count} קבצ(ים)  <br>" +
-                //            "<table \"width:auto\" align=\"right\"><tr><th style=\"text-align:center\">קובץ</th><th style=\"text-align:center\">גודל</th></tr>";
-
                 output += $"<p><table \"width:auto\" align=\"right\">" +
-                    $"<th style=\"text-align:center\"><a href='file://{path}'>{path}</a> :ההודעה נשמרה ב</th>" +
-                    $"</table><br>";
+                          $"<th style=\"text-align:center\"><a href='file://{path}'>{path}</a> :ההודעה נשמרה ב</th>" +
+                          $"</table><br>";
 
-                output += $"<p><table \"width:auto\" align=\"right\"><tr><th colspan=\"2\"> " +
-                            $"נשמר(ו) {attList.Count} קבצ(ים) </th></tr>" +
-                            "<tr><th style=\"text-align:center\">קובץ</th><th style=\"text-align:center\">גודל</th></tr>";
 
+                output += $"<table \"width:auto\" align=\"right\"><tr><th colspan=\"2\"> " +
+                          $"נשמר(ו) {attList.Count} קבצ(ים) </th></tr>" +
+                           "<tr><th style=\"text-align:center\">קובץ</th><th style=\"text-align:center\">גודל</th></tr>";
 
                 foreach (string Att in attList)
                 {
                     string[] t = Att.Split('|');
                     output += $"<tr><td style=\"text-align:left\"><a href='file://{Path.Combine(path, t[0])}'>{t[0]}</a></td><td>{t[1]}</td></tr>";
                 }
-
-                //
+                                
                 output += $"</table><br>" +
                         "==========================================================================================</p><br>";
             }
             else
             {
-                output = $"<br><p style=\"text-align:right;\"> לא נבחרו קבצים מצורפים לשמירה.<br> " +
+
+                output += $"<br><p style=\"text-align:right;\"> לא נבחרו/נמצאו קבצים מצורפים לשמירה.<br> " +
                     "==========================================================================================</p><br>";
             }
             return output;

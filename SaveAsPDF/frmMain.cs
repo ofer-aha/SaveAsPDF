@@ -330,9 +330,9 @@ namespace SaveAsPDF
                     $"<tr><td style=\"text-align:right\">{txtProjectName.Text}</td><th style=\"text-align:right\">שם הפרויקט</th></tr>" +
                     $"<tr><td style=\"text-align:right\">{txtProjectID.Text}</td style=\"text-align:right\"><th>מס' פרויקט</th></tr>" +
                     $"<tr><td style=\"text-align:right\">{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th style=\"text-align:right\">הערות</th></tr>" +
-                    $"<tr><td style=\"text-align:right\">{Environment.UserName}</td style=\"text-align:right\"><th>שם משתמש</th></rt>" + 
-                    "</table>" + 
-                    "</p><br>";
+                    $"<tr><td style=\"text-align:right\">{Environment.UserName}</td style=\"text-align:right\"><th>שם משתמש</th></rt>" +
+                    $"<tr><th colspan=\"3\" style=\"text-align:center\">{DateTime.Now.ToString("HH:mm dd/MM/yyyy")} :תאריך שמירה </th>" +
+                    "</table></p><br>";
 
                 mailItem.HTMLBody = tableStyle + projData +
                     "<br><br><br><br>" +
