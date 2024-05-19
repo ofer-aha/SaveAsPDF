@@ -1,15 +1,10 @@
 ﻿using Microsoft.Office.Interop.Outlook;
-using System;
+using SaveAsPDF.Models;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Outlook = Microsoft.Office.Interop.Outlook;
-
-using SaveAsPDF.Models;
 using System.Windows.Forms;
 using Exception = System.Exception;
+using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace SaveAsPDF.Helpers
 {
@@ -19,7 +14,7 @@ namespace SaveAsPDF.Helpers
         public static List<EmployeeModel> ListContacts()
         {
             List<EmployeeModel> output = new List<EmployeeModel>();
-            
+
             Outlook.Application app = new Outlook.Application();
             NameSpace NameSpace = app.GetNamespace("MAPI");
             MAPIFolder ContactsFolder = NameSpace.GetDefaultFolder(OlDefaultFolders.olFolderContacts);
@@ -36,17 +31,17 @@ namespace SaveAsPDF.Helpers
                         employee.LastName = item.LastName;
 
                         output.Add(employee);
-                        
+
                     }
 
                 }
             }
             catch (System.Runtime.InteropServices.COMException ex)
             {
-                MessageBox.Show(ex.Message,"SaveAsPDF");
+                MessageBox.Show(ex.Message, "SaveAsPDF");
             }
             return output;
-            
+
         }
 
 

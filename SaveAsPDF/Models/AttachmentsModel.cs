@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Office.Interop.Outlook;
-using SaveAsPDF;
-
-namespace SaveAsPDF.Models
+﻿namespace SaveAsPDF.Models
 {
-   public class AttachmentsModel
+    public class AttachmentsModel
 
     {
         /// <summary>

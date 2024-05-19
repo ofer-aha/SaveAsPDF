@@ -4,8 +4,11 @@ using SaveAsPDF.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Windows.Controls;
 using System.Windows.Forms;
+using System.Xml;
 
 
 namespace SaveAsPDF
@@ -13,7 +16,16 @@ namespace SaveAsPDF
     public partial class frmSettings : Form
     {
         private TreeNode mySelectedNode;
-        private bool formChanged = false; 
+        private bool formChanged = false;
+
+        private void frmSettings_Load(object sender, EventArgs e)
+        {
+            // ON HOLD
+
+           
+        }
+
+
         public frmSettings()
         {
             InitializeComponent();
@@ -27,9 +39,11 @@ namespace SaveAsPDF
         private void LoadSettings()
         {
 
-            txtRootFolder.Text = Settings.Default.rootDrive; 
-            txtDefaultFolder.Text = Settings.Default.defaultFolder;
+            txtRootFolder.Text = Settings.Default.rootDrive;
+            
             txtMinAttSize.Text = Settings.Default.minAttachmentSize.ToString();
+            
+
             tvProjectSubFolders.LoadDefaultTree();
 
             SettingsModel settingsModel = new SettingsModel();
@@ -37,14 +51,19 @@ namespace SaveAsPDF
 
             foreach (TreeNode node in tvProjectSubFolders.Nodes)
             {
-                fList.AddRange(TreeHelper.ListNodesPath(node));
+                fList.AddRange(TreeHelper.ListNodesPath(node));              
             }
             settingsModel.ProjectFolders = fList;
-            formChanged = false;
 
+            cmbDefaultFolder.Items.Clear();
+            
+            TreeHelper.TvNodesToCombo(cmbDefaultFolder, tvProjectSubFolders.Nodes[0]);
+            cmbDefaultFolder.SelectedIndex = Settings.Default.defaultFolderID;
+
+            formChanged = false;
         }
 
-
+  
 
         private void bntCancel_Click(object sender, System.EventArgs e)
         {
@@ -101,13 +120,13 @@ namespace SaveAsPDF
         private void menueAdd_Click(object sender, System.EventArgs e)
         {
             tvProjectSubFolders.AddNode(mySelectedNode);
-            formChanged = true;    
+            formChanged = true;
         }
 
         private void menuDel_Click(object sender, System.EventArgs e)
         {
             tvProjectSubFolders.DelNode(mySelectedNode);
-            formChanged = true;    
+            formChanged = true;
         }
 
         private void menuRename_Click(object sender, System.EventArgs e)
@@ -120,15 +139,15 @@ namespace SaveAsPDF
         {
             if (formChanged)
             {
-                
-                DialogResult result = MessageBox.Show("שמור שינויים?","SaveAsPDF",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
-                if (result == DialogResult.Yes )
+
+                DialogResult result = MessageBox.Show("שמור שינויים?", "SaveAsPDF", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
                 {
                     SaveSettings();
                 }
 
             }
-    
+
             Close();
 
         }
@@ -138,7 +157,7 @@ namespace SaveAsPDF
             //TODO1: Save settings is worng!!!!
             formChanged = false;
 
-            Settings.Default.defaultFolder = txtDefaultFolder.Text;
+          
             Settings.Default.rootDrive = txtRootFolder.Text;
             Settings.Default.minAttachmentSize = int.Parse(txtMinAttSize.Text);
 
@@ -157,8 +176,8 @@ namespace SaveAsPDF
         {
 
             var Dialog = new FolderPicker();
-            
-                Dialog.InputPath = Settings.Default.rootDrive;
+
+            Dialog.InputPath = Settings.Default.rootDrive;
 
             if (Dialog.ShowDialog(Handle) == true)
             {
@@ -211,7 +230,20 @@ namespace SaveAsPDF
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 TreeHelper.SaveTreeViewIntoFile(dlg.FileName, tvProjectSubFolders);
+               //TODO3: NEXT VERSION: change the tree file to XML
             }
+        }
+               
+
+
+        private XmlNode GetXmlNode(TreeViewItem tnode, XmlDocument d)
+        {
+            XmlNode n = d.CreateNode(XmlNodeType.Element, tnode.Name, "");
+            foreach (TreeViewItem t in tnode.Items)
+            {
+                n.AppendChild(GetXmlNode(t, d));
+            }
+            return n;
         }
 
         //TODO3: to check
@@ -248,29 +280,11 @@ namespace SaveAsPDF
         {
         }
 
-        private void btnFolderSelect_Click(object sender, EventArgs e)
-        {
-            //TODO1: 1 fix the folder reading when its empty 
-            if (!string.IsNullOrEmpty(txtDefaultFolder.Text))
-            {
-
-            TreeNode CurrentNode = tvProjectSubFolders.SelectedNode;
-            string fullpath = CurrentNode.FullPath;
-            txtDefaultFolder.Text = fullpath;
-
-            formChanged = true;
-            }
-            else 
-            {
-                txtDefaultFolder.Text = "_מספר_פרויקט_";
-            }
-
-        }
 
         private void menuAddDate_Click(object sender, EventArgs e)
         {
-            
-            tvProjectSubFolders.AddNode(mySelectedNode, Settings.Default.dateTag);  
+
+            tvProjectSubFolders.AddNode(mySelectedNode, Settings.Default.dateTag);
             formChanged = true;
 
         }
@@ -279,6 +293,15 @@ namespace SaveAsPDF
         {
             //tvProjectSubFolders.SelectedNode.Name += Settings.Default.dateTag;
             TreeHelper.RenameNode(tvProjectSubFolders, mySelectedNode, mySelectedNode.Name + Settings.Default.dateTag);
+        }
+
+        private void cmbDefaultFolder_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //update settings 
+            Settings.Default.defaultFolderID = cmbDefaultFolder.SelectedIndex;
+            Settings.Default.defaultFolder = cmbDefaultFolder.Text;
+            formChanged = true; 
+
         }
     }
 }

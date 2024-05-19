@@ -1,9 +1,7 @@
 ﻿using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
-using SaveAsPDF.Properties;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Windows.Forms;
 
 
@@ -18,7 +16,7 @@ namespace SaveAsPDF
         {
             InitializeComponent();
             txtProjectNotes.EnableContextMenu();
-            txtProjectId.EnableContextMenu();   
+            txtProjectId.EnableContextMenu();
             txtProjectName.EnableContextMenu();
             LoadSettings();
         }
@@ -85,25 +83,25 @@ namespace SaveAsPDF
         private void menueAdd_Click(object sender, System.EventArgs e)
         {
             tvDefaultSubFolders.AddNode(mySelectedNode);
-            
+
         }
 
         private void menuDel_Click(object sender, System.EventArgs e)
         {
             tvDefaultSubFolders.DelNode(mySelectedNode);
-            
+
         }
 
         private void menuRename_Click(object sender, System.EventArgs e)
         {
-            tvDefaultSubFolders.RenameNode(mySelectedNode); 
+            tvDefaultSubFolders.RenameNode(mySelectedNode);
         }
 
         private void tvDefaultSubFolders_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
             if (e.Label != null)
             {
-                
+
                 if (e.Label.Length > 0)
                 {
 

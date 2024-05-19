@@ -114,7 +114,7 @@ namespace SaveAsPDF.Helpers
             }
         }
 
-         
+
         /// <summary>
         /// Create a new folder
         /// if the folder already exists it will name it New Folder (2)... New Folder (3)  and so on. 
@@ -122,7 +122,7 @@ namespace SaveAsPDF.Helpers
         /// <param name="folder">string represnting the folder name to create</param>
         public static string MkDir(string folder)
         {
-            string output=folder;
+            string output = folder;
             if (string.IsNullOrEmpty(folder))
             {
                 throw new ArgumentNullException("MkDir:folder", "שם תקייה לא יכול להיות ריק");
@@ -133,9 +133,9 @@ namespace SaveAsPDF.Helpers
                 int i = 0;
                 if (int.TryParse(TextHelpers.GetBetween(folder, "(", ")"), out i))
                 {
-                    folder = folder.Replace($"({i})", $"({i+1})");
+                    folder = folder.Replace($"({i})", $"({i + 1})");
                     output = folder;
-                    MkDir(folder); 
+                    MkDir(folder);
                 }
                 else
                 {
@@ -146,7 +146,7 @@ namespace SaveAsPDF.Helpers
             else
             {
                 Directory.CreateDirectory(folder);
-                
+
             }
             return output;
         }

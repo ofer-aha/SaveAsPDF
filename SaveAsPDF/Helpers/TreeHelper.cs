@@ -13,7 +13,6 @@ namespace SaveAsPDF.Helpers
     {
         //XmlDocument xmlDocument;
         //TreeNode mySelectedNode;
-
         /// <summary>
         /// List folders to treeView
         /// </summary>
@@ -22,27 +21,19 @@ namespace SaveAsPDF.Helpers
         public static TreeNode CreateDirectoryNode(DirectoryInfo directoryInfo)
         {
             var directoryNode = new TreeNode(directoryInfo.Name) { ImageIndex = 1 };
-
             try
             {
-
                 foreach (var directory in directoryInfo.GetDirectories())
                 {
-
                     if (!directory.Attributes.HasFlag(FileAttributes.Hidden))
                     {
                         directoryNode.Nodes.Add(CreateDirectoryNode(directory));
                     }
-
                 }
-
-
             }
             catch (Exception ex)
             {
-
                 MessageBox.Show(ex.Message, "SaveAsPDF:CreateDirectoryNode");
-
             }
 
             return directoryNode;
@@ -254,22 +245,6 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="oParentNode">The TreeNode</param>
         /// <returns>List of Strings </returns>
-        //public static List<string> ListNodesPath(TreeNode oParentNode)
-        //{
-        //    List<String> output = new List<string>(); 
-
-        //    // Start recursion on all subnodes.
-        //    foreach (TreeNode oSubNode in oParentNode.Nodes)
-        //    {
-        //        if (oSubNode.Nodes.Count == 0)
-        //        {
-        //            output.Add(oSubNode.FullPath);
-        //        }
-        //        ListNodesPath(oSubNode);
-        //    }
-        //    return output;
-        //}
-
 
         public static List<string> ListNodesPath(TreeNode oParentNode)
         {
@@ -288,6 +263,23 @@ namespace SaveAsPDF.Helpers
             return list;
         }
 
+        /// <summary>
+        /// Copy the folder's full path list to combobox
+        /// </summary>
+        /// <param name="combo"></param>
+        /// <param name="node"></param>
+        public static void TvNodesToCombo(ComboBox combo, TreeNode node)
+        {
+
+            combo.Items.Add(node.FullPath);
+
+            foreach (TreeNode actualNode in node.Nodes)
+            {
+                TvNodesToCombo(combo, actualNode);
+
+            }
+
+        }
 
 
 
@@ -324,6 +316,16 @@ namespace SaveAsPDF.Helpers
             File.WriteAllText(file_name, sb.ToString());
         }
 
+        public static List<string> TreeToList (TreeView treeView)
+        {
+            List <string> list = new List<string>();    
+            foreach(TreeNode node in treeView.Nodes)
+            {
+                list.Add(node.FullPath);
+            }
+            
+            return (list);
+        } 
 
         /// <summary>
         /// Load a TreeView control from a file that uses tabs
@@ -336,8 +338,6 @@ namespace SaveAsPDF.Helpers
             // Get the file's contents.
             string file_contents = File.ReadAllText(file_name);
 
-            // Break the file into lines.
-            string[] lines = file_contents.Split(new char[] { '\r', '\n' },StringSplitOptions.RemoveEmptyEntries);
 
             // Process the lines.
             trv.Nodes.Clear();

@@ -60,7 +60,7 @@ namespace SaveAsPDF
         {
             //MailItem mi = null;
             //MailItem mailItem = ThisAddIn.TypeOfMailitem(mi);
-            
+
             sPath = txtProjectID.Text.ProjectFullPath();
 
             if (mailItem is MailItem && mailItem != null)
@@ -88,7 +88,7 @@ namespace SaveAsPDF
                         i++;
                         attachmentsModels.Add(attachmentsModel);
                     }
-                    
+
                 }
                 BindingSource source = new BindingSource();
                 source.DataSource = attachmentsModels;
@@ -98,12 +98,12 @@ namespace SaveAsPDF
 
                 dgvAttachments.Columns[1].HeaderText = "V";
                 dgvAttachments.Columns[1].ReadOnly = false;
-              
-                dgvAttachments.Columns[2].HeaderText = "שם קובץ"; 
+
+                dgvAttachments.Columns[2].HeaderText = "שם קובץ";
                 dgvAttachments.Columns[2].ReadOnly = true;
                 dgvAttachments.Columns[3].HeaderText = "גודל";
                 dgvAttachments.Columns[3].ReadOnly = true;
-                
+
             }
             else
             {
@@ -199,12 +199,12 @@ namespace SaveAsPDF
             xmlSaveAsPdfFolder = new DirectoryInfo(Path.Combine(sPath.FullName, Settings.Default.xmlSaveAsPdfFolder));
             xmlProjectFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlProjectFile}";
             xmlEmploeeysFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlEmploeeysFile}";
-            
+
 
             DateTime date = DateTime.Now;
-            
+
             txtSaveLocation.Text = Settings.Default.defaultFolder.Replace($"{Settings.Default.projectRootTag}\\", sPath.FullName);
-            
+
             if (Settings.Default.defaultFolder.Contains(Settings.Default.dateTag))
             {
                 txtSaveLocation.Text = txtSaveLocation.Text.Replace(Settings.Default.dateTag, date.ToString("dd.MM.yyyy"));
@@ -304,7 +304,7 @@ namespace SaveAsPDF
                     Dialog.InputPath = Settings.Default.rootDrive;
                     if (Dialog.ShowDialog(Handle) == true)
                     {
-                        txtSaveLocation.Text = Dialog.ResultPath;                        
+                        txtSaveLocation.Text = Dialog.ResultPath;
                     }
                 }
                 //save the mailItem to the current working directory and create an attachment list to add to pdf/mail   
@@ -313,12 +313,12 @@ namespace SaveAsPDF
                 //convert the message to HTML 
                 if (mailItem.BodyFormat != OlBodyFormat.olFormatHTML)
                 {
-                    mailItem.BodyFormat = OlBodyFormat.olFormatHTML;    
+                    mailItem.BodyFormat = OlBodyFormat.olFormatHTML;
                 }
 
                 //Save the attachments and returning the actual file name list
                 attList.AddRange(mailItem.SaveAttchments(dgvAttachments, txtSaveLocation.Text, false));
-                
+
                 //string tableStyle = "<style> table, th,td {border: 1px solid black; text-align: right;}</style><br>";
                 string tableStyle = "<style>table, td, th {border: 0px solid blue; border-collapse: collapse} " +
                                          "tr:nth-child(even) {background-color:#f2f2f2;}</style> ";
@@ -329,15 +329,23 @@ namespace SaveAsPDF
                     "<table style=\"width:auto\" align=\"right\">" +
                     $"<tr><td style=\"text-align:right\">{txtProjectName.Text}</td><th style=\"text-align:right\">שם הפרויקט</th></tr>" +
                     $"<tr><td style=\"text-align:right\">{txtProjectID.Text}</td style=\"text-align:right\"><th>מס' פרויקט</th></tr>" +
-                    $"<tr><td style=\"text-align:right\">{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th style=\"text-align:right\">הערות</th></tr></table> <br><br><br><br>" +
+                    $"<tr><td style=\"text-align:right\">{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th style=\"text-align:right\">הערות</th></tr>" +
+                    $"<tr><td style=\"text-align:right\">{Environment.UserName}</td style=\"text-align:right\"><th>שם משתמש</th></rt>" + 
+                    "</table>" + 
                     "</p><br>";
 
-                mailItem.HTMLBody = tableStyle + projData + dgvEmployees.dgvEmployeesToString() + attString + mailItem.HTMLBody;
+                mailItem.HTMLBody = tableStyle + projData +
+                    "<br><br><br><br>" +
+                    dgvEmployees.dgvEmployeesToString() +
+                    "<br><br><br><br>" + 
+                    attString +
+                    "<br><br><br><br>" +
+                    mailItem.HTMLBody;
 
                 mailItem.SaveToPDF(txtSaveLocation.Text);
 
             }
-            
+
             Close();
         }
         /// <summary>
@@ -563,6 +571,7 @@ namespace SaveAsPDF
             mySelectedNode = CurrentNode;
             
             txtSaveLocation.Text = sPath.Parent.FullName + "\\" + fullpath;
+            
 
         }
 
@@ -618,6 +627,13 @@ namespace SaveAsPDF
 
         }
 
+  
 
+        private void chbOpenPDF_CheckedChanged(object sender, EventArgs e)
+        {
+            //TODO1: make sure it works 
+            Settings.Default.OpenPDF = chbOpenPDF.Checked;
+            
+        }
     }
 }

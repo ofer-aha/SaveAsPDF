@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using SaveAsPDF.Helpers;
+﻿using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace SaveAsPDF
 {
     public partial class frmContacts : Form
     {
-        private IEmployeeRequester callingForm;
+        private readonly IEmployeeRequester callingForm;
         public frmContacts(IEmployeeRequester caller)
         {
             InitializeComponent();
 
-            callingForm = caller; 
+            callingForm = caller;
         }
 
         List<EmployeeModel> employees = new List<EmployeeModel>();
@@ -41,10 +37,10 @@ namespace SaveAsPDF
 
             employees = OutlookProcessor.ListContacts();
             dgvContacs.DataSource = employees;
-            
+
             // Set cursor as default arrow
             Cursor.Current = Cursors.Default;
-            lblLoading.Visible = false; 
+            lblLoading.Visible = false;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -79,8 +75,8 @@ namespace SaveAsPDF
             }
 
             callingForm.EmployeeComplete(employee);
-            
-            this.Close();
+
+            Close();
 
         }
 
@@ -127,13 +123,13 @@ namespace SaveAsPDF
 
                 throw;
             }
-            this.Close();
+            Close();
 
         }
 
         private void txtFilter_TextChanged(object sender, EventArgs e)
         {
-            
+
             var result = employees.Where(x => x.EmailAddress.Contains(txtFilter.Text) ||
                                                 x.FirstName.Contains(txtFilter.Text) ||
                                                 x.FirstName.Contains(txtFilter.Text)).ToList();

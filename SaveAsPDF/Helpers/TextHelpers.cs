@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mail;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace SaveAsPDF.Helpers
 {
 
-    public static class TextHelpers 
+    public static class TextHelpers
     {
         /// <summary>
         /// convert the file size to "humen" readle figurs 

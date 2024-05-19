@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SaveAsPDF.Helpers
 {
@@ -11,7 +7,7 @@ namespace SaveAsPDF.Helpers
     {
         public static class EmailLogic
         {
-            
+
 
             public static void SendEmail(string toAddress, string subject, string body)
             {
@@ -21,8 +17,8 @@ namespace SaveAsPDF.Helpers
             public static void SendEmail(List<string> toAddresses, List<string> bccAddresses, string subject, string body)
             {
                 MailAddress fromMailAddress = new MailAddress("senderEmail", "senderDisplayName");
-                //TODO:populate email details 
-                
+                //TODO3:populate email details 
+
                 MailMessage mail = new MailMessage();
                 foreach (string toAddress in toAddresses)
                 {

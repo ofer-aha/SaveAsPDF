@@ -5,10 +5,10 @@ using System.Windows.Forms;
 
 namespace SaveAsPDF.Helpers
 {
-    
+
     public static class ContextMenuHelpers
     {
-        private const string menuNameCut = "חתןך";
+        private const string menuNameCut = "חתוך";
         private const string menuNameCopy = "העתק";
         private const string menuNamePaste = "הדבק";
         private const string menuNameSelectAll = "בחר הכל";
@@ -225,7 +225,7 @@ namespace SaveAsPDF.Helpers
                     {
                         MessageBox.Show("לא ניתן למחוק את התיקייה הראשית בפרויקט", "SaveAsPDF");
                     }
-                }; 
+                };
                 cms.Items.Add(tsmiDelete);
 
                 //Add the Rename option (Remane the folder and treenode
@@ -247,7 +247,7 @@ namespace SaveAsPDF.Helpers
 
                 //Add the Refresh Option (refresh folder state)
                 ToolStripMenuItem tsmiRefresh = new ToolStripMenuItem(menuNameRefresh);
-                tsmiRefresh.Click += (sender, e) => 
+                tsmiRefresh.Click += (sender, e) =>
                 {
                     tv.Nodes.Clear();
                     tv.Nodes.Add(TreeHelper.CreateDirectoryNode(frmMain.sPath));

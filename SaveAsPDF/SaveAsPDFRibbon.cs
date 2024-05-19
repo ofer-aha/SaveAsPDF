@@ -1,12 +1,8 @@
-﻿using Microsoft.Office.Interop.Word;
-using Microsoft.Office.Tools.Ribbon;
-using System.Windows.Forms;
-using Outlook = Microsoft.Office.Interop.Outlook;
-using Word = Microsoft.Office.Interop.Word;
+﻿using Microsoft.Office.Tools.Ribbon;
 
 namespace SaveAsPDF
 {
-    public partial class  SaveAsPDFRibbon
+    public partial class SaveAsPDFRibbon
     {
         private void SaveAsPDFRibbon_Load(object sender, RibbonUIEventArgs e)
         {
@@ -19,6 +15,6 @@ namespace SaveAsPDF
             frm.ShowDialog();
         }
 
-       
+
     }
 }

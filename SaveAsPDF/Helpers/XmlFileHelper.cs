@@ -1,26 +1,19 @@
-﻿using System;
+﻿using SaveAsPDF.Models;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-using SaveAsPDF.Models;
-using System.IO;
-using System.Xml.Linq;
 using System.Windows.Forms;
-using Microsoft.Office.Interop.Word;
+using System.Xml;
 
 namespace SaveAsPDF.Helpers
 {
-   public static class XmlFileHelper
+    public static class XmlFileHelper
     {
-       /// <summary>
-       /// Convert the ProjectModel to XML file
-       /// </summary>
-       /// <param name="project">ProjectModel</param>
-       /// <param name="path">The path for the .SaveAsPDF hidden folder</param>
-        public static void ProjectModelToXmlFile(this string path ,ProjectModel project)
+        /// <summary>
+        /// Convert the ProjectModel to XML file
+        /// </summary>
+        /// <param name="project">ProjectModel</param>
+        /// <param name="path">The path for the .SaveAsPDF hidden folder</param>
+        public static void ProjectModelToXmlFile(this string path, ProjectModel project)
         {
             // Create the XmlDocument.
             XmlDocument doc = new XmlDocument();
@@ -47,7 +40,7 @@ namespace SaveAsPDF.Helpers
             settings.Indent = true;
             // Save the document to a file and auto-indent the output.
             XmlWriter writer = XmlWriter.Create(path, settings);
-            
+
             try
             {
                 doc.Save(writer);
@@ -67,7 +60,7 @@ namespace SaveAsPDF.Helpers
         {
 
             XmlDocument doc = new XmlDocument();
-            XmlNode docNode = doc.CreateXmlDeclaration("1.0","UTF-8",null);
+            XmlNode docNode = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
             doc.AppendChild(docNode);
 
             XmlNode employeesNode = doc.CreateElement("Employees");
@@ -82,7 +75,7 @@ namespace SaveAsPDF.Helpers
                 XmlNode idNode = doc.CreateElement("ID");
                 idNode.AppendChild(doc.CreateTextNode(employee.Id.ToString()));
                 employeeNode.AppendChild(idNode);
-                
+
                 XmlNode firstNameNode = doc.CreateElement("FirstName");
                 firstNameNode.AppendChild(doc.CreateTextNode(employee.FirstName));
                 employeeNode.AppendChild(firstNameNode);
@@ -94,19 +87,19 @@ namespace SaveAsPDF.Helpers
                 XmlNode emailAddressNode = doc.CreateElement("EmailAddress");
                 emailAddressNode.AppendChild(doc.CreateTextNode(employee.EmailAddress));
                 employeeNode.AppendChild(emailAddressNode);
-               
-                
+
+
             }
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
             // Save the document to a file and auto-indent the output.
             XmlWriter writer = XmlWriter.Create(path, settings);
-            
+
             try
             {
                 doc.Save(writer);
             }
-            
+
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "SaveAsPDF:EmployeesModelToXmlFile");
@@ -140,15 +133,15 @@ namespace SaveAsPDF.Helpers
             p.ProjectName = projectName[0].InnerText;
             p.NoteEmployee = bool.Parse(noteEmployee[0].InnerText);
             p.ProjectNotes = projectNotes[0].InnerText;
-                
+
             return p;
         }
 
-       /// <summary>
-       /// Extantion methud Import the XML file to employee model
-       /// </summary>
-       /// <param name="xmlFile">Full path to XML file</param>
-       /// <returns>EmployeeModel</returns>
+        /// <summary>
+        /// Extantion methud Import the XML file to employee model
+        /// </summary>
+        /// <param name="xmlFile">Full path to XML file</param>
+        /// <returns>EmployeeModel</returns>
         public static List<EmployeeModel> XmlEmloyeesFileToModel(this string xmlFile)
         {
             List<EmployeeModel> output = new List<EmployeeModel>();
@@ -157,9 +150,9 @@ namespace SaveAsPDF.Helpers
             {
                 xmlDoc.Load(xmlFile);
             }
-            catch ( Exception ex)
+            catch (Exception ex)
             {
-                    
+
                 MessageBox.Show(ex.Message, "SaveAsPDF:XmlEmloyeesFileToModel");
                 return null;
             }
@@ -186,7 +179,7 @@ namespace SaveAsPDF.Helpers
         //public static List<string> XmlEmlpoyeesFileToList(this string xmlFile)
         //{
         //    List<EmployeeModel> e = new List<EmployeeModel>();
-            
+
         //    List<string> output = new List<string>();
         //    XmlDocument xmlDoc = new XmlDocument();
 
@@ -217,7 +210,7 @@ namespace SaveAsPDF.Helpers
         //    }
         //    return output;
         //}
-        
+
 
     }
 }

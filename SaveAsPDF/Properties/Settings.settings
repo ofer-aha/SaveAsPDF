@@ -18,7 +18,7 @@
       <Value Profile="(Default)">DefaultTree.fld</Value>
     </Setting>
     <Setting Name="defaultFolder" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">_מספר_פרויקט_</Value>
     </Setting>
     <Setting Name="minAttachmentSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">8192</Value>
@@ -28,6 +28,12 @@
     </Setting>
     <Setting Name="projectRootTag" Type="System.String" Scope="User">
       <Value Profile="(Default)">_מספר_פרויקט_</Value>
+    </Setting>
+    <Setting Name="defaultFolderID" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="OpenPDF" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

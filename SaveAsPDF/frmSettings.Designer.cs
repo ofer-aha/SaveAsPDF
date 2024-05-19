@@ -34,8 +34,11 @@ namespace SaveAsPDF
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSettings));
             this.bntCancel = new System.Windows.Forms.Button();
             this.menuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menueAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuAddDate = new System.Windows.Forms.ToolStripMenuItem();
             this.menuDel = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRename = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuAppendDate = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.btnOK = new System.Windows.Forms.Button();
             this.txtRootFolder = new System.Windows.Forms.TextBox();
@@ -50,19 +53,13 @@ namespace SaveAsPDF
             this.btnLoadTreeFile = new System.Windows.Forms.Button();
             this.btnSaveDefaultTree = new System.Windows.Forms.Button();
             this.groupBoxDefaultFolder = new System.Windows.Forms.GroupBox();
-            this.btnFolderSelect = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtDefaultFolder = new System.Windows.Forms.TextBox();
+            this.cmbDefaultFolder = new System.Windows.Forms.ComboBox();
             this.gbAttaments = new System.Windows.Forms.GroupBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.txtMinAttSize = new System.Windows.Forms.TextBox();
             this.lblMinAttSize = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.menueAdd = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuAddDate = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuAppendDate = new System.Windows.Forms.ToolStripMenuItem();
             this.menuTree.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBoxDefaultFolder.SuspendLayout();
@@ -72,7 +69,7 @@ namespace SaveAsPDF
             // bntCancel
             // 
             this.bntCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.bntCancel.Location = new System.Drawing.Point(484, 366);
+            this.bntCancel.Location = new System.Drawing.Point(487, 296);
             this.bntCancel.Name = "bntCancel";
             this.bntCancel.Size = new System.Drawing.Size(75, 23);
             this.bntCancel.TabIndex = 2;
@@ -90,7 +87,22 @@ namespace SaveAsPDF
             this.menuAppendDate});
             this.menuTree.Name = "cMenu_Add";
             this.menuTree.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.menuTree.Size = new System.Drawing.Size(202, 136);
+            this.menuTree.Size = new System.Drawing.Size(202, 114);
+            // 
+            // menueAdd
+            // 
+            this.menueAdd.Image = global::SaveAsPDF.Properties.Resources.FolderClose;
+            this.menueAdd.Name = "menueAdd";
+            this.menueAdd.Size = new System.Drawing.Size(201, 22);
+            this.menueAdd.Text = "הוסף תיקייה";
+            this.menueAdd.Click += new System.EventHandler(this.menueAdd_Click);
+            // 
+            // menuAddDate
+            // 
+            this.menuAddDate.Name = "menuAddDate";
+            this.menuAddDate.Size = new System.Drawing.Size(201, 22);
+            this.menuAddDate.Text = "הוסף תאריך";
+            this.menuAddDate.Click += new System.EventHandler(this.menuAddDate_Click);
             // 
             // menuDel
             // 
@@ -106,6 +118,13 @@ namespace SaveAsPDF
             this.menuRename.Size = new System.Drawing.Size(201, 22);
             this.menuRename.Text = "שנה שם";
             this.menuRename.Click += new System.EventHandler(this.menuRename_Click);
+            // 
+            // menuAppendDate
+            // 
+            this.menuAppendDate.Name = "menuAppendDate";
+            this.menuAppendDate.Size = new System.Drawing.Size(201, 22);
+            this.menuAppendDate.Text = "הוסף תאריך לשם תיקייה";
+            this.menuAppendDate.Click += new System.EventHandler(this.menuAppendDate_Click);
             // 
             // imageList
             // 
@@ -123,7 +142,8 @@ namespace SaveAsPDF
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(206, 366);
+            this.btnOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.btnOK.Location = new System.Drawing.Point(225, 296);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 0;
@@ -133,7 +153,7 @@ namespace SaveAsPDF
             // 
             // txtRootFolder
             // 
-            this.txtRootFolder.Location = new System.Drawing.Point(225, 63);
+            this.txtRootFolder.Location = new System.Drawing.Point(225, 29);
             this.txtRootFolder.Name = "txtRootFolder";
             this.txtRootFolder.ReadOnly = true;
             this.txtRootFolder.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -143,7 +163,7 @@ namespace SaveAsPDF
             // lblRootFolder
             // 
             this.lblRootFolder.AutoSize = true;
-            this.lblRootFolder.Location = new System.Drawing.Point(16, 67);
+            this.lblRootFolder.Location = new System.Drawing.Point(16, 33);
             this.lblRootFolder.Name = "lblRootFolder";
             this.lblRootFolder.Size = new System.Drawing.Size(134, 13);
             this.lblRootFolder.TabIndex = 5;
@@ -151,7 +171,8 @@ namespace SaveAsPDF
             // 
             // btnSaveSettings
             // 
-            this.btnSaveSettings.Location = new System.Drawing.Point(334, 366);
+            this.btnSaveSettings.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.btnSaveSettings.Location = new System.Drawing.Point(354, 296);
             this.btnSaveSettings.Name = "btnSaveSettings";
             this.btnSaveSettings.Size = new System.Drawing.Size(97, 23);
             this.btnSaveSettings.TabIndex = 1;
@@ -161,7 +182,7 @@ namespace SaveAsPDF
             // 
             // btnFolders
             // 
-            this.btnFolders.Location = new System.Drawing.Point(354, 62);
+            this.btnFolders.Location = new System.Drawing.Point(354, 28);
             this.btnFolders.Name = "btnFolders";
             this.btnFolders.Size = new System.Drawing.Size(24, 23);
             this.btnFolders.TabIndex = 9;
@@ -176,7 +197,7 @@ namespace SaveAsPDF
             this.groupBox1.Controls.Add(this.btnSaveTreeFile);
             this.groupBox1.Controls.Add(this.btnLoadTreeFile);
             this.groupBox1.Controls.Add(this.btnSaveDefaultTree);
-            this.groupBox1.Location = new System.Drawing.Point(427, 44);
+            this.groupBox1.Location = new System.Drawing.Point(427, 10);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(344, 272);
             this.groupBox1.TabIndex = 12;
@@ -239,54 +260,22 @@ namespace SaveAsPDF
             // 
             // groupBoxDefaultFolder
             // 
-            this.groupBoxDefaultFolder.Controls.Add(this.btnFolderSelect);
-            this.groupBoxDefaultFolder.Controls.Add(this.label2);
-            this.groupBoxDefaultFolder.Controls.Add(this.label1);
-            this.groupBoxDefaultFolder.Controls.Add(this.txtDefaultFolder);
-            this.groupBoxDefaultFolder.Location = new System.Drawing.Point(16, 99);
+            this.groupBoxDefaultFolder.Controls.Add(this.cmbDefaultFolder);
+            this.groupBoxDefaultFolder.Location = new System.Drawing.Point(16, 65);
             this.groupBoxDefaultFolder.Name = "groupBoxDefaultFolder";
-            this.groupBoxDefaultFolder.Size = new System.Drawing.Size(362, 86);
+            this.groupBoxDefaultFolder.Size = new System.Drawing.Size(362, 47);
             this.groupBoxDefaultFolder.TabIndex = 15;
             this.groupBoxDefaultFolder.TabStop = false;
             this.groupBoxDefaultFolder.Text = "תיקיית ברירת מחדל לשמירת מכתבים";
             // 
-            // btnFolderSelect
+            // cmbDefaultFolder
             // 
-            this.btnFolderSelect.Location = new System.Drawing.Point(6, 27);
-            this.btnFolderSelect.Name = "btnFolderSelect";
-            this.btnFolderSelect.Size = new System.Drawing.Size(42, 23);
-            this.btnFolderSelect.TabIndex = 20;
-            this.btnFolderSelect.Text = "בחר";
-            this.btnFolderSelect.UseVisualStyleBackColor = true;
-            this.btnFolderSelect.Click += new System.EventHandler(this.btnFolderSelect_Click);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(98, 34);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(258, 13);
-            this.label2.TabIndex = 19;
-            this.label2.Text = "בחר את התיקייה בעץ מבנה התיקיות והקש \"בחר\".";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(248, 18);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(108, 13);
-            this.label1.TabIndex = 18;
-            this.label1.Text = "תיקיית ברירת מחדל";
-            // 
-            // txtDefaultFolder
-            // 
-            this.txtDefaultFolder.Location = new System.Drawing.Point(6, 54);
-            this.txtDefaultFolder.Name = "txtDefaultFolder";
-            this.txtDefaultFolder.ReadOnly = true;
-            this.txtDefaultFolder.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.txtDefaultFolder.Size = new System.Drawing.Size(350, 20);
-            this.txtDefaultFolder.TabIndex = 17;
+            this.cmbDefaultFolder.FormattingEnabled = true;
+            this.cmbDefaultFolder.Location = new System.Drawing.Point(8, 19);
+            this.cmbDefaultFolder.Name = "cmbDefaultFolder";
+            this.cmbDefaultFolder.Size = new System.Drawing.Size(345, 21);
+            this.cmbDefaultFolder.TabIndex = 21;
+            this.cmbDefaultFolder.SelectedIndexChanged += new System.EventHandler(this.cmbDefaultFolder_SelectedIndexChanged);
             // 
             // gbAttaments
             // 
@@ -294,7 +283,7 @@ namespace SaveAsPDF
             this.gbAttaments.Controls.Add(this.label3);
             this.gbAttaments.Controls.Add(this.txtMinAttSize);
             this.gbAttaments.Controls.Add(this.lblMinAttSize);
-            this.gbAttaments.Location = new System.Drawing.Point(26, 217);
+            this.gbAttaments.Location = new System.Drawing.Point(26, 183);
             this.gbAttaments.Name = "gbAttaments";
             this.gbAttaments.Size = new System.Drawing.Size(350, 99);
             this.gbAttaments.TabIndex = 16;
@@ -304,12 +293,12 @@ namespace SaveAsPDF
             // textBox2
             // 
             this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox2.Location = new System.Drawing.Point(-6, 46);
+            this.textBox2.Location = new System.Drawing.Point(6, 46);
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
             this.textBox2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.textBox2.Size = new System.Drawing.Size(350, 47);
+            this.textBox2.Size = new System.Drawing.Size(338, 47);
             this.textBox2.TabIndex = 18;
             this.textBox2.Text = "קבצים קטנים בד\"כ מהווים חלק מהחתימה הקבועה במייל ורצוי להתעלם מהם\r\nbytes  8192: ע" +
     "רך מומלץ\r\n";
@@ -340,31 +329,9 @@ namespace SaveAsPDF
             this.lblMinAttSize.TabIndex = 0;
             this.lblMinAttSize.Text = "גודל מינימאלי לקבצים מצורפים:";
             // 
-            // menueAdd
-            // 
-            this.menueAdd.Image = global::SaveAsPDF.Properties.Resources.FolderClose;
-            this.menueAdd.Name = "menueAdd";
-            this.menueAdd.Size = new System.Drawing.Size(201, 22);
-            this.menueAdd.Text = "הוסף תיקייה";
-            this.menueAdd.Click += new System.EventHandler(this.menueAdd_Click);
-            // 
-            // menuAddDate
-            // 
-            this.menuAddDate.Name = "menuAddDate";
-            this.menuAddDate.Size = new System.Drawing.Size(201, 22);
-            this.menuAddDate.Text = "הוסף תאריך";
-            this.menuAddDate.Click += new System.EventHandler(this.menuAddDate_Click);
-            // 
-            // menuAppendDate
-            // 
-            this.menuAppendDate.Name = "menuAppendDate";
-            this.menuAppendDate.Size = new System.Drawing.Size(201, 22);
-            this.menuAppendDate.Text = "הוסף תאריך לשם תיקייה";
-            this.menuAppendDate.Click += new System.EventHandler(this.menuAppendDate_Click);
-            // 
             // frmSettings
             // 
-            this.ClientSize = new System.Drawing.Size(783, 415);
+            this.ClientSize = new System.Drawing.Size(786, 327);
             this.Controls.Add(this.gbAttaments);
             this.Controls.Add(this.groupBoxDefaultFolder);
             this.Controls.Add(this.btnFolders);
@@ -385,10 +352,10 @@ namespace SaveAsPDF
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "הגדרות";
             this.TopMost = true;
+            this.Load += new System.EventHandler(this.frmSettings_Load);
             this.menuTree.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBoxDefaultFolder.ResumeLayout(false);
-            this.groupBoxDefaultFolder.PerformLayout();
             this.gbAttaments.ResumeLayout(false);
             this.gbAttaments.PerformLayout();
             this.ResumeLayout(false);
@@ -418,17 +385,14 @@ namespace SaveAsPDF
         private System.Windows.Forms.Button btnSaveDefaultTree;
         private System.Windows.Forms.Button btnLoadDefaultTree;
         private System.Windows.Forms.GroupBox groupBoxDefaultFolder;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtDefaultFolder;
         private System.Windows.Forms.GroupBox gbAttaments;
         private System.Windows.Forms.TextBox txtMinAttSize;
         private System.Windows.Forms.Label lblMinAttSize;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button btnFolderSelect;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.ToolStripMenuItem menuAddDate;
         private System.Windows.Forms.ToolStripMenuItem menuAppendDate;
+        private System.Windows.Forms.ComboBox cmbDefaultFolder;
     }
 }

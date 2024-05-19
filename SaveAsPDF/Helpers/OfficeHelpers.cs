@@ -1,27 +1,22 @@
 ﻿using Microsoft.Office.Interop.Outlook;
 using Microsoft.Office.Interop.Word;
-using Outlook = Microsoft.Office.Interop.Outlook;
-using word = Microsoft.Office.Interop.Word;
 using SaveAsPDF.Models;
+using SaveAsPDF.Properties;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Globalization;
-using System.IO;
-using System.Windows.Forms;
-using SaveAsPDF.Properties;
-using System.Web.DynamicData;
 using System.Data;
-using System.Web.Services.Description;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+using Outlook = Microsoft.Office.Interop.Outlook;
+using word = Microsoft.Office.Interop.Word;
 
 namespace SaveAsPDF.Helpers
 {
     public static class OfficeHelpers
     {
 
-     
+
         /// <summary>
         /// Create an attachments list 
         /// </summary>
@@ -30,7 +25,7 @@ namespace SaveAsPDF.Helpers
         public static List<AttachmentsModel> AttachmetsToModel(this MailItem email)
         {
             List<AttachmentsModel> output = new List<AttachmentsModel>();
-            int i = 0; 
+            int i = 0;
             foreach (Outlook.Attachment attachment in email.Attachments)
             {
                 i += 1;
@@ -41,17 +36,17 @@ namespace SaveAsPDF.Helpers
                     fileName = attachment.FileName,
                     fileSize = attachment.Size.BytesToString()
                 };
-                
+
                 if (attachment.Size >= Settings.Default.minAttachmentSize)
                 {
                     output.Add(att);
                 }
-               
+
             }
             return output;
         }
-        
-        public static List<EmployeeModel> DgvEmployessToModel (this DataGridView dgv )
+
+        public static List<EmployeeModel> DgvEmployessToModel(this DataGridView dgv)
         {
             List<EmployeeModel> output = new List<EmployeeModel>();
 
@@ -59,16 +54,16 @@ namespace SaveAsPDF.Helpers
             {
                 EmployeeModel e = new EmployeeModel
                 {
-                    Id = (int)row.Index,
+                    Id = row.Index,
                     FirstName = (string)row.Cells[1].Value,
                     LastName = (string)row.Cells[2].Value,
                     EmailAddress = (string)row.Cells[3].Value
                 };
                 output.Add(e);
             }
-            return output; 
+            return output;
         }
-        
+
         public static string dgvEmployeesToString(this DataGridView dgv)
         {
             string output = "<p align=\"right\">מתכנן אחראי";
@@ -88,7 +83,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="mailItem"></param>
         /// <param name="path"></param>
-        public static void SaveToPDF (this MailItem mailItem, string path)
+        public static void SaveToPDF(this MailItem mailItem, string path)
         {
             //cretae temp file name with uniq time stamp 
             string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
@@ -98,7 +93,7 @@ namespace SaveAsPDF.Helpers
 
             word.Application oWord = new word.Application();
             word.Document oDOC = oWord.Documents.Open(@tFilename, false);
-            
+
             oDOC.ConvertToPDF($@"{path}\\{timeStamp}_{mailItem.Subject.SafeFileName()}.pdf");
 
             oDOC.Close();
@@ -112,7 +107,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="oDOC"></param>
         /// <param name="oFileName"></param>
-        private static void ConvertToPDF( this Document oDOC, string oFileName)
+        private static void ConvertToPDF(this Document oDOC, string oFileName)
         {
             object misValue = System.Reflection.Missing.Value;
             //oDOC.ExportAsFixedFormat(@oFileName, //file name 
@@ -149,32 +144,32 @@ namespace SaveAsPDF.Helpers
                 output.Add($",{Att.FileName},{Att.Size.BytesToString()}");
             }
 
-            return output;  
+            return output;
         }
 
-           
 
-            /// <summary>
-            /// extantion metud to return the attachments in mailItem to List<string> 
-            /// </summary>
-            /// <param name="email"></param>
-            /// <returns> List<string> </returns>
-            public static string AttachmentsToString(this MailItem email, string path)
+
+        /// <summary>
+        /// extantion metud to return the attachments in mailItem to List<string> 
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns> List<string> </returns>
+        public static string AttachmentsToString(this MailItem email, string path)
+        {
+            Attachments mailAttachments = email.Attachments;
+            string output = "";
+
+            if (mailAttachments != null)
             {
-                Attachments mailAttachments = email.Attachments;
-                string output = "";
-
-                if (mailAttachments != null)
+                if (email.BodyFormat == OlBodyFormat.olFormatHTML)
                 {
-                    if (email.BodyFormat == OlBodyFormat.olFormatHTML)
+                    output = $"<br><p style = \"text-align:right;\"> קבצים מצורפים נשמרו ב: {path}<br>";
+                    foreach (Attachment Att in email.Attachments)
                     {
-                        output = $"<br><p style = \"text-align:right;\"> קבצים מצורפים נשמרו ב: {path}<br>";
-                        foreach (Attachment Att in email.Attachments)
-                        {
-                            output += $"{Att.FileName} ({Att.Size.BytesToString()})<br>";
-                        }
-
+                        output += $"{Att.FileName} ({Att.Size.BytesToString()})<br>";
                     }
+
+                }
                 output += "<p>";
 
 
@@ -196,7 +191,7 @@ namespace SaveAsPDF.Helpers
                 //Marshal.ReleaseComObject(mailAttachments);
             }
             return output;
-            }
+        }
 
         /// <summary>
         /// List attachments to string 
@@ -205,7 +200,7 @@ namespace SaveAsPDF.Helpers
         /// <param name="path"></param>        
         /// <returns></returns>
         public static string AttachmentsToString(this List<string> attList, string path)
-        {            
+        {
             string output = "";
 
             if (attList.Count != 0)
@@ -227,9 +222,11 @@ namespace SaveAsPDF.Helpers
                 foreach (string Att in attList)
                 {
                     string[] t = Att.Split('|');
-                    output += $"<tr><td style=\"text-align:left\"><a href='file://{Path.Combine(path,t[0])}'>{t[0]}</a></td><td>{t[1]}</td></tr>";
+                    output += $"<tr><td style=\"text-align:left\"><a href='file://{Path.Combine(path, t[0])}'>{t[0]}</a></td><td>{t[1]}</td></tr>";
                 }
-                output += "</table><br>" + 
+
+                //
+                output += $"</table><br>" +
                         "==========================================================================================</p><br>";
             }
             else
@@ -281,16 +278,16 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="dgv">DataGrigViwe with attchamets</param>
         /// <returns>list of selected file names [list of strings]</returns>
-        public static List<String> GetSelectedAttachmentFiles (this DataGridView dgv)
+        public static List<String> GetSelectedAttachmentFiles(this DataGridView dgv)
         {
-            List<string> output = new List<string>();   
+            List<string> output = new List<string>();
 
             foreach (DataGridViewRow row in dgv.Rows)
             {
                 if (bool.Parse(row.Cells[1].Value.ToString()))
                 {
                     output.Add(row.Cells[2].Value.ToString());
-                } 
+                }
             }
             return output;
         }
@@ -341,7 +338,7 @@ namespace SaveAsPDF.Helpers
                             output.Add($"{mi.Attachments[i].DisplayName}|{mi.Attachments[i].Size.BytesToString()}");
                         }
 
-                    }                    
+                    }
                 }
             }
             return output;

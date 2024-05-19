@@ -73,6 +73,7 @@ namespace SaveAsPDF
             this.dgvAttachments = new System.Windows.Forms.DataGridView();
             this.txtSaveLocation = new System.Windows.Forms.TextBox();
             this.lblSaveLocation = new System.Windows.Forms.Label();
+            this.chbOpenPDF = new System.Windows.Forms.CheckBox();
             this.stsStrip.SuspendLayout();
             this.tabNotes.SuspendLayout();
             this.tabProjectNote.SuspendLayout();
@@ -386,11 +387,19 @@ namespace SaveAsPDF
             resources.ApplyResources(this.lblSaveLocation, "lblSaveLocation");
             this.lblSaveLocation.Name = "lblSaveLocation";
             // 
+            // chbOpenPDF
+            // 
+            resources.ApplyResources(this.chbOpenPDF, "chbOpenPDF");
+            this.chbOpenPDF.Name = "chbOpenPDF";
+            this.chbOpenPDF.UseVisualStyleBackColor = true;
+            this.chbOpenPDF.CheckedChanged += new System.EventHandler(this.chbOpenPDF_CheckedChanged);
+            // 
             // frmMain
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
+            this.Controls.Add(this.chbOpenPDF);
             this.Controls.Add(this.lblSaveLocation);
             this.Controls.Add(this.txtSaveLocation);
             this.Controls.Add(this.tabFilesFolders);
@@ -475,5 +484,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.DataGridViewTextBoxColumn firstName;
         private System.Windows.Forms.DataGridViewTextBoxColumn lastName;
         private System.Windows.Forms.DataGridViewTextBoxColumn emailAddress;
+        private System.Windows.Forms.CheckBox chbOpenPDF;
     }
 }
