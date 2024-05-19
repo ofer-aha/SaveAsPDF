@@ -82,7 +82,7 @@ namespace SaveAsPDF.Helpers
             return nodes;
         }
         /// <summary>
-        /// Test is a directory is hidden
+        /// Test if a directory is hidden
         /// </summary>
         /// <param name="sDir"></param>
         /// <returns></returns>
@@ -177,7 +177,7 @@ namespace SaveAsPDF.Helpers
         /// <param name="lable"></param>
         public static void AddNode(this TreeView treeView, TreeNode mySelectedNode, string lable)
         {
-            if(treeView.SelectedNode != null)
+            if (treeView.SelectedNode != null)
             {
                 if (!string.IsNullOrEmpty(lable))
                 {
@@ -343,6 +343,9 @@ namespace SaveAsPDF.Helpers
             trv.Nodes.Clear();
             Dictionary<int, TreeNode> parents = new Dictionary<int, TreeNode>();
 
+
+            // Break the file into lines.
+            string[] lines = file_contents.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string text_line in lines)
             {
                 // See how many tabs are at the start of the line.

@@ -215,7 +215,11 @@ namespace SaveAsPDF.Helpers
                 //            $"נשמר(ו) {attList.Count} קבצ(ים)  <br>" +
                 //            "<table \"width:auto\" align=\"right\"><tr><th style=\"text-align:center\">קובץ</th><th style=\"text-align:center\">גודל</th></tr>";
 
-                output += $"<p><table \"width:auto\" align=\"right\"><tr><th colspan=\"2\"> <a href='file://{path}'>{path}</a> :ההודעה נשמרה ב " +
+                output += $"<p><table \"width:auto\" align=\"right\">" +
+                    $"<th style=\"text-align:center\"><a href='file://{path}'>{path}</a> :ההודעה נשמרה ב</th>" +
+                    $"</table><br>";
+
+                output += $"<p><table \"width:auto\" align=\"right\"><tr><th colspan=\"2\"> " +
                             $"נשמר(ו) {attList.Count} קבצ(ים) </th></tr>" +
                             "<tr><th style=\"text-align:center\">קובץ</th><th style=\"text-align:center\">גודל</th></tr>";
 

@@ -48,7 +48,7 @@ namespace SaveAsPDF
 
         private void bntCancel_Click(object sender, System.EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace SaveAsPDF
 
         private void SaveSettings()
         {
-           
+            //TODO1: Save settings is worng!!!!
             formChanged = false;
 
             Settings.Default.defaultFolder = txtDefaultFolder.Text;
@@ -144,7 +144,7 @@ namespace SaveAsPDF
 
             //save the new settings
             SaveDefaultTree();
-
+            Properties.Settings.Default.Save();
         }
 
         private void btnSaveSettings_Click(object sender, System.EventArgs e)
@@ -214,7 +214,7 @@ namespace SaveAsPDF
             }
         }
 
-    
+        //TODO3: to check
         //private void btnDefaultTree_Click(object sender, System.EventArgs e)
         //{
         //    TreeHelper.RestTree(tvProjectSubFolders);
@@ -250,10 +250,20 @@ namespace SaveAsPDF
 
         private void btnFolderSelect_Click(object sender, EventArgs e)
         {
+            //TODO1: 1 fix the folder reading when its empty 
+            if (!string.IsNullOrEmpty(txtDefaultFolder.Text))
+            {
+
             TreeNode CurrentNode = tvProjectSubFolders.SelectedNode;
             string fullpath = CurrentNode.FullPath;
             txtDefaultFolder.Text = fullpath;
+
             formChanged = true;
+            }
+            else 
+            {
+                txtDefaultFolder.Text = "_מספר_פרויקט_";
+            }
 
         }
 
@@ -268,7 +278,7 @@ namespace SaveAsPDF
         private void menuAppendDate_Click(object sender, EventArgs e)
         {
             //tvProjectSubFolders.SelectedNode.Name += Settings.Default.dateTag;
-            TreeHelper.RenameNode(tvProjectSubFolders, mySelectedNode,  mySelectedNode.Name + Settings.Default.dateTag);
+            TreeHelper.RenameNode(tvProjectSubFolders, mySelectedNode, mySelectedNode.Name + Settings.Default.dateTag);
         }
     }
 }

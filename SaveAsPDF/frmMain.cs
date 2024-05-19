@@ -1,5 +1,4 @@
 ﻿using Microsoft.Office.Interop.Outlook;
-using Microsoft.Office.Interop.Word;
 using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
 using SaveAsPDF.Properties;
@@ -7,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
-using System.Windows.Controls;
 using System.Windows.Forms;
 using Exception = System.Exception;
 
@@ -104,7 +101,7 @@ namespace SaveAsPDF
               
                 dgvAttachments.Columns[2].HeaderText = "שם קובץ"; 
                 dgvAttachments.Columns[2].ReadOnly = true;
-                dgvAttachments.Columns[3].HeaderText= "גודל";
+                dgvAttachments.Columns[3].HeaderText = "גודל";
                 dgvAttachments.Columns[3].ReadOnly = true;
                 
             }
@@ -199,7 +196,7 @@ namespace SaveAsPDF
         {
             // construct the full path for evrything
             sPath = txtProjectID.Text.Trim().ProjectFullPath();
-            xmlSaveAsPdfFolder = new DirectoryInfo(Path.Combine(sPath.FullName,Settings.Default.xmlSaveAsPdfFolder));
+            xmlSaveAsPdfFolder = new DirectoryInfo(Path.Combine(sPath.FullName, Settings.Default.xmlSaveAsPdfFolder));
             xmlProjectFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlProjectFile}";
             xmlEmploeeysFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlEmploeeysFile}";
             
@@ -262,7 +259,7 @@ namespace SaveAsPDF
         {
             if (ValidateForm())
             {
-                if (!dataLoaded )
+                if (!dataLoaded)
                 {
                     LoadXmls();
                 }
@@ -335,8 +332,6 @@ namespace SaveAsPDF
                     $"<tr><td style=\"text-align:right\">{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th style=\"text-align:right\">הערות</th></tr></table> <br><br><br><br>" +
                     "</p><br>";
 
-                
-                
                 mailItem.HTMLBody = tableStyle + projData + dgvEmployees.dgvEmployeesToString() + attString + mailItem.HTMLBody;
 
                 mailItem.SaveToPDF(txtSaveLocation.Text);
@@ -375,7 +370,7 @@ namespace SaveAsPDF
 
         private void dgvAttachments_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            //TODO: Open attachment when double clicking it on the list
+            //TODO1: Open attachment when double clicking it on the list
             //1. save attachment to temp folder 
             //string tmpFoder = @System.IO.Path.GetTempPath();
             //2. exec. the file using default file asociating 
@@ -407,11 +402,9 @@ namespace SaveAsPDF
 
         }
 
-        private void SendEmailToEmployee(string text)
-        {
-            //TODO: send email
-            MessageBox.Show($"Send email to {text}");
-        }
+        private void SendEmailToEmployee(string EmailAddress) =>
+            //TODO3: send notification email message to employee - command visible = 0 (Next Version?)
+            MessageBox.Show($"Send email to {EmailAddress}");
 
         private void chkbSelectAllAttachments_CheckedChanged(object sender, EventArgs e)
         {
@@ -534,7 +527,7 @@ namespace SaveAsPDF
             txtProjectID.Text = project.ProjectNumber;
             txtProjectName.Text = project.ProjectName;
             rtxtProjectNotes.Text = project.ProjectNotes;
-            //TODO: refresh folder treeview
+            //TODO1: refresh folder treeview
 
         }
 
@@ -569,7 +562,7 @@ namespace SaveAsPDF
             string fullpath = CurrentNode.FullPath;
             mySelectedNode = CurrentNode;
             
-            txtSaveLocation.Text =  sPath.Parent.FullName + "\\" + fullpath;
+            txtSaveLocation.Text = sPath.Parent.FullName + "\\" + fullpath;
 
         }
 
