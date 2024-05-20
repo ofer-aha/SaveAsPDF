@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using Exception = System.Exception;
 
@@ -320,27 +321,25 @@ namespace SaveAsPDF
                 attList.AddRange(mailItem.SaveAttchments(dgvAttachments, txtSaveLocation.Text, false));
 
                 //string tableStyle = "<style> table, th,td {border: 1px solid black; text-align: right;}</style><br>";
-                string tableStyle = "<style>table, td, th {border: 0px solid blue; border-collapse: collapse} " +
-                                         "tr:nth-child(even) {background-color:#f2f2f2;}</style> ";
+                string tableStyle = "<style>table, td, th {border: 0px solid blue; border-collapse:collapse} " +
+                                         "tr:nth-child(even) {background-color:#f2f2f2;}</style>" +
+                                         $"<table style=\"float: right;\">" +
+                                         $"<tr><th colspan=\"2\">SaveAsPDF ver.{Assembly.GetExecutingAssembly().GetName().Version.ToString()}</th></tr>";
 
                 string attString = attList.AttachmentsToString(txtSaveLocation.Text);
 
-                string projData = "<p>" +
-                    "<table style=\"width:auto\" align=\"right\">" +
-                    $"<tr><td style=\"text-align:right\">{txtProjectName.Text}</td><th style=\"text-align:right\">שם הפרויקט</th></tr>" +
-                    $"<tr><td style=\"text-align:right\">{txtProjectID.Text}</td style=\"text-align:right\"><th>מס' פרויקט</th></tr>" +
-                    $"<tr><td style=\"text-align:right\">{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th style=\"text-align:right\">הערות</th></tr>" +
-                    $"<tr><td style=\"text-align:right\">{Environment.UserName}</td style=\"text-align:right\"><th>שם משתמש</th></rt>" +
-                    $"<tr><th colspan=\"3\" style=\"text-align:center\">{DateTime.Now.ToString("HH:mm dd/MM/yyyy")} :תאריך שמירה </th>" +
-                    "</table></p><br>";
+                string projData = $"<tr><td style=\"text-align:right\">{txtProjectName.Text}</td><th style=\"text-align:right\">שם הפרויקט</th></tr>" +
+                                    $"<tr><td style=\"text-align:right\">{txtProjectID.Text}</td style=\"text-align:right\"><th>מס' פרויקט</th></tr>" +
+                                    $"<tr><td style=\"text-align:right\">{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th style=\"text-align:right\">הערות</th></tr>" +
+                                    $"<tr><td style=\"text-align:right\">{Environment.UserName}</td style=\"text-align:right\"><th>שם משתמש</th></tr>" +
+                                    $"<tr><th colspan=\"3\" style=\"text-align:center\">{DateTime.Now.ToString("HH:mm dd/MM/yyyy")} :תאריך שמירה </th></tr>";
 
-                mailItem.HTMLBody = tableStyle + projData +
-                    "<br><br><br><br>" +
-                    dgvEmployees.dgvEmployeesToString() +
-                    "<br><br><br><br>" + 
-                    attString +
-                    "<br><br><br><br>" +
-                    mailItem.HTMLBody;
+                mailItem.HTMLBody = tableStyle + 
+                                    projData +
+                                    dgvEmployees.dgvEmployeesToString() +
+                                    attString +
+                                    "</table>" +
+                                    mailItem.HTMLBody;
 
                 mailItem.SaveToPDF(txtSaveLocation.Text);
 
