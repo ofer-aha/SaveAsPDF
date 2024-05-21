@@ -196,13 +196,11 @@ namespace SaveAsPDF.Helpers
         public static string AttachmentsToString(this List<string> attList, string path)
         {
             string output = "";
-            output = $"<tr><th colspan=\"2\" style=\"text-align:center\"><a href='file://{path}'>{path}</a> :ההודעה נשמרה ב</th></tr>";
+            
+            output = "";
 
             if (attList.Count != 0)
             {
-                //output += $"<p><table \"width:auto\" align=\"right\">" +
-                //          $"<th style=\"text-align:center\"><a href='file://{path}'>{path}</a> :ההודעה נשמרה ב</th>" +
-                //          $"</table><br>";
 
                 output += $"<tr><th colspan=\"2\" tyle=\"text-align:center\">  נשמר(ו) {attList.Count} קבצ(ים) </th></tr>" +
                           $"<tr><th style=\"text-align:center\">קובץ</th> <th style=\"text-align:center\">גודל</th></tr>";
@@ -212,18 +210,14 @@ namespace SaveAsPDF.Helpers
                     string[] t = Att.Split('|');
                     output += $"<tr><td  colspan=\"2\" style=\"text-align:left\"><a href='file://{Path.Combine(path, t[0])}'>{t[0]}</a></td><td>{t[1]}</td></tr>";
                 }
-                                
-                //output += $"</table><br>" +
-                //        "==========================================================================================</p><br>";
             }
             else
             {
-
                 output += $"<tr><th colspan=\"2\" tyle=\"text-align:center\"> לא נבחרו/נמצאו קבצים מצורפים לשמירה.</th></tr> "; 
-                    
             }
             return output;
         }
+
         /// <summary>
         /// Method to get all attachments that are NOT inline attachments (like images and stuff).
         /// </summary>

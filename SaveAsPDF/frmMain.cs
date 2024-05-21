@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Windows.Shapes;
 using Exception = System.Exception;
 
 namespace SaveAsPDF
@@ -321,22 +322,33 @@ namespace SaveAsPDF
                 attList.AddRange(mailItem.SaveAttchments(dgvAttachments, txtSaveLocation.Text, false));
 
                 //string tableStyle = "<style> table, th,td {border: 1px solid black; text-align: right;}</style><br>";
-                string tableStyle = "<style>table, td, th {border: 0px solid blue; border-collapse:collapse} " +
-                                         "tr:nth-child(even) {background-color:#f2f2f2;}</style>" +
-                                         $"<table style=\"float: right;\">" +
-                                         $"<tr><th colspan=\"2\">SaveAsPDF ver.{Assembly.GetExecutingAssembly().GetName().Version.ToString()}</th></tr>";
+                string tableStyle = "<html><head><style>" +
+                                    "table, td, th { " +
+                                    "border: 0px solid blue; " +
+                                    //"border-collapse:collapse " +
+                                    "tr:nth-child(even) {background-color:#f2f2f2};" +
+                                    "}</style></head>" +
+                                    "<body>" +
+                                    "<table style=\"float:right;\">" +
+                                    "<tr><td></tr></td>" + //empty line 
+                                    $"<tr><th colspan=\"3\">SaveAsPDF ver.{Assembly.GetExecutingAssembly().GetName().Version.ToString()}</th></tr>" +
+                                    "<tr><td></tr></td>" + //empty line 
+                                    $"<tr><td colspan=\"3\" style=\"text-align:center\"><a href='file://{txtSaveLocation.Text}'>{txtSaveLocation.Text}</a> :ההודעה נשמרה ב</td></tr>" +
+                                    "<tr><td></tr></td>"; //empty line 
 
-                string attString = attList.AttachmentsToString(txtSaveLocation.Text);
-
-                string projData = $"<tr><td style=\"text-align:right\">{txtProjectName.Text}</td><th style=\"text-align:right\">שם הפרויקט</th></tr>" +
-                                    $"<tr><td style=\"text-align:right\">{txtProjectID.Text}</td style=\"text-align:right\"><th>מס' פרויקט</th></tr>" +
-                                    $"<tr><td style=\"text-align:right\">{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th style=\"text-align:right\">הערות</th></tr>" +
-                                    $"<tr><td style=\"text-align:right\">{Environment.UserName}</td style=\"text-align:right\"><th>שם משתמש</th></tr>" +
+                string projData = $"<tr><td></td><td style=\"text-align:right\">{txtProjectName.Text}</td><th style=\"text-align:right\">שם הפרויקט</th></tr>" +
+                                    $"<tr><td></td><td style=\"text-align:right\">{txtProjectID.Text}</td style=\"text-align:right\"><th>מס' פרויקט</th></tr>" +
+                                    $"<tr><td></td><td style=\"text-align:right\">{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th style=\"text-align:right\">הערות</th></tr>" +
+                                    $"<tr><td></td><td style=\"text-align:right\">{Environment.UserName}</td style=\"text-align:right\"><th>שם משתמש</th></tr>" +
                                     $"<tr><th colspan=\"3\" style=\"text-align:center\">{DateTime.Now.ToString("HH:mm dd/MM/yyyy")} :תאריך שמירה </th></tr>";
 
+                string attString = attList.AttachmentsToString(txtSaveLocation.Text);
+                string empString = dgvEmployees.dgvEmployeesToString();
+
+                //construct the HTMLbody message 
                 mailItem.HTMLBody = tableStyle + 
                                     projData +
-                                    dgvEmployees.dgvEmployeesToString() +
+                                    empString +
                                     attString +
                                     "</table>" +
                                     mailItem.HTMLBody;
