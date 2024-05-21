@@ -5,8 +5,10 @@ using SaveAsPDF.Properties;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using word = Microsoft.Office.Interop.Word;
@@ -75,15 +77,14 @@ namespace SaveAsPDF.Helpers
         public static string dgvEmployeesToString(this DataGridView dgv)
         {
 
-            string output = $"<tr><th colspan=\"3\" style=\"text-align:center\">מתכנן אחראי</th></tr>";
-            
-                    output += "<tr><th style=\"text-align:center\">אימייל</th><th style=\"text-align:center\">שם משפחה</th><th style=\"text-align:center\">שם פרטי</th></tr>";
+            string output = "<tr style=\"text-align:center\"><th colspan=\"3\">מתכנן אחראי</th></tr>" +
+                            "<tr style=\"text-align:center\"><th>אימייל</th><th>שם משפחה</th><th>שם פרטי</th></tr>";
             
             foreach (DataGridViewRow row in dgv.Rows)
             {
-                output += $"<tr><td style=\"text-align:left\" style=\"width:200px\">{row.Cells[3].Value.ToString()}</td>" +
-                        $"<td style=\"text-align:right\" style=\"width:200px\">{row.Cells[2].Value.ToString()}</td>" +
-                        $"<td style=\"text-align:right\" style=\"width:200px\">{row.Cells[1].Value.ToString()}</td>";
+                output += $"<tr><td style=\"text-align:left\">{row.Cells[3].Value.ToString()}</td>" +
+                        $"<td style=\"text-align:right\">{row.Cells[2].Value.ToString()}</td>" +
+                        $"<td style=\"text-align:right\">{row.Cells[1].Value.ToString()}</td></tr>";
             }
             return output;
         }
@@ -195,26 +196,34 @@ namespace SaveAsPDF.Helpers
         /// <returns></returns>
         public static string AttachmentsToString(this List<string> attList, string path)
         {
-            string output = "";
+           string output = string.Empty;
             
-            output = "";
-
-            if (attList.Count != 0)
+            switch (attList.Count)
             {
+                case 0:  
+                    output = "<tr style=\"text-align:center\"><td colspan=\"3\"> לא נבחרו/נמצאו קבצים מצורפים לשמירה.</td></tr>";
+                    break;
 
-                output += $"<tr><th colspan=\"2\" tyle=\"text-align:center\">  נשמר(ו) {attList.Count} קבצ(ים) </th></tr>" +
-                          $"<tr><th style=\"text-align:center\">קובץ</th> <th style=\"text-align:center\">גודל</th></tr>";
+                case 1:
+                    output = "<tr style=\"text-align:center\"><th colspan=\"3\">נשמר קובץ אחד</th></tr>" +
+                            "<tr style=\"text-align:center\"><td></td><th>קובץ</th> <th>גודל</th></tr>";
+                    output += $"<tr style=\"text-align:left\"><td></td><td><a href='file://{Path.Combine(path, attList[0].Split('|')[0].ToString())}'>" +
+                              $"{Path.Combine(path, attList[0].Split('|')[0].ToString())}</a></td><td>{Path.Combine(path, attList[0].Split('|')[1].ToString())}</td></tr>";
+                    break;
 
-                foreach (string Att in attList)
-                {
-                    string[] t = Att.Split('|');
-                    output += $"<tr><td  colspan=\"2\" style=\"text-align:left\"><a href='file://{Path.Combine(path, t[0])}'>{t[0]}</a></td><td>{t[1]}</td></tr>";
-                }
+                 default:
+                    output = $"<tr style=\"text-align:center\"><th colspan=\"3\">נשמרו {attList.Count} קבצים</th></tr>" +
+                             $"<tr style=\"text-align:center\"><th></th><th>קובץ</th> <th>גודל</th></tr>";
+
+                    foreach (string Att in attList)
+                    {
+                        string[] t = Att.Split('|');
+                        output += $"<tr style=\"text-align:left\"><td></td><td><a href='file://{Path.Combine(path, t[0])}'>{t[0]}</a></td><td>{t[1]}</td></tr>";
+                    }
+
+                    break;
             }
-            else
-            {
-                output += $"<tr><th colspan=\"2\" tyle=\"text-align:center\"> לא נבחרו/נמצאו קבצים מצורפים לשמירה.</th></tr> "; 
-            }
+
             return output;
         }
 

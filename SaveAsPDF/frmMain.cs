@@ -198,7 +198,7 @@ namespace SaveAsPDF
         {
             // construct the full path for evrything
             sPath = txtProjectID.Text.Trim().ProjectFullPath();
-            xmlSaveAsPdfFolder = new DirectoryInfo(Path.Combine(sPath.FullName, Settings.Default.xmlSaveAsPdfFolder));
+            xmlSaveAsPdfFolder = new DirectoryInfo(System.IO.Path.Combine(sPath.FullName, Settings.Default.xmlSaveAsPdfFolder));
             xmlProjectFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlProjectFile}";
             xmlEmploeeysFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlEmploeeysFile}";
 
@@ -330,17 +330,18 @@ namespace SaveAsPDF
                                     "}</style></head>" +
                                     "<body>" +
                                     "<table style=\"float:right;\">" +
-                                    "<tr><td></tr></td>" + //empty line 
-                                    $"<tr><th colspan=\"3\">SaveAsPDF ver.{Assembly.GetExecutingAssembly().GetName().Version.ToString()}</th></tr>" +
-                                    "<tr><td></tr></td>" + //empty line 
-                                    $"<tr><td colspan=\"3\" style=\"text-align:center\"><a href='file://{txtSaveLocation.Text}'>{txtSaveLocation.Text}</a> :ההודעה נשמרה ב</td></tr>" +
-                                    "<tr><td></tr></td>"; //empty line 
+                                    "<tr><td colspan=\"3\"></tr></td>" + //empty line 
+                                    $"<tr style=\"text-align:center\"><th colspan=\"3\">SaveAsPDF ver.{Assembly.GetExecutingAssembly().GetName().Version.ToString()}</th></tr>" +
+                                    "<tr><td colspan=\"3\"></tr></td>" + //empty line 
+                                    $"<tr style=\"text-align:right\"><td colspan=\"3\"><a href='file://{txtSaveLocation.Text}'>{txtSaveLocation.Text}</a> :ההודעה נשמרה ב</td></tr>" +
+                                    $"<tr style=\"text-align:right\"><td colspan=\"3\">{DateTime.Now.ToString("HH:mm dd/MM/yyyy")} :תאריך שמירה </td></tr>" +
+                                    "<tr><td colspan=\"3\"></tr></td>"; //empty line 
 
-                string projData = $"<tr><td></td><td style=\"text-align:right\">{txtProjectName.Text}</td><th style=\"text-align:right\">שם הפרויקט</th></tr>" +
-                                    $"<tr><td></td><td style=\"text-align:right\">{txtProjectID.Text}</td style=\"text-align:right\"><th>מס' פרויקט</th></tr>" +
-                                    $"<tr><td></td><td style=\"text-align:right\">{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th style=\"text-align:right\">הערות</th></tr>" +
-                                    $"<tr><td></td><td style=\"text-align:right\">{Environment.UserName}</td style=\"text-align:right\"><th>שם משתמש</th></tr>" +
-                                    $"<tr><th colspan=\"3\" style=\"text-align:center\">{DateTime.Now.ToString("HH:mm dd/MM/yyyy")} :תאריך שמירה </th></tr>";
+                string projData = $"<tr style=\"text-align:right\"><td></td><td>{txtProjectName.Text}</td><th>שם הפרויקט</th></tr>" +
+                                  $"<tr style=\"text-align:right\"><td></td><td>{txtProjectID.Text}</td><th >מס' פרויקט</th></tr>" +
+                                  $"<tr style=\"text-align:right\"><td></td><td>{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th >הערות</th></tr>" +
+                                  $"<tr style=\"text-align:right\"><td></td><td>{Environment.UserName}</td><th>שם משתמש</th></tr>";
+                                    
 
                 string attString = attList.AttachmentsToString(txtSaveLocation.Text);
                 string empString = dgvEmployees.dgvEmployeesToString();
@@ -350,7 +351,7 @@ namespace SaveAsPDF
                                     projData +
                                     empString +
                                     attString +
-                                    "</table>" +
+                                    "</table></body>" +
                                     mailItem.HTMLBody;
 
                 mailItem.SaveToPDF(txtSaveLocation.Text);
@@ -625,13 +626,13 @@ namespace SaveAsPDF
 
                 try
                 {
-                    DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(sPath.Parent.FullName, e.Node.FullPath));
+                    DirectoryInfo directoryInfo = new DirectoryInfo(System.IO.Path.Combine(sPath.Parent.FullName, e.Node.FullPath));
                     directoryInfo.RnDir($"{sPath.Parent.FullName}\\{mySelectedNode.Parent.FullPath}\\{e.Label}"); //e.Label = new name
                 }
                 catch (Exception ex)
                 {
 
-                    MessageBox.Show(ex.Message + "\n" + Path.Combine(sPath.Parent.FullName, mySelectedNode.FullPath), "SaveAsPDF:tvFolders_AfterLabelEdit");
+                    MessageBox.Show(ex.Message + "\n" + System.IO.Path.Combine(sPath.Parent.FullName, mySelectedNode.FullPath), "SaveAsPDF:tvFolders_AfterLabelEdit");
                 }
 
             }
