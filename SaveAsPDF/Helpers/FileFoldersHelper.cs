@@ -23,7 +23,7 @@ namespace SaveAsPDF.Helpers
         {
             string rootDrive = Settings.Default.rootDrive;
             string output = rootDrive;
-            if (projectNumber == null || projectNumber.Length == 0)
+            if (!projectNumber.SafeProjID())
 
             {
                 //Default return: root drive.
@@ -88,11 +88,67 @@ namespace SaveAsPDF.Helpers
 
                 output += $"\\{projectNumber}\\";
             }
-            DirectoryInfo di = new DirectoryInfo(output);
-            return di;
+            
+            return new DirectoryInfo(output); ;
         }
 
+        //public static DirectoryInfo ProjectFullPath(this string projectNumber)
+        //{
+        //    if (!projectNumber.SafeProjID())
+        //    {
+        //        // Default return: root drive.
+        //        return new DirectoryInfo(Settings.Default.rootDrive);
+        //    }
 
+        //    string[] split = projectNumber.Split('-');
+        //    string output = Settings.Default.rootDrive;
+
+
+        //    if (split.Length > 0)
+        //    {
+        //        string prefix = split[0].Length == 3 ? $"0{split[0]}".Substring(0, 2) : split[0].Substring(0, 2);
+        //        output += prefix;
+
+        //        if (Directory.Exists($"{output}\\{projectNumber}\\"))
+        //        {
+        //            output += $"\\{projectNumber}\\";
+        //        }
+
+        //        if (split.Length == 3)
+        //        {
+        //            if (!Directory.Exists($"{output}\\{split[0]}-{split[1]}\\{projectNumber}\\"))
+        //            {
+        //                //output += $"-{split[1]}";
+        //                output += $"\\{split[0]}-{split[1]}\\{projectNumber}\\";
+        //            }
+        //            else
+        //            {
+        //                output += $"\\{split[0]}-{split[1]}";
+        //            }
+        //        }
+        //    }
+
+        //    return new DirectoryInfo(output);
+        //  }
+    /// <summary>
+    /// make sure the project pattern is right
+    /// XXX XXX-X XXX-XX XXXX XXXX-X XXXX-XX and so on XXXX-XX-XX 
+    /// </summary>
+    /// <param name="projID"></param>
+    /// <returns></returns>
+    
+        public static Boolean SafeProjID (this string projID)
+        {
+            string pattern = @"^\w{3,5}(-\w{1,3})?(-\w{1,2})?$";
+            return Regex.IsMatch(projID, pattern);  
+        } 
+
+
+        /// <summary>
+        /// make sure all characters file system ligal 
+        /// </summary>
+        /// <param name="inTXT"></param>
+        /// <returns></returns>
         public static string SafeFileName(this string inTXT)
         {
             string pattern = @"[\/:*?""<>|]";

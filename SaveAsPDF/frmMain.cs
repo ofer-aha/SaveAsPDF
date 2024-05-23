@@ -60,14 +60,12 @@ namespace SaveAsPDF
         }
         private void frmMain_Load(object sender, EventArgs e)
         {
-            //MailItem mi = null;
-            //MailItem mailItem = ThisAddIn.TypeOfMailitem(mi);
 
             sPath = txtProjectID.Text.ProjectFullPath();
 
             if (mailItem is MailItem && mailItem != null)
             {
-                //oDoc.LoadMailItem(mailItem);
+
 
                 chkbSelectAllAttachments.Checked = true;
                 chkbSelectAllAttachments.Text = "הסר הכל";
@@ -324,18 +322,18 @@ namespace SaveAsPDF
                 //string tableStyle = "<style> table, th,td {border: 1px solid black; text-align: right;}</style><br>";
                 string tableStyle = "<html><head><style>" +
                                     "table, td, th { " +
-                                    "border: 0px solid blue; " +
+                                    //"border: 0px solid blue; " +
                                     //"border-collapse:collapse " +
                                     "tr:nth-child(even) {background-color:#f2f2f2};" +
                                     "}</style></head>" +
                                     "<body>" +
                                     "<table style=\"float:right;\">" +
-                                    "<tr><td colspan=\"3\"></tr></td>" + //empty line 
+                                    "<tr><td colspan=\"3\"></td></tr>" + //empty line 
                                     $"<tr style=\"text-align:center\"><th colspan=\"3\">SaveAsPDF ver.{Assembly.GetExecutingAssembly().GetName().Version.ToString()}</th></tr>" +
-                                    "<tr><td colspan=\"3\"></tr></td>" + //empty line 
+                                    "<tr><td colspan=\"3\"></td></tr>" + //empty line 
                                     $"<tr style=\"text-align:right\"><td colspan=\"3\"><a href='file://{txtSaveLocation.Text}'>{txtSaveLocation.Text}</a> :ההודעה נשמרה ב</td></tr>" +
                                     $"<tr style=\"text-align:right\"><td colspan=\"3\">{DateTime.Now.ToString("HH:mm dd/MM/yyyy")} :תאריך שמירה </td></tr>" +
-                                    "<tr><td colspan=\"3\"></tr></td>"; //empty line 
+                                    "<tr><td colspan=\"3\"></td></tr>"; //empty line 
 
                 string projData = $"<tr style=\"text-align:right\"><td></td><td>{txtProjectName.Text}</td><th>שם הפרויקט</th></tr>" +
                                   $"<tr style=\"text-align:right\"><td></td><td>{txtProjectID.Text}</td><th >מס' פרויקט</th></tr>" +
@@ -354,11 +352,21 @@ namespace SaveAsPDF
                                     "</table></body>" +
                                     mailItem.HTMLBody;
 
-                mailItem.SaveToPDF(txtSaveLocation.Text);
-
+                
+                OfficeHelpers.SaveToPdf(mailItem, txtSaveLocation.Text);
             }
 
             Close();
+            
+            if (chbOpenPDF.Checked)
+            {
+                //TODO1:0 Open the PDF file
+                MessageBox.Show("open PDF =" + chbOpenPDF.Checked.ToString());
+            }
+
+            Settings.Default.OpenPDF = chbOpenPDF.Checked;
+            Settings.Default.Save();
+
         }
         /// <summary>
         /// making sure nothing is missing before closeing the form

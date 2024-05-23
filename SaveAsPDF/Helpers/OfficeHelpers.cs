@@ -95,22 +95,64 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="mailItem"></param>
         /// <param name="path"></param>
-        public static void SaveToPDF(this MailItem mailItem, string path)
+        //public static void SaveToPDF(this MailItem mailItem, string path)
+        //{
+        //    //cretae temp file name with uniq time stamp 
+        //    string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+        //    string tFilename = $@"{Path.GetTempPath()}{timeStamp}.mht";
+
+        //    mailItem.SaveAs(tFilename, OlSaveAsType.olMHTML);
+
+        //    word.Application oWord = new word.Application();
+        //    word.Document oDOC = oWord.Documents.Open(@tFilename, false);
+
+        //    oDOC.ConvertToPDF($@"{path}\\{timeStamp}_{mailItem.Subject.SafeFileName()}.pdf");
+
+        //    oDOC.Close();
+        //    oWord.Quit();
+        //}
+        
+        /// <summary>
+        /// created by AI
+        /// Converts the .MHT file now saved to the user's temp directory 
+        /// to PDF format and saves it to the users choosen path 
+        /// </summary>
+        /// <param name="mailItem"></param>
+        /// <param name="outputPath"></param>
+        public static void SaveToPdf(this Outlook.MailItem mailItem, string outputPath)
         {
-            //cretae temp file name with uniq time stamp 
-            string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
-            string tFilename = $@"{Path.GetTempPath()}{timeStamp}.mht";
+            string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss")+"_";
+            // Create a temporary MHT file
+            string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mht");
+            mailItem.SaveAs(tempFilePath, Outlook.OlSaveAsType.olMHTML);
 
-            mailItem.SaveAs(tFilename, OlSaveAsType.olMHTML);
+            try
+            {
+                // Open the MHT file in Word
+                var wordApp = new word.Application();
+                var doc = wordApp.Documents.Open(tempFilePath, ReadOnly: false);
 
-            word.Application oWord = new word.Application();
-            word.Document oDOC = oWord.Documents.Open(@tFilename, false);
+                // Convert to PDF
+                string pdfFileName = $"{Path.GetFileNameWithoutExtension(timeStamp +  mailItem.Subject.SafeFileName())}.pdf";
+                string pdfPath = Path.Combine(outputPath, pdfFileName);
+                doc.ExportAsFixedFormat(pdfPath, WdExportFormat.wdExportFormatPDF);
 
-            oDOC.ConvertToPDF($@"{path}\\{timeStamp}_{mailItem.Subject.SafeFileName()}.pdf");
-
-            oDOC.Close();
-            oWord.Quit();
+                // Clean up
+                doc.Close(SaveChanges: false);
+                wordApp.Quit();
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Error converting email to PDF: {ex.Message}");
+            }
+            finally
+            {
+                // Delete the temporary MHT file
+                File.Delete(tempFilePath);
+            }
         }
+
+
 
 
         /// <summary>
@@ -198,30 +240,28 @@ namespace SaveAsPDF.Helpers
         {
            string output = string.Empty;
             
-            switch (attList.Count)
+            if (attList.Count == 0)
             {
-                case 0:  
-                    output = "<tr style=\"text-align:center\"><td colspan=\"3\"> לא נבחרו/נמצאו קבצים מצורפים לשמירה.</td></tr>";
-                    break;
+                output = "<tr style=\"text-align:center\"><td colspan=\"3\">לא נבחרו/נמצאו קבצים מצורפים לשמירה.</td></tr>";
+            }
+            else
+            {
+                if (attList.Count ==1) //set the title 
+                {
+                    output = "<tr style=\"text-align:center\"><th colspan=\"3\">נשמר קובץ אחד</th></tr>";
+                }
+                else
+                {
+                    output = $"<tr style=\"text-align:center\"><th colspan=\"3\">נשמרו {attList.Count} קבצים</th></tr>";
+                }
 
-                case 1:
-                    output = "<tr style=\"text-align:center\"><th colspan=\"3\">נשמר קובץ אחד</th></tr>" +
-                            "<tr style=\"text-align:center\"><td></td><th>קובץ</th> <th>גודל</th></tr>";
-                    output += $"<tr style=\"text-align:left\"><td></td><td><a href='file://{Path.Combine(path, attList[0].Split('|')[0].ToString())}'>" +
-                              $"{Path.Combine(path, attList[0].Split('|')[0].ToString())}</a></td><td>{Path.Combine(path, attList[0].Split('|')[1].ToString())}</td></tr>";
-                    break;
+                output += "<tr style=\"text-align:center\"><th></th><th>קובץ</th> <th>גודל</th></tr>";
+                foreach (string Att in attList)
+                {
+                    string[] t = Att.Split('|');
+                    output += $"<tr style=\"text-align:left\"><td></td><td><a href='file://{Path.Combine(path, t[0])}'>{t[0]}</a></td><td>{t[1]}</td></tr>";
+                }
 
-                 default:
-                    output = $"<tr style=\"text-align:center\"><th colspan=\"3\">נשמרו {attList.Count} קבצים</th></tr>" +
-                             $"<tr style=\"text-align:center\"><th></th><th>קובץ</th> <th>גודל</th></tr>";
-
-                    foreach (string Att in attList)
-                    {
-                        string[] t = Att.Split('|');
-                        output += $"<tr style=\"text-align:left\"><td></td><td><a href='file://{Path.Combine(path, t[0])}'>{t[0]}</a></td><td>{t[1]}</td></tr>";
-                    }
-
-                    break;
             }
 
             return output;
