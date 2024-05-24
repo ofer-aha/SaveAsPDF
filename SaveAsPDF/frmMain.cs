@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using System.Windows.Shapes;
 using Exception = System.Exception;
 
 namespace SaveAsPDF
@@ -339,25 +338,25 @@ namespace SaveAsPDF
                                   $"<tr style=\"text-align:right\"><td></td><td>{txtProjectID.Text}</td><th >מס' פרויקט</th></tr>" +
                                   $"<tr style=\"text-align:right\"><td></td><td>{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th >הערות</th></tr>" +
                                   $"<tr style=\"text-align:right\"><td></td><td>{Environment.UserName}</td><th>שם משתמש</th></tr>";
-                                    
+
 
                 string attString = attList.AttachmentsToString(txtSaveLocation.Text);
                 string empString = dgvEmployees.dgvEmployeesToString();
 
                 //construct the HTMLbody message 
-                mailItem.HTMLBody = tableStyle + 
+                mailItem.HTMLBody = tableStyle +
                                     projData +
                                     empString +
                                     attString +
                                     "</table></body>" +
                                     mailItem.HTMLBody;
 
-                
+
                 OfficeHelpers.SaveToPdf(mailItem, txtSaveLocation.Text);
             }
 
             Close();
-            
+
             if (chbOpenPDF.Checked)
             {
                 //TODO1:0 Open the PDF file
@@ -589,9 +588,9 @@ namespace SaveAsPDF
             TreeNode CurrentNode = e.Node;
             string fullpath = CurrentNode.FullPath;
             mySelectedNode = CurrentNode;
-            
+
             txtSaveLocation.Text = sPath.Parent.FullName + "\\" + fullpath;
-            
+
 
         }
 
@@ -647,13 +646,13 @@ namespace SaveAsPDF
 
         }
 
-  
+
 
         private void chbOpenPDF_CheckedChanged(object sender, EventArgs e)
         {
             //TODO1: make sure it works 
             Settings.Default.OpenPDF = chbOpenPDF.Checked;
-            
+
         }
     }
 }

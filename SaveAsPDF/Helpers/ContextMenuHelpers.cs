@@ -32,22 +32,22 @@ namespace SaveAsPDF.Helpers
                 ContextMenuStrip cms = new ContextMenuStrip();
                 cms.ShowImageMargin = false;
 
-                // 3. Add the Cut option (cuts the selected text inside the richtextxtox)
+                // 3. Add the Cut option (cuts the selected text inside the richTextxBox)
                 ToolStripMenuItem tsmiCut = new ToolStripMenuItem(menuNameCut);
                 tsmiCut.Click += (sender, e) => rtxt.Cut();
                 cms.Items.Add(tsmiCut);
 
-                // 4. Add the Copy option (copies the selected text inside the richtextxtox)
+                // 4. Add the Copy option (copies the selected text inside the richTextxBox)
                 ToolStripMenuItem tsmiCopy = new ToolStripMenuItem(menuNameCopy);
                 tsmiCopy.Click += (sender, e) => rtxt.Copy();
                 cms.Items.Add(tsmiCopy);
 
-                // 5. Add the Paste option (adds the text from the clipboard into the richtextxtox)
+                // 5. Add the Paste option (adds the text from the clipboard into the richTextxBox)
                 ToolStripMenuItem tsmiPaste = new ToolStripMenuItem(menuNamePaste);
                 tsmiPaste.Click += (sender, e) => rtxt.Paste();
                 cms.Items.Add(tsmiPaste);
 
-                // 6. Add the Delete Option (remove the selected text in the richtextxtox)
+                // 6. Add the Delete Option (remove the selected text in the richTextxBox)
                 ToolStripMenuItem tsmiDelete = new ToolStripMenuItem(menuNameDelete);
                 tsmiDelete.Click += (sender, e) => rtxt.SelectedText = "";
                 cms.Items.Add(tsmiDelete);
@@ -55,7 +55,7 @@ namespace SaveAsPDF.Helpers
                 // Add a Separator
                 cms.Items.Add(new ToolStripSeparator());
 
-                // 7. Add the Select All Option (selects all the text inside the richtextxtox)
+                // 7. Add the Select All Option (selects all the text inside the richTextxBox)
                 ToolStripMenuItem tsmiSelectAll = new ToolStripMenuItem(menuNameSelectAll);
                 tsmiSelectAll.Click += (sender, e) => rtxt.SelectAll();
                 cms.Items.Add(tsmiSelectAll);
@@ -90,9 +90,9 @@ namespace SaveAsPDF.Helpers
             }
         }
         /// <summary>
-        /// Enable the context menu to the Textxtox 
+        /// Enable the context menu to the TextxBox 
         /// </summary>
-        /// <param name="txt">Textxtox object</param>
+        /// <param name="txt">TextxBox object</param>
         public static void EnableContextMenu(this TextBox txt)
         {
             if (txt.ContextMenuStrip == null)
@@ -101,22 +101,22 @@ namespace SaveAsPDF.Helpers
                 ContextMenuStrip cms = new ContextMenuStrip();
                 cms.ShowImageMargin = false;
 
-                // 3. Add the Cut option (cuts the selected text inside the richtextxtox)
+                // 3. Add the Cut option (cuts the selected text inside the richTextxBox)
                 ToolStripMenuItem tsmiCut = new ToolStripMenuItem(menuNameCut);
                 tsmiCut.Click += (sender, e) => txt.Cut();
                 cms.Items.Add(tsmiCut);
 
-                // 4. Add the Copy option (copies the selected text inside the richtextxtox)
+                // 4. Add the Copy option (copies the selected text inside the richTextxBox)
                 ToolStripMenuItem tsmiCopy = new ToolStripMenuItem(menuNameCopy);
                 tsmiCopy.Click += (sender, e) => txt.Copy();
                 cms.Items.Add(tsmiCopy);
 
-                // 5. Add the Paste option (adds the text from the clipboard into the richtextxtox)
+                // 5. Add the Paste option (adds the text from the clipboard into the richTextxBox)
                 ToolStripMenuItem tsmiPaste = new ToolStripMenuItem(menuNamePaste);
                 tsmiPaste.Click += (sender, e) => txt.Paste();
                 cms.Items.Add(tsmiPaste);
 
-                // 6. Add the Delete Option (remove the selected text in the richtextxtox)
+                // 6. Add the Delete Option (remove the selected text in the richTextxBox)
                 ToolStripMenuItem tsmiDelete = new ToolStripMenuItem(menuNameDelete);
                 tsmiDelete.Click += (sender, e) => txt.SelectedText = "";
                 cms.Items.Add(tsmiDelete);
@@ -124,7 +124,7 @@ namespace SaveAsPDF.Helpers
                 // Add a Separator
                 cms.Items.Add(new ToolStripSeparator());
 
-                // 7. Add the Select All Option (selects all the text inside the richtextxtox)
+                // 7. Add the Select All Option (selects all the text inside the richTextxBox)
                 ToolStripMenuItem tsmiSelectAll = new ToolStripMenuItem(menuNameSelectAll);
                 tsmiSelectAll.Click += (sender, e) => txt.SelectAll();
                 cms.Items.Add(tsmiSelectAll);
@@ -153,7 +153,7 @@ namespace SaveAsPDF.Helpers
             }
         }
         /// <summary>
-        /// Enable the context menu to the Treeview 
+        /// Enable the context menu to the Tree-view 
         /// </summary>
         /// <param name="tv">TreeView object</param>
         public static void EnableContextMenu(this TreeView tv)
@@ -164,13 +164,16 @@ namespace SaveAsPDF.Helpers
                 ContextMenuStrip cms = new ContextMenuStrip();
                 cms.ShowImageMargin = true;
 
-                // Add the New option (Create a new folder and new treenode)
+                // Add the New option (Create a new folder and new tree-node)
                 ToolStripMenuItem tsmiNew = new ToolStripMenuItem(menuNameNew);
                 tsmiNew.Click += (sender, e) =>
                 {
                     try
                     {
-                        string[] tf = FileFoldersHelper.MkDir($"{frmMain.sPath.Parent.FullName}\\{frmMain.mySelectedNode.FullPath}\\New Folder").Split('\\');
+                        //string[] tf = FileFoldersHelper.MkDir($"{frmMain.sPath.Parent.FullName}\\{frmMain.mySelectedNode.FullPath}\\New Folder").Split('\\');
+                        var dirInfo = new DirectoryInfo($"{frmMain.sPath.Parent.FullName}\\{frmMain.mySelectedNode.FullPath}\\");
+                        dirInfo.CreateSafeDirectory("New Folder");
+                        string[] tf = dirInfo.FullName.Split('\\');
                         tv.AddNode(frmMain.mySelectedNode, tf[tf.Length - 1]);
                     }
                     catch (Exception ex)
@@ -203,12 +206,12 @@ namespace SaveAsPDF.Helpers
                 cms.Items.Add(new ToolStripSeparator());
 
 
-                //Add the Open option (adds the text from the clipboard into the richtextvox)
+                //Add the Open option (adds the text from the clipboard into the richTextxBox)
                 ToolStripMenuItem tsmiOpen = new ToolStripMenuItem(menuNameOpen);
                 tsmiOpen.Click += (sender, e) => Process.Start($"{frmMain.sPath.Parent.FullName}\\{frmMain.mySelectedNode.FullPath}");
                 cms.Items.Add(tsmiOpen);
 
-                // Add the Delete Option (remove the selected folder and treenode)
+                // Add the Delete Option (remove the selected folder and tree-node)
                 ToolStripMenuItem tsmiDelete = new ToolStripMenuItem(menuNameDelete);
                 tsmiDelete.Click += (sender, e) =>
                 {
@@ -228,7 +231,7 @@ namespace SaveAsPDF.Helpers
                 };
                 cms.Items.Add(tsmiDelete);
 
-                //Add the Rename option (Remane the folder and treenode
+                //Add the Rename option (Rename the folder and tree-node
                 ToolStripMenuItem tsmiRename = new ToolStripMenuItem(menuNameRename);
                 tsmiRename.Click += (sender, e) =>
                 {

@@ -5,10 +5,8 @@ using SaveAsPDF.Properties;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using word = Microsoft.Office.Interop.Word;
@@ -79,7 +77,7 @@ namespace SaveAsPDF.Helpers
 
             string output = "<tr style=\"text-align:center\"><th colspan=\"3\">מתכנן אחראי</th></tr>" +
                             "<tr style=\"text-align:center\"><th>אימייל</th><th>שם משפחה</th><th>שם פרטי</th></tr>";
-            
+
             foreach (DataGridViewRow row in dgv.Rows)
             {
                 output += $"<tr><td style=\"text-align:left\">{row.Cells[3].Value.ToString()}</td>" +
@@ -111,7 +109,7 @@ namespace SaveAsPDF.Helpers
         //    oDOC.Close();
         //    oWord.Quit();
         //}
-        
+
         /// <summary>
         /// created by AI
         /// Converts the .MHT file now saved to the user's temp directory 
@@ -121,7 +119,7 @@ namespace SaveAsPDF.Helpers
         /// <param name="outputPath"></param>
         public static void SaveToPdf(this Outlook.MailItem mailItem, string outputPath)
         {
-            string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss")+"_";
+            string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss") + "_";
             // Create a temporary MHT file
             string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mht");
             mailItem.SaveAs(tempFilePath, Outlook.OlSaveAsType.olMHTML);
@@ -133,7 +131,7 @@ namespace SaveAsPDF.Helpers
                 var doc = wordApp.Documents.Open(tempFilePath, ReadOnly: false);
 
                 // Convert to PDF
-                string pdfFileName = $"{Path.GetFileNameWithoutExtension(timeStamp +  mailItem.Subject.SafeFileName())}.pdf";
+                string pdfFileName = $"{Path.GetFileNameWithoutExtension(timeStamp + mailItem.Subject.SafeFileName())}.pdf";
                 string pdfPath = Path.Combine(outputPath, pdfFileName);
                 doc.ExportAsFixedFormat(pdfPath, WdExportFormat.wdExportFormatPDF);
 
@@ -238,15 +236,15 @@ namespace SaveAsPDF.Helpers
         /// <returns></returns>
         public static string AttachmentsToString(this List<string> attList, string path)
         {
-           string output = string.Empty;
-            
+            string output = string.Empty;
+
             if (attList.Count == 0)
             {
                 output = "<tr style=\"text-align:center\"><td colspan=\"3\">לא נבחרו/נמצאו קבצים מצורפים לשמירה.</td></tr>";
             }
             else
             {
-                if (attList.Count ==1) //set the title 
+                if (attList.Count == 1) //set the title 
                 {
                     output = "<tr style=\"text-align:center\"><th colspan=\"3\">נשמר קובץ אחד</th></tr>";
                 }
