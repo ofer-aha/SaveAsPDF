@@ -277,7 +277,7 @@ namespace SaveAsPDF.Helpers
 
             var attachments = new List<Attachment>();
 
-            // if this is a plain text email, every attachment is a non-inline attachment
+            // if this is a plain text email, every attachment is a non-in line attachment
             if (mailItem.BodyFormat == OlBodyFormat.olFormatPlain && mailItem.Attachments.Count > 0)
             {
                 attachments.AddRange(mailItem.Attachments.Cast<object>().Select(attachment => attachment as Attachment));

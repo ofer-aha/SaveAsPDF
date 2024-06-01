@@ -1,4 +1,5 @@
-﻿using SaveAsPDF.Properties;
+﻿using Microsoft.Office.Interop.Outlook;
+using SaveAsPDF.Properties;
 using System;
 using System.IO;
 using System.Linq;
@@ -141,6 +142,8 @@ namespace SaveAsPDF.Helpers
         /// <returns></returns>
         public static Boolean SafeProjectID(this string projectID)
         {
+            if (projectID == null) { return false; }
+
             string pattern = @"^\w{3,5}(-\w{1,3})?(-\w{1,2})?$";
             return Regex.IsMatch(projectID, pattern);
         }
@@ -181,7 +184,8 @@ namespace SaveAsPDF.Helpers
                 try
                 {
                     Directory.CreateDirectory(path);
-                    MessageBox.Show("The directory was created successfully at {0}.", path);
+                    //debugging only 
+                    //MessageBox.Show("The directory was created successfully at {0}.", path);
                 }
                 catch (IOException ioEx)
                 {
@@ -214,31 +218,37 @@ namespace SaveAsPDF.Helpers
 
             return uniquePath;
         }
-
-
-
         /// <summary>
-        /// make sure all the characters file-system legal 
-        /// and no operation system reserved names ware used. 
+        ///  Define a regex pattern to match invalid characters(e.g., backslash, colon, asterisk, question mark, double quotes, angle brackets, and pipe).
+        ///  Replace these invalid characters with underscores.
+        ///  Check if the sanitized folder name matches any system reserved names (e.g., “CON,” “PRN,” etc.). If it does, append an underscore to avoid conflicts.
+        ///  Ensure the resulting folder name is safe for use.
         /// </summary>
-        /// <param name="inTXT"></param>
+        /// <param name="folderName"></param>
         /// <returns></returns>
-        public static string SafeFileName(this string inTXT)
+        static string SafeFileName(this string folderName)
         {
-            //string pattern = @"[\/:*?""<>|]";
-            inTXT = inTXT.Trim();
+            // Define the regex pattern to match invalid characters
+            string invalidCharsPattern = @"[\\/:*?""<>|]";
 
-            string pattern = @"^(?!^(PRN|AUX|CLOCK\$|NUL|CON|COM\d|LPT\d|\..*|.*\.$|.*\s$)(?:\..+)?$)(?!.*[<>:""\/\\|?*]).+$";
+            // Replace invalid characters with underscores
+            string cleanFolderName = Regex.Replace(folderName, invalidCharsPattern, "_");
 
-            string output = Regex.Replace(inTXT, pattern, string.Empty).Trim();
-
-            if (string.IsNullOrEmpty(output))
+            // Check if the sanitized folder name matches any system reserved names
+            string[] reservedNames = { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "LPT1", "LPT2", "LPT3" };
+            foreach (string reservedName in reservedNames)
             {
-                output = "New Folder";
+                if (string.Equals(cleanFolderName, reservedName, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Append an underscore to avoid conflicts with reserved names
+                    cleanFolderName += "_";
+                    break;
+                }
             }
 
-            return output;
+            return cleanFolderName;
         }
+
 
         /// <summary>
         /// Create hidden folder. 
@@ -285,6 +295,7 @@ namespace SaveAsPDF.Helpers
             else
             {
                 Directory.CreateDirectory(folder);
+
             }
             return output;
         }

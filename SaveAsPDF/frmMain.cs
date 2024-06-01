@@ -1,4 +1,6 @@
-﻿using Microsoft.Office.Interop.Outlook;
+﻿// Ignore Spelling: frm
+
+using Microsoft.Office.Interop.Outlook;
 using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
 using SaveAsPDF.Properties;
@@ -64,8 +66,6 @@ namespace SaveAsPDF
 
             if (mailItem is MailItem && mailItem != null)
             {
-
-
                 chkbSelectAllAttachments.Checked = true;
                 chkbSelectAllAttachments.Text = "הסר הכל";
                 txtSubject.Text = mailItem.Subject;
@@ -109,9 +109,6 @@ namespace SaveAsPDF
                 MessageBox.Show("יש לבחור הודעות דואר אלקטרוני בלבד", "SaveAsPDF");
                 Close();
             }
-            //string tmpFoder = @System.IO.Path.GetTempPath();
-
-
 
             //get a list of the drives
             string[] drives = Environment.GetLogicalDrives();
@@ -180,11 +177,15 @@ namespace SaveAsPDF
         {
             if (e.KeyCode == Keys.Enter)
             {
-                ClearForm();
+                if (txtProjectID.Text.SafeProjectID())
+                {
+                    ClearForm();
+                    LoadXmls();
+                    btnOK.Focus();
+                    dataLoaded = true;
+                    return;
+                }
 
-                LoadXmls();
-                btnOK.Focus();
-                dataLoaded = true;
 
             }
         }
@@ -602,11 +603,16 @@ namespace SaveAsPDF
 
         private void tvFolders_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
+            //TODO1:_0 Make sure user entered safe folder name 
+
             if (e.Label != null)
             {
                 if (e.Label.Length > 0)
                 {
-                    if (e.Label.IndexOfAny(new char[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) == -1)
+                    string inTXT = e.Label.SafeFileName();
+
+                    if (inTXT.IndexOfAny(new char[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) == -1)
+
                     {
                         // Stop editing without canceling the label change.
                         e.Node.EndEdit(false);

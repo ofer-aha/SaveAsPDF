@@ -89,7 +89,7 @@ namespace SaveAsPDF.Helpers
         public static TreeNode TraverseDirectory(string path)
         {
             TreeNode result = new TreeNode(path);
-            Cursor.Current = Cursors.WaitCursor; //show the user we are doning somthing..... "the compuer is thinking"
+            Cursor.Current = Cursors.WaitCursor; //show the user we are doing something..... "the computer is thinking"
             if (Directory.Exists(path))
             {
                 foreach (string subdirectory in Directory.GetDirectories(path))
@@ -114,19 +114,20 @@ namespace SaveAsPDF.Helpers
             }
         }
         /// <summary>
-        /// Rename the node name accoring to user typing
+        /// Rename the node name according to user typing
         /// </summary>
         /// <param name="treeView"></param>
         /// <param name="mySelectedNode"></param>
         public static void RenameNode(this TreeView treeView, TreeNode mySelectedNode)
         {
-            if (mySelectedNode != null && mySelectedNode.Parent != null)
+            if (mySelectedNode != null & mySelectedNode.Parent != null)
             {
                 treeView.SelectedNode = mySelectedNode;
                 treeView.LabelEdit = true;
                 if (!mySelectedNode.IsEditing)
                 {
                     mySelectedNode.BeginEdit();
+
                 }
             }
             else
@@ -316,16 +317,16 @@ namespace SaveAsPDF.Helpers
             File.WriteAllText(file_name, sb.ToString());
         }
 
-        public static List<string> TreeToList (TreeView treeView)
+        public static List<string> TreeToList(TreeView treeView)
         {
-            List <string> list = new List<string>();    
-            foreach(TreeNode node in treeView.Nodes)
+            List<string> list = new List<string>();
+            foreach (TreeNode node in treeView.Nodes)
             {
                 list.Add(node.FullPath);
             }
-            
+
             return (list);
-        } 
+        }
 
         /// <summary>
         /// Load a TreeView control from a file that uses tabs
