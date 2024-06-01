@@ -40,18 +40,24 @@ namespace SaveAsPDF.Helpers
             }
             return output;
         }
-
+        /// <summary>
+        ///  extract a substring between two specified strings
+        /// </summary>
+        /// <param name="strSource"></param>
+        /// <param name="strStart"></param>
+        /// <param name="strEnd"></param>
+        /// <returns></returns>
         public static string GetBetween(string strSource, string strStart, string strEnd)
         {
-            if (strSource.Contains(strStart) && strSource.Contains(strEnd))
-            {
-                int Start, End;
-                Start = strSource.IndexOf(strStart, 0) + strStart.Length;
-                End = strSource.IndexOf(strEnd, Start);
-                return strSource.Substring(Start, End - Start);
-            }
-            return "";
+            int startIndex = strSource.IndexOf(strStart);
+            if (startIndex == -1)
+                return ""; // Start string not found
 
+            int endIndex = strSource.IndexOf(strEnd, startIndex + strStart.Length);
+            if (endIndex == -1)
+                return ""; // End string not found
+
+            return strSource.Substring(startIndex + strStart.Length, endIndex - startIndex - strStart.Length);
         }
     }
 }

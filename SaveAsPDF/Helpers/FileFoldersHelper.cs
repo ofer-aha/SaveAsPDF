@@ -167,44 +167,74 @@ namespace SaveAsPDF.Helpers
             // Recursively create the directory
             CreateDirectoryRecursively(fullPath);
         }
-        //TODO1: need to update back the treeveiw with the unique folder name 
+        //TODO1: need to update back the Tree-View with the unique folder name 
 
 
         /// <summary>
-        /// 
+        /// Create a directory 
+        /// created by AI 
         /// </summary>
         /// <param name="path"></param>
-        private static void CreateDirectoryRecursively(string path)
+        /// 
+
+        public static void CreateDirectoryRecursively(string path)
         {
-            string parentDirectory = Path.GetDirectoryName(path);
-            if (!string.IsNullOrEmpty(parentDirectory))
+            if (string.IsNullOrWhiteSpace(path))
             {
-                CreateDirectoryRecursively(parentDirectory);
+                throw new ArgumentException("Path cannot be null or empty.", nameof(path));
             }
 
+            // Normalize the path to handle different directory separators
+            path = Path.GetFullPath(path);
+
+            // Create the directory if it doesn't exist
             if (!Directory.Exists(path))
             {
                 try
                 {
                     Directory.CreateDirectory(path);
-                    //debugging only 
-                    //MessageBox.Show("The directory was created successfully at {0}.", path);
                 }
-                catch (IOException ioEx)
+                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
                 {
-                    MessageBox.Show("An IO exception occurred: " + ioEx.Message);
+                    // Handle exceptions related to directory creation
+                    Console.WriteLine($"Error creating directory '{path}': {ex.Message}");
                 }
-                catch (UnauthorizedAccessException unAuthEx)
-                {
-                    MessageBox.Show("UnauthorizedAccessException: " + unAuthEx.Message);
-                }
-                catch (ArgumentException argEx)
-                {
-                    MessageBox.Show("ArgumentException: " + argEx.Message);
-                }
-                // Additional exception handling can be added here if necessary
             }
         }
+
+
+
+        //private static void CreateDirectoryRecursively(string path)
+        //{
+        //    string parentDirectory = Path.GetDirectoryName(path);
+        //    if (!string.IsNullOrEmpty(parentDirectory))
+        //    {
+        //        CreateDirectoryRecursively(parentDirectory);
+        //    }
+
+        //    if (!Directory.Exists(path))
+        //    {
+        //        try
+        //        {
+        //            Directory.CreateDirectory(path);
+        //            //debugging only 
+        //            //MessageBox.Show("The directory was created successfully at {0}.", path);
+        //        }
+        //        catch (IOException ioEx)
+        //        {
+        //            MessageBox.Show("An IO exception occurred: " + ioEx.Message);
+        //        }
+        //        catch (UnauthorizedAccessException unAuthEx)
+        //        {
+        //            MessageBox.Show("UnauthorizedAccessException: " + unAuthEx.Message);
+        //        }
+        //        catch (ArgumentException argEx)
+        //        {
+        //            MessageBox.Show("ArgumentException: " + argEx.Message);
+        //        }
+        //        // Additional exception handling can be added here if necessary
+        //    }
+        //}
 
         /// <summary>
         /// gfet unique folder name like "New Folder(2)" 
@@ -236,6 +266,11 @@ namespace SaveAsPDF.Helpers
         /// <returns></returns>
         public static string SafeFileName(this string folderName)
         {
+            if (string.IsNullOrEmpty(folderName))
+            {
+                return folderName;
+            }
+
             // Define the regex pattern to match invalid characters
             string invalidCharsPattern = @"[\\/:*?""<>|]";
 
@@ -243,7 +278,7 @@ namespace SaveAsPDF.Helpers
             string cleanFolderName = Regex.Replace(folderName, invalidCharsPattern, "_");
 
             // Check if the sanitized folder name matches any system reserved names
-            string[] reservedNames = { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "LPT1", "LPT2", "LPT3" };
+            string[] reservedNames = { "XXX", "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "LPT1", "LPT2", "LPT3" };
             foreach (string reservedName in reservedNames)
             {
                 if (string.Equals(cleanFolderName, reservedName, StringComparison.OrdinalIgnoreCase))
@@ -277,58 +312,146 @@ namespace SaveAsPDF.Helpers
         /// if the folder already exists it will name it New Folder (2)... New Folder (3)  and so on. 
         /// </summary>
         /// <param name="folder">string representing the folder name to create</param>
-        public static string MkDir(string folder)
+
+        //public static string MkDir(string folder)
+        //{
+        //    string output = folder;
+        //    if (string.IsNullOrEmpty(folder))
+        //    {
+        //        throw new ArgumentNullException("MkDir:folder", "שם תקייה לא יכול להיות ריק");
+        //    }
+
+        //    if (Directory.Exists(folder))
+        //    {
+        //        int i = 0;
+        //        if (int.TryParse(TextHelpers.GetBetween(folder, "(", ")"), out i))
+        //        {
+        //            folder = folder.Replace($"({i})", $"({i + 1})");
+        //            output = folder;
+        //            MkDir(folder);
+        //        }
+        //        else
+        //        {
+        //            output = $"{folder} (2)";
+        //            MkDir(output);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        Directory.CreateDirectory(folder);
+
+        //    }
+        //    return output;
+        //}
+        //public static string MkDir(string folder)
+        //{
+        //    if (string.IsNullOrEmpty(folder))
+        //    {
+        //        throw new ArgumentNullException("MkDir:folder", "שם תקייה לא יכול להיות ריק");
+        //    }
+
+        //    // Check if the folder already exists
+        //    if (Directory.Exists(folder))
+        //    {
+        //        int i = 0;
+        //        if (int.TryParse(TextHelpers.GetBetween(folder, "(", ")"), out i))
+        //        {
+        //            // Increment the integer and replace it in the folder name
+        //            folder = folder.Replace($"({i})", $"({i + 1})");
+        //        }
+        //        else
+        //        {
+        //            // Append "(2)" to the folder name
+        //            folder = $"{folder} (2)";
+        //        }
+
+        //        // Check if the modified folder name exists recursively
+        //        return MkDir(folder);
+        //    }
+        //    else
+        //    {
+        //        // Create the directory
+        //        Directory.CreateDirectory(folder);
+        //        return folder;
+        //    }
+        //}
+
+
+        public static string MkDir(string baseFolder)
         {
-            string output = folder.SafeFileName();
-            if (string.IsNullOrEmpty(folder))
+            if (string.IsNullOrEmpty(baseFolder))
             {
-                throw new ArgumentNullException("MkDir:folder", "שם תקייה לא יכול להיות ריק");
+                //throw new ArgumentNullException(nameof(baseFolder), "Folder name cannot be empty.");
+                MessageBox.Show("שם תקייה לא יכול להיות ריק");
+                return baseFolder;
             }
 
-            if (Directory.Exists(folder))
+            // Remove invalid characters from the folder name
+            string sanitizedFolder = SanitizeFolderName(baseFolder);
+
+            // Check if the directory already exists
+            if (Directory.Exists(sanitizedFolder))
             {
-                int i = 0;
-                if (int.TryParse(TextHelpers.GetBetween(folder, "(", ")"), out i))
+                int suffix = 2;
+                string uniqueFolder = $"{sanitizedFolder} ({suffix})";
+
+                while (Directory.Exists(uniqueFolder))
                 {
-                    folder = folder.Replace($"({i})", $"({i + 1})");
-                    output = folder;
-                    MkDir(folder);
+                    suffix++;
+                    uniqueFolder = $"{sanitizedFolder} ({suffix})";
                 }
-                else
-                {
-                    output = $"{folder} (2)";
-                    MkDir(output);
-                }
+
+                // Create the unique directory
+                Directory.CreateDirectory(uniqueFolder);
+                return uniqueFolder;
             }
             else
             {
-                Directory.CreateDirectory(folder);
-
+                // Create the directory
+                Directory.CreateDirectory(sanitizedFolder);
+                return sanitizedFolder;
             }
-            return output;
         }
+
+        private static string SanitizeFolderName(string folderName)
+        {
+            // Remove invalid characters (e.g., slashes, colons, etc.)
+            string sanitizedName = Regex.Replace(folderName, "[^a-zA-Z0-9-_(). ]", "");
+
+            // Trim leading/trailing spaces and dots
+            sanitizedName = sanitizedName.Trim('.', ' ');
+
+            return sanitizedName;
+        }
+
+
+
+
+
+
+
         /// <summary>
         /// Delete folder recursive
         /// </summary>
         /// <param name="folder">The folder to be deleted as string</param>
         public static void RmDir(string folder)
         {
-            if (string.IsNullOrEmpty(folder))
+            if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder))
             {
-                throw new ArgumentNullException("RnDir:folder", "שם תקייה לא יכול להיות ריק");
+                MessageBox.Show("תקייה לא קיימת או שם ריק");
+                return;
+                // throw new ArgumentNullException("RnDir:folder", "תקייה לא קיימת או שם ריק");
             }
-
             string[] dirs = Directory.GetDirectories(folder);
             foreach (string dir in dirs)
             {
                 RmDir(dir);
             }
-
             try
             {
                 Directory.Delete(folder + "\\", true);
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 MessageBox.Show(e.Message + "\n" + folder, "SaveAsPDF");
             }
@@ -344,12 +467,16 @@ namespace SaveAsPDF.Helpers
 
             if (di == null)
             {
-                throw new ArgumentNullException("RmDir:di", "שם תיקייה לא חוקי");
+                //throw new ArgumentNullException("RmDir:di", "שם תיקייה לא חוקי");
+                MessageBox.Show("שם תיקייה לא חוקי");
+                return;
             }
 
             if (string.IsNullOrEmpty(folder.SafeFileName()))
             {
-                throw new ArgumentNullException("RmDir:folder", "שם תקייה לא יכול להיות ריק");
+                //throw new ArgumentNullException("RmDir:folder", "שם תקייה לא יכול להיות ריק");
+                MessageBox.Show("שם תקייה לא יכול להיות ריק");
+                return;
             }
 
             di.MoveTo(folder);

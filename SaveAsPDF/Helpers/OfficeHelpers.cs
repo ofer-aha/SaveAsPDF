@@ -22,7 +22,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="email"></param>
         /// <returns></returns>
-        public static List<AttachmentsModel> AttachmetsToModel(this MailItem email)
+        public static List<AttachmentsModel> AttachmentsToModel(this MailItem email)
         {
             List<AttachmentsModel> output = new List<AttachmentsModel>();
             int i = 0;
@@ -50,7 +50,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="dgv"></param>
         /// <returns></returns>
-        public static List<EmployeeModel> DgvEmployessToModel(this DataGridView dgv)
+        public static List<EmployeeModel> DgvEmployeesToModel(this DataGridView dgv)
         {
             List<EmployeeModel> output = new List<EmployeeModel>();
 
@@ -67,6 +67,7 @@ namespace SaveAsPDF.Helpers
             }
             return output;
         }
+
         /// <summary>
         /// Convert DataGridView to String 
         /// </summary>
@@ -201,60 +202,34 @@ namespace SaveAsPDF.Helpers
 
 
 
-        /// <summary>
-        /// extantion metud to return the attachments in mailItem to List<string> 
-        /// </summary>
-        /// <param name="email"></param>
-        /// <returns> List<string> </returns>
-        public static string AttachmentsToString(this MailItem email, string path)
-        {
-            Attachments mailAttachments = email.Attachments;
-            string output = "";
-
-            if (mailAttachments != null)
-            {
-                if (email.BodyFormat == OlBodyFormat.olFormatHTML)
-                {
-                    output = $"<br><p style = \"text-align:right;\"> קבצים מצורפים נשמרו ב: {path}<br>";
-                    foreach (Attachment Att in email.Attachments)
-                    {
-                        output += $"{Att.FileName} ({Att.Size.BytesToString()})<br>";
-                    }
-
-                }
-                output += "<p>";
-
-            }
-            return output;
-        }
 
         /// <summary>
         /// List attachments to string 
         /// </summary>
-        /// <param name="attList"></param>
+        /// <param name="attachmentList"></param>
         /// <param name="path"></param>        
         /// <returns></returns>
-        public static string AttachmentsToString(this List<string> attList, string path)
+        public static string AttachmentsToString(this List<string> attachmentList, string path)
         {
             string output = string.Empty;
 
-            if (attList.Count == 0)
+            if (attachmentList.Count == 0)
             {
                 output = "<tr style=\"text-align:center\"><td colspan=\"3\">לא נבחרו/נמצאו קבצים מצורפים לשמירה.</td></tr>";
             }
             else
             {
-                if (attList.Count == 1) //set the title 
+                if (attachmentList.Count == 1) //set the title 
                 {
                     output = "<tr style=\"text-align:center\"><th colspan=\"3\">נשמר קובץ אחד</th></tr>";
                 }
                 else
                 {
-                    output = $"<tr style=\"text-align:center\"><th colspan=\"3\">נשמרו {attList.Count} קבצים</th></tr>";
+                    output = $"<tr style=\"text-align:center\"><th colspan=\"3\">נשמרו {attachmentList.Count} קבצים</th></tr>";
                 }
 
                 output += "<tr style=\"text-align:center\"><th></th><th>קובץ</th> <th>גודל</th></tr>";
-                foreach (string Att in attList)
+                foreach (string Att in attachmentList)
                 {
                     string[] t = Att.Split('|');
                     output += $"<tr style=\"text-align:left\"><td></td><td><a href='file://{Path.Combine(path, t[0])}'>{t[0]}</a></td><td>{t[1]}</td></tr>";
@@ -305,7 +280,7 @@ namespace SaveAsPDF.Helpers
         /// <summary>
         /// Read the selected attachments file names form the DataGridView
         /// </summary>
-        /// <param name="dgv">DataGrigViwe with attchamets</param>
+        /// <param name="dgv">DataGrigViwe with attachments</param>
         /// <returns>list of selected file names [list of strings]</returns>
         public static List<String> GetSelectedAttachmentFiles(this DataGridView dgv)
         {
@@ -321,76 +296,110 @@ namespace SaveAsPDF.Helpers
             return output;
         }
         /// <summary>
-        /// Save the attchment files to the choosen path. 
-        /// if overWrite=True existing files will be over writen else "(n)" will be appended to file names
+        /// Save the attachment files to the choose path. 
+        /// if overWrite=True existing files will be over write else "(n)" will be appended to file names
         /// </summary>
         /// <param name="mi"></param>
         /// <param name="dgv"></param>
         /// <param name="path"></param>
         /// <param name="overWrite"></param>
         /// <returns></returns>
-        public static List<string> SaveAttchments(this MailItem mi, DataGridView dgv, string path, bool overWrite)
+
+        public static List<string> SaveAttachments(this MailItem mi, DataGridView dgv, string path, bool overWrite)
         {
-            var attachments = mi.Attachments;
-            List<string> attFileList = new List<string>();
-            List<string> output = new List<string>();
+            var selectedFileNames = new HashSet<string>(dgv.GetSelectedAttachmentFiles(), StringComparer.OrdinalIgnoreCase);
+            var output = new List<string>();
 
-            attFileList = dgv.GetSelectedAttachmentFiles();
-
-            if (attachments.Count != 0)
+            foreach (Attachment attachment in mi.Attachments)
             {
-                for (int i = 1; i <= mi.Attachments.Count; i++)
+                string originalFileName = attachment.DisplayName;
+                string safeFileName = Path.GetFileNameWithoutExtension(originalFileName);
+                string extension = Path.GetExtension(originalFileName);
+
+                // Ensure safe filename (replace invalid characters)
+                safeFileName = string.Join("_", safeFileName.Split(Path.GetInvalidFileNameChars()));
+
+                string targetFilePath = Path.Combine(path, safeFileName + extension);
+
+                if (selectedFileNames.Contains(originalFileName))
                 {
-                    String file = mi.Attachments[i].DisplayName;
-
-                    if (attFileList.Any(mi.Attachments[i].FileName.Contains))
+                    if (File.Exists(targetFilePath) && !overWrite)
                     {
-                        if (File.Exists(Path.Combine(path, file)) && !overWrite)
+                        int suffix = 2;
+                        while (File.Exists(targetFilePath))
                         {
-                            int x = 2;
-                            string[] tFile = file.Split('.');
-                            file = "";
-                            for (int j = 0; j < tFile.Length - 1; j++)
-                            {
-                                file += tFile[j];
-                            }
-                            while (File.Exists(Path.Combine(path, $@"{file}_({x}).{tFile[tFile.Length - 1]}")))
-                            {
-                                x++;
-                            }
-                            mi.Attachments[i].SaveAsFile(Path.Combine(path, $@"{file}_({x}).{tFile[tFile.Length - 1]}"));
-                            output.Add($@"{file}_({x}).{tFile[tFile.Length - 1]}|{mi.Attachments[i].Size.BytesToString()}");
+                            targetFilePath = Path.Combine(path, $"{safeFileName}_({suffix}){extension}");
+                            suffix++;
                         }
-                        else
-                        {
-                            mi.Attachments[i].SaveAsFile(Path.Combine(path, mi.Attachments[i].DisplayName));
-                            output.Add($"{mi.Attachments[i].DisplayName}|{mi.Attachments[i].Size.BytesToString()}");
-                        }
-
                     }
+
+                    attachment.SaveAsFile(targetFilePath);
+                    output.Add($"{Path.GetFileName(targetFilePath)}|{attachment.Size.BytesToString()}");
                 }
             }
+
             return output;
         }
 
-        //   cretae uniq timestamp for uniqe fimenames
 
-        //    string TimeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff", CultureInfo.CurrentUICulture);
 
-        //    string tFilename = @Path.GetTempPath() + TimeStamp + ".mht";
 
-        //    mailItem.SaveAs(@tFilename, OlSaveAsType.olMHTML);
 
-        //        word.Application oWord = new word.Application();
-        //    word.Document oDOC = oWord.Documents.Open(@tFilename, true);
 
-        //    object misValue = System.Reflection.Missing.Value;
+        //public static List<string> SaveAttachments(this MailItem mi, DataGridView dgv, string path, bool overWrite)
+        //{
+        //    var attachments = mi.Attachments;
+        //    List<string> attFileList = new List<string>();
+        //    List<string> output = new List<string>();
 
-        //    string oFileName = $"{ lblFolder.Text }{ TimeStamp }_{ mailItem.Subject.SafeFileName() }.pdf";
+        //    attFileList = dgv.GetSelectedAttachmentFiles();
 
-        //    ConvertPDF(oDOC, misValue, @oFileName);
+        //    if (attachments.Count != 0)
+        //    {
+        //        for (int i = 1; i <= mi.Attachments.Count; i++)
+        //        {
+        //            String file = mi.Attachments[i].DisplayName;
+
+        //            if (attFileList.Any(mi.Attachments[i].FileName.Contains))
+        //            {
+        //                if (File.Exists(Path.Combine(path, file)) && !overWrite)
+        //                {
+        //                    int x = 2;
+        //                    string[] tFile = file.Split('.');
+        //                    file = "";
+        //                    for (int j = 0; j < tFile.Length - 1; j++)
+        //                    {
+        //                        file += tFile[j];
+        //                    }
+        //                    while (File.Exists(Path.Combine(path, $@"{file}_({x}).{tFile[tFile.Length - 1]}")))
+        //                    {
+        //                        x++;
+        //                    }
+        //                    mi.Attachments[i].SaveAsFile(Path.Combine(path, $@"{file}_({x}).{tFile[tFile.Length - 1]}"));
+        //                    output.Add($@"{file}_({x}).{tFile[tFile.Length - 1]}|{mi.Attachments[i].Size.BytesToString()}");
+        //                }
+        //                else
+        //                {
+        //                    mi.Attachments[i].SaveAsFile(Path.Combine(path, mi.Attachments[i].DisplayName));
+        //                    output.Add($"{mi.Attachments[i].DisplayName}|{mi.Attachments[i].Size.BytesToString()}");
+        //                }
+
+        //            }
+        //        }
+        //    }
+        //    return output;
         //}
 
+        //   create unique timestamps for unique filenames
+        //    string TimeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff", CultureInfo.CurrentUICulture);
+        //    string tFilename = @Path.GetTempPath() + TimeStamp + ".mht";
+        //    mailItem.SaveAs(@tFilename, OlSaveAsType.olMHTML);
+        //        word.Application oWord = new word.Application();
+        //    word.Document oDOC = oWord.Documents.Open(@tFilename, true);
+        //    object misValue = System.Reflection.Missing.Value;
+        //    string oFileName = $"{ lblFolder.Text }{ TimeStamp }_{ mailItem.Subject.SafeFileName() }.pdf";
+        //    ConvertPDF(oDOC, misValue, @oFileName);
+        //}
         //private static void ConvertPDF(Document oDOC, object misValue, string oFileName)
         //{
         //    oDOC.ExportAsFixedFormat(@oFileName,

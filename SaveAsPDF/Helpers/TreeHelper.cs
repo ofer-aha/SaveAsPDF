@@ -147,7 +147,7 @@ namespace SaveAsPDF.Helpers
             if (mySelectedNode != null && mySelectedNode.Parent != null)
             {
                 //treeView.SelectedNode = mySelectedNode;
-                treeView.SelectedNode.Name = newName;
+                treeView.SelectedNode.Name = newName.SafeFileName();
                 //if (!mySelectedNode.IsEditing)
                 //{
                 //    mySelectedNode.BeginEdit();
@@ -265,7 +265,7 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// Copy the folder's full path list to combobox
+        /// Copy the folder's full path list to combo-box
         /// </summary>
         /// <param name="combo"></param>
         /// <param name="node"></param>
@@ -289,7 +289,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="level">Node Level as int.</param>
         /// <param name="node">Node object</param>
-        /// <param name="sb">string line to be proccesed</param>
+        /// <param name="sb">string line to be processed</param>
         private static void WriteNodeIntoString(int level, TreeNode node, StringBuilder sb)
         {
             // Append the correct number of tabs and the node's text.
@@ -299,6 +299,9 @@ namespace SaveAsPDF.Helpers
             foreach (TreeNode child in node.Nodes)
                 WriteNodeIntoString(level + 1, child, sb);
         }
+
+
+
         /// <summary>
         /// Write the TreeView's values into a file that uses tabs
         /// to show indentation.
@@ -317,6 +320,12 @@ namespace SaveAsPDF.Helpers
             File.WriteAllText(file_name, sb.ToString());
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="treeView"></param>
+        /// <returns></returns>
         public static List<string> TreeToList(TreeView treeView)
         {
             List<string> list = new List<string>();

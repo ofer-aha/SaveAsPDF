@@ -274,7 +274,7 @@ namespace SaveAsPDF
                 project.ProjectNotes = rtxtProjectNotes.Text;
 
                 //build the Employees model
-                employees = dgvEmployees.DgvEmployessToModel();
+                employees = dgvEmployees.DgvEmployeesToModel();
                 #endregion
 
                 #region Creat XML files for the models
@@ -317,7 +317,7 @@ namespace SaveAsPDF
                 }
 
                 //Save the attachments and returning the actual file name list
-                attList.AddRange(mailItem.SaveAttchments(dgvAttachments, txtSaveLocation.Text, false));
+                attList.AddRange(mailItem.SaveAttachments(dgvAttachments, txtSaveLocation.Text, false));
 
                 //string tableStyle = "<style> table, th,td {border: 1px solid black; text-align: right;}</style><br>";
                 string tableStyle = "<html><head><style>" +
@@ -605,11 +605,13 @@ namespace SaveAsPDF
         {
             //TODO1:_0 Make sure user entered safe folder name 
 
-            if (e.Label != null)
+            string inTXT = e.Label.SafeFileName(); ;
+
+            if (inTXT != null)
             {
-                if (e.Label.Length > 0)
+                if (inTXT.Length > 0)
                 {
-                    string inTXT = e.Label.SafeFileName();
+
 
                     if (inTXT.IndexOfAny(new char[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) == -1)
 
@@ -639,8 +641,8 @@ namespace SaveAsPDF
 
                 try
                 {
-                    DirectoryInfo directoryInfo = new DirectoryInfo(System.IO.Path.Combine(sPath.Parent.FullName, e.Node.FullPath));
-                    directoryInfo.RnDir($"{sPath.Parent.FullName}\\{mySelectedNode.Parent.FullPath}\\{e.Label}"); //e.Label = new name
+                    DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(sPath.Parent.FullName, e.Node.FullPath));
+                    directoryInfo.RnDir($"{sPath.Parent.FullName}\\{mySelectedNode.Parent.FullPath}\\{inTXT}"); //inTXT = new name
                 }
                 catch (Exception ex)
                 {

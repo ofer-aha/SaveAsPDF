@@ -172,6 +172,7 @@ namespace SaveAsPDF.Helpers
                     {
                         var dirInfo = new DirectoryInfo($"{frmMain.sPath.Parent.FullName}\\{frmMain.mySelectedNode.FullPath}\\");
                         dirInfo.CreateSafeDirectory("New Folder");
+
                         string[] tf = dirInfo.FullName.Split('\\');
                         tv.AddNode(frmMain.mySelectedNode, tf[tf.Length - 1]);
                     }
@@ -235,7 +236,7 @@ namespace SaveAsPDF.Helpers
                 tsmiRename.Click += (sender, e) =>
                 {
                     string oldName = $"{frmMain.sPath.Parent.FullName}\\frmMain.{frmMain.mySelectedNode.FullPath}";
-                    DirectoryInfo directoryInfo = new DirectoryInfo(oldName);
+                    DirectoryInfo directoryInfo = new DirectoryInfo(oldName.SafeFileName());
 
                     tv.RenameNode(frmMain.mySelectedNode);
                     //tvFolders.Refresh();
