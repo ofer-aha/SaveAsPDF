@@ -170,7 +170,6 @@ namespace SaveAsPDF.Helpers
                 {
                     try
                     {
-                        //string[] tf = FileFoldersHelper.MkDir($"{frmMain.sPath.Parent.FullName}\\{frmMain.mySelectedNode.FullPath}\\New Folder").Split('\\');
                         var dirInfo = new DirectoryInfo($"{frmMain.sPath.Parent.FullName}\\{frmMain.mySelectedNode.FullPath}\\");
                         dirInfo.CreateSafeDirectory("New Folder");
                         string[] tf = dirInfo.FullName.Split('\\');

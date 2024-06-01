@@ -1,8 +1,6 @@
-﻿using Microsoft.Office.Interop.Outlook;
-using SaveAsPDF.Properties;
+﻿using SaveAsPDF.Properties;
 using System;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -156,9 +154,9 @@ namespace SaveAsPDF.Helpers
         public static void CreateSafeDirectory(this DirectoryInfo directoryInfo, string desiredFolderName)
         {
             // Sanitize the folder name
-            string sanitizedFolderName = new string(desiredFolderName
-                .Where(c => !Path.GetInvalidPathChars().Contains(c))
-                .ToArray());
+            string sanitizedFolderName;
+            sanitizedFolderName = desiredFolderName.SafeFileName();
+
 
             // Combine the base path with the sanitized folder name
             string fullPath = Path.Combine(directoryInfo.FullName, sanitizedFolderName);
@@ -171,6 +169,11 @@ namespace SaveAsPDF.Helpers
         }
         //TODO1: need to update back the treeveiw with the unique folder name 
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
         private static void CreateDirectoryRecursively(string path)
         {
             string parentDirectory = Path.GetDirectoryName(path);
@@ -203,6 +206,11 @@ namespace SaveAsPDF.Helpers
             }
         }
 
+        /// <summary>
+        /// gfet unique folder name like "New Folder(2)" 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private static string GetUniqueDirectoryPath(string path)
         {
             int counter = 1;
@@ -226,7 +234,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="folderName"></param>
         /// <returns></returns>
-        static string SafeFileName(this string folderName)
+        public static string SafeFileName(this string folderName)
         {
             // Define the regex pattern to match invalid characters
             string invalidCharsPattern = @"[\\/:*?""<>|]";
@@ -320,7 +328,7 @@ namespace SaveAsPDF.Helpers
             {
                 Directory.Delete(folder + "\\", true);
             }
-            catch (Exception e)
+            catch (System.Exception e)
             {
                 MessageBox.Show(e.Message + "\n" + folder, "SaveAsPDF");
             }
