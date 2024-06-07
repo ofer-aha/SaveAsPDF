@@ -212,7 +212,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAAB0
-        DwAAAk1TRnQBSQFMAgEBCAEAASABAQEgAQEBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        DwAAAk1TRnQBSQFMAgEBCAEAASgBAQEoAQEBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABQAMAATADAAEBAQABCAYAAQwYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -1043,117 +1043,6 @@
   <data name="&gt;&gt;chkbSendNote.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="&gt;&gt;tabFolsers.Name" xml:space="preserve">
-    <value>tabFolsers</value>
-  </data>
-  <data name="&gt;&gt;tabFolsers.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabFolsers.Parent" xml:space="preserve">
-    <value>tabFilesFolders</value>
-  </data>
-  <data name="&gt;&gt;tabFolsers.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;tabAtachments.Name" xml:space="preserve">
-    <value>tabAtachments</value>
-  </data>
-  <data name="&gt;&gt;tabAtachments.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabAtachments.Parent" xml:space="preserve">
-    <value>tabFilesFolders</value>
-  </data>
-  <data name="&gt;&gt;tabAtachments.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="tabFilesFolders.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 222</value>
-  </data>
-  <data name="tabFilesFolders.RightToLeftLayout" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="tabFilesFolders.Size" type="System.Drawing.Size, System.Drawing">
-    <value>347, 257</value>
-  </data>
-  <data name="tabFilesFolders.TabIndex" type="System.Int32, mscorlib">
-    <value>40</value>
-  </data>
-  <data name="&gt;&gt;tabFilesFolders.Name" xml:space="preserve">
-    <value>tabFilesFolders</value>
-  </data>
-  <data name="&gt;&gt;tabFilesFolders.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabControl, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabFilesFolders.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;tabFilesFolders.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;txtFullPath.Name" xml:space="preserve">
-    <value>txtFullPath</value>
-  </data>
-  <data name="&gt;&gt;txtFullPath.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtFullPath.Parent" xml:space="preserve">
-    <value>tabFolsers</value>
-  </data>
-  <data name="&gt;&gt;txtFullPath.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;btnFolders.Name" xml:space="preserve">
-    <value>btnFolders</value>
-  </data>
-  <data name="&gt;&gt;btnFolders.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btnFolders.Parent" xml:space="preserve">
-    <value>tabFolsers</value>
-  </data>
-  <data name="&gt;&gt;btnFolders.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;tvFolders.Name" xml:space="preserve">
-    <value>tvFolders</value>
-  </data>
-  <data name="&gt;&gt;tvFolders.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TreeView, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tvFolders.Parent" xml:space="preserve">
-    <value>tabFolsers</value>
-  </data>
-  <data name="&gt;&gt;tvFolders.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="tabFolsers.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 22</value>
-  </data>
-  <data name="tabFolsers.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
-  </data>
-  <data name="tabFolsers.Size" type="System.Drawing.Size, System.Drawing">
-    <value>339, 231</value>
-  </data>
-  <data name="tabFolsers.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="tabFolsers.Text" xml:space="preserve">
-    <value>תיקיית הפרויקט</value>
-  </data>
-  <data name="&gt;&gt;tabFolsers.Name" xml:space="preserve">
-    <value>tabFolsers</value>
-  </data>
-  <data name="&gt;&gt;tabFolsers.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabFolsers.Parent" xml:space="preserve">
-    <value>tabFilesFolders</value>
-  </data>
-  <data name="&gt;&gt;tabFolsers.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
   <data name="txtFullPath.Location" type="System.Drawing.Point, System.Drawing">
     <value>3, 39</value>
   </data>
@@ -1235,6 +1124,33 @@
   <data name="&gt;&gt;tvFolders.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
+  <data name="tabFolsers.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 22</value>
+  </data>
+  <data name="tabFolsers.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
+  </data>
+  <data name="tabFolsers.Size" type="System.Drawing.Size, System.Drawing">
+    <value>339, 231</value>
+  </data>
+  <data name="tabFolsers.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="tabFolsers.Text" xml:space="preserve">
+    <value>תיקיית הפרויקט</value>
+  </data>
+  <data name="&gt;&gt;tabFolsers.Name" xml:space="preserve">
+    <value>tabFolsers</value>
+  </data>
+  <data name="&gt;&gt;tabFolsers.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;tabFolsers.Parent" xml:space="preserve">
+    <value>tabFilesFolders</value>
+  </data>
+  <data name="&gt;&gt;tabFolsers.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
   <data name="&gt;&gt;chkbSelectAllAttachments.Name" xml:space="preserve">
     <value>chkbSelectAllAttachments</value>
   </data>
@@ -1285,6 +1201,30 @@
   </data>
   <data name="&gt;&gt;tabAtachments.ZOrder" xml:space="preserve">
     <value>1</value>
+  </data>
+  <data name="tabFilesFolders.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 222</value>
+  </data>
+  <data name="tabFilesFolders.RightToLeftLayout" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tabFilesFolders.Size" type="System.Drawing.Size, System.Drawing">
+    <value>347, 257</value>
+  </data>
+  <data name="tabFilesFolders.TabIndex" type="System.Int32, mscorlib">
+    <value>40</value>
+  </data>
+  <data name="&gt;&gt;tabFilesFolders.Name" xml:space="preserve">
+    <value>tabFilesFolders</value>
+  </data>
+  <data name="&gt;&gt;tabFilesFolders.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TabControl, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;tabFilesFolders.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tabFilesFolders.ZOrder" xml:space="preserve">
+    <value>3</value>
   </data>
   <data name="chkbSelectAllAttachments.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>

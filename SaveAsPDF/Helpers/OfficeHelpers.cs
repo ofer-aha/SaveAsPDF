@@ -105,7 +105,7 @@ namespace SaveAsPDF.Helpers
         //    word.Application oWord = new word.Application();
         //    word.Document oDOC = oWord.Documents.Open(@tFilename, false);
 
-        //    oDOC.ConvertToPDF($@"{path}\\{timeStamp}_{mailItem.Subject.SafeFileName()}.pdf");
+        //    oDOC.ConvertToPDF($@"{path}\\{timeStamp}_{mailItem.Subject.SafeFolderName()}.pdf");
 
         //    oDOC.Close();
         //    oWord.Quit();
@@ -132,7 +132,7 @@ namespace SaveAsPDF.Helpers
                 var doc = wordApp.Documents.Open(tempFilePath, ReadOnly: false);
 
                 // Convert to PDF
-                string pdfFileName = $"{Path.GetFileNameWithoutExtension(timeStamp + mailItem.Subject.SafeFileName())}.pdf";
+                string pdfFileName = $"{Path.GetFileNameWithoutExtension(timeStamp + mailItem.Subject.SafeFolderName())}.pdf";
                 string pdfPath = Path.Combine(outputPath, pdfFileName);
                 doc.ExportAsFixedFormat(pdfPath, WdExportFormat.wdExportFormatPDF);
 
@@ -397,7 +397,7 @@ namespace SaveAsPDF.Helpers
         //        word.Application oWord = new word.Application();
         //    word.Document oDOC = oWord.Documents.Open(@tFilename, true);
         //    object misValue = System.Reflection.Missing.Value;
-        //    string oFileName = $"{ lblFolder.Text }{ TimeStamp }_{ mailItem.Subject.SafeFileName() }.pdf";
+        //    string oFileName = $"{ lblFolder.Text }{ TimeStamp }_{ mailItem.Subject.SafeFolderName() }.pdf";
         //    ConvertPDF(oDOC, misValue, @oFileName);
         //}
         //private static void ConvertPDF(Document oDOC, object misValue, string oFileName)

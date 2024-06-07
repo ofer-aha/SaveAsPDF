@@ -39,7 +39,7 @@ namespace SaveAsPDF
                     ProjectNotes = txtProjectNotes.Text
                 };
 
-                //create the project's subfolders 
+                //create the projectModel's subfolders 
 
                 subFolfers = TreeHelper.ListNodesPath(tvDefaultSubFolders.Nodes[0]);
                 foreach (string subFolder in subFolfers)

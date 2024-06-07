@@ -147,7 +147,7 @@ namespace SaveAsPDF.Helpers
             if (mySelectedNode != null && mySelectedNode.Parent != null)
             {
                 //treeView.SelectedNode = mySelectedNode;
-                treeView.SelectedNode.Name = newName.SafeFileName();
+                treeView.SelectedNode.Name = newName.SafeFolderName();
                 //if (!mySelectedNode.IsEditing)
                 //{
                 //    mySelectedNode.BeginEdit();
@@ -419,6 +419,86 @@ namespace SaveAsPDF.Helpers
                 treeView.LoadTreeViewFromFile(defaultTreeFileName);
 
             }
+        }
+        /// <summary>
+        /// Load folder path to tree-view
+        /// </summary>
+        /// <param name="tv"></param>
+        /// <param name="folderPath"></param>
+        public static void LoadFolderPaths(TreeView tv, string folderPath)
+        {
+            //string rootDirectory = @"C:\Your\Root\Directory"; // Replace with your root directory
+            TreeNode rootNode = new TreeNode(folderPath);
+            tv.Nodes.Add(rootNode);
+            PopulateTreeView(rootNode, folderPath);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parentNode"></param>
+        /// <param name="directory"></param>
+        public static void PopulateTreeView(TreeNode parentNode, string directory)
+        {
+            try
+            {
+                foreach (string subdirectory in Directory.GetDirectories(directory))
+                {
+                    TreeNode childNode = new TreeNode(Path.GetFileName(subdirectory));
+                    parentNode.Nodes.Add(childNode);
+                    PopulateTreeView(childNode, subdirectory); // Recursive call for subdirectories
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Handle unauthorized access (optional)
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="treeView"></param>
+        /// <param name="paths"></param>
+        /// <param name="pathSeparator"></param>
+        public static void PopulateTreeView(TreeView treeView, IEnumerable<string> paths, char pathSeparator)
+        {
+            TreeNode lastNode = null;
+            string subPathAgg;
+
+            foreach (string path in paths)
+            {
+                subPathAgg = string.Empty;
+
+                foreach (string subPath in path.Split(pathSeparator))
+                {
+                    subPathAgg += subPath + pathSeparator;
+                    TreeNode[] nodes = treeView.Nodes.Find(subPathAgg, true);
+
+                    if (nodes.Length == 0)
+                    {
+                        if (lastNode == null)
+                            lastNode = treeView.Nodes.Add(subPathAgg, subPath);
+                        else
+                            lastNode = lastNode.Nodes.Add(subPathAgg, subPath);
+                    }
+                    else
+                    {
+                        lastNode = nodes[0];
+                    }
+                }
+            }
+        }
+        public static TreeNode FindNodeByPath(TreeNodeCollection nodes, string path)
+        {
+            string[] nodeNames = path.Split('\\');
+            TreeNode currentNode = null;
+            foreach (string nodeName in nodeNames)
+            {
+                currentNode = nodes.Cast<TreeNode>().FirstOrDefault(n => n.Text == nodeName);
+                if (currentNode == null)
+                    break;
+                nodes = currentNode.Nodes;
+            }
+            return currentNode;
         }
 
     }

@@ -2,12 +2,12 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
-
 namespace SaveAsPDF.Helpers
 {
 
     public static class ContextMenuHelpers
     {
+
         private const string menuNameCut = "חתוך";
         private const string menuNameCopy = "העתק";
         private const string menuNamePaste = "הדבק";
@@ -152,6 +152,8 @@ namespace SaveAsPDF.Helpers
                 txt.ContextMenuStrip = cms;
             }
         }
+
+
         /// <summary>
         /// Enable the context menu to the Tree-view 
         /// </summary>
@@ -170,11 +172,9 @@ namespace SaveAsPDF.Helpers
                 {
                     try
                     {
-                        var dirInfo = new DirectoryInfo($"{frmMain.sPath.Parent.FullName}\\{frmMain.mySelectedNode.FullPath}\\");
-                        dirInfo.CreateSafeDirectory("New Folder");
-
-                        string[] tf = dirInfo.FullName.Split('\\');
+                        string[] tf = FileFoldersHelper.MkDir($"{frmMain.sPath.Parent.FullName}\\{frmMain.mySelectedNode.FullPath}\\New Folder").Split('\\');
                         tv.AddNode(frmMain.mySelectedNode, tf[tf.Length - 1]);
+
                     }
                     catch (Exception ex)
                     {
@@ -184,10 +184,10 @@ namespace SaveAsPDF.Helpers
 
                 cms.Items.Add(tsmiNew);
 
-                // Add the AddDate option (Add a folder name with today's date)
+                // Add the tsmiAddDate option (Add a folder name with today's date)
                 DateTime date = DateTime.Now;
-                ToolStripMenuItem AddDate = new ToolStripMenuItem(date.ToString("dd.MM.yyyy"));
-                AddDate.Click += (sender, e) =>
+                ToolStripMenuItem tsmiAddDate = new ToolStripMenuItem(date.ToString("dd.MM.yyyy"));
+                tsmiAddDate.Click += (sender, e) =>
                 {
                     try
                     {
@@ -200,7 +200,7 @@ namespace SaveAsPDF.Helpers
                     }
 
                 };
-                cms.Items.Add(AddDate);
+                cms.Items.Add(tsmiAddDate);
 
                 // Add a Separator
                 cms.Items.Add(new ToolStripSeparator());
@@ -208,7 +208,12 @@ namespace SaveAsPDF.Helpers
 
                 //Add the Open option (adds the text from the clipboard into the richTextxBox)
                 ToolStripMenuItem tsmiOpen = new ToolStripMenuItem(menuNameOpen);
-                tsmiOpen.Click += (sender, e) => Process.Start($"{frmMain.sPath.Parent.FullName}\\{frmMain.mySelectedNode.FullPath}");
+                tsmiOpen.Click += (sender, e) =>
+                {
+                    //TODO: maybe this will work with open PDF 
+
+                    Process.Start($"{frmMain.sPath.Parent.FullName}\\{frmMain.mySelectedNode.FullPath}");
+                };
                 cms.Items.Add(tsmiOpen);
 
                 // Add the Delete Option (remove the selected folder and tree-node)
@@ -236,7 +241,7 @@ namespace SaveAsPDF.Helpers
                 tsmiRename.Click += (sender, e) =>
                 {
                     string oldName = $"{frmMain.sPath.Parent.FullName}\\frmMain.{frmMain.mySelectedNode.FullPath}";
-                    DirectoryInfo directoryInfo = new DirectoryInfo(oldName.SafeFileName());
+                    DirectoryInfo directoryInfo = new DirectoryInfo(oldName.SafeFolderName());
 
                     tv.RenameNode(frmMain.mySelectedNode);
                     //tvFolders.Refresh();
@@ -255,6 +260,7 @@ namespace SaveAsPDF.Helpers
                     tv.Nodes.Clear();
                     tv.Nodes.Add(TreeHelper.CreateDirectoryNode(frmMain.sPath));
                     tv.ExpandAll();
+                    tv.SelectedNode = tv.Nodes[0];
                 };
                 cms.Items.Add(tsmiRefresh);
 
@@ -276,6 +282,5 @@ namespace SaveAsPDF.Helpers
 
 
         }
-
     }
 }

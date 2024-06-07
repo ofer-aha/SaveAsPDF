@@ -5,11 +5,11 @@ namespace SaveAsPDF.Models
     public class SettingsModel
     {
         /// <summary>
-        /// List of the project's folder structure
+        /// List of the projectModel's folder structure
         /// </summary>
         public List<string> ProjectFolders { get; set; }
         /// <summary>
-        /// The main project's root folder (or drive, i.e j:\ or c:\projects) 
+        /// The main projectModel's root folder (or drive, i.e j:\ or c:\projects) 
         /// </summary>
         public string RootFolder { get; set; }
         /// <summary>

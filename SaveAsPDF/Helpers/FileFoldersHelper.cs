@@ -9,16 +9,15 @@ namespace SaveAsPDF.Helpers
     public static class FileFoldersHelper
 
     {
-
         /// <summary>
         /// Extension method: 
         /// <list>
-        /// Construct the full project path based on the project's number (NOT ID) 
-        /// so project 1234 => j:\12\1234 
+        /// Construct the full projectModel path based on the projectModel's number (NOT ID) 
+        /// so projectModel 1234 => j:\12\1234 
         /// </list>
         /// </summary>
-        /// <param name="projectNumber"> The project name</param>
-        /// <returns> string representing the project's path, default value is rootDrive</returns>
+        /// <param name="projectNumber"> The projectModel name</param>
+        /// <returns> string representing the projectModel's path, default value is rootDrive</returns>
         public static DirectoryInfo ProjectFullPath(this string projectNumber)
         {
             string rootDrive = Settings.Default.rootDrive;
@@ -47,7 +46,7 @@ namespace SaveAsPDF.Helpers
                 }
                 else
                 {
-                    //more complicated project id: XXX-X or XXX-XX or XXX-X-XX well you catch my point....
+                    //more complicated projectModel id: XXX-X or XXX-XX or XXX-X-XX well you catch my point....
                     string[] split = projectNumber.Split('-'); //split the projectid to parts
 
                     if (split[0].Length == 3)
@@ -99,21 +98,16 @@ namespace SaveAsPDF.Helpers
         //        // Default return: root drive.
         //        return new DirectoryInfo(Settings.Default.rootDrive);
         //    }
-
         //    string[] split = projectNumber.Split('-');
         //    string output = Settings.Default.rootDrive;
-
-
         //    if (split.Length > 0)
         //    {
         //        string prefix = split[0].Length == 3 ? $"0{split[0]}".Substring(0, 2) : split[0].Substring(0, 2);
         //        output += prefix;
-
         //        if (Directory.Exists($"{output}\\{projectNumber}\\"))
         //        {
         //            output += $"\\{projectNumber}\\";
         //        }
-
         //        if (split.Length == 3)
         //        {
         //            if (!Directory.Exists($"{output}\\{split[0]}-{split[1]}\\{projectNumber}\\"))
@@ -127,13 +121,12 @@ namespace SaveAsPDF.Helpers
         //            }
         //        }
         //    }
-
         //    return new DirectoryInfo(output);
         //  }
 
 
         /// <summary>
-        /// make sure the project pattern is right
+        /// make sure the projectModel pattern is right
         /// XXX XXX-X XXX-XX XXXX XXXX-X XXXX-XX and so on XXXX-XX-XX 
         /// </summary>
         /// <param name="projectID"></param>
@@ -147,26 +140,27 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
+        /// Create a directory avoiding file system reserved names using SafeFileName() 
         /// Created by AI 
         /// </summary>
         /// <param name="baseFolderPath"></param>
         /// <param name="desiredFolderName"></param>
-        public static void CreateSafeDirectory(this DirectoryInfo directoryInfo, string desiredFolderName)
-        {
-            // Sanitize the folder name
-            string sanitizedFolderName;
-            sanitizedFolderName = desiredFolderName.SafeFileName();
+        //public static void CreateSafeDirectory(this DirectoryInfo directoryInfo, string desiredFolderName)
+        //{
+        //    // Sanitize the folder name
+        //    string sanitizedFolderName;
+        //    sanitizedFolderName = desiredFolderName.SafeFolderName();
 
 
-            // Combine the base path with the sanitized folder name
-            string fullPath = Path.Combine(directoryInfo.FullName, sanitizedFolderName);
+        //    // Combine the base path with the sanitized folder name
+        //    string fullPath = Path.Combine(directoryInfo.FullName, sanitizedFolderName);
 
-            // Ensure the directory name is unique
-            fullPath = GetUniqueDirectoryPath(fullPath);
+        //    // Ensure the directory name is unique
+        //    fullPath = GetUniqueDirectoryPath(fullPath);
 
-            // Recursively create the directory
-            CreateDirectoryRecursively(fullPath);
-        }
+        //    // Recursively create the directory
+        //    CreateDirectoryRecursively(fullPath);
+        //}
         //TODO1: need to update back the Tree-View with the unique folder name 
 
 
@@ -237,10 +231,12 @@ namespace SaveAsPDF.Helpers
         //}
 
         /// <summary>
-        /// gfet unique folder name like "New Folder(2)" 
+        /// Get unique folder name like "New Folder(2)" 
         /// </summary>
         /// <param name="path"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// path
+        /// </returns>
         private static string GetUniqueDirectoryPath(string path)
         {
             int counter = 1;
@@ -263,21 +259,22 @@ namespace SaveAsPDF.Helpers
         ///  Ensure the resulting folder name is safe for use.
         /// </summary>
         /// <param name="folderName"></param>
-        /// <returns></returns>
-        public static string SafeFileName(this string folderName)
+        /// <returns>
+        /// A safe file-system folder name
+        /// </returns>
+        public static string SafeFolderName(this string folderName)
         {
             if (string.IsNullOrEmpty(folderName))
             {
                 return folderName;
             }
-
             // Define the regex pattern to match invalid characters
             string invalidCharsPattern = @"[\\/:*?""<>|]";
 
             // Replace invalid characters with underscores
             string cleanFolderName = Regex.Replace(folderName, invalidCharsPattern, "_");
-
             // Check if the sanitized folder name matches any system reserved names
+            // TODO: remove XXX
             string[] reservedNames = { "XXX", "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "LPT1", "LPT2", "LPT3" };
             foreach (string reservedName in reservedNames)
             {
@@ -288,21 +285,31 @@ namespace SaveAsPDF.Helpers
                     break;
                 }
             }
-
             return cleanFolderName;
         }
 
 
         /// <summary>
-        /// Create hidden folder. 
-        /// Mainly used to create the .SaveAsPDF hidden folder 
+        /// Extension method to create hidden folders.
+        /// Mainly used to create the <b>.SaveAsPDF </b> hidden folder 
+        /// use internally - no need to verify input
         /// </summary>
-        /// <param name="folder"> string representing the hidden folder name to create</param>
-        public static void CreateHiddenFolder(this string folder)
+        /// <param name="folder"> string representing the hidden folder name to create </param>
+        /// <param name="defName"> default folder name. When left empty the default is to create the .SaveAsPDF folder </param>
+        /// 
+        public static void CreateHiddenFolder(this string folder, string defName = null)
         {
-            if (!Directory.Exists(folder))
+            if (!string.IsNullOrEmpty(defName))
             {
-                DirectoryInfo di = Directory.CreateDirectory(folder);
+                if (!Directory.Exists($"{folder}\\{defName}"))
+                {
+                    DirectoryInfo di = Directory.CreateDirectory($"{folder}\\{defName}");
+                    di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+                }
+            }
+            else
+            {
+                DirectoryInfo di = Directory.CreateDirectory($"{folder}\\{Settings.Default.defaultFolder}");
                 di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
             }
         }
@@ -381,27 +388,18 @@ namespace SaveAsPDF.Helpers
         {
             if (string.IsNullOrEmpty(baseFolder))
             {
-                //throw new ArgumentNullException(nameof(baseFolder), "Folder name cannot be empty.");
                 MessageBox.Show("שם תקייה לא יכול להיות ריק");
                 return baseFolder;
             }
-
             // Remove invalid characters from the folder name
-            string sanitizedFolder = SanitizeFolderName(baseFolder);
-
+            //string sanitizedFolder = SanitizeFolderName(baseFolder);
+            string sanitizedFolder = baseFolder;
             // Check if the directory already exists
             if (Directory.Exists(sanitizedFolder))
             {
-                int suffix = 2;
-                string uniqueFolder = $"{sanitizedFolder} ({suffix})";
-
-                while (Directory.Exists(uniqueFolder))
-                {
-                    suffix++;
-                    uniqueFolder = $"{sanitizedFolder} ({suffix})";
-                }
-
                 // Create the unique directory
+                string uniqueFolder = GetUniqueDirectoryPath(sanitizedFolder);
+
                 Directory.CreateDirectory(uniqueFolder);
                 return uniqueFolder;
             }
@@ -412,7 +410,13 @@ namespace SaveAsPDF.Helpers
                 return sanitizedFolder;
             }
         }
-
+        /// <summary>
+        /// Remove invalid characters (e.g., slashes, colons, etc.)
+        /// </summary>
+        /// <param name="folderName"></param>
+        /// <returns>
+        /// string: clean folder name 
+        /// </returns>
         private static string SanitizeFolderName(string folderName)
         {
             // Remove invalid characters (e.g., slashes, colons, etc.)
@@ -424,12 +428,6 @@ namespace SaveAsPDF.Helpers
             return sanitizedName;
         }
 
-
-
-
-
-
-
         /// <summary>
         /// Delete folder recursive
         /// </summary>
@@ -440,7 +438,6 @@ namespace SaveAsPDF.Helpers
             {
                 MessageBox.Show("תקייה לא קיימת או שם ריק");
                 return;
-                // throw new ArgumentNullException("RnDir:folder", "תקייה לא קיימת או שם ריק");
             }
             string[] dirs = Directory.GetDirectories(folder);
             foreach (string dir in dirs)
@@ -457,29 +454,26 @@ namespace SaveAsPDF.Helpers
             }
         }
         /// <summary>
-        /// Rename directory
+        /// Extension method to Rename a directory
         /// </summary>
         /// <param name="di">Directory object</param>
         /// <param name="folder">New name for the directory</param>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// 
         public static void RnDir(this DirectoryInfo di, string folder)
         {
 
-            if (di == null)
+            if (di == null || string.IsNullOrEmpty(folder))
             {
-                //throw new ArgumentNullException("RmDir:di", "שם תיקייה לא חוקי");
                 MessageBox.Show("שם תיקייה לא חוקי");
                 return;
             }
-
-            if (string.IsNullOrEmpty(folder.SafeFileName()))
+            else
             {
-                //throw new ArgumentNullException("RmDir:folder", "שם תקייה לא יכול להיות ריק");
-                MessageBox.Show("שם תקייה לא יכול להיות ריק");
-                return;
+                di.MoveTo(folder);
+
             }
 
-            di.MoveTo(folder);
+
         }
     }
 

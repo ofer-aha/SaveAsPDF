@@ -9,7 +9,7 @@ namespace SaveAsPDF.Models
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// The project ID given by the user  
+        /// The projectModel ID given by the user  
         /// </summary>
         public string ProjectNumber { get; set; }
         /// <summary>
@@ -17,15 +17,15 @@ namespace SaveAsPDF.Models
         /// </summary>
         public string ProjectName { get; set; }
         /// <summary>
-        /// Send mail notification to the employee(s) responsible for the project?
+        /// Send mail notification to the employee(s) responsible for the projectModel?
         /// </summary>
         public bool NoteEmployee { get; set; }
         /// <summary>
-        /// The Default project sub folders
+        /// The Default projectModel sub folders
         /// </summary>
         public List<string> SubFolders { get; set; }
         /// <summary>
-        /// General project notes left by the user
+        /// General projectModel notes left by the user
         /// </summary>
         public string ProjectNotes { get; set; }
 

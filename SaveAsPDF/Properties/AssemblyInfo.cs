@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(true)]
 
-// The following GUID is for the ID of the typelib if this project is exposed to COM
+// The following GUID is for the ID of the typelib if this projectModel is exposed to COM
 [assembly: Guid("a36818d8-fd7b-44d1-9f18-4e2f62ab4a6e")]
 
 // Version information for an assembly consists of the following four values:
