@@ -7,7 +7,7 @@ namespace SaveAsPDF.Helpers
     public static class TextHelpers
     {
         /// <summary>
-        /// convert the file size to "humen" readle figurs 
+        /// convert the file size to "human" readable figures 
         /// </summary>
         /// <param name="byteCount"></param>
         /// <returns>String XXKB/MB/GB</returns>

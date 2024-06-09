@@ -86,6 +86,11 @@ namespace SaveAsPDF.Helpers
             }
             return false;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static TreeNode TraverseDirectory(string path)
         {
             TreeNode result = new TreeNode(path);
@@ -178,14 +183,14 @@ namespace SaveAsPDF.Helpers
                     treeView.SelectedNode = mySelectedNode;
                     mySelectedNode.Expand();
 
-                    if (lable != Settings.Default.dateTag)
+                    if (lable != Settings.Default.DateTag)
                     {
                         treeView.RenameNode(mySelectedNode);
                     }
                 }
                 else
                 {
-                    //if Lable is Null add default node name 
+                    //if Label is Null add default node name 
                     treeView.AddNode(mySelectedNode);
                 }
             }
@@ -223,7 +228,7 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// Return the root node's name as strig
+        /// Return the root node's name as string
         /// </summary>
         /// <param name="tv"></param>
         /// <returns></returns>
@@ -246,7 +251,6 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="oParentNode">The TreeNode</param>
         /// <returns>List of Strings </returns>
-
         public static List<string> ListNodesPath(TreeNode oParentNode)
         {
             List<string> list = new List<string>();
@@ -256,7 +260,7 @@ namespace SaveAsPDF.Helpers
                 list.Add(oParentNode.FullPath);
             }
 
-            // Start recursion on all subnodes.
+            // Start recursion on all sub-nodes.
             foreach (TreeNode oSubNode in oParentNode.Nodes)
             {
                 list.AddRange(ListNodesPath(oSubNode));
@@ -383,7 +387,7 @@ namespace SaveAsPDF.Helpers
             string fullPath = new Uri(location).LocalPath; // path including the dll 
             string directoryPath = Path.GetDirectoryName(fullPath); // directory path 
 
-            string defaultTreeFileName = directoryPath + "\\" + Settings.Default.defaultTreeFile;
+            string defaultTreeFileName = directoryPath + "\\" + Settings.Default.DefaultTreeFile;
 
 
             if (File.Exists(defaultTreeFileName))
@@ -419,18 +423,6 @@ namespace SaveAsPDF.Helpers
                 treeView.LoadTreeViewFromFile(defaultTreeFileName);
 
             }
-        }
-        /// <summary>
-        /// Load folder path to tree-view
-        /// </summary>
-        /// <param name="tv"></param>
-        /// <param name="folderPath"></param>
-        public static void LoadFolderPaths(TreeView tv, string folderPath)
-        {
-            //string rootDirectory = @"C:\Your\Root\Directory"; // Replace with your root directory
-            TreeNode rootNode = new TreeNode(folderPath);
-            tv.Nodes.Add(rootNode);
-            PopulateTreeView(rootNode, folderPath);
         }
         /// <summary>
         /// 
@@ -487,6 +479,12 @@ namespace SaveAsPDF.Helpers
                 }
             }
         }
+        /// <summary>
+        /// Find the specific node by path 
+        /// </summary>
+        /// <param name="nodes"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public static TreeNode FindNodeByPath(TreeNodeCollection nodes, string path)
         {
             string[] nodeNames = path.Split('\\');

@@ -2,38 +2,47 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="SaveAsPDF.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="rootDrive" Type="System.String" Scope="User">
+    <Setting Name="RootDrive" Type="System.String" Scope="User">
       <Value Profile="(Default)">J:\</Value>
     </Setting>
-    <Setting Name="xmlSaveAsPdfFolder" Type="System.String" Scope="User">
+    <Setting Name="xmlSaveAsPDFFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)">.SaveAsPDF\</Value>
     </Setting>
     <Setting Name="xmlProjectFile" Type="System.String" Scope="User">
       <Value Profile="(Default)">.SaveAsPDF_Project.xml</Value>
     </Setting>
-    <Setting Name="xmlEmploeeysFile" Type="System.String" Scope="User">
+    <Setting Name="xmlEmployeesFile" Type="System.String" Scope="User">
       <Value Profile="(Default)">.SaveAsPDF_Emploeeys.xml</Value>
     </Setting>
-    <Setting Name="defaultTreeFile" Type="System.String" Scope="User">
+    <Setting Name="DefaultTreeFile" Type="System.String" Scope="User">
       <Value Profile="(Default)">DefaultTree.fld</Value>
     </Setting>
-    <Setting Name="defaultFolder" Type="System.String" Scope="User">
-      <Value Profile="(Default)">_מספר_פרויקט_</Value>
-    </Setting>
-    <Setting Name="minAttachmentSize" Type="System.Int32" Scope="User">
+    <Setting Name="MinAttachmentSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">8192</Value>
     </Setting>
-    <Setting Name="dateTag" Type="System.String" Scope="User">
+    <Setting Name="DateTag" Type="System.String" Scope="User">
       <Value Profile="(Default)">_תאריך_</Value>
     </Setting>
-    <Setting Name="projectRootTag" Type="System.String" Scope="User">
+    <Setting Name="ProjectRootTag" Type="System.String" Scope="User">
       <Value Profile="(Default)">_מספר_פרויקט_</Value>
     </Setting>
-    <Setting Name="defaultFolderID" Type="System.Int32" Scope="User">
+    <Setting Name="DefaultFolderID" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="OpenPDF" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="LastProjects" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="LastProjectsCount" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="ProjectRootFolders" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="DefaultSavePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

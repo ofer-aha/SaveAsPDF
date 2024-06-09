@@ -159,6 +159,7 @@ namespace SaveAsPDF
             this.txtRootFolder.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.txtRootFolder.Size = new System.Drawing.Size(121, 20);
             this.txtRootFolder.TabIndex = 4;
+            this.txtRootFolder.TextChanged += new System.EventHandler(this.txtRootFolder_TextChanged);
             // 
             // lblRootFolder
             // 

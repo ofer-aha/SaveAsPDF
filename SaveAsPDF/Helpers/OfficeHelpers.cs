@@ -37,7 +37,7 @@ namespace SaveAsPDF.Helpers
                     fileSize = attachment.Size.BytesToString()
                 };
 
-                if (attachment.Size >= Settings.Default.minAttachmentSize)
+                if (attachment.Size >= Settings.Default.MinAttachmentSize)
                 {
                     output.Add(att);
                 }

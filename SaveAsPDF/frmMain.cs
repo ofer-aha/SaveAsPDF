@@ -15,13 +15,12 @@ using Exception = System.Exception;
 
 namespace SaveAsPDF
 {
-
     public partial class frmMain : Form, IEmployeeRequester, INewProjectRequester
     {
         private List<EmployeeModel> employees = new List<EmployeeModel>();
         private ProjectModel projectModel = new ProjectModel();
 
-        // construct the full path for evrithig
+        // construct the full path for everything
         public static DirectoryInfo sPath;
         private DirectoryInfo xmlSaveAsPdfFolder;
         private string xmlProjectFile;
@@ -44,6 +43,11 @@ namespace SaveAsPDF
         {
             InitializeComponent();
 
+            //Load settings to SettingsModel 
+
+
+
+
             dgvEmployees.Columns[0].Visible = false;
             dgvEmployees.Columns[1].HeaderText = "שם פרטי";
             dgvEmployees.Columns[2].HeaderText = "שם מפשחה";
@@ -57,12 +61,9 @@ namespace SaveAsPDF
             txtProjectID.EnableContextMenu();
             txtProjectName.EnableContextMenu();
             tvFolders.EnableContextMenu();
-
-
         }
         private void frmMain_Load(object sender, EventArgs e)
         {
-
             sPath = txtProjectID.Text.ProjectFullPath();
 
             if (mailItem is MailItem && mailItem != null)
@@ -147,7 +148,6 @@ namespace SaveAsPDF
             }
         }
 
-
         private void btnCancel_Click(object sender, EventArgs e)
         {
             //close the form - do  nothing
@@ -159,7 +159,7 @@ namespace SaveAsPDF
 
             if (!sPath.Exists)
             {
-                Dialog.InputPath = Settings.Default.rootDrive;
+                Dialog.InputPath = Settings.Default.RootDrive;
             }
             else
             {
@@ -185,6 +185,11 @@ namespace SaveAsPDF
                     dataLoaded = true;
                     return;
                 }
+                else
+                {
+                    picBoxProjectID.Visible = true;
+                    txtProjectID.BackColor = System.Drawing.Color.Red;
+                }
 
             }
         }
@@ -194,24 +199,24 @@ namespace SaveAsPDF
         private void LoadXmls()
         {
             // construct the full path for everything
-            sPath = txtProjectID.Text.Trim().ProjectFullPath();
-            xmlSaveAsPdfFolder = new DirectoryInfo(Path.Combine(sPath.FullName, Settings.Default.xmlSaveAsPdfFolder));
-            xmlProjectFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlProjectFile}";
-            xmlEmploeeysFile = $"{xmlSaveAsPdfFolder}{Settings.Default.xmlEmploeeysFile}";
+            sPath = txtProjectID.Text.ProjectFullPath();
+            xmlSaveAsPdfFolder = new DirectoryInfo(Path.Combine(sPath.FullName, Settings.Default.xmlSaveAsPDFFolder));
+            xmlProjectFile = $@"{xmlSaveAsPdfFolder}{Settings.Default.xmlProjectFile}";
+            xmlEmploeeysFile = $@"{xmlSaveAsPdfFolder}{Settings.Default.xmlEmployeesFile}";
 
             DateTime date = DateTime.Now;
 
-            txtSaveLocation.Text = Settings.Default.defaultFolder.Replace($"{Settings.Default.projectRootTag}\\", sPath.FullName);
+            txtSaveLocation.Text = Settings.Default.DefaultFolderSettings.Replace($@"{SettingsHelpers..ProjectRootTag}\", sPath.FullName);
 
-            if (Settings.Default.defaultFolder.Contains(Settings.Default.dateTag))
+            if (Settings.Default.DefaultFolderSettings.Contains(Settings.Default.DateTag))
             {
-                txtSaveLocation.Text = txtSaveLocation.Text.Replace(Settings.Default.dateTag, date.ToString("dd.MM.yyyy"));
+                txtSaveLocation.Text = txtSaveLocation.Text.Replace(Settings.Default.DateTag, date.ToString("dd.MM.yyyy"));
             }
 
 
             if (sPath.Exists)
             {
-                //TODO: need to check it
+                //TODO1: need to check it
                 //Create .SaveAsPDF folder
                 sPath.FullName.CreateHiddenFolder();
                 if (File.Exists(xmlProjectFile))
@@ -230,7 +235,7 @@ namespace SaveAsPDF
                 //load the XML file to Employees list-box
                 if (File.Exists(xmlEmploeeysFile))
                 {
-                    employees = xmlEmploeeysFile.XmlEmloyeesFileToModel();
+                    employees = xmlEmploeeysFile.XmlEmployeesFileToModel();
                     if (employees != null)
                     {
                         foreach (EmployeeModel em in employees)
@@ -248,7 +253,9 @@ namespace SaveAsPDF
             tvFolders.SelectedNode = tvFolders.Nodes[0];
         }
 
-
+        /// <summary>
+        /// Resetting the form
+        /// </summary>
         private void ClearForm()
         {
             txtProjectName.Clear();
@@ -267,7 +274,7 @@ namespace SaveAsPDF
 
                 #region Populate Models
 
-                //build projectModel modele
+                //build projectModel model
 
                 projectModel.ProjectName = txtProjectName.Text;
                 projectModel.ProjectNumber = txtProjectID.Text;
@@ -278,7 +285,7 @@ namespace SaveAsPDF
                 employees = dgvEmployees.DgvEmployeesToModel();
                 #endregion
 
-                #region Creat XML files for the models
+                #region Create XML files for the models
 
                 //create the SaveAsPDF hidden folder
                 xmlSaveAsPdfFolder.FullName.CreateHiddenFolder();
@@ -302,13 +309,13 @@ namespace SaveAsPDF
                 else
                 {
                     var Dialog = new FolderPicker();
-                    Dialog.InputPath = Settings.Default.rootDrive;
+                    Dialog.InputPath = Settings.Default.RootDrive;
                     if (Dialog.ShowDialog(Handle) == true)
                     {
                         txtSaveLocation.Text = Dialog.ResultPath;
                     }
                 }
-                //save the mailItem to the current working directory and create an attachment list to add to pdf/mail   
+                //save the mailItem to the current working directory and create an attachment list to add to PDF/mail   
 
                 List<string> attList = new List<string>();
                 //convert the message to HTML 
@@ -370,24 +377,21 @@ namespace SaveAsPDF
 
         }
         /// <summary>
-        /// making sure nothing is missing before closeing the form
+        /// making sure nothing is missing before closing the form
         /// and creating the PDF file
         /// </summary>
         /// <returns>False if validation fails</returns>
         private bool ValidateForm()
         {
             bool output = true;
-
             if (string.IsNullOrEmpty(txtProjectID.Text))
             {
                 output = false;
             }
-
             if (string.IsNullOrEmpty(txtProjectName.Text))
             {
                 output = false;
             }
-
             return output;
         }
 
@@ -402,7 +406,7 @@ namespace SaveAsPDF
             //TODO1: Open attachment when double clicking it on the list
             //1. save attachment to temp folder 
             //string tmpFoder = @System.IO.Path.GetTempPath();
-            //2. exec. the file using default file asociating 
+            //2. exec. the file using default file association 
             MessageBox.Show(dgvAttachments.CurrentCell.Value.ToString());
         }
 
@@ -578,11 +582,12 @@ namespace SaveAsPDF
 
         private void tvFolders_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            //TreeNode CurrentNode = e.Node;
-            //string fullpath = CurrentNode.FullPath;
-            //mySelectedNode = CurrentNode;
+            TreeNode CurrentNode = e.Node;
+            string fullpath = CurrentNode.FullPath;
+            mySelectedNode = CurrentNode;
 
-            txtSaveLocation.Text = sPath.Parent.FullName + "\\" + e.Node.Text;
+            txtSaveLocation.Text = $@"{sPath.FullName.Trim('\\')}{Settings.Default.DefaultFolderSettings.Replace(
+                                     Settings.Default.ProjectRootTag, string.Empty)}";// no need the '\'
         }
 
 
@@ -626,9 +631,9 @@ namespace SaveAsPDF
                 {
 
                     DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(sPath.Parent.FullName, e.Node.FullPath));  // old path
-                    directoryInfo.RnDir($"{sPath.Parent.FullName}\\{e.Node.Parent.FullPath}\\{nodeNewLable}"); //nodeNewLable = new SAFE name
+                    directoryInfo.RnDir($@"{sPath.Parent.FullName}\{e.Node.Parent.FullPath}\{nodeNewLable}"); //nodeNewLable = new SAFE name
 
-                    string specificPath = $"{e.Node.Parent.FullPath}\\{e.Label}";
+                    string specificPath = $@"{e.Node.Parent.FullPath}\{e.Label}";
 
                     TreeNode existingNode = TreeHelper.FindNodeByPath(tvFolders.Nodes, e.Node.FullPath);
                     if (existingNode != null)
@@ -660,13 +665,26 @@ namespace SaveAsPDF
 
         private void tvFolders_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            Process.Start($"{frmMain.sPath.Parent.FullName}\\{e.Node.FullPath}");
+            Process.Start($@"{frmMain.sPath.Parent.FullName}\{e.Node.FullPath}");
         }
 
         private void tvFolders_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            mySelectedNode = e.Node;
+            //mySelectedNode = e.Node;
             //MessageBox.Show($"e.node.Name:{e.Node.Text} mySelectedNode: {mySelectedNode.FullPath}");
+        }
+
+        private void txtProjectID_MouseClick(object sender, MouseEventArgs e)
+        {
+            txtProjectID.BackColor = System.Drawing.Color.White;
+            picBoxProjectID.Visible = false;
+        }
+
+        private void txtProjectID_TextChanged(object sender, EventArgs e)
+        {
+            txtProjectID.BackColor = System.Drawing.Color.White;
+            picBoxProjectID.Visible = false;
+
         }
     }
 }

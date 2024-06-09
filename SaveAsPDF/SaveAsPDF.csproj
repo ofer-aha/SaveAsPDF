@@ -236,6 +236,7 @@
     <Compile Include="frmNewProject.Designer.cs">
       <DependentUpon>frmNewProject.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\SettingsHelpers.cs" />
     <Compile Include="Helpers\ContextMenuHelpers.cs" />
     <Compile Include="Helpers\InputBox.cs">
       <SubType>Form</SubType>

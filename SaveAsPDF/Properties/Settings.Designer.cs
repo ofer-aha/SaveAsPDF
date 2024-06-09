@@ -26,24 +26,24 @@ namespace SaveAsPDF.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("J:\\")]
-        public string rootDrive {
+        public string RootDrive {
             get {
-                return ((string)(this["rootDrive"]));
+                return ((string)(this["RootDrive"]));
             }
             set {
-                this["rootDrive"] = value;
+                this["RootDrive"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute(".SaveAsPDF\\")]
-        public string xmlSaveAsPdfFolder {
+        public string xmlSaveAsPDFFolder {
             get {
-                return ((string)(this["xmlSaveAsPdfFolder"]));
+                return ((string)(this["xmlSaveAsPDFFolder"]));
             }
             set {
-                this["xmlSaveAsPdfFolder"] = value;
+                this["xmlSaveAsPDFFolder"] = value;
             }
         }
         
@@ -62,84 +62,72 @@ namespace SaveAsPDF.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute(".SaveAsPDF_Emploeeys.xml")]
-        public string xmlEmploeeysFile {
+        public string xmlEmployeesFile {
             get {
-                return ((string)(this["xmlEmploeeysFile"]));
+                return ((string)(this["xmlEmployeesFile"]));
             }
             set {
-                this["xmlEmploeeysFile"] = value;
+                this["xmlEmployeesFile"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("DefaultTree.fld")]
-        public string defaultTreeFile {
+        public string DefaultTreeFile {
             get {
-                return ((string)(this["defaultTreeFile"]));
+                return ((string)(this["DefaultTreeFile"]));
             }
             set {
-                this["defaultTreeFile"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("_מספר_פרויקט_")]
-        public string defaultFolder {
-            get {
-                return ((string)(this["defaultFolder"]));
-            }
-            set {
-                this["defaultFolder"] = value;
+                this["DefaultTreeFile"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("8192")]
-        public int minAttachmentSize {
+        public int MinAttachmentSize {
             get {
-                return ((int)(this["minAttachmentSize"]));
+                return ((int)(this["MinAttachmentSize"]));
             }
             set {
-                this["minAttachmentSize"] = value;
+                this["MinAttachmentSize"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("_תאריך_")]
-        public string dateTag {
+        public string DateTag {
             get {
-                return ((string)(this["dateTag"]));
+                return ((string)(this["DateTag"]));
             }
             set {
-                this["dateTag"] = value;
+                this["DateTag"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("_מספר_פרויקט_")]
-        public string projectRootTag {
+        public string ProjectRootTag {
             get {
-                return ((string)(this["projectRootTag"]));
+                return ((string)(this["ProjectRootTag"]));
             }
             set {
-                this["projectRootTag"] = value;
+                this["ProjectRootTag"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public int defaultFolderID {
+        public int DefaultFolderID {
             get {
-                return ((int)(this["defaultFolderID"]));
+                return ((int)(this["DefaultFolderID"]));
             }
             set {
-                this["defaultFolderID"] = value;
+                this["DefaultFolderID"] = value;
             }
         }
         
@@ -152,6 +140,54 @@ namespace SaveAsPDF.Properties {
             }
             set {
                 this["OpenPDF"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastProjects {
+            get {
+                return ((string)(this["LastProjects"]));
+            }
+            set {
+                this["LastProjects"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LastProjectsCount {
+            get {
+                return ((int)(this["LastProjectsCount"]));
+            }
+            set {
+                this["LastProjectsCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ProjectRootFolders {
+            get {
+                return ((string)(this["ProjectRootFolders"]));
+            }
+            set {
+                this["ProjectRootFolders"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DefaultSavePath {
+            get {
+                return ((string)(this["DefaultSavePath"]));
+            }
+            set {
+                this["DefaultSavePath"] = value;
             }
         }
     }

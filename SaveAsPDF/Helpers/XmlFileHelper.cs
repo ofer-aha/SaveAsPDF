@@ -52,7 +52,7 @@ namespace SaveAsPDF.Helpers
             }
         }
         /// <summary>
-        /// Converts Emploee model to XML file
+        /// Converts Employee model to XML file
         /// </summary>
         /// <param name="employees">Employee Model</param>
         /// <param name="path">File Name as string</param>
@@ -107,7 +107,7 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// Extantion methud Convers the Project XML file to ProjectModel
+        /// Extension method Converts the Project XML file to ProjectModel
         /// </summary>
         /// <param name="xmlFile">Source file name</param>
         /// <returns>ProjectModel</returns>
@@ -138,11 +138,11 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// Extantion methud Import the XML file to employee model
+        /// Extension method Import the XML file to employee model
         /// </summary>
         /// <param name="xmlFile">Full path to XML file</param>
         /// <returns>EmployeeModel</returns>
-        public static List<EmployeeModel> XmlEmloyeesFileToModel(this string xmlFile)
+        public static List<EmployeeModel> XmlEmployeesFileToModel(this string xmlFile)
         {
             List<EmployeeModel> output = new List<EmployeeModel>();
             XmlDocument xmlDoc = new XmlDocument();
@@ -153,7 +153,7 @@ namespace SaveAsPDF.Helpers
             catch (Exception ex)
             {
 
-                MessageBox.Show(ex.Message, "SaveAsPDF:XmlEmloyeesFileToModel");
+                MessageBox.Show(ex.Message, "SaveAsPDF:XmlEmployeesFileToModel");
                 return null;
             }
 

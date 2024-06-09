@@ -20,13 +20,14 @@ namespace SaveAsPDF.Helpers
         /// <returns> string representing the projectModel's path, default value is rootDrive</returns>
         public static DirectoryInfo ProjectFullPath(this string projectNumber)
         {
-            string rootDrive = Settings.Default.rootDrive;
+            string rootDrive = Settings.Default.RootDrive;
             string output = rootDrive;
-            if (!projectNumber.SafeProjectID())
+            projectNumber = projectNumber.Trim();
 
+            if (!projectNumber.SafeProjectID())
             {
                 //Default return: root drive.
-                output = Settings.Default.rootDrive;
+                output = Settings.Default.RootDrive;
             }
             else
             {
@@ -58,10 +59,10 @@ namespace SaveAsPDF.Helpers
                         output += split[0].Substring(0, 2);
                     }
                     //if NOT exist   J:\XX\XXXX-XX
-                    if (!Directory.Exists($"{output}\\{projectNumber}\\"))
+                    if (!Directory.Exists($@"{output}\{projectNumber}\"))
                     {
                         // J:\XX\XXXX\XXXX-XX\
-                        output += $"\\{split[0]}";
+                        output += $@"\{split[0]}";
                     }
                     //output = J:\
                     //projectID = XXX || XXXX || XXX-X || XXXX-XX
@@ -73,19 +74,19 @@ namespace SaveAsPDF.Helpers
                     if (split.Length == 3) //projectID looks like this XXXX-XX-XX 
                                            //   if exist   J:\XX\XXXX-XX\XXXX-XX-X\            then       
                     {
-                        if (!Directory.Exists($"{output}\\{split[0]}-{split[1]}\\{projectNumber}\\"))
+                        if (!Directory.Exists($@"{output}\{split[0]}-{split[1]}\{projectNumber}\"))
                         {
 
                             output += $"-{split[1]}";
                         }
                         else
                         {
-                            output += $"\\{split[0]}-{split[1]}";
+                            output += $@"\{split[0]}-{split[1]}";
                         }
                     }
                 }
 
-                output += $"\\{projectNumber}\\";
+                output += $@"\{projectNumber}\";
             }
 
             return new DirectoryInfo(output); ;
@@ -274,8 +275,7 @@ namespace SaveAsPDF.Helpers
             // Replace invalid characters with underscores
             string cleanFolderName = Regex.Replace(folderName, invalidCharsPattern, "_");
             // Check if the sanitized folder name matches any system reserved names
-            // TODO: remove XXX
-            string[] reservedNames = { "XXX", "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "LPT1", "LPT2", "LPT3" };
+            string[] reservedNames = { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "LPT1", "LPT2", "LPT3" };
             foreach (string reservedName in reservedNames)
             {
                 if (string.Equals(cleanFolderName, reservedName, StringComparison.OrdinalIgnoreCase))
@@ -301,15 +301,15 @@ namespace SaveAsPDF.Helpers
         {
             if (!string.IsNullOrEmpty(defName))
             {
-                if (!Directory.Exists($"{folder}\\{defName}"))
+                if (!Directory.Exists($@"{folder}\{defName}"))
                 {
-                    DirectoryInfo di = Directory.CreateDirectory($"{folder}\\{defName}");
+                    DirectoryInfo di = Directory.CreateDirectory($@"{folder}\{defName}");
                     di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
                 }
             }
             else
             {
-                DirectoryInfo di = Directory.CreateDirectory($"{folder}\\{Settings.Default.defaultFolder}");
+                DirectoryInfo di = Directory.CreateDirectory($@"{folder}\{Settings.Default.DefaultFolderSettings}");
                 di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
             }
         }
@@ -446,7 +446,7 @@ namespace SaveAsPDF.Helpers
             }
             try
             {
-                Directory.Delete(folder + "\\", true);
+                Directory.Delete($@"{folder}\", true);
             }
             catch (Exception e)
             {
