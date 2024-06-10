@@ -2,7 +2,6 @@
 
 using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
-using SaveAsPDF.Properties;
 using System;
 using System.IO;
 using System.Reflection;
@@ -35,13 +34,13 @@ namespace SaveAsPDF
             tvProjectSubFolders.HideSelection = false;
             tvProjectSubFolders.PathSeparator = @"\";
 
-            txtRootFolder.Text = Settings.Default.RootDrive;
-            txtMinAttSize.Text = Settings.Default.MinAttachmentSize.ToString();
+            txtRootFolder.Text = frmMain.settingsModel.RootDrive;
+            txtMinAttSize.Text = frmMain.settingsModel.MinAttachmentSize.ToString();
             tvProjectSubFolders.LoadDefaultTree();
             tvProjectSubFolders.SelectedNode = tvProjectSubFolders.Nodes[0];
 
-            //TODO: reconsider the need for SettingsModel
-            //SettingsModel settingsModel = new SettingsModel();
+            //TODO: reconsider the need for settingsModel
+            //settingsModel settingsModel = new settingsModel();
             //List<string> fList = new List<string>();
 
             //foreach (TreeNode node in tvProjectSubFolders.Nodes)
@@ -53,7 +52,7 @@ namespace SaveAsPDF
             cmbDefaultFolder.Items.Clear();
 
             TreeHelper.TvNodesToCombo(cmbDefaultFolder, tvProjectSubFolders.Nodes[0]);
-            cmbDefaultFolder.SelectedIndex = Settings.Default.DefaultFolderID;
+            cmbDefaultFolder.SelectedIndex = frmMain.settingsModel.DefaultFolderID;
             _isDirty = false;
         }
 
@@ -147,32 +146,32 @@ namespace SaveAsPDF
             //TODO1: Save settings is wrong!!!!
             _isDirty = false;
 
-            Settings.Default.RootDrive = txtRootFolder.Text;
-            Settings.Default.MinAttachmentSize = int.Parse(txtMinAttSize.Text);
+            frmMain.settingsModel.RootDrive = txtRootFolder.Text;
+            frmMain.settingsModel.MinAttachmentSize = int.Parse(txtMinAttSize.Text);
 
             //save the new settings
             SaveDefaultTree();
-            Settings.Default.Save();
+            //settingsModel.Save();
+            SettingsHelpers.saveSettingsToModel();
         }
 
         private void btnSaveSettings_Click(object sender, EventArgs e)
         {
             SaveSettings();
+
         }
 
 
         private void btnFolders_Click(object sender, EventArgs e)
         {
-
             var Dialog = new FolderPicker();
 
-            Dialog.InputPath = Settings.Default.RootDrive;
+            Dialog.InputPath = frmMain.settingsModel.RootDrive;
 
             if (Dialog.ShowDialog(Handle) == true)
             {
                 _isDirty = true;
                 txtRootFolder.Text = Dialog.ResultPath;
-
             }
         }
 
@@ -184,13 +183,12 @@ namespace SaveAsPDF
 
         private void SaveDefaultTree()
         {
-
             Assembly assembly = Assembly.GetExecutingAssembly();
             string location = assembly.CodeBase;
             string fullPath = new Uri(location).LocalPath; // path including the dll 
             string directoryPath = Path.GetDirectoryName(fullPath); // directory path 
 
-            string defaultTreeFileName = $@"{directoryPath}\{Settings.Default.DefaultTreeFile}";
+            string defaultTreeFileName = $@"{directoryPath}\{frmMain.settingsModel.DefaultTreeFile}";
 
             TreeHelper.SaveTreeViewIntoFile(defaultTreeFileName, tvProjectSubFolders);
         }
@@ -236,7 +234,7 @@ namespace SaveAsPDF
         //private void btnDefaultTree_Click(object sender, System.EventArgs e)
         //{
         //    TreeHelper.RestTree(tvProjectSubFolders);
-        //    SettingsModel settingsModel = new SettingsModel();
+        //    settingsModel settingsModel = new settingsModel();
         //    List<string> fList = new List<string>();
 
         //    foreach (TreeNode node in tvProjectSubFolders.Nodes)
@@ -271,22 +269,22 @@ namespace SaveAsPDF
         private void menuAddDate_Click(object sender, EventArgs e)
         {
 
-            tvProjectSubFolders.AddNode(mySelectedNode, Settings.Default.DateTag);
+            tvProjectSubFolders.AddNode(mySelectedNode, frmMain.settingsModel.DateTag);
             _isDirty = true;
 
         }
 
         private void menuAppendDate_Click(object sender, EventArgs e)
         {
-            //tvProjectSubFolders.SelectedNode.Name += Settings.Default.dateTag;
-            TreeHelper.RenameNode(tvProjectSubFolders, mySelectedNode, mySelectedNode.Name + Settings.Default.DateTag);
+            //tvProjectSubFolders.SelectedNode.Name += settingsModel.dateTag;
+            TreeHelper.RenameNode(tvProjectSubFolders, mySelectedNode, mySelectedNode.Name + frmMain.settingsModel.DateTag);
         }
 
         private void cmbDefaultFolder_SelectedIndexChanged(object sender, EventArgs e)
         {
             //update settings 
-            Settings.Default.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
-            Settings.Default.DefaultFolderSettings = cmbDefaultFolder.Text;
+            frmMain.settingsModel.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
+            frmMain.settingsModel.ProjectRootFolders = cmbDefaultFolder.Text;
             _isDirty = true;
         }
 

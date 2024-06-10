@@ -2,7 +2,6 @@
 {
     public class SettingsModel
     {
-
         /// <summary>
         /// The main projectModel's root folder (or drive, i.e j:\ or c:\projects) 
         /// </summary>

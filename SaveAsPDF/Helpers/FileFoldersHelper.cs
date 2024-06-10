@@ -1,5 +1,4 @@
-﻿using SaveAsPDF.Properties;
-using System;
+﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -20,14 +19,14 @@ namespace SaveAsPDF.Helpers
         /// <returns> string representing the projectModel's path, default value is rootDrive</returns>
         public static DirectoryInfo ProjectFullPath(this string projectNumber)
         {
-            string rootDrive = Settings.Default.RootDrive;
+            string rootDrive = frmMain.settingsModel.RootDrive;
             string output = rootDrive;
             projectNumber = projectNumber.Trim();
 
             if (!projectNumber.SafeProjectID())
             {
                 //Default return: root drive.
-                output = Settings.Default.RootDrive;
+                output = frmMain.settingsModel.RootDrive;
             }
             else
             {
@@ -92,43 +91,13 @@ namespace SaveAsPDF.Helpers
             return new DirectoryInfo(output); ;
         }
 
-        //public static DirectoryInfo ProjectFullPath(this string projectNumber)
-        //{
-        //    if (!projectNumber.SafeProjectID())
-        //    {
-        //        // Default return: root drive.
-        //        return new DirectoryInfo(Settings.Default.rootDrive);
-        //    }
-        //    string[] split = projectNumber.Split('-');
-        //    string output = Settings.Default.rootDrive;
-        //    if (split.Length > 0)
-        //    {
-        //        string prefix = split[0].Length == 3 ? $"0{split[0]}".Substring(0, 2) : split[0].Substring(0, 2);
-        //        output += prefix;
-        //        if (Directory.Exists($"{output}\\{projectNumber}\\"))
-        //        {
-        //            output += $"\\{projectNumber}\\";
-        //        }
-        //        if (split.Length == 3)
-        //        {
-        //            if (!Directory.Exists($"{output}\\{split[0]}-{split[1]}\\{projectNumber}\\"))
-        //            {
-        //                //output += $"-{split[1]}";
-        //                output += $"\\{split[0]}-{split[1]}\\{projectNumber}\\";
-        //            }
-        //            else
-        //            {
-        //                output += $"\\{split[0]}-{split[1]}";
-        //            }
-        //        }
-        //    }
-        //    return new DirectoryInfo(output);
-        //  }
 
 
         /// <summary>
-        /// make sure the projectModel pattern is right
+        /// make sure the project number pattern is right format i.e.:
+        /// <list>
         /// XXX XXX-X XXX-XX XXXX XXXX-X XXXX-XX and so on XXXX-XX-XX 
+        /// </list>
         /// </summary>
         /// <param name="projectID"></param>
         /// <returns></returns>
@@ -142,7 +111,9 @@ namespace SaveAsPDF.Helpers
 
         /// <summary>
         /// Create a directory avoiding file system reserved names using SafeFileName() 
+        /// <list>
         /// Created by AI 
+        /// </list>
         /// </summary>
         /// <param name="baseFolderPath"></param>
         /// <param name="desiredFolderName"></param>
@@ -167,11 +138,11 @@ namespace SaveAsPDF.Helpers
 
         /// <summary>
         /// Create a directory 
+        /// <list>
         /// created by AI 
+        /// </list>
         /// </summary>
         /// <param name="path"></param>
-        /// 
-
         public static void CreateDirectoryRecursively(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -309,7 +280,7 @@ namespace SaveAsPDF.Helpers
             }
             else
             {
-                DirectoryInfo di = Directory.CreateDirectory($@"{folder}\{Settings.Default.DefaultFolderSettings}");
+                DirectoryInfo di = Directory.CreateDirectory($@"{frmMain.settingsModel.XmlSaveAsPDFFolder}");
                 di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
             }
         }

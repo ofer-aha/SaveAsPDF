@@ -3,7 +3,6 @@
 using Microsoft.Office.Interop.Outlook;
 using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
-using SaveAsPDF.Properties;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,6 +27,8 @@ namespace SaveAsPDF
 
         private bool dataLoaded = false;
 
+        public static SettingsModel settingsModel = new SettingsModel();
+
         public static TreeNode mySelectedNode;
 
         private static MailItem mi = null;
@@ -43,10 +44,21 @@ namespace SaveAsPDF
         {
             InitializeComponent();
 
-            //Load settings to SettingsModel 
+            //Load settings to settingsModel 
+            SettingsHelpers.loadSettingsToModel();
 
+            if (string.IsNullOrEmpty(settingsModel.RootDrive))
+            {
+                //TODO: handle first run 
+                MessageBox.Show("this is the first run");
+                var Dialog = new FolderPicker();
+                Dialog.InputPath = settingsModel.RootDrive;
 
-
+                if (Dialog.ShowDialog(Handle) == true)
+                {
+                    settingsModel.RootDrive = Dialog.InputPath;
+                }
+            }
 
             dgvEmployees.Columns[0].Visible = false;
             dgvEmployees.Columns[1].HeaderText = "שם פרטי";
@@ -159,7 +171,7 @@ namespace SaveAsPDF
 
             if (!sPath.Exists)
             {
-                Dialog.InputPath = Settings.Default.RootDrive;
+                Dialog.InputPath = settingsModel.RootDrive;
             }
             else
             {
@@ -200,17 +212,17 @@ namespace SaveAsPDF
         {
             // construct the full path for everything
             sPath = txtProjectID.Text.ProjectFullPath();
-            xmlSaveAsPdfFolder = new DirectoryInfo(Path.Combine(sPath.FullName, Settings.Default.xmlSaveAsPDFFolder));
-            xmlProjectFile = $@"{xmlSaveAsPdfFolder}{Settings.Default.xmlProjectFile}";
-            xmlEmploeeysFile = $@"{xmlSaveAsPdfFolder}{Settings.Default.xmlEmployeesFile}";
+            xmlSaveAsPdfFolder = new DirectoryInfo(Path.Combine(sPath.FullName, settingsModel.XmlSaveAsPDFFolder));
+            xmlProjectFile = $@"{xmlSaveAsPdfFolder}{settingsModel.XmlProjectFile}";
+            xmlEmploeeysFile = $@"{xmlSaveAsPdfFolder}{settingsModel.XmlEmployeesFile}";
 
             DateTime date = DateTime.Now;
 
-            txtSaveLocation.Text = Settings.Default.DefaultFolderSettings.Replace($@"{SettingsHelpers..ProjectRootTag}\", sPath.FullName);
+            txtSaveLocation.Text = settingsModel.ProjectRootFolders.Replace($@"{settingsModel.ProjectRootTag}\", sPath.FullName);
 
-            if (Settings.Default.DefaultFolderSettings.Contains(Settings.Default.DateTag))
+            if (settingsModel.ProjectRootFolders.Contains(settingsModel.DateTag))
             {
-                txtSaveLocation.Text = txtSaveLocation.Text.Replace(Settings.Default.DateTag, date.ToString("dd.MM.yyyy"));
+                txtSaveLocation.Text = txtSaveLocation.Text.Replace(settingsModel.DateTag, date.ToString("dd.MM.yyyy"));
             }
 
 
@@ -309,7 +321,7 @@ namespace SaveAsPDF
                 else
                 {
                     var Dialog = new FolderPicker();
-                    Dialog.InputPath = Settings.Default.RootDrive;
+                    Dialog.InputPath = settingsModel.RootDrive;
                     if (Dialog.ShowDialog(Handle) == true)
                     {
                         txtSaveLocation.Text = Dialog.ResultPath;
@@ -372,8 +384,9 @@ namespace SaveAsPDF
                 MessageBox.Show("open PDF =" + chbOpenPDF.Checked.ToString());
             }
 
-            Settings.Default.OpenPDF = chbOpenPDF.Checked;
-            Settings.Default.Save();
+            settingsModel.OpenPDF = chbOpenPDF.Checked;
+            //settingsModel.Save();
+            //TODO: save settings 
 
         }
         /// <summary>
@@ -586,8 +599,8 @@ namespace SaveAsPDF
             string fullpath = CurrentNode.FullPath;
             mySelectedNode = CurrentNode;
 
-            txtSaveLocation.Text = $@"{sPath.FullName.Trim('\\')}{Settings.Default.DefaultFolderSettings.Replace(
-                                     Settings.Default.ProjectRootTag, string.Empty)}";// no need the '\'
+            txtSaveLocation.Text = $@"{sPath.FullName.Trim('\\')}{settingsModel.ProjectRootFolders.Replace(
+                                     settingsModel.ProjectRootTag, string.Empty)}";// no need the '\'
         }
 
 
@@ -659,7 +672,7 @@ namespace SaveAsPDF
         private void chbOpenPDF_CheckedChanged(object sender, EventArgs e)
         {
             //TODO1: make sure it works 
-            Settings.Default.OpenPDF = chbOpenPDF.Checked;
+            settingsModel.OpenPDF = chbOpenPDF.Checked;
 
         }
 
