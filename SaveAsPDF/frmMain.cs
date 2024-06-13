@@ -47,7 +47,7 @@ namespace SaveAsPDF
             InitializeComponent();
 
             //Load settings to settingsModel 
-            SettingsHelpers.loadSettingsToModel();
+            SettingsHelpers.loadSettingsToModel(settingsModel);
 
             if (string.IsNullOrEmpty(settingsModel.RootDrive))
             {
@@ -689,7 +689,7 @@ namespace SaveAsPDF
 
         private void tvFolders_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            Process.Start($@"{frmMain.settingsModel.ProjectRootFolders.Parent.FullName}\{e.Node.FullPath}");
+            Process.Start($@"{settingsModel.ProjectRootFolders.Parent.FullName}\{e.Node.FullPath}");
         }
 
         private void tvFolders_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)

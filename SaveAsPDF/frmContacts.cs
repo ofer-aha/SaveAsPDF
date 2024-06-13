@@ -11,9 +11,9 @@ namespace SaveAsPDF
 {
     public partial class frmContacts : Form
     {
-
-        List<EmployeeModel> employees = new List<EmployeeModel>();
         private readonly IEmployeeRequester callingForm;
+        List<EmployeeModel> employees = new List<EmployeeModel>();
+
 
 
         public frmContacts(IEmployeeRequester caller)
@@ -88,47 +88,8 @@ namespace SaveAsPDF
 
         private void dgvContacs_DoubleClick(object sender, EventArgs e)
         {
+            btnOK_Click(sender, e);
 
-            try
-            {
-
-                EmployeeModel employee = new EmployeeModel();
-                if (dgvContacs.SelectedRows[0].Cells[1].Value == null)
-                {
-                    employee.FirstName = " ";
-                }
-                else
-                {
-                    employee.FirstName = dgvContacs.SelectedRows[0].Cells[1].Value.ToString();
-                }
-
-                if (dgvContacs.SelectedRows[0].Cells[2].Value == null)
-                {
-                    employee.LastName = " ";
-                }
-                else
-                {
-                    employee.LastName = dgvContacs.SelectedRows[0].Cells[2].Value.ToString();
-                }
-
-                if (dgvContacs.SelectedRows[0].Cells[3].Value == null)
-                {
-                    employee.EmailAddress = " ";
-                }
-                else
-                {
-                    employee.EmailAddress = dgvContacs.SelectedRows[0].Cells[3].Value.ToString();
-                }
-
-                callingForm.EmployeeComplete(employee);
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-            Close();
 
         }
 
@@ -142,5 +103,9 @@ namespace SaveAsPDF
 
         }
 
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }

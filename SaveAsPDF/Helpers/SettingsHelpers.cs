@@ -59,22 +59,22 @@ namespace SaveAsPDF.Helpers
         /// <summary>
         /// Save the settingsModel to Settings.Settings 
         /// </summary>
-        public static void saveModelToSettings()
+        public static void saveModelToSettings(SettingsModel settingsModel)
         {
-            Settings.Default.RootDrive = frmMain.settingsModel.RootDrive;
-            Settings.Default.xmlSaveAsPDFFolder = frmMain.settingsModel.XmlSaveAsPDFFolder;
-            Settings.Default.xmlProjectFile = frmMain.settingsModel.XmlProjectFile;
-            Settings.Default.xmlEmployeesFile = frmMain.settingsModel.XmlEmployeesFile;
-            Settings.Default.DefaultTreeFile = frmMain.settingsModel.DefaultTreeFile;
-            Settings.Default.DefaultSavePath = frmMain.settingsModel.DefaultSavePath;
-            Settings.Default.MinAttachmentSize = frmMain.settingsModel.MinAttachmentSize;
-            Settings.Default.DateTag = frmMain.settingsModel.DateTag;
-            Settings.Default.DefaultFolderID = frmMain.settingsModel.DefaultFolderID;
-            Settings.Default.ProjectRootTag = frmMain.settingsModel.ProjectRootTag;
-            Settings.Default.OpenPDF = frmMain.settingsModel.OpenPDF;
-            Settings.Default.LastProjects = frmMain.settingsModel.LastProjects;
-            Settings.Default.LastProjectsCount = frmMain.settingsModel.LastProjectsCount;
-            Settings.Default.sProjectRootFolders = frmMain.settingsModel.ProjectRootFolders.ToString();
+            Settings.Default.RootDrive = settingsModel.RootDrive;
+            Settings.Default.xmlSaveAsPDFFolder = settingsModel.XmlSaveAsPDFFolder;
+            Settings.Default.xmlProjectFile = settingsModel.XmlProjectFile;
+            Settings.Default.xmlEmployeesFile = settingsModel.XmlEmployeesFile;
+            Settings.Default.DefaultTreeFile = settingsModel.DefaultTreeFile;
+            Settings.Default.DefaultSavePath = settingsModel.DefaultSavePath;
+            Settings.Default.MinAttachmentSize = settingsModel.MinAttachmentSize;
+            Settings.Default.DateTag = settingsModel.DateTag;
+            Settings.Default.DefaultFolderID = settingsModel.DefaultFolderID;
+            Settings.Default.ProjectRootTag = settingsModel.ProjectRootTag;
+            Settings.Default.OpenPDF = settingsModel.OpenPDF;
+            Settings.Default.LastProjects = settingsModel.LastProjects;
+            Settings.Default.LastProjectsCount = settingsModel.LastProjectsCount;
+            Settings.Default.sProjectRootFolders = settingsModel.ProjectRootFolders.ToString();
 
 
         }
