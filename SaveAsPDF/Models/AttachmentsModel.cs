@@ -8,7 +8,7 @@
         /// </summary>
         public int attachmentId { get; set; }
         /// <summary>
-        /// The checkedbox in the dataGridView. Default: True
+        /// The checked-box in the dataGridView. Default: True
         /// </summary>
         public bool isChecked { get; set; } = true;
         /// <summary>

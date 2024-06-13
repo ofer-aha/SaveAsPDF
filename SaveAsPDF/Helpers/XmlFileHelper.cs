@@ -38,7 +38,7 @@ namespace SaveAsPDF.Helpers
 
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
-            // Save the document to a file and auto-indent the output.
+            // Save the document to a file and auto-indent the employeesModel.
             XmlWriter writer = XmlWriter.Create(path, settings);
 
             try
@@ -58,48 +58,42 @@ namespace SaveAsPDF.Helpers
         /// <param name="path">File Name as string</param>
         public static void EmployeesModelToXmlFile(this string path, List<EmployeeModel> employees)
         {
+            XmlDocument xmlDocument = new XmlDocument();
+            XmlNode docNode = xmlDocument.CreateXmlDeclaration("1.0", "UTF-8", null);
+            xmlDocument.AppendChild(docNode);
 
-            XmlDocument doc = new XmlDocument();
-            XmlNode docNode = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
-            doc.AppendChild(docNode);
-
-            XmlNode employeesNode = doc.CreateElement("Employees");
-            doc.AppendChild(employeesNode);
+            XmlNode employeesNode = xmlDocument.CreateElement("Employees");
+            xmlDocument.AppendChild(employeesNode);
 
             foreach (EmployeeModel employee in employees)
             {
-
-                XmlNode employeeNode = doc.CreateElement("Employee");
+                XmlNode employeeNode = xmlDocument.CreateElement("Employee");
                 employeesNode.AppendChild(employeeNode);
 
-                XmlNode idNode = doc.CreateElement("ID");
-                idNode.AppendChild(doc.CreateTextNode(employee.Id.ToString()));
+                XmlNode idNode = xmlDocument.CreateElement("ID");
+                idNode.AppendChild(xmlDocument.CreateTextNode(employee.Id.ToString()));
                 employeeNode.AppendChild(idNode);
 
-                XmlNode firstNameNode = doc.CreateElement("FirstName");
-                firstNameNode.AppendChild(doc.CreateTextNode(employee.FirstName));
+                XmlNode firstNameNode = xmlDocument.CreateElement("FirstName");
+                firstNameNode.AppendChild(xmlDocument.CreateTextNode(employee.FirstName));
                 employeeNode.AppendChild(firstNameNode);
 
-                XmlNode lastNameNode = doc.CreateElement("LastName");
-                lastNameNode.AppendChild(doc.CreateTextNode(employee.LastName));
+                XmlNode lastNameNode = xmlDocument.CreateElement("LastName");
+                lastNameNode.AppendChild(xmlDocument.CreateTextNode(employee.LastName));
                 employeeNode.AppendChild(lastNameNode);
 
-                XmlNode emailAddressNode = doc.CreateElement("EmailAddress");
-                emailAddressNode.AppendChild(doc.CreateTextNode(employee.EmailAddress));
+                XmlNode emailAddressNode = xmlDocument.CreateElement("EmailAddress");
+                emailAddressNode.AppendChild(xmlDocument.CreateTextNode(employee.EmailAddress));
                 employeeNode.AppendChild(emailAddressNode);
-
-
             }
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
-            // Save the document to a file and auto-indent the output.
+            // Save the document to a file and auto-indent the employeesModel.
             XmlWriter writer = XmlWriter.Create(path, settings);
-
             try
             {
-                doc.Save(writer);
+                xmlDocument.Save(writer);
             }
-
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "SaveAsPDF:EmployeesModelToXmlFile");
@@ -113,7 +107,7 @@ namespace SaveAsPDF.Helpers
         /// <returns>ProjectModel</returns>
         public static ProjectModel XmlProjectFileToModel(this string xmlFile)
         {
-            ProjectModel p = new ProjectModel();
+            ProjectModel projectModel = new ProjectModel();
             XmlDocument xmlDoc = new XmlDocument();
 
             try
@@ -130,11 +124,11 @@ namespace SaveAsPDF.Helpers
             XmlNodeList noteEmployee = xmlDoc.GetElementsByTagName("NoteEmployee");
             XmlNodeList projectNotes = xmlDoc.GetElementsByTagName("ProjectNotes");
 
-            p.ProjectName = projectName[0].InnerText;
-            p.NoteEmployee = bool.Parse(noteEmployee[0].InnerText);
-            p.ProjectNotes = projectNotes[0].InnerText;
+            projectModel.ProjectName = projectName[0].InnerText;
+            projectModel.NoteEmployee = bool.Parse(noteEmployee[0].InnerText);
+            projectModel.ProjectNotes = projectNotes[0].InnerText;
 
-            return p;
+            return projectModel;
         }
 
         /// <summary>
@@ -144,7 +138,7 @@ namespace SaveAsPDF.Helpers
         /// <returns>EmployeeModel</returns>
         public static List<EmployeeModel> XmlEmployeesFileToModel(this string xmlFile)
         {
-            List<EmployeeModel> output = new List<EmployeeModel>();
+            List<EmployeeModel> employeesModel = new List<EmployeeModel>();
             XmlDocument xmlDoc = new XmlDocument();
             try
             {
@@ -169,18 +163,18 @@ namespace SaveAsPDF.Helpers
                     LastName = LastName[i].InnerXml.ToString(),
                     EmailAddress = EmailAddress[i].InnerXml.ToString()
                 };
-                output.Add(em);
+                employeesModel.Add(em);
             }
 
             //xmlDoc.Save(xmlFile);
-            return output;
+            return employeesModel;
         }
 
         //public static List<string> XmlEmlpoyeesFileToList(this string xmlFile)
         //{
         //    List<EmployeeModel> e = new List<EmployeeModel>();
 
-        //    List<string> output = new List<string>();
+        //    List<string> employeesModel = new List<string>();
         //    XmlDocument xmlDoc = new XmlDocument();
 
         //    try
@@ -206,9 +200,9 @@ namespace SaveAsPDF.Helpers
         //            EmailAddress = EmailAddress[i].InnerText
         //        };
         //        e.Add(em);
-        //        output.Add(em.FullName);
+        //        employeesModel.Add(em.FullName);
         //    }
-        //    return output;
+        //    return employeesModel;
         //}
 
 

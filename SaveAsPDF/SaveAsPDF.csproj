@@ -245,6 +245,7 @@
     <Compile Include="Helpers\OutlookProcessor.cs" />
     <Compile Include="IEmployeeRequester.cs" />
     <Compile Include="INewProjectRequester.cs" />
+    <Compile Include="ISettingsRequester.cs" />
     <Compile Include="Models\AttachmentsModel.cs" />
     <Compile Include="Models\DocumentModel.cs" />
     <Compile Include="Models\EmployeeModel.cs" />
@@ -352,6 +353,7 @@
     <None Include="Resources\min_big.PNG" />
     <None Include="Resources\min_small.PNG" />
     <None Include="Resources\MyComputer.bmp" />
+    <None Include="Resources\error.jpg" />
     <Content Include="Resources\SaveAsPDF32.ico" />
   </ItemGroup>
   <ItemGroup>

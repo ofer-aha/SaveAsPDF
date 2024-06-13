@@ -1,4 +1,5 @@
-﻿using SaveAsPDF.Helpers;
+﻿// Ignore Spelling: frm מפשחה הכל יש לבחור הודעות דואר אלקטרוני בלבד אימייל הסר הכול שם קובץ גודל יש לבחור הודעות דואר אלקטרוני בלבד ההודעה נשמרה ב  תאריך  שמירה  שם הפרויקט  מס פרויקט  הערות  שם משתמש בחר  הסר  מספר פרויקט כפי שמופיע במסטרפלן שם לא חוקי  אין להשתמש בתווים הבאים  עריכת שם שם לא חוקי לא ניתן ליצור שם ריק חובה תו אחד לפחות עריכת שם מספר פרויקט לא חוקי
+using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,6 @@ namespace SaveAsPDF
         private void LoadSettings()
         {
             tvDefaultSubFolders.LoadDefaultTree();
-
         }
 
         private void btmNewProject_Click(object sender, EventArgs e)
@@ -39,7 +39,7 @@ namespace SaveAsPDF
                     ProjectNotes = txtProjectNotes.Text
                 };
 
-                //create the projectModel's subfolders 
+                //create the projectModel's sub-folders 
 
                 subFolfers = TreeHelper.ListNodesPath(tvDefaultSubFolders.Nodes[0]);
                 foreach (string subFolder in subFolfers)
@@ -137,6 +137,45 @@ namespace SaveAsPDF
         private void tvDefaultSubFolders_AfterSelect(object sender, TreeViewEventArgs e)
         {
             mySelectedNode = tvDefaultSubFolders.SelectedNode;
+        }
+
+        private void frmNewProject_Load(object sender, EventArgs e)
+        {
+            //TODO: default values? 
+        }
+
+        private void txtProjectId_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!FileFoldersHelper.SafeProjectID(txtProjectId.Text))
+            {
+                e.Cancel = true;
+                txtProjectId.Select(0, txtProjectId.Text.Length);
+                txtProjectId.BackColor = System.Drawing.Color.Red;
+                this.toolStripStatusLabel.Text = "מספר פרויקט לא חוקי";
+            }
+        }
+
+        private void txtProjectId_Validated(object sender, EventArgs e)
+        {
+            txtProjectId.BackColor = System.Drawing.Color.White;
+            toolStripStatusLabel.Text = string.Empty;
+        }
+
+        private void txtProjectName_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (txtProjectName.Text.Trim().Length == 0)
+            {
+                e.Cancel = true;
+                txtProjectName.Select(0, txtProjectId.Text.Length);
+                txtProjectName.BackColor = System.Drawing.Color.Red;
+                toolStripStatusLabel.Text = "שם פרויקט לא חוקי";
+            }
+        }
+
+        private void txtProjectName_Validated(object sender, EventArgs e)
+        {
+            txtProjectName.BackColor = System.Drawing.Color.White;
+            toolStripStatusLabel.Text = string.Empty;
         }
     }
 

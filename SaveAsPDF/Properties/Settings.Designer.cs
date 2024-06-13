@@ -170,18 +170,18 @@ namespace SaveAsPDF.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string ProjectRootFolders {
+        public string sProjectRootFolders {
             get {
-                return ((string)(this["ProjectRootFolders"]));
+                return ((string)(this["sProjectRootFolders"]));
             }
             set {
-                this["ProjectRootFolders"] = value;
+                this["sProjectRootFolders"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("מכתבים\\")]
         public string DefaultSavePath {
             get {
                 return ((string)(this["DefaultSavePath"]));

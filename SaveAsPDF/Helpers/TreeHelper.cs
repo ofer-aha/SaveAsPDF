@@ -1,5 +1,4 @@
-﻿using SaveAsPDF.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -132,7 +131,6 @@ namespace SaveAsPDF.Helpers
                 if (!mySelectedNode.IsEditing)
                 {
                     mySelectedNode.BeginEdit();
-
                 }
             }
             else
@@ -183,7 +181,7 @@ namespace SaveAsPDF.Helpers
                     treeView.SelectedNode = mySelectedNode;
                     mySelectedNode.Expand();
 
-                    if (lable != Settings.Default.DateTag)
+                    if (lable != frmMain.settingsModel.DateTag)
                     {
                         treeView.RenameNode(mySelectedNode);
                     }
@@ -211,7 +209,11 @@ namespace SaveAsPDF.Helpers
 
             }
         }
-
+        /// <summary>
+        /// Delete a node from treeview 
+        /// </summary>
+        /// <param name="treeView"></param>
+        /// <param name="mySelectedNode"></param>
         public static void DelNode(this TreeView treeView, TreeNode mySelectedNode)
         {
             TreeNode node = treeView.SelectedNode;
@@ -222,9 +224,8 @@ namespace SaveAsPDF.Helpers
             }
             else
             {
-                MessageBox.Show("Root node");
+                MessageBox.Show("Can not delete node: Root node");
             }
-
         }
 
         /// <summary>
@@ -243,7 +244,6 @@ namespace SaveAsPDF.Helpers
                 }
             }
             return output;
-
         }
 
         /// <summary>
@@ -254,12 +254,10 @@ namespace SaveAsPDF.Helpers
         public static List<string> ListNodesPath(TreeNode oParentNode)
         {
             List<string> list = new List<string>();
-
             if (oParentNode.Nodes.Count == 0)
             {
                 list.Add(oParentNode.FullPath);
             }
-
             // Start recursion on all sub-nodes.
             foreach (TreeNode oSubNode in oParentNode.Nodes)
             {
@@ -286,8 +284,6 @@ namespace SaveAsPDF.Helpers
 
         }
 
-
-
         /// <summary>
         /// Write this node's subtree into the StringBuilder.
         /// </summary>
@@ -303,8 +299,6 @@ namespace SaveAsPDF.Helpers
             foreach (TreeNode child in node.Nodes)
                 WriteNodeIntoString(level + 1, child, sb);
         }
-
-
 
         /// <summary>
         /// Write the TreeView's values into a file that uses tabs
@@ -326,7 +320,7 @@ namespace SaveAsPDF.Helpers
 
 
         /// <summary>
-        /// 
+        /// Treeview to list string 
         /// </summary>
         /// <param name="treeView"></param>
         /// <returns></returns>
@@ -337,7 +331,6 @@ namespace SaveAsPDF.Helpers
             {
                 list.Add(node.FullPath);
             }
-
             return (list);
         }
 
@@ -351,12 +344,9 @@ namespace SaveAsPDF.Helpers
         {
             // Get the file's contents.
             string file_contents = File.ReadAllText(file_name);
-
-
             // Process the lines.
             trv.Nodes.Clear();
             Dictionary<int, TreeNode> parents = new Dictionary<int, TreeNode>();
-
 
             // Break the file into lines.
             string[] lines = file_contents.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -387,8 +377,7 @@ namespace SaveAsPDF.Helpers
             string fullPath = new Uri(location).LocalPath; // path including the dll 
             string directoryPath = Path.GetDirectoryName(fullPath); // directory path 
 
-            string defaultTreeFileName = directoryPath + "\\" + Settings.Default.DefaultTreeFile;
-
+            string defaultTreeFileName = $"{directoryPath}\\{frmMain.settingsModel.DefaultTreeFile}";
 
             if (File.Exists(defaultTreeFileName))
             {
@@ -425,7 +414,7 @@ namespace SaveAsPDF.Helpers
             }
         }
         /// <summary>
-        /// 
+        /// Populate the tree view 
         /// </summary>
         /// <param name="parentNode"></param>
         /// <param name="directory"></param>
@@ -446,7 +435,7 @@ namespace SaveAsPDF.Helpers
             }
         }
         /// <summary>
-        /// 
+        ///  Populate the tree view 
         /// </summary>
         /// <param name="treeView"></param>
         /// <param name="paths"></param>
@@ -493,11 +482,12 @@ namespace SaveAsPDF.Helpers
             {
                 currentNode = nodes.Cast<TreeNode>().FirstOrDefault(n => n.Text == nodeName);
                 if (currentNode == null)
+                {
                     break;
+                }
                 nodes = currentNode.Nodes;
             }
             return currentNode;
         }
-
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace SaveAsPDF.Models
+﻿using System.IO;
+
+namespace SaveAsPDF.Models
 {
     public class SettingsModel
     {
@@ -15,7 +17,7 @@
         /// </summary>
         public string XmlProjectFile { get; set; }
         /// <summary>
-        /// The file name for the employees XML file 
+        /// The file name for the employeesModel XML file 
         /// </summary>
         public string XmlEmployeesFile { get; set; }
         /// <summary>
@@ -57,11 +59,9 @@
         /// default = 10 
         /// </summary>
         public int LastProjectsCount { get; set; }
-
         /// <summary>
         /// The project's root folder
         /// </summary>
-        public string ProjectRootFolders { get; set; }
-
+        public DirectoryInfo ProjectRootFolders { get; set; }
     }
 }

@@ -121,6 +121,9 @@
   <data name="btnCancel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom</value>
   </data>
+  <data name="btnCancel.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="btnCancel.Location" type="System.Drawing.Point, System.Drawing">
     <value>617, 488</value>
@@ -174,6 +177,9 @@
   <data name="lblProjectID.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
+  <data name="lblProjectID.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
   <data name="lblProjectID.Location" type="System.Drawing.Point, System.Drawing">
     <value>12, 34</value>
   </data>
@@ -212,7 +218,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAAB0
-        DwAAAk1TRnQBSQFMAgEBCAEAATABAQEwAQEBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        DwAAAk1TRnQBSQFMAgEBCAEAAUgBAQFIAQEBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABQAMAATADAAEBAQABCAYAAQwYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -284,6 +290,9 @@
   <data name="lblSubject.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
+  <data name="lblSubject.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
   <data name="lblSubject.Location" type="System.Drawing.Point, System.Drawing">
     <value>12, 4</value>
   </data>
@@ -317,6 +326,9 @@
   <data name="btnOK.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom</value>
   </data>
+  <data name="btnOK.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
   <data name="btnOK.Location" type="System.Drawing.Point, System.Drawing">
     <value>159, 488</value>
   </data>
@@ -343,6 +355,9 @@
   </data>
   <data name="btnSettings.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom</value>
+  </data>
+  <data name="btnSettings.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
   </data>
   <data name="btnSettings.Location" type="System.Drawing.Point, System.Drawing">
     <value>388, 488</value>
@@ -488,6 +503,9 @@
   <metadata name="dlgFolders.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>202, 17</value>
   </metadata>
+  <data name="btnNewProject.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
   <data name="btnNewProject.Location" type="System.Drawing.Point, System.Drawing">
     <value>288, 31</value>
   </data>
@@ -634,6 +652,9 @@
   </data>
   <data name="&gt;&gt;rtxtProjectNotes.ZOrder" xml:space="preserve">
     <value>0</value>
+  </data>
+  <data name="btnCopyNotesToMail.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
   </data>
   <data name="btnCopyNotesToMail.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 3</value>
@@ -1406,6 +1427,9 @@
   <data name="&gt;&gt;lblSaveLocation.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
+  <data name="chbOpenPDF.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
   <data name="chbOpenPDF.Location" type="System.Drawing.Point, System.Drawing">
     <value>159, 512</value>
   </data>
@@ -1430,11 +1454,17 @@
   <data name="&gt;&gt;chbOpenPDF.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
+  <data name="picBoxProjectID.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
   <data name="picBoxProjectID.Location" type="System.Drawing.Point, System.Drawing">
     <value>220, 32</value>
   </data>
   <data name="picBoxProjectID.Size" type="System.Drawing.Size, System.Drawing">
-    <value>32, 22</value>
+    <value>22, 22</value>
+  </data>
+  <data name="picBoxProjectID.SizeMode" type="System.Windows.Forms.PictureBoxSizeMode, System.Windows.Forms">
+    <value>StretchImage</value>
   </data>
   <data name="picBoxProjectID.TabIndex" type="System.Int32, mscorlib">
     <value>43</value>

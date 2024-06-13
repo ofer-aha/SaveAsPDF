@@ -100,10 +100,10 @@ namespace SaveAsPDF
             // 
             resources.ApplyResources(this.txtProjectID, "txtProjectID");
             this.txtProjectID.Name = "txtProjectID";
-            this.txtProjectID.MouseClick += new System.Windows.Forms.MouseEventHandler(this.txtProjectID_MouseClick);
-            this.txtProjectID.TextChanged += new System.EventHandler(this.txtProjectID_TextChanged);
             this.txtProjectID.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtProjectID_KeyDown);
             this.txtProjectID.MouseHover += new System.EventHandler(this.txtProjectID_MouseHover);
+            this.txtProjectID.Validating += new System.ComponentModel.CancelEventHandler(this.txtProjectID_Validating);
+            this.txtProjectID.Validated += new System.EventHandler(this.txtProjectID_Validated);
             // 
             // lblProjectID
             // 
@@ -401,7 +401,7 @@ namespace SaveAsPDF
             // 
             // picBoxProjectID
             // 
-            this.picBoxProjectID.Image = global::SaveAsPDF.Properties.Resources.close_big;
+            this.picBoxProjectID.Image = global::SaveAsPDF.Properties.Resources.error;
             resources.ApplyResources(this.picBoxProjectID, "picBoxProjectID");
             this.picBoxProjectID.Name = "picBoxProjectID";
             this.picBoxProjectID.TabStop = false;

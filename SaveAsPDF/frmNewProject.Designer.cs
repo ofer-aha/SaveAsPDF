@@ -46,7 +46,10 @@ namespace SaveAsPDF
             this.label1 = new System.Windows.Forms.Label();
             this.lblDefaultFoldersTree = new System.Windows.Forms.Label();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuTree.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtProjectName
@@ -55,6 +58,8 @@ namespace SaveAsPDF
             this.txtProjectName.Name = "txtProjectName";
             this.txtProjectName.Size = new System.Drawing.Size(241, 20);
             this.txtProjectName.TabIndex = 1;
+            this.txtProjectName.Validating += new System.ComponentModel.CancelEventHandler(this.txtProjectName_Validating);
+            this.txtProjectName.Validated += new System.EventHandler(this.txtProjectName_Validated);
             // 
             // lblProjectName
             // 
@@ -82,6 +87,8 @@ namespace SaveAsPDF
             this.txtProjectId.Name = "txtProjectId";
             this.txtProjectId.Size = new System.Drawing.Size(241, 20);
             this.txtProjectId.TabIndex = 0;
+            this.txtProjectId.Validating += new System.ComponentModel.CancelEventHandler(this.txtProjectId_Validating);
+            this.txtProjectId.Validated += new System.EventHandler(this.txtProjectId_Validated);
             // 
             // tvDefaultSubFolders
             // 
@@ -143,7 +150,7 @@ namespace SaveAsPDF
             // 
             // btmNewProject
             // 
-            this.btmNewProject.Location = new System.Drawing.Point(261, 329);
+            this.btmNewProject.Location = new System.Drawing.Point(258, 316);
             this.btmNewProject.Name = "btmNewProject";
             this.btmNewProject.Size = new System.Drawing.Size(126, 23);
             this.btmNewProject.TabIndex = 3;
@@ -181,7 +188,7 @@ namespace SaveAsPDF
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(402, 329);
+            this.btnCancel.Location = new System.Drawing.Point(402, 316);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(126, 23);
             this.btnCancel.TabIndex = 4;
@@ -189,11 +196,28 @@ namespace SaveAsPDF
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
+            // statusStrip
+            // 
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel});
+            this.statusStrip.Location = new System.Drawing.Point(0, 342);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(743, 22);
+            this.statusStrip.TabIndex = 12;
+            this.statusStrip.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel
+            // 
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel.Text = "toolStripStatusLabel1";
+            // 
             // frmNewProject
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(743, 364);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.lblDefaultFoldersTree);
             this.Controls.Add(this.label1);
@@ -213,7 +237,10 @@ namespace SaveAsPDF
             this.RightToLeftLayout = true;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "פרויקט חדש";
+            this.Load += new System.EventHandler(this.frmNewProject_Load);
             this.menuTree.ResumeLayout(false);
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -236,5 +263,7 @@ namespace SaveAsPDF
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lblDefaultFoldersTree;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Office.Interop.Outlook;
 using Microsoft.Office.Interop.Word;
 using SaveAsPDF.Models;
-using SaveAsPDF.Properties;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,8 +14,6 @@ namespace SaveAsPDF.Helpers
 {
     public static class OfficeHelpers
     {
-
-
         /// <summary>
         /// Create an attachments list 
         /// </summary>
@@ -26,7 +23,7 @@ namespace SaveAsPDF.Helpers
         {
             List<AttachmentsModel> output = new List<AttachmentsModel>();
             int i = 0;
-            foreach (Outlook.Attachment attachment in email.Attachments)
+            foreach (Attachment attachment in email.Attachments)
             {
                 i += 1;
                 AttachmentsModel att = new AttachmentsModel
@@ -36,12 +33,10 @@ namespace SaveAsPDF.Helpers
                     fileName = attachment.FileName,
                     fileSize = attachment.Size.BytesToString()
                 };
-
-                if (attachment.Size >= Settings.Default.MinAttachmentSize)
+                if (attachment.Size >= frmMain.settingsModel.MinAttachmentSize)
                 {
                     output.Add(att);
                 }
-
             }
             return output;
         }
@@ -53,7 +48,6 @@ namespace SaveAsPDF.Helpers
         public static List<EmployeeModel> DgvEmployeesToModel(this DataGridView dgv)
         {
             List<EmployeeModel> output = new List<EmployeeModel>();
-
             foreach (DataGridViewRow row in dgv.Rows)
             {
                 EmployeeModel e = new EmployeeModel
@@ -75,7 +69,6 @@ namespace SaveAsPDF.Helpers
         /// <returns></returns>
         public static string dgvEmployeesToString(this DataGridView dgv)
         {
-
             string output = "<tr style=\"text-align:center\"><th colspan=\"3\">מתכנן אחראי</th></tr>" +
                             "<tr style=\"text-align:center\"><th>אימייל</th><th>שם משפחה</th><th>שם פרטי</th></tr>";
 
@@ -96,7 +89,7 @@ namespace SaveAsPDF.Helpers
         /// <param name="path"></param>
         //public static void SaveToPDF(this MailItem mailItem, string path)
         //{
-        //    //cretae temp file name with uniq time stamp 
+        //    //create temp file name with unique time stamp 
         //    string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
         //    string tFilename = $@"{Path.GetTempPath()}{timeStamp}.mht";
 
@@ -114,7 +107,7 @@ namespace SaveAsPDF.Helpers
         /// <summary>
         /// created by AI
         /// Converts the .MHT file now saved to the user's temp directory 
-        /// to PDF format and saves it to the users choosen path 
+        /// to PDF format and saves it to the users chosen path 
         /// </summary>
         /// <param name="mailItem"></param>
         /// <param name="outputPath"></param>
@@ -151,9 +144,6 @@ namespace SaveAsPDF.Helpers
             }
         }
 
-
-
-
         /// <summary>
         /// Converts the .MHT file now saved to the user's temp directory 
         /// to PDF format and saves it to the users choosen path 
@@ -184,7 +174,7 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// Convert List of Attchments to List of String 
+        /// Convert List of Attachments to List of String 
         /// </summary>
         /// <param name="attachments"></param>
         /// <returns></returns>
@@ -196,12 +186,8 @@ namespace SaveAsPDF.Helpers
             {
                 output.Add($",{Att.FileName},{Att.Size.BytesToString()}");
             }
-
             return output;
         }
-
-
-
 
         /// <summary>
         /// List attachments to string 
@@ -212,7 +198,6 @@ namespace SaveAsPDF.Helpers
         public static string AttachmentsToString(this List<string> attachmentList, string path)
         {
             string output = string.Empty;
-
             if (attachmentList.Count == 0)
             {
                 output = "<tr style=\"text-align:center\"><td colspan=\"3\">לא נבחרו/נמצאו קבצים מצורפים לשמירה.</td></tr>";
@@ -234,14 +219,13 @@ namespace SaveAsPDF.Helpers
                     string[] t = Att.Split('|');
                     output += $"<tr style=\"text-align:left\"><td></td><td><a href='file://{Path.Combine(path, t[0])}'>{t[0]}</a></td><td>{t[1]}</td></tr>";
                 }
-
             }
 
             return output;
         }
 
         /// <summary>
-        /// Method to get all attachments that are NOT inline attachments (like images and stuff).
+        /// Method to get all attachments that are NOT in line attachments (like images and stuff).
         /// </summary>
         /// <param name="mailItem"></param>
         /// <returns></returns>

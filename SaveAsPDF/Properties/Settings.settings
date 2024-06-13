@@ -38,11 +38,11 @@
     <Setting Name="LastProjectsCount" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="ProjectRootFolders" Type="System.String" Scope="User">
+    <Setting Name="sProjectRootFolders" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="DefaultSavePath" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">מכתבים\</Value>
     </Setting>
   </Settings>
 </SettingsFile>

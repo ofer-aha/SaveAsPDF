@@ -60,6 +60,8 @@ namespace SaveAsPDF
             this.txtMinAttSize = new System.Windows.Forms.TextBox();
             this.lblMinAttSize = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.txtTreePath = new System.Windows.Forms.TextBox();
+            this.lblTreePath = new System.Windows.Forms.Label();
             this.menuTree.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBoxDefaultFolder.SuspendLayout();
@@ -193,6 +195,8 @@ namespace SaveAsPDF
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.lblTreePath);
+            this.groupBox1.Controls.Add(this.txtTreePath);
             this.groupBox1.Controls.Add(this.btnLoadDefaultTree);
             this.groupBox1.Controls.Add(this.tvProjectSubFolders);
             this.groupBox1.Controls.Add(this.btnSaveTreeFile);
@@ -207,7 +211,7 @@ namespace SaveAsPDF
             // 
             // btnLoadDefaultTree
             // 
-            this.btnLoadDefaultTree.Location = new System.Drawing.Point(219, 51);
+            this.btnLoadDefaultTree.Location = new System.Drawing.Point(219, 78);
             this.btnLoadDefaultTree.Name = "btnLoadDefaultTree";
             this.btnLoadDefaultTree.Size = new System.Drawing.Size(110, 23);
             this.btnLoadDefaultTree.TabIndex = 1;
@@ -220,7 +224,7 @@ namespace SaveAsPDF
             this.tvProjectSubFolders.ContextMenuStrip = this.menuTree;
             this.tvProjectSubFolders.ImageIndex = 0;
             this.tvProjectSubFolders.ImageList = this.imageList;
-            this.tvProjectSubFolders.Location = new System.Drawing.Point(6, 19);
+            this.tvProjectSubFolders.Location = new System.Drawing.Point(6, 46);
             this.tvProjectSubFolders.Name = "tvProjectSubFolders";
             this.tvProjectSubFolders.SelectedImageIndex = 0;
             this.tvProjectSubFolders.Size = new System.Drawing.Size(207, 214);
@@ -231,7 +235,7 @@ namespace SaveAsPDF
             // 
             // btnSaveTreeFile
             // 
-            this.btnSaveTreeFile.Location = new System.Drawing.Point(219, 107);
+            this.btnSaveTreeFile.Location = new System.Drawing.Point(219, 134);
             this.btnSaveTreeFile.Name = "btnSaveTreeFile";
             this.btnSaveTreeFile.Size = new System.Drawing.Size(110, 23);
             this.btnSaveTreeFile.TabIndex = 3;
@@ -241,7 +245,7 @@ namespace SaveAsPDF
             // 
             // btnLoadTreeFile
             // 
-            this.btnLoadTreeFile.Location = new System.Drawing.Point(219, 79);
+            this.btnLoadTreeFile.Location = new System.Drawing.Point(219, 106);
             this.btnLoadTreeFile.Name = "btnLoadTreeFile";
             this.btnLoadTreeFile.Size = new System.Drawing.Size(110, 23);
             this.btnLoadTreeFile.TabIndex = 2;
@@ -251,7 +255,7 @@ namespace SaveAsPDF
             // 
             // btnSaveDefaultTree
             // 
-            this.btnSaveDefaultTree.Location = new System.Drawing.Point(219, 23);
+            this.btnSaveDefaultTree.Location = new System.Drawing.Point(219, 50);
             this.btnSaveDefaultTree.Name = "btnSaveDefaultTree";
             this.btnSaveDefaultTree.Size = new System.Drawing.Size(110, 23);
             this.btnSaveDefaultTree.TabIndex = 0;
@@ -330,6 +334,23 @@ namespace SaveAsPDF
             this.lblMinAttSize.TabIndex = 0;
             this.lblMinAttSize.Text = "גודל מינימאלי לקבצים מצורפים:";
             // 
+            // txtTreePath
+            // 
+            this.txtTreePath.Location = new System.Drawing.Point(6, 17);
+            this.txtTreePath.Name = "txtTreePath";
+            this.txtTreePath.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.txtTreePath.Size = new System.Drawing.Size(206, 20);
+            this.txtTreePath.TabIndex = 16;
+            // 
+            // lblTreePath
+            // 
+            this.lblTreePath.AutoSize = true;
+            this.lblTreePath.Location = new System.Drawing.Point(262, 24);
+            this.lblTreePath.Name = "lblTreePath";
+            this.lblTreePath.Size = new System.Drawing.Size(70, 13);
+            this.lblTreePath.TabIndex = 17;
+            this.lblTreePath.Text = "מקום הקובץ";
+            // 
             // frmSettings
             // 
             this.ClientSize = new System.Drawing.Size(786, 327);
@@ -356,6 +377,7 @@ namespace SaveAsPDF
             this.Load += new System.EventHandler(this.frmSettings_Load);
             this.menuTree.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.groupBoxDefaultFolder.ResumeLayout(false);
             this.gbAttaments.ResumeLayout(false);
             this.gbAttaments.PerformLayout();
@@ -395,5 +417,7 @@ namespace SaveAsPDF
         private System.Windows.Forms.ToolStripMenuItem menuAddDate;
         private System.Windows.Forms.ToolStripMenuItem menuAppendDate;
         private System.Windows.Forms.ComboBox cmbDefaultFolder;
+        private System.Windows.Forms.TextBox txtTreePath;
+        private System.Windows.Forms.Label lblTreePath;
     }
 }

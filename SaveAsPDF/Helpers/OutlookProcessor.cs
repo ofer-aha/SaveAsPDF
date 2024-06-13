@@ -31,9 +31,7 @@ namespace SaveAsPDF.Helpers
                         employee.LastName = item.LastName;
 
                         output.Add(employee);
-
                     }
-
                 }
             }
             catch (System.Runtime.InteropServices.COMException ex)
@@ -48,18 +46,20 @@ namespace SaveAsPDF.Helpers
 
         public void EnumerateFoldersInDefaultStore()
         {
-            Outlook.Folder root = Globals.ThisAddIn.Application.Session.DefaultStore.GetRootFolder() as Outlook.Folder;
+            Folder root = Globals.ThisAddIn.Application.Session.DefaultStore.GetRootFolder() as Folder;
             EnumerateFolders(root);
         }
 
-        // Uses recursion to enumerate Outlook subfolders.
-        public void EnumerateFolders(Outlook.Folder folder)
+        /// <summary>
+        /// Uses recursion to enumerate Outlook sub-folders. 
+        /// </summary>
+        /// <param name="folder"></param>
+        public void EnumerateFolders(Folder folder)
         {
-            Outlook.Folders childFolders =
-                folder.Folders;
+            Folders childFolders = folder.Folders;
             if (childFolders.Count > 0)
             {
-                foreach (Outlook.Folder childFolder in childFolders)
+                foreach (Folder childFolder in childFolders)
                 {
                     // Write the folder path.
                     Debug.WriteLine(childFolder.FolderPath);
@@ -68,16 +68,17 @@ namespace SaveAsPDF.Helpers
                 }
             }
         }
-
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="findLastName"></param>
         public static void AccessContacts(string findLastName)
         {
-            Outlook.MAPIFolder folderContacts = Globals.ThisAddIn.Application.ActiveExplorer().Session.
-                GetDefaultFolder(Outlook.OlDefaultFolders.olFolderContacts);
-            Outlook.Items searchFolder = folderContacts.Items;
+            MAPIFolder folderContacts = Globals.ThisAddIn.Application.ActiveExplorer().Session.
+                GetDefaultFolder(OlDefaultFolders.olFolderContacts);
+            Items searchFolder = folderContacts.Items;
             int counter = 0;
-            foreach (Outlook.ContactItem foundContact in searchFolder)
+            foreach (ContactItem foundContact in searchFolder)
             {
                 if (foundContact.LastName.Contains(findLastName))
                 {
@@ -85,22 +86,20 @@ namespace SaveAsPDF.Helpers
                     counter = counter + 1;
                 }
             }
-            MessageBox.Show("You have " + counter +
-                " contacts with last names that contain "
-                + findLastName + ".");
+            MessageBox.Show($"You have {counter} contacts with last names that contain {findLastName}.");
         }
 
         public static void FindContact(string inString)
         {
-            Outlook.NameSpace outlookNameSpace = Globals.ThisAddIn.Application.GetNamespace("MAPI");
-            Outlook.MAPIFolder contactsFolder = outlookNameSpace.GetDefaultFolder(Microsoft.Office.Interop.Outlook.OlDefaultFolders.olFolderContacts);
+            NameSpace outlookNameSpace = Globals.ThisAddIn.Application.GetNamespace("MAPI");
+            MAPIFolder contactsFolder = outlookNameSpace.GetDefaultFolder(OlDefaultFolders.olFolderContacts);
 
-            Outlook.Items contactItems = contactsFolder.Items;
+            Items contactItems = contactsFolder.Items;
 
             try
             {
                 //Outlook.ContactItem contact = (Outlook.ContactItem)contactItems.Find(String.Format($"[FirstName]='{firstName.Trim()}'"));
-                Outlook.ContactItem contact = (Outlook.ContactItem)contactItems.Find(inString.Trim());
+                ContactItem contact = (ContactItem)contactItems.Find(inString.Trim());
                 if (contact != null)
                 {
                     contact.Display(true);

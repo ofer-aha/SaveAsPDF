@@ -109,32 +109,6 @@ namespace SaveAsPDF.Helpers
             return Regex.IsMatch(projectID, pattern);
         }
 
-        /// <summary>
-        /// Create a directory avoiding file system reserved names using SafeFileName() 
-        /// <list>
-        /// Created by AI 
-        /// </list>
-        /// </summary>
-        /// <param name="baseFolderPath"></param>
-        /// <param name="desiredFolderName"></param>
-        //public static void CreateSafeDirectory(this DirectoryInfo directoryInfo, string desiredFolderName)
-        //{
-        //    // Sanitize the folder name
-        //    string sanitizedFolderName;
-        //    sanitizedFolderName = desiredFolderName.SafeFolderName();
-
-
-        //    // Combine the base path with the sanitized folder name
-        //    string fullPath = Path.Combine(directoryInfo.FullName, sanitizedFolderName);
-
-        //    // Ensure the directory name is unique
-        //    fullPath = GetUniqueDirectoryPath(fullPath);
-
-        //    // Recursively create the directory
-        //    CreateDirectoryRecursively(fullPath);
-        //}
-        //TODO1: need to update back the Tree-View with the unique folder name 
-
 
         /// <summary>
         /// Create a directory 
@@ -211,7 +185,7 @@ namespace SaveAsPDF.Helpers
         /// </returns>
         private static string GetUniqueDirectoryPath(string path)
         {
-            int counter = 1;
+            int counter = 2;
             string uniquePath = path;
             string directoryName = Path.GetFileName(path);
             string directoryPath = Path.GetDirectoryName(path);
