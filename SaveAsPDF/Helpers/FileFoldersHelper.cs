@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Ignore Spelling: frm  הכל יש לבחור הודעות דואר אלקטרוני בלבד אימייל הסר הכול שם קובץ גודל יש לבחור הודעות דואר אלקטרוני בלבד ההודעה נשמרה ב  תאריך  שמירה  שם הפרויקט  מס פרויקט  הערות  שם משתמש בחר  הסר  מספר פרויקט כפי שמופיע במסטרפלן שם לא חוקי  אין להשתמש בתווים הבאים  עריכת שם שם לא חוקי לא ניתן ליצור שם ריק חובה תו אחד לפחות עריכת שם מספר פרויקט לא חוקי תקייה לא יכול להיות קיימת או
+
+using SaveAsPDF.Models;
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -11,22 +14,22 @@ namespace SaveAsPDF.Helpers
         /// <summary>
         /// Extension method: 
         /// <list>
-        /// Construct the full projectModel path based on the projectModel's number (NOT ID) 
-        /// so projectModel 1234 => j:\12\1234 
+        /// Construct the full _projectModel path based on the _projectModel's number (NOT ID) 
+        /// so _projectModel 1234 => j:\12\1234 
         /// </list>
         /// </summary>
-        /// <param name="projectNumber"> The projectModel name</param>
-        /// <returns> string representing the projectModel's path, default value is rootDrive</returns>
-        public static DirectoryInfo ProjectFullPath(this string projectNumber)
+        /// <param name="projectNumber"> The _projectModel name</param>
+        /// <returns> string representing the _projectModel's path, default value is rootDrive</returns>
+        public static DirectoryInfo ProjectFullPath(this string projectNumber, SettingsModel sm)
         {
-            string rootDrive = frmMain.settingsModel.RootDrive;
+            string rootDrive = sm.RootDrive;
             string output = rootDrive;
             projectNumber = projectNumber.Trim();
 
             if (!projectNumber.SafeProjectID())
             {
                 //Default return: root drive.
-                output = frmMain.settingsModel.RootDrive;
+                output = sm.RootDrive;
             }
             else
             {
@@ -46,7 +49,7 @@ namespace SaveAsPDF.Helpers
                 }
                 else
                 {
-                    //more complicated projectModel id: XXX-X or XXX-XX or XXX-X-XX well you catch my point....
+                    //more complicated _projectModel id: XXX-X or XXX-XX or XXX-X-XX well you catch my point....
                     string[] split = projectNumber.Split('-'); //split the projectid to parts
 
                     if (split[0].Length == 3)
@@ -254,7 +257,7 @@ namespace SaveAsPDF.Helpers
             }
             else
             {
-                DirectoryInfo di = Directory.CreateDirectory($@"{frmMain.settingsModel.XmlSaveAsPDFFolder}");
+                DirectoryInfo di = Directory.CreateDirectory($@"{SettingsHelpers.xmlSaveAsPDFFolder}");
                 di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
             }
         }

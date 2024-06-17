@@ -121,7 +121,7 @@ namespace SaveAsPDF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int DefaultFolderID {
             get {
                 return ((int)(this["DefaultFolderID"]));
@@ -145,7 +145,7 @@ namespace SaveAsPDF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1234")]
         public string LastProjects {
             get {
                 return ((string)(this["LastProjects"]));

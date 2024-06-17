@@ -27,13 +27,13 @@
       <Value Profile="(Default)">_מספר_פרויקט_</Value>
     </Setting>
     <Setting Name="DefaultFolderID" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1</Value>
+      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="OpenPDF" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="LastProjects" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">1234</Value>
     </Setting>
     <Setting Name="LastProjectsCount" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>

@@ -58,33 +58,33 @@ namespace SaveAsPDF
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lblTreePath = new System.Windows.Forms.Label();
             this.txtTreePath = new System.Windows.Forms.TextBox();
             this.btnLoadDefaultTree = new System.Windows.Forms.Button();
             this.tvProjectSubFolders = new System.Windows.Forms.TreeView();
-            this.btnSaveTreeFile = new System.Windows.Forms.Button();
+            this.btnSaveAsTreeFile = new System.Windows.Forms.Button();
             this.btnLoadTreeFile = new System.Windows.Forms.Button();
-            this.btnSaveDefaultTree = new System.Windows.Forms.Button();
-            this.txtSaveAsPDFFolder = new System.Windows.Forms.TextBox();
-            this.txtXmlProjectFile = new System.Windows.Forms.TextBox();
-            this.txtXmlEmployeesFile = new System.Windows.Forms.TextBox();
-            this.txtProjectRootTag = new System.Windows.Forms.TextBox();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.txtDateTag = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
+            this.txtProjectRootTag = new System.Windows.Forms.TextBox();
+            this.txtXmlEmployeesFile = new System.Windows.Forms.TextBox();
+            this.txtXmlProjectFile = new System.Windows.Forms.TextBox();
+            this.txtSaveAsPDFFolder = new System.Windows.Forms.TextBox();
+            this.btnSaveTreeFile = new System.Windows.Forms.Button();
             this.menuTree.SuspendLayout();
             this.groupBoxDefaultFolder.SuspendLayout();
             this.gbAttaments.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
             // bntCancel
@@ -321,35 +321,15 @@ namespace SaveAsPDF
             this.tabPage1.Text = "מבנה תקיות";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
-            // tabPage2
-            // 
-            this.tabPage2.Controls.Add(this.label6);
-            this.tabPage2.Controls.Add(this.label5);
-            this.tabPage2.Controls.Add(this.label4);
-            this.tabPage2.Controls.Add(this.label2);
-            this.tabPage2.Controls.Add(this.label1);
-            this.tabPage2.Controls.Add(this.txtDateTag);
-            this.tabPage2.Controls.Add(this.txtProjectRootTag);
-            this.tabPage2.Controls.Add(this.txtXmlEmployeesFile);
-            this.tabPage2.Controls.Add(this.txtXmlProjectFile);
-            this.tabPage2.Controls.Add(this.txtSaveAsPDFFolder);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(375, 289);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "הגדרות מתקדמות";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.btnSaveTreeFile);
             this.groupBox1.Controls.Add(this.lblTreePath);
             this.groupBox1.Controls.Add(this.txtTreePath);
             this.groupBox1.Controls.Add(this.btnLoadDefaultTree);
             this.groupBox1.Controls.Add(this.tvProjectSubFolders);
-            this.groupBox1.Controls.Add(this.btnSaveTreeFile);
+            this.groupBox1.Controls.Add(this.btnSaveAsTreeFile);
             this.groupBox1.Controls.Add(this.btnLoadTreeFile);
-            this.groupBox1.Controls.Add(this.btnSaveDefaultTree);
             this.groupBox1.Location = new System.Drawing.Point(15, 5);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(344, 272);
@@ -377,12 +357,13 @@ namespace SaveAsPDF
             // 
             // btnLoadDefaultTree
             // 
-            this.btnLoadDefaultTree.Location = new System.Drawing.Point(219, 78);
+            this.btnLoadDefaultTree.Location = new System.Drawing.Point(219, 46);
             this.btnLoadDefaultTree.Name = "btnLoadDefaultTree";
             this.btnLoadDefaultTree.Size = new System.Drawing.Size(110, 23);
             this.btnLoadDefaultTree.TabIndex = 1;
             this.btnLoadDefaultTree.Text = "טען ברירת מחדל";
             this.btnLoadDefaultTree.UseVisualStyleBackColor = true;
+            this.btnLoadDefaultTree.Click += new System.EventHandler(this.btnLoadDefaultTree_Click);
             // 
             // tvProjectSubFolders
             // 
@@ -394,74 +375,93 @@ namespace SaveAsPDF
             this.tvProjectSubFolders.SelectedImageIndex = 0;
             this.tvProjectSubFolders.Size = new System.Drawing.Size(207, 214);
             this.tvProjectSubFolders.TabIndex = 15;
+            this.tvProjectSubFolders.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.tvProjectSubFolders_AfterLabelEdit);
+            this.tvProjectSubFolders.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tvProjectSubFolders_MouseDown);
             // 
-            // btnSaveTreeFile
+            // btnSaveAsTreeFile
             // 
-            this.btnSaveTreeFile.Location = new System.Drawing.Point(219, 134);
-            this.btnSaveTreeFile.Name = "btnSaveTreeFile";
-            this.btnSaveTreeFile.Size = new System.Drawing.Size(110, 23);
-            this.btnSaveTreeFile.TabIndex = 3;
-            this.btnSaveTreeFile.Text = "יצא קובץ";
-            this.btnSaveTreeFile.UseVisualStyleBackColor = true;
+            this.btnSaveAsTreeFile.Location = new System.Drawing.Point(219, 132);
+            this.btnSaveAsTreeFile.Name = "btnSaveAsTreeFile";
+            this.btnSaveAsTreeFile.Size = new System.Drawing.Size(110, 23);
+            this.btnSaveAsTreeFile.TabIndex = 3;
+            this.btnSaveAsTreeFile.Text = "&שמור קובץ בשם";
+            this.btnSaveAsTreeFile.UseVisualStyleBackColor = true;
+            this.btnSaveAsTreeFile.Click += new System.EventHandler(this.btnSaveAsTreeFile_Click);
             // 
             // btnLoadTreeFile
             // 
-            this.btnLoadTreeFile.Location = new System.Drawing.Point(219, 106);
+            this.btnLoadTreeFile.Location = new System.Drawing.Point(219, 74);
             this.btnLoadTreeFile.Name = "btnLoadTreeFile";
             this.btnLoadTreeFile.Size = new System.Drawing.Size(110, 23);
             this.btnLoadTreeFile.TabIndex = 2;
-            this.btnLoadTreeFile.Text = "יבא קובץ";
+            this.btnLoadTreeFile.Text = "&פתח קובץ";
             this.btnLoadTreeFile.UseVisualStyleBackColor = true;
+            this.btnLoadTreeFile.Click += new System.EventHandler(this.btnLoadTreeFile_Click);
             // 
-            // btnSaveDefaultTree
+            // tabPage2
             // 
-            this.btnSaveDefaultTree.Location = new System.Drawing.Point(219, 50);
-            this.btnSaveDefaultTree.Name = "btnSaveDefaultTree";
-            this.btnSaveDefaultTree.Size = new System.Drawing.Size(110, 23);
-            this.btnSaveDefaultTree.TabIndex = 0;
-            this.btnSaveDefaultTree.Text = "שמור ברירת מחדל";
-            this.btnSaveDefaultTree.UseVisualStyleBackColor = true;
+            this.tabPage2.Controls.Add(this.label6);
+            this.tabPage2.Controls.Add(this.label5);
+            this.tabPage2.Controls.Add(this.label4);
+            this.tabPage2.Controls.Add(this.label2);
+            this.tabPage2.Controls.Add(this.label1);
+            this.tabPage2.Controls.Add(this.txtDateTag);
+            this.tabPage2.Controls.Add(this.txtProjectRootTag);
+            this.tabPage2.Controls.Add(this.txtXmlEmployeesFile);
+            this.tabPage2.Controls.Add(this.txtXmlProjectFile);
+            this.tabPage2.Controls.Add(this.txtSaveAsPDFFolder);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(375, 289);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "הגדרות מתקדמות";
+            this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // txtSaveAsPDFFolder
+            // label6
             // 
-            this.txtSaveAsPDFFolder.Location = new System.Drawing.Point(18, 24);
-            this.txtSaveAsPDFFolder.Name = "txtSaveAsPDFFolder";
-            this.txtSaveAsPDFFolder.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.txtSaveAsPDFFolder.Size = new System.Drawing.Size(131, 20);
-            this.txtSaveAsPDFFolder.TabIndex = 0;
-            this.txtSaveAsPDFFolder.TextChanged += new System.EventHandler(this.txtSaveAsPDFFolder_TextChanged);
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(250, 138);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(60, 13);
+            this.label6.TabIndex = 4;
+            this.label6.Text = "txtDateTag";
+            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // txtXmlProjectFile
+            // label5
             // 
-            this.txtXmlProjectFile.Location = new System.Drawing.Point(18, 51);
-            this.txtXmlProjectFile.Name = "txtXmlProjectFile";
-            this.txtXmlProjectFile.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.txtXmlProjectFile.Size = new System.Drawing.Size(131, 20);
-            this.txtXmlProjectFile.TabIndex = 1;
-            this.txtXmlProjectFile.TextChanged += new System.EventHandler(this.txtXmlProjectFile_TextChanged);
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(250, 112);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(93, 13);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "txtProjectRootTag";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // txtXmlEmployeesFile
+            // label4
             // 
-            this.txtXmlEmployeesFile.Location = new System.Drawing.Point(18, 77);
-            this.txtXmlEmployeesFile.Name = "txtXmlEmployeesFile";
-            this.txtXmlEmployeesFile.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.txtXmlEmployeesFile.Size = new System.Drawing.Size(131, 20);
-            this.txtXmlEmployeesFile.TabIndex = 2;
-            this.txtXmlEmployeesFile.TextChanged += new System.EventHandler(this.txtXmlEmployeesFile_TextChanged);
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(250, 84);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(102, 13);
+            this.label4.TabIndex = 4;
+            this.label4.Text = "txtXmlEmployeesFile";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // txtProjectRootTag
+            // label2
             // 
-            this.txtProjectRootTag.Location = new System.Drawing.Point(18, 105);
-            this.txtProjectRootTag.Name = "txtProjectRootTag";
-            this.txtProjectRootTag.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.txtProjectRootTag.Size = new System.Drawing.Size(131, 20);
-            this.txtProjectRootTag.TabIndex = 3;
-            this.txtProjectRootTag.TextChanged += new System.EventHandler(this.txtProjectRootTag_TextChanged);
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(250, 58);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(84, 13);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "txtXmlProjectFile";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(185, 30);
+            this.label1.Location = new System.Drawing.Point(250, 30);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(105, 13);
             this.label1.TabIndex = 4;
@@ -473,49 +473,55 @@ namespace SaveAsPDF
             this.txtDateTag.Location = new System.Drawing.Point(18, 131);
             this.txtDateTag.Name = "txtDateTag";
             this.txtDateTag.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.txtDateTag.Size = new System.Drawing.Size(131, 20);
+            this.txtDateTag.Size = new System.Drawing.Size(184, 20);
             this.txtDateTag.TabIndex = 3;
             this.txtDateTag.TextChanged += new System.EventHandler(this.txtDateTag_TextChanged);
             // 
-            // label2
+            // txtProjectRootTag
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(185, 58);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(84, 13);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "txtXmlProjectFile";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.txtProjectRootTag.Location = new System.Drawing.Point(18, 105);
+            this.txtProjectRootTag.Name = "txtProjectRootTag";
+            this.txtProjectRootTag.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.txtProjectRootTag.Size = new System.Drawing.Size(184, 20);
+            this.txtProjectRootTag.TabIndex = 3;
+            this.txtProjectRootTag.TextChanged += new System.EventHandler(this.txtProjectRootTag_TextChanged);
             // 
-            // label4
+            // txtXmlEmployeesFile
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(185, 84);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(102, 13);
-            this.label4.TabIndex = 4;
-            this.label4.Text = "txtXmlEmployeesFile";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.txtXmlEmployeesFile.Location = new System.Drawing.Point(18, 77);
+            this.txtXmlEmployeesFile.Name = "txtXmlEmployeesFile";
+            this.txtXmlEmployeesFile.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.txtXmlEmployeesFile.Size = new System.Drawing.Size(184, 20);
+            this.txtXmlEmployeesFile.TabIndex = 2;
+            this.txtXmlEmployeesFile.TextChanged += new System.EventHandler(this.txtXmlEmployeesFile_TextChanged);
             // 
-            // label5
+            // txtXmlProjectFile
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(185, 112);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(93, 13);
-            this.label5.TabIndex = 4;
-            this.label5.Text = "txtProjectRootTag";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.txtXmlProjectFile.Location = new System.Drawing.Point(18, 51);
+            this.txtXmlProjectFile.Name = "txtXmlProjectFile";
+            this.txtXmlProjectFile.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.txtXmlProjectFile.Size = new System.Drawing.Size(184, 20);
+            this.txtXmlProjectFile.TabIndex = 1;
+            this.txtXmlProjectFile.TextChanged += new System.EventHandler(this.txtXmlProjectFile_TextChanged);
             // 
-            // label6
+            // txtSaveAsPDFFolder
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(185, 138);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(60, 13);
-            this.label6.TabIndex = 4;
-            this.label6.Text = "txtDateTag";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.txtSaveAsPDFFolder.Location = new System.Drawing.Point(18, 24);
+            this.txtSaveAsPDFFolder.Name = "txtSaveAsPDFFolder";
+            this.txtSaveAsPDFFolder.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.txtSaveAsPDFFolder.Size = new System.Drawing.Size(184, 20);
+            this.txtSaveAsPDFFolder.TabIndex = 0;
+            this.txtSaveAsPDFFolder.TextChanged += new System.EventHandler(this.txtSaveAsPDFFolder_TextChanged);
+            // 
+            // btnSaveTreeFile
+            // 
+            this.btnSaveTreeFile.Location = new System.Drawing.Point(219, 103);
+            this.btnSaveTreeFile.Name = "btnSaveTreeFile";
+            this.btnSaveTreeFile.Size = new System.Drawing.Size(110, 23);
+            this.btnSaveTreeFile.TabIndex = 18;
+            this.btnSaveTreeFile.Text = "&שמור קובץ";
+            this.btnSaveTreeFile.UseVisualStyleBackColor = true;
+            this.btnSaveTreeFile.Click += new System.EventHandler(this.btnSaveTreeFile_Click);
             // 
             // frmSettings
             // 
@@ -550,10 +556,10 @@ namespace SaveAsPDF
             this.statusStrip.PerformLayout();
             this.tabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
-            this.tabPage2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.tabPage2.ResumeLayout(false);
+            this.tabPage2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -593,9 +599,8 @@ namespace SaveAsPDF
         private System.Windows.Forms.TextBox txtTreePath;
         private System.Windows.Forms.Button btnLoadDefaultTree;
         private System.Windows.Forms.TreeView tvProjectSubFolders;
-        private System.Windows.Forms.Button btnSaveTreeFile;
+        private System.Windows.Forms.Button btnSaveAsTreeFile;
         private System.Windows.Forms.Button btnLoadTreeFile;
-        private System.Windows.Forms.Button btnSaveDefaultTree;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TextBox txtSaveAsPDFFolder;
         private System.Windows.Forms.TextBox txtProjectRootTag;
@@ -607,5 +612,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button btnSaveTreeFile;
     }
 }

@@ -18,18 +18,17 @@ namespace SaveAsPDF
 {
     public partial class frmMain : Form, IEmployeeRequester, INewProjectRequester, ISettingsRequester
     {
-        private List<EmployeeModel> employeesModel = new List<EmployeeModel>();
-        private ProjectModel projectModel = new ProjectModel();
-        private SettingsModel settingsModel = new SettingsModel();
-
+        //Preparing the models - Private fields 
+        private List<EmployeeModel> _employeesModel = new List<EmployeeModel>();
+        private ProjectModel _projectModel = new ProjectModel();
+        public static SettingsModel settingsModel = new SettingsModel(); //this is a property 
 
         // construct the full path for everything
-        //public static DirectoryInfo sPath;
         private DirectoryInfo xmlSaveAsPdfFolder;
-        private string xmlProjectFile;
-        private string xmlEmploeeysFile;
+        private string _xmlProjectFile;
+        private string _xmlEmploeeysFile;
 
-        private bool dataLoaded = false;
+        private bool _dataLoaded = false;
 
         public static TreeNode mySelectedNode;
 
@@ -40,7 +39,6 @@ namespace SaveAsPDF
 
         List<Attachment> attachments = new List<Attachment>();
         List<AttachmentsModel> attachmentsModels = new List<AttachmentsModel>();
-
 
         public frmMain()
         {
@@ -78,7 +76,7 @@ namespace SaveAsPDF
         }
         private void frmMain_Load(object sender, EventArgs e)
         {
-            settingsModel.ProjectRootFolders = txtProjectID.Text.ProjectFullPath();
+            settingsModel.ProjectRootFolders = txtProjectID.Text.ProjectFullPath(settingsModel);
 
             if (mailItem is MailItem && mailItem != null)
             {
@@ -195,7 +193,7 @@ namespace SaveAsPDF
                     ClearForm();
                     LoadXmls();
                     btnOK.Focus();
-                    dataLoaded = true;
+                    _dataLoaded = true;
                     return;
                 }
                 else
@@ -209,14 +207,14 @@ namespace SaveAsPDF
         private void LoadXmls()
         {
             // construct the full path for everything
-            settingsModel.ProjectRootFolders = txtProjectID.Text.ProjectFullPath();
+            settingsModel.ProjectRootFolders = txtProjectID.Text.ProjectFullPath(settingsModel);
             settingsModel.DefaultSavePath = settingsModel.ProjectRootFolders + settingsModel.DefaultSavePath;
             //display the project's full path above the folder tree-view 
             txtFullPath.Text = settingsModel.ProjectRootFolders.ToString();
 
             xmlSaveAsPdfFolder = new DirectoryInfo(Path.Combine(settingsModel.ProjectRootFolders.FullName, settingsModel.XmlSaveAsPDFFolder));
-            xmlProjectFile = $@"{xmlSaveAsPdfFolder}{settingsModel.XmlProjectFile}";
-            xmlEmploeeysFile = $@"{xmlSaveAsPdfFolder}{settingsModel.XmlEmployeesFile}";
+            _xmlProjectFile = $@"{xmlSaveAsPdfFolder}{settingsModel.XmlProjectFile}";
+            _xmlEmploeeysFile = $@"{xmlSaveAsPdfFolder}{settingsModel.XmlEmployeesFile}";
 
             DateTime date = DateTime.Now;
 
@@ -233,27 +231,27 @@ namespace SaveAsPDF
                 //TODO1: need to check it
                 //Create .SaveAsPDF folder
                 settingsModel.ProjectRootFolders.FullName.CreateHiddenFolder();
-                if (File.Exists(xmlProjectFile))
+                if (File.Exists(_xmlProjectFile))
                 {
-                    //load the XML file to projectModel model
-                    projectModel = xmlProjectFile.XmlProjectFileToModel();
+                    //load the XML file to _projectModel model
+                    _projectModel = _xmlProjectFile.XmlProjectFileToModel();
 
-                    if (projectModel != null)
+                    if (_projectModel != null)
                     {
-                        txtProjectName.Text = projectModel.ProjectName;
-                        chkbSendNote.Checked = projectModel.NoteEmployee;
-                        rtxtProjectNotes.Text = projectModel.ProjectNotes;
+                        txtProjectName.Text = _projectModel.ProjectName;
+                        chkbSendNote.Checked = _projectModel.NoteEmployee;
+                        rtxtProjectNotes.Text = _projectModel.ProjectNotes;
                     }
                 }
 
                 dgvEmployees.Rows.Clear();
                 //load the XML file to Employees list-box
-                if (File.Exists(xmlEmploeeysFile))
+                if (File.Exists(_xmlEmploeeysFile))
                 {
-                    employeesModel = xmlEmploeeysFile.XmlEmployeesFileToModel();
-                    if (employeesModel != null)
+                    _employeesModel = _xmlEmploeeysFile.XmlEmployeesFileToModel();
+                    if (_employeesModel != null)
                     {
-                        foreach (EmployeeModel em in employeesModel)
+                        foreach (EmployeeModel em in _employeesModel)
                         {
                             dgvEmployees.Rows.Add(em.Id, em.FirstName, em.LastName, em.EmailAddress);
                         }
@@ -278,22 +276,22 @@ namespace SaveAsPDF
         {
             if (ValidateForm())
             {
-                if (!dataLoaded)
+                if (!_dataLoaded)
                 {
                     LoadXmls();
                 }
 
                 #region Populate Models
 
-                //build projectModel model
+                //build _projectModel model
 
-                projectModel.ProjectName = txtProjectName.Text;
-                projectModel.ProjectNumber = txtProjectID.Text;
-                projectModel.NoteEmployee = chkbSendNote.Checked;
-                projectModel.ProjectNotes = rtxtProjectNotes.Text;
+                _projectModel.ProjectName = txtProjectName.Text;
+                _projectModel.ProjectNumber = txtProjectID.Text;
+                _projectModel.NoteEmployee = chkbSendNote.Checked;
+                _projectModel.ProjectNotes = rtxtProjectNotes.Text;
 
                 //build the Employees model
-                employeesModel = dgvEmployees.DgvEmployeesToModel();
+                _employeesModel = dgvEmployees.DgvEmployeesToModel();
                 #endregion
 
                 #region Create XML files for the models
@@ -301,11 +299,11 @@ namespace SaveAsPDF
                 //create the SaveAsPDF hidden folder
                 //xmlSaveAsPdfFolder.FullName.CreateHiddenFolder(); //already doing it on LoadXml() 
 
-                //create projectModel XML file
-                xmlProjectFile.ProjectModelToXmlFile(projectModel);
+                //create _projectModel XML file
+                _xmlProjectFile.ProjectModelToXmlFile(_projectModel);
 
-                //create the employeesModel XML file from List<EmployeeModel> 
-                xmlEmploeeysFile.EmployeesModelToXmlFile(employeesModel);
+                //create the _employeesModel XML file from List<EmployeeModel> 
+                _xmlEmploeeysFile.EmployeesModelToXmlFile(_employeesModel);
 
                 #endregion
 
@@ -435,7 +433,7 @@ namespace SaveAsPDF
 
         private void chkbSendNote_CheckedChanged(object sender, EventArgs e)
         {
-            foreach (EmployeeModel employee in employeesModel)
+            foreach (EmployeeModel employee in _employeesModel)
             {
                 SendEmailToEmployee(employee.EmailAddress);
             }
@@ -498,7 +496,7 @@ namespace SaveAsPDF
             if (!found)
             {
                 //add new employee(s) to the list 
-                employeesModel.Add(model);
+                _employeesModel.Add(model);
                 dgvEmployees.Rows.Add(model.Id.ToString(),
                                         model.FirstName,
                                         model.LastName,
@@ -577,11 +575,11 @@ namespace SaveAsPDF
 
         public void NewProjectComplete(ProjectModel model)
         {
-            projectModel = model;
+            _projectModel = model;
 
-            txtProjectID.Text = projectModel.ProjectNumber;
-            txtProjectName.Text = projectModel.ProjectName;
-            rtxtProjectNotes.Text = projectModel.ProjectNotes;
+            txtProjectID.Text = _projectModel.ProjectNumber;
+            txtProjectName.Text = _projectModel.ProjectName;
+            rtxtProjectNotes.Text = _projectModel.ProjectNotes;
             //TODO1: refresh folder treeview
 
         }
@@ -694,8 +692,8 @@ namespace SaveAsPDF
 
         private void tvFolders_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            //mySelectedNode = e.Node;
-            //MessageBox.Show($"e.node.Name:{e.Node.Text} mySelectedNode: {mySelectedNode.FullPath}");
+            //_mySelectedNode = e.Node;
+            //MessageBox.Show($"e.node.Name:{e.Node.Text} _mySelectedNode: {_mySelectedNode.FullPath}");
         }
 
 
@@ -720,7 +718,7 @@ namespace SaveAsPDF
 
             ClearForm();
             LoadXmls();
-            dataLoaded = true;
+            _dataLoaded = true;
         }
     }
 }

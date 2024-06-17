@@ -1,5 +1,8 @@
-﻿using System;
+﻿// Ignore Spelling: frm  הכל יש לבחור הודעות דואר אלקטרוני בלבד אימייל הסר הכול שם קובץ גודל יש לבחור הודעות דואר אלקטרוני בלבד ההודעה נשמרה ב  תאריך  שמירה  שם הפרויקט  מס פרויקט  הערות  שם משתמש בחר  הסר  מספר פרויקט כפי שמופיע במסטרפלן שם לא חוקי  אין להשתמש בתווים הבאים  עריכת שם שם לא חוקי לא ניתן ליצור שם ריק חובה תו אחד לפחות עריכת שם מספר פרויקט לא חוקי
+
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +14,8 @@ namespace SaveAsPDF.Helpers
     public static class TreeHelper
     {
         //XmlDocument xmlDocument;
-        //TreeNode mySelectedNode;
+        //TreeNode _mySelectedNode;
+
         /// <summary>
         /// List folders to treeView
         /// </summary>
@@ -30,13 +34,13 @@ namespace SaveAsPDF.Helpers
                     }
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 MessageBox.Show(ex.Message, "SaveAsPDF:CreateDirectoryNode");
             }
-
             return directoryNode;
         }
+
         /// <summary>
         /// List folder to tree nodes
         /// </summary>
@@ -149,11 +153,11 @@ namespace SaveAsPDF.Helpers
         {
             if (mySelectedNode != null && mySelectedNode.Parent != null)
             {
-                //treeView.SelectedNode = mySelectedNode;
+                //treeView.SelectedNode = _mySelectedNode;
                 treeView.SelectedNode.Name = newName.SafeFolderName();
-                //if (!mySelectedNode.IsEditing)
+                //if (!_mySelectedNode.IsEditing)
                 //{
-                //    mySelectedNode.BeginEdit();
+                //    _mySelectedNode.BeginEdit();
                 //}
             }
             else
@@ -169,19 +173,19 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="treeView"></param>
         /// <param name="mySelectedNode"></param>
-        /// <param name="lable"></param>
-        public static void AddNode(this TreeView treeView, TreeNode mySelectedNode, string lable)
+        /// <param name="label"></param>
+        public static void AddNode(this TreeView treeView, TreeNode mySelectedNode, string label)
         {
             if (treeView.SelectedNode != null)
             {
-                if (!string.IsNullOrEmpty(lable))
+                if (!string.IsNullOrEmpty(label))
                 {
-                    mySelectedNode = treeView.SelectedNode.Nodes.Add(lable);
+                    mySelectedNode = treeView.SelectedNode.Nodes.Add(label);
 
                     treeView.SelectedNode = mySelectedNode;
                     mySelectedNode.Expand();
 
-                    if (lable != frmMain.settingsModel.DateTag)
+                    if (label != SettingsHelpers.dateTag)
                     {
                         treeView.RenameNode(mySelectedNode);
                     }
@@ -314,8 +318,15 @@ namespace SaveAsPDF.Helpers
             {
                 WriteNodeIntoString(0, node, sb);
             }
-            // Write the result into the file.
-            File.WriteAllText(file_name, sb.ToString());
+            try
+            {
+                // Write the result into the file.
+                File.WriteAllText(file_name, sb.ToString());
+            }
+            catch (System.Exception e)
+            {
+                MessageBox.Show(e.Message, "TreeHelper: SaveTreeViewIntoFile()");
+            }
         }
 
 
@@ -342,42 +353,59 @@ namespace SaveAsPDF.Helpers
         /// <param name="trv"></param>
         public static void LoadTreeViewFromFile(this TreeView trv, string file_name)
         {
-            // Get the file's contents.
-            string file_contents = File.ReadAllText(file_name);
-            // Process the lines.
-            trv.Nodes.Clear();
-            Dictionary<int, TreeNode> parents = new Dictionary<int, TreeNode>();
-
-            // Break the file into lines.
-            string[] lines = file_contents.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string text_line in lines)
+            try
             {
-                // See how many tabs are at the start of the line.
-                int level = text_line.Length - text_line.TrimStart('\t').Length;
+                // Get the file's contents.
+                string file_contents = File.ReadAllText(file_name);
+                // Process the lines.
+                trv.Nodes.Clear();
+                Dictionary<int, TreeNode> parents = new Dictionary<int, TreeNode>();
 
-                // Add the new node.
-                if (level == 0)
-                    parents[level] = trv.Nodes.Add(text_line.Trim());
-                else
-                    parents[level] = parents[level - 1].Nodes.Add(text_line.Trim());
-                parents[level].EnsureVisible();
+                // Break the file into lines.
+                string[] lines = file_contents.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string text_line in lines)
+                {
+                    // See how many tabs are at the start of the line.
+                    int level = text_line.Length - text_line.TrimStart('\t').Length;
+
+                    // Add the new node.
+                    if (level == 0)
+                        parents[level] = trv.Nodes.Add(text_line.Trim());
+                    else
+                        parents[level] = parents[level - 1].Nodes.Add(text_line.Trim());
+                    parents[level].EnsureVisible();
+                }
+
             }
+            catch (System.Exception e)
+            {
+                var trace = new StackTrace(e);
+                var frame = trace.GetFrame(0);
+                var method = frame.GetMethod();
+                MessageBox.Show($"{method.DeclaringType.FullName}\\n{method.Name}\\n{e.Message}", "TreeHelper:LoadTreeViewFromFile()");
+
+
+                //MessageBox.Show($"{e.TargetSite.Name}\n{e.Message}", "TreeHelper:LoadTreeViewFromFile()");
+            }
+
         }
 
 
         /// <summary>
-        /// Load the default folder tree from the default folder free file.
+        /// Load the default folder tree from the default folder tree file.
         /// If the folder tree file does not exist a default folder tree will be loaded
         /// </summary>
         /// <param name="treeView"></param>
         public static void LoadDefaultTree(this TreeView treeView)
         {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            string location = assembly.CodeBase;
-            string fullPath = new Uri(location).LocalPath; // path including the dll 
-            string directoryPath = Path.GetDirectoryName(fullPath); // directory path 
 
-            string defaultTreeFileName = $"{directoryPath}\\{frmMain.settingsModel.DefaultTreeFile}";
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string location = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);  //assembly.CodeBase;
+                                                                                                 //string fullPath = new Uri(location).LocalPath; // path including the dll 
+                                                                                                 //string directoryPath = Path.GetDirectoryName(fullPath); // directory path 
+
+            string defaultTreeFileName = $@"{location}\SaveAsPDFDefaultTree.fld";
 
             if (File.Exists(defaultTreeFileName))
             {
@@ -386,31 +414,31 @@ namespace SaveAsPDF.Helpers
             else
             {
                 //Default tree file was not found -  create a new default free file
-                string defaultTree = "_מספר_פרויקט_\n" +
-                    "\tDWG\n" +
-                    "\tמכתבים\n" +
-                    "\tOLD\n" +
-                    "\tPDF\n" +
-                    "\tאישור ציוד\n" +
-                    "\t\tלוח חשמל ראשי\n" +
-                    "\t\tדיזל גנרטור\n" +
-                    "\t\tגופי תאורה\n" +
-                    "\tהתקבל\n" +
-                    "\t\tאדריכלות\n" +
-                    "\t\tקונסטרוקציה\n" +
-                    "\t\tמיזוג אויר\n" +
-                    "\t\tבטיחות\n" +
-                    "\t\tכבישים\n" +
-                    "\tנשלח\n" +
-                    "\t\tאדריכלות\n" +
-                    "\t\tקונסטרוקציה\n" +
-                    "\t\tמיזוג אויר\n" +
-                    "\t\tבטיחות\n" +
-                    "\t\tכבישים\n ";
+                string defaultTree = "_מספר_פרויקט_\n"
+                                     + "\tDWG\n"
+                                     + "\tמכתבים\n"
+                                     + "\tOLD\n"
+                                     + "\tPDF\n"
+                                     + "\tאישור ציוד\n"
+                                     + "\t\tלוח חשמל ראשי\n"
+                                     + "\t\tדיזל גנרטור\n"
+                                     + "\t\tגופי תאורה\n"
+                                     + "\tהתקבל\n"
+                                     + "\t\tאדריכלות\n"
+                                     + "\t\tקונסטרוקציה\n"
+                                     + "\t\tמיזוג אויר\n"
+                                     + "\t\tבטיחות\n"
+                                     + "\t\tכבישים\n"
+                                     + "\tנשלח\n"
+                                     + "\t\tאדריכלות\n"
+                                     + "\t\tקונסטרוקציה\n"
+                                     + "\t\tמיזוג אויר\n"
+                                     + "\t\tבטיחות\n"
+                                     + "\t\tכבישים\n ";
 
                 File.WriteAllText(defaultTreeFileName, defaultTree);
                 treeView.LoadTreeViewFromFile(defaultTreeFileName);
-
+                treeView.Nodes.Add(defaultTree);
             }
         }
         /// <summary>

@@ -1,10 +1,8 @@
 ﻿// Ignore Spelling: // Ignore Spelling: frm מפשחה הכל יש לבחור הודעות דואר אלקטרוני בלבד אימייל הסר הכול שם קובץ גודל יש לבחור הודעות דואר אלקטרוני בלבד ההודעה נשמרה ב  תאריך  שמירה  שם הפרויקט  מס פרויקט  הערות  שם משתמש בחר  הסר  מספר פרויקט כפי שמופיע במסטרפלן שם לא חוקי  אין להשתמש בתווים הבאים  עריכת שם שם לא חוקי לא ניתן ליצור שם ריק חובה תו אחד לפחות עריכת שם מספר פרויקט לא חוקי
-
 using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
 using System;
 using System.IO;
-using System.Reflection;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Xml;
@@ -41,7 +39,7 @@ namespace SaveAsPDF
             //TODO1:frmSettings_Load
             // ON HOLD
 
-            tvProjectSubFolders.Nodes.Add("מספר_פרויקט");
+            tvProjectSubFolders.Nodes.Add(frmMain.settingsModel.ProjectRootTag);
             tvProjectSubFolders.HideSelection = false;
             tvProjectSubFolders.PathSeparator = @"\";
 
@@ -58,7 +56,7 @@ namespace SaveAsPDF
             cmbDefaultFolder.Items.Clear();
 
             TreeHelper.TvNodesToCombo(cmbDefaultFolder, tvProjectSubFolders.Nodes[0]);
-            cmbDefaultFolder.SelectedIndex = settingsModel.DefaultFolderID;
+            cmbDefaultFolder.SelectedIndex = settingsModel == null ? 0 : settingsModel.DefaultFolderID;
 
             //advanced settings tab 
             txtSaveAsPDFFolder.Text = settingsModel.XmlSaveAsPDFFolder;
@@ -80,7 +78,7 @@ namespace SaveAsPDF
 
         /// <summary>
         /// Get the tree node under the mouse pointer and 
-        /// save it in the mySelectedNode variable.
+        /// save it in the _mySelectedNode variable.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -150,55 +148,19 @@ namespace SaveAsPDF
                 DialogResult result = MessageBox.Show("שמור שינויים?", "SaveAsPDF", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
-                    SaveSettings();
-
+                    SettingsHelpers.saveModelToSettings(settingsModel);
                 }
             }
+            //send the updated model back to MainForm 
+            callingForm.SettingsComplete(settingsModel);
+            _isDirty = false;
             Close();
-        }
-        /// <summary>
-        /// save the settings form the model to settings.settings 
-        /// </summary>
-        private void SaveSettings()
-        {
-            try
-            {
-                // Saving the data back to the model (over-write the "old" data)  
-                settingsModel.RootDrive = txtRootFolder.Text;
-                settingsModel.MinAttachmentSize = int.Parse(txtMinAttSize.Text);
-                settingsModel.DefaultSavePath = cmbDefaultFolder.Text;
-                settingsModel.DefaultTreeFile = txtTreePath.Text;
-                SaveDefaultTree(); //save the new tree 
-
-
-                //advanced settings 
-                settingsModel.XmlSaveAsPDFFolder = txtSaveAsPDFFolder.Text;
-                settingsModel.XmlProjectFile = txtXmlProjectFile.Text;
-                settingsModel.XmlEmployeesFile = txtXmlEmployeesFile.Text;
-                settingsModel.ProjectRootTag = txtProjectRootTag.Text;
-                settingsModel.DateTag = txtDateTag.Text;
-
-
-                //Model is updated - save it to the settings.settings 
-                SettingsHelpers.saveModelToSettings(settingsModel);
-
-                _isDirty = false; //reset the flag 
-
-                //send the updated model back to MainForm 
-                callingForm.SettingsComplete(settingsModel);
-
-            }
-
-            catch (Exception ex)
-            {
-
-                MessageBox.Show(ex.Message, "setting form");
-            }
         }
 
         private void btnSaveSettings_Click(object sender, EventArgs e)
         {
-            SaveSettings();
+            SettingsHelpers.saveModelToSettings(settingsModel);
+            _isDirty = false;
         }
 
 
@@ -215,25 +177,7 @@ namespace SaveAsPDF
             }
         }
 
-        private void btnSaveDefaultTree_Click(object sender, EventArgs e)
-        {
-            SaveDefaultTree();
-
-        }
-
-        private void SaveDefaultTree()
-        {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            string location = assembly.CodeBase;
-            string fullPath = new Uri(location).LocalPath; // path including the dll 
-            string directoryPath = Path.GetDirectoryName(fullPath); // directory path 
-
-            string defaultTreeFileName = $@"{directoryPath}\{settingsModel.DefaultTreeFile}";
-
-            TreeHelper.SaveTreeViewIntoFile(defaultTreeFileName, tvProjectSubFolders);
-        }
-
-        private void btnLoadTreeFile_Click_1(object sender, EventArgs e)
+        private void btnLoadTreeFile_Click(object sender, EventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Title = "פתח קובץ תיקיות";
@@ -242,22 +186,54 @@ namespace SaveAsPDF
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 tvProjectSubFolders.LoadTreeViewFromFile(dlg.FileName);
+                txtTreePath.Text = dlg.FileName;
+                settingsModel.DefaultTreeFile = dlg.FileName;
+                _isDirty = true;
             }
-            _isDirty = true;
+
         }
 
+        private void btnSaveAsTreeFile_Click(object sender, EventArgs ev)
+        {
+            try
+            {
+                SaveFileDialog dlg = new SaveFileDialog();
+                dlg.Title = "שמור קובץ תיקיות";
+                dlg.Filter = "קובץ תיקיות (*.fld)|*.fld";
+
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    dlg.CheckPathExists = true;
+                    dlg.InitialDirectory = Path.GetDirectoryName(txtTreePath.Text);
+                    TreeHelper.SaveTreeViewIntoFile(dlg.FileName, tvProjectSubFolders);
+                    txtTreePath.Text = dlg.FileName;
+                    settingsModel.DefaultTreeFile = dlg.FileName;
+                    _isDirty = false;
+                    //TODO3: NEXT VERSION: change the tree file to XML
+                }
+
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "frmSettings:btnSaveAsTreeFile_Click");
+            }
+        }
         private void btnSaveTreeFile_Click(object sender, EventArgs e)
         {
-            SaveFileDialog dlg = new SaveFileDialog();
-            dlg.Title = "שמור קובץ תיקיות";
-            dlg.Filter = "קובץ תיקיות (*.fld)|*.fld";
-
-            if (dlg.ShowDialog() == DialogResult.OK)
+            if (File.Exists(txtTreePath.Text))
             {
-                TreeHelper.SaveTreeViewIntoFile(dlg.FileName, tvProjectSubFolders);
-                //TODO3: NEXT VERSION: change the tree file to XML
+                TreeHelper.SaveTreeViewIntoFile(txtTreePath.Text, tvProjectSubFolders);
             }
-            _isDirty = false;
+            else
+            {
+
+                DialogResult result = MessageBox.Show($"קובץ לא נימצא:\n{txtTreePath.Text}\n האם לשמור קובץ חדש?", "SaveAsPDF קובץ עץ סיפריות", MessageBoxButtons.YesNo);
+
+                if (result == DialogResult.Yes)
+                {
+                    TreeHelper.SaveTreeViewIntoFile(txtTreePath.Text, tvProjectSubFolders);
+                }
+            }
         }
 
         private XmlNode GetXmlNode(TreeViewItem tnode, XmlDocument d)
@@ -301,9 +277,6 @@ namespace SaveAsPDF
             _isDirty = true;
         }
 
-        private void tvProjectSubFolders_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-        }
 
 
         private void menuAddDate_Click(object sender, EventArgs e)
@@ -362,5 +335,6 @@ namespace SaveAsPDF
         {
             _isDirty = true;
         }
+
     }
 }

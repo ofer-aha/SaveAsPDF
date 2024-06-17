@@ -5,7 +5,7 @@ namespace SaveAsPDF.Models
     public class SettingsModel
     {
         /// <summary>
-        /// The main projectModel's root folder (or drive, i.e j:\ or c:\projects) 
+        /// The main _projectModel's root folder (or drive, i.e j:\ or c:\projects) 
         /// </summary>
         public string RootDrive { get; set; }
         /// <summary>
@@ -17,7 +17,7 @@ namespace SaveAsPDF.Models
         /// </summary>
         public string XmlProjectFile { get; set; }
         /// <summary>
-        /// The file name for the employeesModel XML file 
+        /// The file name for the _employeesModel XML file 
         /// </summary>
         public string XmlEmployeesFile { get; set; }
         /// <summary>

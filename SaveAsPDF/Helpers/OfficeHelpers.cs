@@ -19,27 +19,27 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="email"></param>
         /// <returns></returns>
-        public static List<AttachmentsModel> AttachmentsToModel(this MailItem email)
-        {
-            List<AttachmentsModel> output = new List<AttachmentsModel>();
-            int i = 0;
-            foreach (Attachment attachment in email.Attachments)
-            {
-                i += 1;
-                AttachmentsModel att = new AttachmentsModel
-                {
-                    attachmentId = i,
-                    isChecked = true,
-                    fileName = attachment.FileName,
-                    fileSize = attachment.Size.BytesToString()
-                };
-                if (attachment.Size >= frmMain.settingsModel.MinAttachmentSize)
-                {
-                    output.Add(att);
-                }
-            }
-            return output;
-        }
+        //public static List<AttachmentsModel> AttachmentsToModel(this MailItem email)
+        //{
+        //    List<AttachmentsModel> output = new List<AttachmentsModel>();
+        //    int i = 0;
+        //    foreach (Attachment attachment in email.Attachments)
+        //    {
+        //        i += 1;
+        //        AttachmentsModel att = new AttachmentsModel
+        //        {
+        //            attachmentId = i,
+        //            isChecked = true,
+        //            fileName = attachment.FileName,
+        //            fileSize = attachment.Size.BytesToString()
+        //        };
+        //        if (attachment.Size >= settingsModel.MinAttachmentSize)
+        //        {
+        //            output.Add(att);
+        //        }
+        //    }
+        //    return output;
+        //}
         /// <summary>
         /// convert DataGridView to Model 
         /// </summary>

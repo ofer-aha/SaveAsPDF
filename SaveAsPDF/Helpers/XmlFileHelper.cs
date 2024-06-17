@@ -38,7 +38,7 @@ namespace SaveAsPDF.Helpers
 
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
-            // Save the document to a file and auto-indent the employeesModel.
+            // Save the document to a file and auto-indent the _employeesModel.
             XmlWriter writer = XmlWriter.Create(path, settings);
 
             try
@@ -88,7 +88,7 @@ namespace SaveAsPDF.Helpers
             }
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
-            // Save the document to a file and auto-indent the employeesModel.
+            // Save the document to a file and auto-indent the _employeesModel.
             XmlWriter writer = XmlWriter.Create(path, settings);
             try
             {
@@ -174,7 +174,7 @@ namespace SaveAsPDF.Helpers
         //{
         //    List<EmployeeModel> e = new List<EmployeeModel>();
 
-        //    List<string> employeesModel = new List<string>();
+        //    List<string> _employeesModel = new List<string>();
         //    XmlDocument xmlDoc = new XmlDocument();
 
         //    try
@@ -200,9 +200,9 @@ namespace SaveAsPDF.Helpers
         //            EmailAddress = EmailAddress[i].InnerText
         //        };
         //        e.Add(em);
-        //        employeesModel.Add(em.FullName);
+        //        _employeesModel.Add(em.FullName);
         //    }
-        //    return employeesModel;
+        //    return _employeesModel;
         //}
 
 

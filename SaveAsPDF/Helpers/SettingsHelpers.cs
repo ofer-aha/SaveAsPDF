@@ -8,20 +8,20 @@ namespace SaveAsPDF.Helpers
     public class SettingsHelpers
     {
 
-        static string rootDrive = @"C:\Projects\";
-        static string xmlSaveAsPDFFolder = @".SaveAsPDF\";
-        static string xmlProjectFile = @".SaveAsPDF_Project.xml";
-        static string xmlEmployeesFile = @".SaveAsPDF_Emploeeys.xml";
-        static string defaultTreeFile = @"C:\Projects\tree.fld";
-        static int minAttachmentSize = 8192;
-        static string dateTag = "_dateTag_";
-        static int defaultFolderID = 1;
-        static string projectRootTag = "_ProjectID_";
-        static bool openPDF = false;
-        static string lastProjects = "1000;";
-        static int lastProjectsCount = 10;
-        static string sProjectRootFolders = $@"{rootDrive}10\1000\";
-        static string defaultSavePath = $@"{rootDrive}{sProjectRootFolders}Inbox\";
+        static public string rootDrive = @"C:\Projects\";
+        static public string xmlSaveAsPDFFolder = @".SaveAsPDF\";
+        static public string xmlProjectFile = @".SaveAsPDF_Project.xml";
+        static public string xmlEmployeesFile = @".SaveAsPDF_Emploeeys.xml";
+        static public string defaultTreeFile = @"C:\Projects\tree.fld";
+        static public int minAttachmentSize = 8192;
+        static public string dateTag = "_תאריך_";
+        static public int defaultFolderID = 1;
+        static public string projectRootTag = "_מספר_פרויקט_";
+        static public bool openPDF = false;
+        static public string lastProjects = "1000;";
+        static public int lastProjectsCount = 10;
+        static public string sProjectRootFolders = $@"{rootDrive}10\1000\";
+        static public string defaultSavePath = $@"{rootDrive}{sProjectRootFolders}Inbox\";
 
 
 
@@ -75,8 +75,7 @@ namespace SaveAsPDF.Helpers
             Settings.Default.LastProjects = settingsModel.LastProjects;
             Settings.Default.LastProjectsCount = settingsModel.LastProjectsCount;
             Settings.Default.sProjectRootFolders = settingsModel.ProjectRootFolders.ToString();
-
-
+            Settings.Default.Save();
         }
         /// <summary>
         /// Ether first run or reset to defaults 

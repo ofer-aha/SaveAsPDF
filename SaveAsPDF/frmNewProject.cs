@@ -11,8 +11,8 @@ namespace SaveAsPDF
     public partial class frmNewProject : Form
     {
         private readonly INewProjectRequester callingForm;
-        private List<string> subFolfers = new List<string>();
-        private TreeNode mySelectedNode;
+        private List<string> _subFolfers = new List<string>();
+        private TreeNode _mySelectedNode;
         public frmNewProject()
         {
             InitializeComponent();
@@ -32,22 +32,22 @@ namespace SaveAsPDF
             //populate ProjectModel
             if (ValidateForm())
             {
-                ProjectModel p = new ProjectModel
+                ProjectModel projectModel = new ProjectModel
                 {
                     ProjectName = txtProjectName.Text,
                     ProjectNumber = txtProjectId.Text.Trim(),
                     ProjectNotes = txtProjectNotes.Text
                 };
 
-                //create the projectModel's sub-folders 
+                //create the _projectModel's sub-folders 
 
-                subFolfers = TreeHelper.ListNodesPath(tvDefaultSubFolders.Nodes[0]);
-                foreach (string subFolder in subFolfers)
+                _subFolfers = TreeHelper.ListNodesPath(tvDefaultSubFolders.Nodes[0]);
+                foreach (string subFolder in _subFolfers)
                 {
                     FileFoldersHelper.MkDir(subFolder);
                 }
 
-                callingForm.NewProjectComplete(p);
+                callingForm.NewProjectComplete(projectModel);
 
                 Close();
 
@@ -82,19 +82,19 @@ namespace SaveAsPDF
 
         private void menueAdd_Click(object sender, System.EventArgs e)
         {
-            tvDefaultSubFolders.AddNode(mySelectedNode);
+            tvDefaultSubFolders.AddNode(_mySelectedNode);
 
         }
 
         private void menuDel_Click(object sender, System.EventArgs e)
         {
-            tvDefaultSubFolders.DelNode(mySelectedNode);
+            tvDefaultSubFolders.DelNode(_mySelectedNode);
 
         }
 
         private void menuRename_Click(object sender, System.EventArgs e)
         {
-            tvDefaultSubFolders.RenameNode(mySelectedNode);
+            tvDefaultSubFolders.RenameNode(_mySelectedNode);
         }
 
         private void tvDefaultSubFolders_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
@@ -136,7 +136,7 @@ namespace SaveAsPDF
 
         private void tvDefaultSubFolders_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            mySelectedNode = tvDefaultSubFolders.SelectedNode;
+            _mySelectedNode = tvDefaultSubFolders.SelectedNode;
         }
 
         private void frmNewProject_Load(object sender, EventArgs e)
