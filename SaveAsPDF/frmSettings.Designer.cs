@@ -281,7 +281,7 @@ namespace SaveAsPDF
             this.lblMinAttSize.Name = "lblMinAttSize";
             this.lblMinAttSize.Size = new System.Drawing.Size(177, 13);
             this.lblMinAttSize.TabIndex = 0;
-            this.lblMinAttSize.Text = "גודל מינימאלי לקבצים מצורפים:";
+            this.lblMinAttSize.Text = "גודל מינימלי לקבצים מצורפים:";
             // 
             // statusStrip
             // 
@@ -318,7 +318,7 @@ namespace SaveAsPDF
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage1.Size = new System.Drawing.Size(375, 289);
             this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "מבנה תקיות";
+            this.tabPage1.Text = "מבנה תיקיות";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // groupBox1

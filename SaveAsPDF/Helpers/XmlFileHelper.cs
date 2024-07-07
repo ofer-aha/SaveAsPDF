@@ -1,8 +1,12 @@
-﻿using SaveAsPDF.Models;
+﻿// Ignore Spelling: Deserialize
+
+using SaveAsPDF.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace SaveAsPDF.Helpers
 {
@@ -104,7 +108,7 @@ namespace SaveAsPDF.Helpers
         /// Extension method Converts the Project XML file to ProjectModel
         /// </summary>
         /// <param name="xmlFile">Source file name</param>
-        /// <returns>ProjectModel</returns>
+        /// <returns><see cref="ProjectModel"/></returns>
         public static ProjectModel XmlProjectFileToModel(this string xmlFile)
         {
             ProjectModel projectModel = new ProjectModel();
@@ -135,7 +139,7 @@ namespace SaveAsPDF.Helpers
         /// Extension method Import the XML file to employee model
         /// </summary>
         /// <param name="xmlFile">Full path to XML file</param>
-        /// <returns>EmployeeModel</returns>
+        /// <returns><see cref="ProjectModel"/></returns>
         public static List<EmployeeModel> XmlEmployeesFileToModel(this string xmlFile)
         {
             List<EmployeeModel> employeesModel = new List<EmployeeModel>();
@@ -170,40 +174,37 @@ namespace SaveAsPDF.Helpers
             return employeesModel;
         }
 
-        //public static List<string> XmlEmlpoyeesFileToList(this string xmlFile)
-        //{
-        //    List<EmployeeModel> e = new List<EmployeeModel>();
 
-        //    List<string> _employeesModel = new List<string>();
-        //    XmlDocument xmlDoc = new XmlDocument();
+        /// <summary>
+        /// Serialize the list to a string 
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static string SerializeList(List<SettingsModel> list)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(List<SettingsModel>));
+            using (StringWriter writer = new StringWriter())
+            {
+                serializer.Serialize(writer, list);
+                return writer.ToString();
+            }
+        }
 
-        //    try
-        //    {
-        //        xmlDoc.Load(xmlFile);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show(ex.Message, "SaveAsPDF");
-        //        return null;
-        //    }
+        /// <summary>
+        /// De-serialize the string back to a list
+        /// </summary>
+        /// <param name="serializedList"></param>
+        /// <returns><see cref="SettingsModel"/> Object</returns>
+        public static List<SettingsModel> DeserializeList(string serializedList)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(List<SettingsModel>));
+            using (StringReader reader = new StringReader(serializedList))
+            {
+                return (List<SettingsModel>)serializer.Deserialize(reader);
+            }
+        }
 
-        //    XmlNodeList FirstName = xmlDoc.GetElementsByTagName("FirstName");
-        //    XmlNodeList LastName = xmlDoc.GetElementsByTagName("LastName");
-        //    XmlNodeList EmailAddress = xmlDoc.GetElementsByTagName("EmailAddress");
 
-        //    for (int i = 0; i < FirstName.Count; i++)
-        //    {
-        //        EmployeeModel em = new EmployeeModel
-        //        {
-        //            FirstName = FirstName[i].InnerText,
-        //            LastName = LastName[i].InnerText,
-        //            EmailAddress = EmailAddress[i].InnerText
-        //        };
-        //        e.Add(em);
-        //        _employeesModel.Add(em.FullName);
-        //    }
-        //    return _employeesModel;
-        //}
 
 
     }

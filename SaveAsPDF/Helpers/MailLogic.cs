@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿// Ignore Spelling: bcc
+
+using System.Collections.Generic;
 using System.Net.Mail;
 
 namespace SaveAsPDF.Helpers
@@ -14,6 +16,13 @@ namespace SaveAsPDF.Helpers
                 SendEmail(new List<string> { toAddress }, new List<string>(), subject, body);
             }
 
+            /// <summary>
+            /// Sends an email to the specified recipients.
+            /// </summary>
+            /// <param name="toAddresses">The list of email addresses to send the email to.</param>
+            /// <param name="bccAddresses">The list of email addresses to send the email as blind carbon copy (BCC) recipients.</param>
+            /// <param name="subject">The subject of the email.</param>
+            /// <param name="body">The body of the email.</param>
             public static void SendEmail(List<string> toAddresses, List<string> bccAddresses, string subject, string body)
             {
                 MailAddress fromMailAddress = new MailAddress("senderEmail", "senderDisplayName");

@@ -1,4 +1,4 @@
-﻿// Ignore Spelling: frm  הכל יש לבחור הודעות דואר אלקטרוני בלבד אימייל הסר הכול שם קובץ גודל יש לבחור הודעות דואר אלקטרוני בלבד ההודעה נשמרה ב  תאריך  שמירה  שם הפרויקט  מס פרויקט  הערות  שם משתמש בחר  הסר  מספר פרויקט כפי שמופיע במסטרפלן שם לא חוקי  אין להשתמש בתווים הבאים  עריכת שם שם לא חוקי לא ניתן ליצור שם ריק חובה תו אחד לפחות עריכת שם מספר פרויקט לא חוקי
+﻿// Ignore Spelling: frm  הכל יש לבחור הודעות דואר אלקטרוני בלבד אימייל הסר הכול שם קובץ גודל יש לבחור הודעות דואר אלקטרוני בלבד ההודעה נשמרה ב  תאריך  שמירה  שם הפרויקט  מס פרויקט  הערות  שם משתמש בחר  הסר  מספר פרויקט כפי שמופיע במסטרפלן שם לא חוקי  אין להשתמש בתווים הבאים  עריכת שם שם לא חוקי לא ניתן ליצור שם ריק חובה תו אחד לפחות עריכת שם מספר פרויקט לא חוקי trv
 
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace SaveAsPDF.Helpers
 {
-    public static class TreeHelper
+    public static class TreeHelpers
     {
         //XmlDocument xmlDocument;
         //TreeNode _mySelectedNode;
@@ -46,7 +46,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="dir">Directory to list</param>
         /// <param name="expanded">If True, expand the tree node</param>
-        /// <returns>list of tree nodes</returns>
+        /// <returns>List of <see cref="TreeNode"/> tree nodes</returns>
         public static List<TreeNode> getFolderNodes(string dir, bool expanded)
         {
             string[] dirs = Directory.GetDirectories(dir).ToArray();
@@ -90,37 +90,88 @@ namespace SaveAsPDF.Helpers
             return false;
         }
         /// <summary>
+        /// Travers folders to tree nodes 
         /// 
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public static TreeNode TraverseDirectory(string path)
+        /// <param name="path"> Input path to start traversal </param>
+        /// <param name="maxDepth"> how deep the traversal will go maxDepth=0 all sub folders</param>
+        /// <returns>
+        /// tree nodes 
+        /// </returns>
+        public static TreeNode TraverseDirectory(string path, int maxDepth)
         {
             TreeNode result = new TreeNode(path);
-            Cursor.Current = Cursors.WaitCursor; //show the user we are doing something..... "the computer is thinking"
-            if (Directory.Exists(path))
-            {
-                foreach (string subdirectory in Directory.GetDirectories(path))
-                {
-                    if (!subdirectory.IsHidden())
-                    {
-                        TraverseDirectory(subdirectory);
-                        string[] s = subdirectory.Split('\\');
-                        result.Nodes.Add(s[s.Length - 1]);
 
-                        //result.Nodes.Add(TraverseDirectory(subdirectory);
+            try
+            {
+                if (Directory.Exists(path))
+                {
+                    TraverseSubdirectories(path, result, maxDepth, 0);
+                    result.ExpandAll();
+                }
+                else
+                {
+                    result.Nodes.Clear();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception (e.g., log it, show an error message, etc.)
+                // You can customize this part based on your application's requirements.
+                Console.WriteLine($"Error while traversing directory: {ex.Message}");
+            }
+
+            return result;
+        }
+
+        private static void TraverseSubdirectories(string path, TreeNode parentNode, int maxDepth, int currentDepth)
+        {
+            if (currentDepth >= maxDepth)
+                return;
+
+            foreach (string subdirectory in Directory.GetDirectories(path))
+            {
+                if (!File.GetAttributes(subdirectory).HasFlag(FileAttributes.Hidden))
+                {
+                    string subNodeName = Path.GetFileName(subdirectory); // Get only the directory name
+                    TreeNode subNode = new TreeNode(subNodeName);
+                    parentNode.Nodes.Add(subNode);
+                    if (maxDepth != 0)
+                    {
+                        TraverseSubdirectories(subdirectory, subNode, maxDepth, currentDepth + 1);
                     }
                 }
-                result.ExpandAll();
-                return result;
-            }
-            else
-            {
-                result.Nodes.Clear();
-                Cursor.Current = Cursors.Default;
-                return result;
             }
         }
+
+
+        //public static TreeNode TraverseDirectory(string path)
+        //{
+        //    TreeNode result = new TreeNode(path);
+        //    Cursor.Current = Cursors.WaitCursor; //show the user we are doing something..... "the computer is thinking"
+        //    if (Directory.Exists(path))
+        //    {
+        //        foreach (string subdirectory in Directory.GetDirectories(path))
+        //        {
+        //            if (!subdirectory.IsHidden())
+        //            {
+        //                TraverseDirectory(subdirectory);
+        //                string[] s = subdirectory.Split('\\');
+        //                result.Nodes.Add(s[s.Length - 1]);
+
+        //                //result.Nodes.Add(TraverseDirectory(subdirectory);
+        //            }
+        //        }
+        //        result.ExpandAll();
+        //        return result;
+        //    }
+        //    else
+        //    {
+        //        result.Nodes.Clear();
+        //        Cursor.Current = Cursors.Default;
+        //        return result;
+        //    }
+        //}
         /// <summary>
         /// Rename the node name according to user typing
         /// </summary>
@@ -169,7 +220,7 @@ namespace SaveAsPDF.Helpers
 
 
         /// <summary>
-        /// Add Node to treeview
+        /// Add Node to tree-view
         /// </summary>
         /// <param name="treeView"></param>
         /// <param name="mySelectedNode"></param>
@@ -214,7 +265,7 @@ namespace SaveAsPDF.Helpers
             }
         }
         /// <summary>
-        /// Delete a node from treeview 
+        /// Delete a node from tree-view 
         /// </summary>
         /// <param name="treeView"></param>
         /// <param name="mySelectedNode"></param>
@@ -323,7 +374,7 @@ namespace SaveAsPDF.Helpers
                 // Write the result into the file.
                 File.WriteAllText(file_name, sb.ToString());
             }
-            catch (System.Exception e)
+            catch (FieldAccessException e)
             {
                 MessageBox.Show(e.Message, "TreeHelper: SaveTreeViewIntoFile()");
             }
@@ -331,7 +382,7 @@ namespace SaveAsPDF.Helpers
 
 
         /// <summary>
-        /// Treeview to list string 
+        /// Tree-view to list string 
         /// </summary>
         /// <param name="treeView"></param>
         /// <returns></returns>
@@ -382,7 +433,7 @@ namespace SaveAsPDF.Helpers
                 var trace = new StackTrace(e);
                 var frame = trace.GetFrame(0);
                 var method = frame.GetMethod();
-                MessageBox.Show($"{method.DeclaringType.FullName}\\n{method.Name}\\n{e.Message}", "TreeHelper:LoadTreeViewFromFile()");
+                MessageBox.Show($"{method.DeclaringType.FullName}\n{method.Name}\n{e.Message}", "TreeHelper:LoadTreeViewFromFile()");
 
 
                 //MessageBox.Show($"{e.TargetSite.Name}\n{e.Message}", "TreeHelper:LoadTreeViewFromFile()");

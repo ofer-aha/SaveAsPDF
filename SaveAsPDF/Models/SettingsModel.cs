@@ -1,7 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace SaveAsPDF.Models
 {
+
+    [Serializable]
     public class SettingsModel
     {
         /// <summary>
@@ -50,18 +53,13 @@ namespace SaveAsPDF.Models
         /// </summary>
         public bool OpenPDF { get; set; }
         /// <summary>
-        /// the list of the 10 last projects typed by the user
-        /// it will save it as 1234;3456;6789.. and so on ';' = delimiter 
-        /// </summary>
-        public string LastProjects { get; set; }
-        /// <summary>
-        /// The amount of projects the LastProjects list will hold 
-        /// default = 10 
-        /// </summary>
-        public int LastProjectsCount { get; set; }
-        /// <summary>
         /// The project's root folder
         /// </summary>
-        public DirectoryInfo ProjectRootFolders { get; set; }
+        public DirectoryInfo ProjectRootFolder { get; set; }
+
+        public SettingsModel() { }
+
+
+
     }
 }

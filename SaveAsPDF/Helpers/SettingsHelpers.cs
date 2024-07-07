@@ -1,37 +1,40 @@
 ﻿using SaveAsPDF.Models;
 using SaveAsPDF.Properties;
+using System;
 using System.IO;
 using System.Windows;
 
 namespace SaveAsPDF.Helpers
 {
-    public class SettingsHelpers
+    [Serializable]
+    public static class SettingsHelpers
     {
-
-        static public string rootDrive = @"C:\Projects\";
-        static public string xmlSaveAsPDFFolder = @".SaveAsPDF\";
-        static public string xmlProjectFile = @".SaveAsPDF_Project.xml";
-        static public string xmlEmployeesFile = @".SaveAsPDF_Emploeeys.xml";
-        static public string defaultTreeFile = @"C:\Projects\tree.fld";
-        static public int minAttachmentSize = 8192;
-        static public string dateTag = "_תאריך_";
-        static public int defaultFolderID = 1;
-        static public string projectRootTag = "_מספר_פרויקט_";
-        static public bool openPDF = false;
-        static public string lastProjects = "1000;";
-        static public int lastProjectsCount = 10;
-        static public string sProjectRootFolders = $@"{rootDrive}10\1000\";
-        static public string defaultSavePath = $@"{rootDrive}{sProjectRootFolders}Inbox\";
-
-
+        //readonly for default settings
+        static public readonly string rootDrive = @"C:\Projects\";
+        static public readonly string xmlSaveAsPDFFolder = @".SaveAsPDF\";
+        static public readonly string xmlProjectFile = @".SaveAsPDF_Project.xml";
+        static public readonly string xmlEmployeesFile = @".SaveAsPDF_Emploeeys.xml";
+        static public readonly string defaultTreeFile = @"C:\Projects\tree.fld";
+        static public readonly int minAttachmentSize = 8192;
+        static public readonly string dateTag = "_תאריך_";
+        static public readonly int defaultFolderID = 1;
+        static public readonly string projectRootTag = "_מספר_פרויקט_";
+        static public readonly bool openPDF = false;
+        static public readonly string lastProjects = "1000;";
+        static public readonly int lastProjectsCount = 10;
+        static public readonly string sProjectRootFolders = $@"{rootDrive}10\1000\";
+        static public readonly string defaultSavePath = $@"{rootDrive}{sProjectRootFolders}Inbox\";
 
         /// <summary>
-        /// Load the settings.settings to the settingsModel 
+        /// Load the settings.settings to the _settingsModel 
         /// </summary>
-        public static SettingsModel loadSettingsToModel(SettingsModel settingsModel)
+        /// <param name="settingsModel"><see cref="SettingsModel"/> object</param>
+        /// <returns><see cref="SettingsModel"/> object</returns>
+        public static SettingsModel LoadSettingsToModel(SettingsModel settingsModel)
         {
             try
             {
+                // Load the settings from Settings.Default
                 settingsModel.RootDrive = Settings.Default.RootDrive;
                 settingsModel.XmlSaveAsPDFFolder = Settings.Default.xmlSaveAsPDFFolder;
                 settingsModel.XmlProjectFile = Settings.Default.xmlProjectFile;
@@ -43,23 +46,33 @@ namespace SaveAsPDF.Helpers
                 settingsModel.DefaultFolderID = Settings.Default.DefaultFolderID;
                 settingsModel.ProjectRootTag = Settings.Default.ProjectRootTag;
                 settingsModel.OpenPDF = Settings.Default.OpenPDF;
-                settingsModel.LastProjects = Settings.Default.LastProjects;
-                settingsModel.LastProjectsCount = Settings.Default.LastProjectsCount;
 
-                settingsModel.ProjectRootFolders = string.IsNullOrEmpty(Settings.Default.sProjectRootFolders) ?
-                                new DirectoryInfo(rootDrive) : new DirectoryInfo(Settings.Default.sProjectRootFolders);
+                // Deserialize the SettingsModelJson
+                //SettingsModel settingsModelJson = Settings.Default.SettingsModelJson;
+                //if (settingsModelJson != null)
+                //{
+                //    settingsModel = JsonConvert.DeserializeObject<SettingsModel>(settingsModelJson);
+                //    //settingsModel = JsonSerializer(settingsModelJson);
+                //}
+
+                // Set the ProjectRootFolder
+                settingsModel.ProjectRootFolder = string.IsNullOrEmpty(Settings.Default.sProjectRootFolders) ?
+                    new DirectoryInfo(rootDrive) : new DirectoryInfo(Settings.Default.sProjectRootFolders);
             }
-            catch (DirectoryNotFoundException e)
+            catch (System.Exception e)
             {
-                MessageBox.Show(e.Message, "SettingsHelpers:loadSettingsToModel");
+                MessageBox.Show(e.Message, "SettingsHelpers:LoadSettingsToModel");
             }
 
             return settingsModel;
         }
+
         /// <summary>
-        /// Save the settingsModel to Settings.Settings 
+        /// Save the _settingsModel to Settings.Settings 
         /// </summary>
-        public static void saveModelToSettings(SettingsModel settingsModel)
+        /// <param name="settingsModel"><see cref="SettingsModel"/> object</param>
+        /// 
+        public static void SaveModelToSettings(SettingsModel settingsModel)
         {
             Settings.Default.RootDrive = settingsModel.RootDrive;
             Settings.Default.xmlSaveAsPDFFolder = settingsModel.XmlSaveAsPDFFolder;
@@ -72,11 +85,10 @@ namespace SaveAsPDF.Helpers
             Settings.Default.DefaultFolderID = settingsModel.DefaultFolderID;
             Settings.Default.ProjectRootTag = settingsModel.ProjectRootTag;
             Settings.Default.OpenPDF = settingsModel.OpenPDF;
-            Settings.Default.LastProjects = settingsModel.LastProjects;
-            Settings.Default.LastProjectsCount = settingsModel.LastProjectsCount;
-            Settings.Default.sProjectRootFolders = settingsModel.ProjectRootFolders.ToString();
+            Settings.Default.sProjectRootFolders = settingsModel.ProjectRootFolder.ToString();
             Settings.Default.Save();
         }
+
         /// <summary>
         /// Ether first run or reset to defaults 
         /// </summary>
@@ -95,17 +107,74 @@ namespace SaveAsPDF.Helpers
                 Settings.Default.DefaultFolderID = defaultFolderID;
                 Settings.Default.ProjectRootTag = projectRootTag;
                 Settings.Default.OpenPDF = openPDF;
-                Settings.Default.LastProjects = lastProjects;
                 Settings.Default.LastProjectsCount = lastProjectsCount;
                 Settings.Default.sProjectRootFolders = sProjectRootFolders;
             }
-
         }
 
-        public static SettingsModel LoadSettingsForm(SettingsModel settingsModel)
+
+        /// <summary>
+        /// Load the settingsModel from Settings.Settings. parameterless overload.  
+        /// </summary>
+        /// <returns><see cref="SettingsModel"/> object </returns>
+        public static SettingsModel LoadProjectSettings()
         {
-            // d
-            return settingsModel;
+            return LoadProjectSettings(string.Empty);
+        }
+        /// <summary>
+        /// Load the settingsModel from Settings.Settings 
+        /// </summary>
+        /// <param name="projectID"><see cref="string"/> projrctID</param>
+        /// <returns><see cref="SettingsModel"/> object </returns>
+        public static SettingsModel LoadProjectSettings(this string projectID)
+        {
+            SettingsModel model = new SettingsModel();
+
+            model.RootDrive = Settings.Default.RootDrive; // j:\
+
+            // Folder tags
+            model.DateTag = Settings.Default.DateTag;
+            model.ProjectRootTag = Settings.Default.ProjectRootTag;
+
+            // More settings
+            model.DefaultFolderID = Settings.Default.DefaultFolderID;
+            model.MinAttachmentSize = Settings.Default.MinAttachmentSize;
+            model.DefaultTreeFile = Settings.Default.DefaultTreeFile;
+            model.OpenPDF = Settings.Default.OpenPDF;
+
+
+            if (!string.IsNullOrEmpty(projectID))
+            {
+                try
+                {
+                    // Project folder
+                    model.ProjectRootFolder = projectID.ProjectFullPath(model.RootDrive); // J:\12\1234
+
+                    // J:\12\1234\ + letters
+                    model.DefaultSavePath = $@"{model.ProjectRootFolder.Parent.FullName}\{Settings.Default.DefaultSavePath}".Replace(model.ProjectRootTag, projectID);
+
+                    // SaveAsPDF files and folder
+                    model.XmlSaveAsPDFFolder = $@"{model.ProjectRootFolder}{Settings.Default.xmlSaveAsPDFFolder}"; // J:\12\1234\.SaveAsPDF
+                    model.XmlEmployeesFile = $@"{model.XmlSaveAsPDFFolder}{Settings.Default.xmlEmployeesFile}"; // J:\12\1234\.SaveAsPDF\.SaveAsPDF_Employees.xml
+                    model.XmlProjectFile = $@"{model.XmlSaveAsPDFFolder}{Settings.Default.xmlProjectFile}"; // J:\12\1234\.SaveAsPDF\.SaveAsPDF_Project.xml
+
+                    //model = Settings.Default.settingsModel;
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception (you can replace this with your logging mechanism)
+                    MessageBox.Show($"Error loading project settings for project ID {projectID}:\n{ex.Message}");
+
+                    // Optionally, rethrow the exception or handle it as needed
+                    //throw;
+                }
+            }
+
+
+            //model = LoadSettingsToModel(model);
+
+
+            return model;
         }
 
     }

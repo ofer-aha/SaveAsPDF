@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Ignore Spelling: rtxt txt
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
@@ -172,7 +174,7 @@ namespace SaveAsPDF.Helpers
                 {
                     try
                     {
-                        string[] tf = FileFoldersHelper.MkDir($@"{frmMain.settingsModel.ProjectRootFolders.Parent.FullName}\{frmMain.mySelectedNode.FullPath}\New Folder").Split('\\');
+                        string[] tf = FileFoldersHelper.MkDir($@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\{frmMain.mySelectedNode.FullPath}\New Folder").Split('\\');
                         tv.AddNode(frmMain.mySelectedNode, tf[tf.Length - 1]);
 
                     }
@@ -191,7 +193,7 @@ namespace SaveAsPDF.Helpers
                 {
                     try
                     {
-                        string[] tf = FileFoldersHelper.MkDir($@"{frmMain.settingsModel.ProjectRootFolders.Parent.FullName}\{frmMain.mySelectedNode.FullPath}\{date.ToString("dd.MM.yyyy")}").Split('\\');
+                        string[] tf = FileFoldersHelper.MkDir($@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\{frmMain.mySelectedNode.FullPath}\{date.ToString("dd.MM.yyyy")}").Split('\\');
                         tv.AddNode(frmMain.mySelectedNode, tf[tf.Length - 1]);
                     }
                     catch (Exception ex)
@@ -212,7 +214,7 @@ namespace SaveAsPDF.Helpers
                 {
                     //TODO: maybe this will work with open PDF 
 
-                    Process.Start($@"{frmMain.settingsModel.ProjectRootFolders.Parent.FullName}\{frmMain.mySelectedNode.FullPath}");
+                    Process.Start($@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\{frmMain.mySelectedNode.FullPath}");
                 };
                 cms.Items.Add(tsmiOpen);
 
@@ -223,9 +225,9 @@ namespace SaveAsPDF.Helpers
                     if (frmMain.mySelectedNode.Parent != null)
                     {
                         if (MessageBox.Show("האם למחוק תיקייה ואת כל הקבצים והתיקיות שהיא מכילה?\n" +
-                                $@"{frmMain.settingsModel.ProjectRootFolders.Parent.FullName}\{frmMain.mySelectedNode.FullPath}", "SaveAsPDF", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                $@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\{frmMain.mySelectedNode.FullPath}", "SaveAsPDF", MessageBoxButtons.YesNo) == DialogResult.Yes)
                         {
-                            FileFoldersHelper.RmDir($@"{frmMain.settingsModel.ProjectRootFolders.Parent.FullName}\{frmMain.mySelectedNode.FullPath}");
+                            FileFoldersHelper.RmDir($@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\{frmMain.mySelectedNode.FullPath}");
                             tv.DelNode(frmMain.mySelectedNode);
                         }
                     }
@@ -240,7 +242,7 @@ namespace SaveAsPDF.Helpers
                 ToolStripMenuItem tsmiRename = new ToolStripMenuItem(menuNameRename);
                 tsmiRename.Click += (sender, e) =>
                 {
-                    string oldName = $@"{frmMain.settingsModel.ProjectRootFolders.Parent.FullName}\frmMain.{frmMain.mySelectedNode.FullPath}";
+                    string oldName = $@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\frmMain.{frmMain.mySelectedNode.FullPath}";
                     DirectoryInfo directoryInfo = new DirectoryInfo(oldName.SafeFolderName());
 
                     tv.RenameNode(frmMain.mySelectedNode);
@@ -258,7 +260,7 @@ namespace SaveAsPDF.Helpers
                 tsmiRefresh.Click += (sender, e) =>
                 {
                     tv.Nodes.Clear();
-                    tv.Nodes.Add(TreeHelper.CreateDirectoryNode(frmMain.settingsModel.ProjectRootFolders));
+                    tv.Nodes.Add(TreeHelpers.CreateDirectoryNode(frmMain.settingsModel.ProjectRootFolder));
                     tv.ExpandAll();
                     tv.SelectedNode = tv.Nodes[0];
                 };
@@ -276,11 +278,8 @@ namespace SaveAsPDF.Helpers
                     tsmiDelete.Enabled = tv.SelectedNode.Parent != null; //Cant delete the root node
                     //tsmiSelectAll.Enabled = tv.TextLength > 0 && tv.SelectionLength < tv.TextLength;
                 };
-
                 tv.ContextMenuStrip = cms;
             }
-
-
         }
     }
 }

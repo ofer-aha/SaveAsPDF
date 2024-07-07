@@ -107,7 +107,7 @@ namespace SaveAsPDF
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(301, 13);
             this.label2.TabIndex = 3;
-            this.label2.Text = "שם לב: אנשי קשר ללא כתובת אי מייל לא יופיעו ברישמה";
+            this.label2.Text = "שם לב: אנשי קשר ללא כתובת אי מייל לא יופיעו ברשימה";
             // 
             // label1
             // 

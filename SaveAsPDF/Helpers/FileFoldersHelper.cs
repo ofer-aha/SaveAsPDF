@@ -1,7 +1,4 @@
-﻿// Ignore Spelling: frm  הכל יש לבחור הודעות דואר אלקטרוני בלבד אימייל הסר הכול שם קובץ גודל יש לבחור הודעות דואר אלקטרוני בלבד ההודעה נשמרה ב  תאריך  שמירה  שם הפרויקט  מס פרויקט  הערות  שם משתמש בחר  הסר  מספר פרויקט כפי שמופיע במסטרפלן שם לא חוקי  אין להשתמש בתווים הבאים  עריכת שם שם לא חוקי לא ניתן ליצור שם ריק חובה תו אחד לפחות עריכת שם מספר פרויקט לא חוקי תקייה לא יכול להיות קיימת או
-
-using SaveAsPDF.Models;
-using System;
+﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -14,84 +11,85 @@ namespace SaveAsPDF.Helpers
         /// <summary>
         /// Extension method: 
         /// <list>
-        /// Construct the full _projectModel path based on the _projectModel's number (NOT ID) 
-        /// so _projectModel 1234 => j:\12\1234 
+        /// Construct the full project path based on the projectNumber (NOT ID) 
+        /// so projectNumber 1234 => j:\12\1234 
         /// </list>
         /// </summary>
-        /// <param name="projectNumber"> The _projectModel name</param>
-        /// <returns> string representing the _projectModel's path, default value is rootDrive</returns>
-        public static DirectoryInfo ProjectFullPath(this string projectNumber, SettingsModel sm)
+        /// <param name="projectNumber"> The _projectModel name </param>
+        /// <param name="rootDrive"> The default root drive </param>
+        /// <returns> 
+        /// string representing the _projectModel's path, default value is rootDrive
+        /// </returns>
+        public static DirectoryInfo ProjectFullPath(this string projectNumber, string rootDrive)
         {
-            string rootDrive = sm.RootDrive;
             string output = rootDrive;
             projectNumber = projectNumber.Trim();
 
             if (!projectNumber.SafeProjectID())
             {
+                //Error handling, user input was incorrect projectid format 
                 //Default return: root drive.
-                output = sm.RootDrive;
+                return new DirectoryInfo(output);
             }
-            else
+
+            if (!projectNumber.Contains("-"))
             {
-                if (!projectNumber.Contains("-"))
+                //simple ProjectId 123 or 1234
+                if (projectNumber.Length == 3)
                 {
-                    //simple ProjectId XXX or XXXX
-                    if (projectNumber.Length == 3)
-                    {
-                        //projectID: XXX = > J:\0X
-                        output += $"0{projectNumber}".Substring(0, 2);
-                    }
-                    else
-                    {
-                        //projectID: XXXX => J:\XX
-                        output += projectNumber.Substring(0, 2);
-                    }
+                    //projectID: 123 = > J:\01 (rootDrive+"0"+first_digit(123)) 
+                    output += $"0{projectNumber}".Substring(0, 2);
                 }
                 else
                 {
-                    //more complicated _projectModel id: XXX-X or XXX-XX or XXX-X-XX well you catch my point....
-                    string[] split = projectNumber.Split('-'); //split the projectid to parts
+                    //projectID: XXXX => J:\XX
+                    output += projectNumber.Substring(0, 2);
+                }
+            }
+            else
+            {
+                //more complicated _projectModel id: XXX-X or XXX-XX or XXX-X-XX well you catch my point....
+                string[] split = projectNumber.Split('-'); //split the projectid to parts
 
-                    if (split[0].Length == 3)
+                if (split[0].Length == 3)
+                {
+                    output += $"0{split[0]}".Substring(0, 2);
+                }
+                else
+                {
+                    output += split[0].Substring(0, 2);
+                }
+                //if NOT exist   J:\XX\XXXX-XX
+                if (!Directory.Exists($@"{output}\{projectNumber}\"))
+                {
+                    // J:\XX\XXXX\XXXX-XX\
+                    output += $@"\{split[0]}";
+                }
+                //output = J:\
+                //projectID = XXX || XXXX || XXX-X || XXXX-XX
+                //split[0].substring(0,2)  = XX
+                //split[0] = XXX || XXXX
+                //split[1] = X || XX 
+                //if exist   J:\XX\XXXX-XX   then    J:\XX\XXXX-X\       else           J:\XX\XXXX\XXXX-X
+
+                if (split.Length == 3) //projectID looks like this XXXX-XX-XX 
+                                       //   if exist   J:\XX\XXXX-XX\XXXX-XX-X\            then       
+                {
+                    if (!Directory.Exists($@"{output}\{split[0]}-{split[1]}\{projectNumber}\"))
                     {
-                        output += $"0{split[0]}".Substring(0, 2);
+
+                        output += $"-{split[1]}";
                     }
                     else
                     {
-                        output += split[0].Substring(0, 2);
-                    }
-                    //if NOT exist   J:\XX\XXXX-XX
-                    if (!Directory.Exists($@"{output}\{projectNumber}\"))
-                    {
-                        // J:\XX\XXXX\XXXX-XX\
-                        output += $@"\{split[0]}";
-                    }
-                    //output = J:\
-                    //projectID = XXX || XXXX || XXX-X || XXXX-XX
-                    //split[0].substring(0,2)  = XX
-                    //split[0] = XXX || XXXX
-                    //split[1] = X || XX 
-                    //if exist   J:\XX\XXXX-XX   then    J:\XX\XXXX-X\       else           J:\XX\XXXX\XXXX-X
-
-                    if (split.Length == 3) //projectID looks like this XXXX-XX-XX 
-                                           //   if exist   J:\XX\XXXX-XX\XXXX-XX-X\            then       
-                    {
-                        if (!Directory.Exists($@"{output}\{split[0]}-{split[1]}\{projectNumber}\"))
-                        {
-
-                            output += $"-{split[1]}";
-                        }
-                        else
-                        {
-                            output += $@"\{split[0]}-{split[1]}";
-                        }
+                        output += $@"\{split[0]}-{split[1]}";
                     }
                 }
 
-                output += $@"\{projectNumber}\";
-            }
 
-            return new DirectoryInfo(output); ;
+            }
+            output += $@"\{projectNumber}\";
+            return new DirectoryInfo(output);
         }
 
 
@@ -103,8 +101,8 @@ namespace SaveAsPDF.Helpers
         /// </list>
         /// </summary>
         /// <param name="projectID"></param>
-        /// <returns></returns>
-        public static Boolean SafeProjectID(this string projectID)
+        /// <returns> <see cref="bool"/> is it in the correct format </returns>
+        public static bool SafeProjectID(this string projectID)
         {
             if (projectID == null) { return false; }
 
@@ -238,8 +236,10 @@ namespace SaveAsPDF.Helpers
 
 
         /// <summary>
+        /// <list>
         /// Extension method to create hidden folders.
-        /// Mainly used to create the <b>.SaveAsPDF </b> hidden folder 
+        /// </list>
+        /// Mainly used to create the <b><u>.SaveAsPDF </u></b> hidden folder 
         /// use internally - no need to verify input
         /// </summary>
         /// <param name="folder"> string representing the hidden folder name to create </param>
@@ -257,8 +257,15 @@ namespace SaveAsPDF.Helpers
             }
             else
             {
-                DirectoryInfo di = Directory.CreateDirectory($@"{SettingsHelpers.xmlSaveAsPDFFolder}");
-                di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+                try
+                {
+                    DirectoryInfo di = Directory.CreateDirectory($@"{SettingsHelpers.xmlSaveAsPDFFolder}");
+                    di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message, "FileFolderHelper:CreatHiddenFolde");
+                }
             }
         }
 
@@ -267,76 +274,11 @@ namespace SaveAsPDF.Helpers
         /// if the folder already exists it will name it New Folder (2)... New Folder (3)  and so on. 
         /// </summary>
         /// <param name="folder">string representing the folder name to create</param>
-
-        //public static string MkDir(string folder)
-        //{
-        //    string output = folder;
-        //    if (string.IsNullOrEmpty(folder))
-        //    {
-        //        throw new ArgumentNullException("MkDir:folder", "שם תקייה לא יכול להיות ריק");
-        //    }
-
-        //    if (Directory.Exists(folder))
-        //    {
-        //        int i = 0;
-        //        if (int.TryParse(TextHelpers.GetBetween(folder, "(", ")"), out i))
-        //        {
-        //            folder = folder.Replace($"({i})", $"({i + 1})");
-        //            output = folder;
-        //            MkDir(folder);
-        //        }
-        //        else
-        //        {
-        //            output = $"{folder} (2)";
-        //            MkDir(output);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        Directory.CreateDirectory(folder);
-
-        //    }
-        //    return output;
-        //}
-        //public static string MkDir(string folder)
-        //{
-        //    if (string.IsNullOrEmpty(folder))
-        //    {
-        //        throw new ArgumentNullException("MkDir:folder", "שם תקייה לא יכול להיות ריק");
-        //    }
-
-        //    // Check if the folder already exists
-        //    if (Directory.Exists(folder))
-        //    {
-        //        int i = 0;
-        //        if (int.TryParse(TextHelpers.GetBetween(folder, "(", ")"), out i))
-        //        {
-        //            // Increment the integer and replace it in the folder name
-        //            folder = folder.Replace($"({i})", $"({i + 1})");
-        //        }
-        //        else
-        //        {
-        //            // Append "(2)" to the folder name
-        //            folder = $"{folder} (2)";
-        //        }
-
-        //        // Check if the modified folder name exists recursively
-        //        return MkDir(folder);
-        //    }
-        //    else
-        //    {
-        //        // Create the directory
-        //        Directory.CreateDirectory(folder);
-        //        return folder;
-        //    }
-        //}
-
-
         public static string MkDir(string baseFolder)
         {
             if (string.IsNullOrEmpty(baseFolder))
             {
-                MessageBox.Show("שם תקייה לא יכול להיות ריק");
+                MessageBox.Show("שם תיקיה לא יכול להיות ריק");
                 return baseFolder;
             }
             // Remove invalid characters from the folder name
@@ -358,23 +300,6 @@ namespace SaveAsPDF.Helpers
                 return sanitizedFolder;
             }
         }
-        /// <summary>
-        /// Remove invalid characters (e.g., slashes, colons, etc.)
-        /// </summary>
-        /// <param name="folderName"></param>
-        /// <returns>
-        /// string: clean folder name 
-        /// </returns>
-        private static string SanitizeFolderName(string folderName)
-        {
-            // Remove invalid characters (e.g., slashes, colons, etc.)
-            string sanitizedName = Regex.Replace(folderName, "[^a-zA-Z0-9-_(). ]", "");
-
-            // Trim leading/trailing spaces and dots
-            sanitizedName = sanitizedName.Trim('.', ' ');
-
-            return sanitizedName;
-        }
 
         /// <summary>
         /// Delete folder recursive
@@ -384,7 +309,7 @@ namespace SaveAsPDF.Helpers
         {
             if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder))
             {
-                MessageBox.Show("תקייה לא קיימת או שם ריק");
+                MessageBox.Show("תיקיה לא קיימת או שם ריק");
                 return;
             }
             string[] dirs = Directory.GetDirectories(folder);
@@ -406,10 +331,8 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="di">Directory object</param>
         /// <param name="folder">New name for the directory</param>
-        /// 
         public static void RnDir(this DirectoryInfo di, string folder)
         {
-
             if (di == null || string.IsNullOrEmpty(folder))
             {
                 MessageBox.Show("שם תיקייה לא חוקי");
@@ -418,11 +341,7 @@ namespace SaveAsPDF.Helpers
             else
             {
                 di.MoveTo(folder);
-
             }
-
-
         }
     }
-
 }

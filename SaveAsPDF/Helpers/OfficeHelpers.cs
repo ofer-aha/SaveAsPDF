@@ -1,9 +1,10 @@
-﻿using Microsoft.Office.Interop.Outlook;
+﻿// Ignore Spelling: dgv
+
+using Microsoft.Office.Interop.Outlook;
 using Microsoft.Office.Interop.Word;
 using SaveAsPDF.Models;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -33,7 +34,7 @@ namespace SaveAsPDF.Helpers
         //            fileName = attachment.FileName,
         //            fileSize = attachment.Size.BytesToString()
         //        };
-        //        if (attachment.Size >= settingsModel.MinAttachmentSize)
+        //        if (attachment.Size >= _settingsModel.MinAttachmentSize)
         //        {
         //            output.Add(att);
         //        }
@@ -87,18 +88,18 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="mailItem"></param>
         /// <param name="path"></param>
-        //public static void SaveToPDF(this MailItem mailItem, string path)
+        //public static void SaveToPDF(this MailItem _mailItem, string path)
         //{
         //    //create temp file name with unique time stamp 
         //    string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
         //    string tFilename = $@"{Path.GetTempPath()}{timeStamp}.mht";
 
-        //    mailItem.SaveAs(tFilename, OlSaveAsType.olMHTML);
+        //    _mailItem.SaveAs(tFilename, OlSaveAsType.olMHTML);
 
         //    word.Application oWord = new word.Application();
         //    word.Document oDOC = oWord.Documents.Open(@tFilename, false);
 
-        //    oDOC.ConvertToPDF($@"{path}\\{timeStamp}_{mailItem.Subject.SafeFolderName()}.pdf");
+        //    oDOC.ConvertToPDF($@"{path}\\{timeStamp}_{_mailItem.Subject.SafeFolderName()}.pdf");
 
         //    oDOC.Close();
         //    oWord.Quit();
@@ -111,7 +112,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="mailItem"></param>
         /// <param name="outputPath"></param>
-        public static void SaveToPdf(this Outlook.MailItem mailItem, string outputPath)
+        public static void SaveToPDF(this Outlook.MailItem mailItem, string outputPath)
         {
             string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss") + "_";
             // Create a temporary MHT file
@@ -146,7 +147,7 @@ namespace SaveAsPDF.Helpers
 
         /// <summary>
         /// Converts the .MHT file now saved to the user's temp directory 
-        /// to PDF format and saves it to the users choosen path 
+        /// to PDF format and saves it to the users chosen path 
         /// </summary>
         /// <param name="oDOC"></param>
         /// <param name="oFileName"></param>
@@ -228,35 +229,39 @@ namespace SaveAsPDF.Helpers
         /// Method to get all attachments that are NOT in line attachments (like images and stuff).
         /// </summary>
         /// <param name="mailItem"></param>
-        /// <returns></returns>
-        public static List<Attachment> GetMailAttachments(this MailItem mailItem)
+        /// <returns> Attachment list </returns>
+        public static List<Attachment> GetAttachmentsFromEmail(this MailItem mailItem)
         {
             const string PR_ATTACH_METHOD = "http://schemas.microsoft.com/mapi/proptag/0x37050003";
             const string PR_ATTACH_FLAGS = "http://schemas.microsoft.com/mapi/proptag/0x37140003";
 
             var attachments = new List<Attachment>();
 
-            // if this is a plain text email, every attachment is a non-in line attachment
-            if (mailItem.BodyFormat == OlBodyFormat.olFormatPlain && mailItem.Attachments.Count > 0)
+            try
             {
-                attachments.AddRange(mailItem.Attachments.Cast<object>().Select(attachment => attachment as Attachment));
-                return attachments;
+                if (mailItem.BodyFormat == OlBodyFormat.olFormatPlain && mailItem.Attachments.Count > 0)
+                {
+                    attachments.AddRange(mailItem.Attachments.Cast<object>().Select(attachment => attachment as Attachment));
+                }
+                else if (mailItem.BodyFormat == OlBodyFormat.olFormatRichText)
+                {
+                    attachments.AddRange(
+                        mailItem.Attachments.Cast<object>()
+                            .Select(attachment => attachment as Attachment)
+                            .Where(thisAttachment => (int)thisAttachment.PropertyAccessor.GetProperty(PR_ATTACH_METHOD) != 6));
+                }
+                else if (mailItem.BodyFormat == OlBodyFormat.olFormatHTML)
+                {
+                    attachments.AddRange(
+                        mailItem.Attachments.Cast<object>()
+                            .Select(attachment => attachment as Attachment)
+                            .Where(thisAttachment => (int)thisAttachment.PropertyAccessor.GetProperty(PR_ATTACH_FLAGS) != 4));
+                }
             }
-
-            // if the body format is RTF ...
-            if (mailItem.BodyFormat == OlBodyFormat.olFormatRichText)
+            catch (System.Exception ex)
             {
-                // add every attachment where the PR_ATTACH_METHOD property is NOT 6 (ATTACH_OLE)
-                attachments.AddRange(
-                    mailItem.Attachments.Cast<object>().Select(attachment => attachment as Attachment).Where(thisAttachment => (int)thisAttachment.PropertyAccessor.GetProperty(PR_ATTACH_METHOD) != 6));
-            }
-
-            // if the body format is HTML ...
-            if (mailItem.BodyFormat == OlBodyFormat.olFormatHTML)
-            {
-                // add every attachment where the ATT_MHTML_REF property is NOT 4 (ATT_MHTML_REF)
-                attachments.AddRange(
-                    mailItem.Attachments.Cast<object>().Select(attachment => attachment as Attachment).Where(thisAttachment => (int)thisAttachment.PropertyAccessor.GetProperty(PR_ATTACH_FLAGS) != 4));
+                // Handle exceptions (e.g., log, display a message, etc.)
+                MessageBox.Show($"Error while processing attachments: {ex.Message}", "OfficeHelpers:GetAttachmentsFromEmail");
             }
 
             return attachments;
@@ -280,123 +285,57 @@ namespace SaveAsPDF.Helpers
             return output;
         }
         /// <summary>
-        /// Save the attachment files to the choose path. 
+        /// Save the attachment files to the chosen path. 
         /// if overWrite=True existing files will be over write else "(n)" will be appended to file names
         /// </summary>
-        /// <param name="mi"></param>
-        /// <param name="dgv"></param>
-        /// <param name="path"></param>
-        /// <param name="overWrite"></param>
-        /// <returns></returns>
-
-        public static List<string> SaveAttachments(this MailItem mi, DataGridView dgv, string path, bool overWrite)
+        /// <param name="mi">Source mailItem to extract the files form</param>
+        /// <param name="dgv"> Source Data grid </param>
+        /// <param name="path">Destination folder </param>
+        /// <param name="overWrite"> default = false</param>
+        /// <returns> list of attachments </returns>
+        public static List<string> SaveAttachments(this MailItem mi, DataGridView dgv, string path, bool overWrite = false)
         {
             var selectedFileNames = new HashSet<string>(dgv.GetSelectedAttachmentFiles(), StringComparer.OrdinalIgnoreCase);
             var output = new List<string>();
 
             foreach (Attachment attachment in mi.Attachments)
             {
-                string originalFileName = attachment.DisplayName;
-                string safeFileName = Path.GetFileNameWithoutExtension(originalFileName);
-                string extension = Path.GetExtension(originalFileName);
-
-                // Ensure safe filename (replace invalid characters)
-                safeFileName = string.Join("_", safeFileName.Split(Path.GetInvalidFileNameChars()));
-
-                string targetFilePath = Path.Combine(path, safeFileName + extension);
-
-                if (selectedFileNames.Contains(originalFileName))
+                try
                 {
-                    if (File.Exists(targetFilePath) && !overWrite)
-                    {
-                        int suffix = 2;
-                        while (File.Exists(targetFilePath))
-                        {
-                            targetFilePath = Path.Combine(path, $"{safeFileName}_({suffix}){extension}");
-                            suffix++;
-                        }
-                    }
+                    string originalFileName = attachment.DisplayName;
+                    string safeFileName = Path.GetFileNameWithoutExtension(originalFileName);
+                    string extension = Path.GetExtension(originalFileName);
 
-                    attachment.SaveAsFile(targetFilePath);
-                    output.Add($"{Path.GetFileName(targetFilePath)}|{attachment.Size.BytesToString()}");
+                    // Ensure safe filename (replace invalid characters)
+                    safeFileName = string.Join("_", safeFileName.Split(Path.GetInvalidFileNameChars()));
+
+                    string targetFilePath = Path.Combine(path, safeFileName + extension);
+
+                    if (selectedFileNames.Contains(originalFileName))
+                    {
+                        if (File.Exists(targetFilePath) && !overWrite)
+                        {
+                            int suffix = 2;
+                            while (File.Exists(targetFilePath))
+                            {
+                                targetFilePath = Path.Combine(path, $"{safeFileName}_({suffix}){extension}");
+                                suffix++;
+                            }
+                        }
+
+                        attachment.SaveAsFile(targetFilePath);
+                        output.Add($"{Path.GetFileName(targetFilePath)}|{attachment.Size.BytesToString()}");
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    // Handle exceptions (e.g., invalid filenames, permissions, etc.)
+                    output.Add($"Error saving attachment: {attachment.DisplayName} ({ex.Message})");
                 }
             }
 
             return output;
         }
-
-
-
-
-
-
-        //public static List<string> SaveAttachments(this MailItem mi, DataGridView dgv, string path, bool overWrite)
-        //{
-        //    var attachments = mi.Attachments;
-        //    List<string> attFileList = new List<string>();
-        //    List<string> output = new List<string>();
-
-        //    attFileList = dgv.GetSelectedAttachmentFiles();
-
-        //    if (attachments.Count != 0)
-        //    {
-        //        for (int i = 1; i <= mi.Attachments.Count; i++)
-        //        {
-        //            String file = mi.Attachments[i].DisplayName;
-
-        //            if (attFileList.Any(mi.Attachments[i].FileName.Contains))
-        //            {
-        //                if (File.Exists(Path.Combine(path, file)) && !overWrite)
-        //                {
-        //                    int x = 2;
-        //                    string[] tFile = file.Split('.');
-        //                    file = "";
-        //                    for (int j = 0; j < tFile.Length - 1; j++)
-        //                    {
-        //                        file += tFile[j];
-        //                    }
-        //                    while (File.Exists(Path.Combine(path, $@"{file}_({x}).{tFile[tFile.Length - 1]}")))
-        //                    {
-        //                        x++;
-        //                    }
-        //                    mi.Attachments[i].SaveAsFile(Path.Combine(path, $@"{file}_({x}).{tFile[tFile.Length - 1]}"));
-        //                    output.Add($@"{file}_({x}).{tFile[tFile.Length - 1]}|{mi.Attachments[i].Size.BytesToString()}");
-        //                }
-        //                else
-        //                {
-        //                    mi.Attachments[i].SaveAsFile(Path.Combine(path, mi.Attachments[i].DisplayName));
-        //                    output.Add($"{mi.Attachments[i].DisplayName}|{mi.Attachments[i].Size.BytesToString()}");
-        //                }
-
-        //            }
-        //        }
-        //    }
-        //    return output;
-        //}
-
-        //   create unique timestamps for unique filenames
-        //    string TimeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff", CultureInfo.CurrentUICulture);
-        //    string tFilename = @Path.GetTempPath() + TimeStamp + ".mht";
-        //    mailItem.SaveAs(@tFilename, OlSaveAsType.olMHTML);
-        //        word.Application oWord = new word.Application();
-        //    word.Document oDOC = oWord.Documents.Open(@tFilename, true);
-        //    object misValue = System.Reflection.Missing.Value;
-        //    string oFileName = $"{ lblFolder.Text }{ TimeStamp }_{ mailItem.Subject.SafeFolderName() }.pdf";
-        //    ConvertPDF(oDOC, misValue, @oFileName);
-        //}
-        //private static void ConvertPDF(Document oDOC, object misValue, string oFileName)
-        //{
-        //    oDOC.ExportAsFixedFormat(@oFileName,
-        //                    word.WdExportFormat.wdExportFormatPDF,
-        //                    false,
-        //                    word.WdExportOptimizeFor.wdExportOptimizeForPrint,
-        //                    word.WdExportRange.wdExportAllDocument, (int)misValue, (int)misValue, WdExportItem.wdExportDocumentWithMarkup, false,
-        //                     true, WdExportCreateBookmarks.wdExportCreateWordBookmarks, true, true, false, misValue);
-        //}
-
-
-
-
 
     }
 

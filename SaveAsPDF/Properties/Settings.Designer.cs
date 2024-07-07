@@ -145,10 +145,9 @@ namespace SaveAsPDF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1234")]
-        public string LastProjects {
+        public global::System.Collections.Specialized.StringCollection LastProjects {
             get {
-                return ((string)(this["LastProjects"]));
+                return ((global::System.Collections.Specialized.StringCollection)(this["LastProjects"]));
             }
             set {
                 this["LastProjects"] = value;
@@ -188,6 +187,17 @@ namespace SaveAsPDF.Properties {
             }
             set {
                 this["DefaultSavePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::SaveAsPDF.Models.SettingsModel SettingsModelJson {
+            get {
+                return ((global::SaveAsPDF.Models.SettingsModel)(this["SettingsModelJson"]));
+            }
+            set {
+                this["SettingsModelJson"] = value;
             }
         }
     }

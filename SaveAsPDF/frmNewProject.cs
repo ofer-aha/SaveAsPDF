@@ -41,7 +41,7 @@ namespace SaveAsPDF
 
                 //create the _projectModel's sub-folders 
 
-                _subFolfers = TreeHelper.ListNodesPath(tvDefaultSubFolders.Nodes[0]);
+                _subFolfers = TreeHelpers.ListNodesPath(tvDefaultSubFolders.Nodes[0]);
                 foreach (string subFolder in _subFolfers)
                 {
                     FileFoldersHelper.MkDir(subFolder);

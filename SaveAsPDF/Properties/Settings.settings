@@ -32,8 +32,8 @@
     <Setting Name="OpenPDF" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="LastProjects" Type="System.String" Scope="User">
-      <Value Profile="(Default)">1234</Value>
+    <Setting Name="LastProjects" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="LastProjectsCount" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -43,6 +43,9 @@
     </Setting>
     <Setting Name="DefaultSavePath" Type="System.String" Scope="User">
       <Value Profile="(Default)">מכתבים\</Value>
+    </Setting>
+    <Setting Name="SettingsModelJson" Type="SaveAsPDF.Models.SettingsModel" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SaveAsPDF")]
-[assembly: AssemblyDescription("Microsoft Outlook addon for saving  e-mail messages to PDF")]
+[assembly: AssemblyDescription("Microsoft Outlook ad-don for saving  e-mail messages to PDF")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ofer Aharon")]
 [assembly: AssemblyProduct("SaveAsPDF")]
