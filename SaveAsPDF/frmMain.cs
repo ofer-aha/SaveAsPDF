@@ -74,6 +74,8 @@ namespace SaveAsPDF
             txtProjectID.AutoCompleteSource = AutoCompleteSource.CustomSource;
             LoadSearchHistory();
 
+            settingsModel = SettingsHelpers.LoadProjectSettings();
+
             //get a list of the drives for the folders tree 
             string[] drives = Environment.GetLogicalDrives();
             foreach (string drive in drives)
@@ -107,7 +109,7 @@ namespace SaveAsPDF
 
                 tvFolders.Nodes.Add(node);
 
-                KeyDown += frmMain_KeyDown; //add the keydown event to the form
+                KeyDown += frmMain_KeyDown; //add the key-down event to the form
             }
         }
 
@@ -148,35 +150,7 @@ namespace SaveAsPDF
         {
             if (e.KeyCode == Keys.Enter)
             {
-                if (((TextBox)sender).Text.SafeProjectID())
-                {
-                    settingsModel = SettingsHelpers.LoadProjectSettings(((TextBox)sender).Text);
-                    SettingsModel settings = new SettingsModel
-                    {
-                        ProjectRootFolder = settingsModel.ProjectRootFolder,
-                    };
-                    ProcessProjectID();
-                    UpdateAutoCompleteSource();
-                }
-                else
-                {
-                    ShowInvalidProjectIDError();
-                    return;
-                }
-
-                if (string.IsNullOrEmpty(settingsModel.RootDrive))
-                {
-                    HandleFirstRun();
-                }
-
-                if (_mailItem is MailItem mailItem)
-                {
-                    ProcessMailItem(_mailItem);
-                }
-                else
-                {
-                    ShowInvalidMailItemError();
-                }
+                txtProjectID_Validating(sender, new System.ComponentModel.CancelEventArgs());
             }
         }
 
@@ -208,26 +182,36 @@ namespace SaveAsPDF
             }
         }
 
-        private void ProcessProjectID()
+        /// <summary>
+        /// Processes the project ID entered by the user.
+        /// </summary>
+        /// <param name="projectID">The project ID entered by the user.</param>
+        private void ProcessProjectID(string projectID)
         {
-            ClearForm();
+            //ClearForm();
             //settingsModel.ProjectRootFolder = txtProjectID.Text.ProjectFullPath(settingsModel.RootDrive);
             //txtSaveLocation.Text = $@"{settingsModel.ProjectRootFolder.FullName}
             //                  {settingsModel.DefaultSavePath.Replace(settingsModel.ProjectRootTag,
             //                          settingsModel.ProjectRootFolder.FullName).Replace(settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"))}";
+            if (projectID.SafeProjectID())
+            {
+                settingsModel = SettingsHelpers.LoadProjectSettings(projectID);
+                //SettingsModel settings = new SettingsModel
+                //{
+                //    ProjectRootFolder = settingsModel.ProjectRootFolder,
+                //};
 
-            LoadXmls();
+                LoadXmls();
 
-            txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
-            txtSaveLocation.Text = settingsModel.DefaultSavePath;
+                txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
+                txtSaveLocation.Text = settingsModel.DefaultSavePath;
 
-            btnOK.Focus();
-            _dataLoaded = true;
+                btnOK.Focus();
+                _dataLoaded = true;
+            }
         }
-
         private void ShowInvalidProjectIDError()
         {
-            picBoxProjectID.Visible = true;
             txtProjectID.BackColor = System.Drawing.Color.Red;
             txtProjectID.SelectAll();
         }
@@ -785,24 +769,45 @@ namespace SaveAsPDF
 
         private void txtProjectID_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (!FileFoldersHelper.SafeProjectID(txtProjectID.Text))
+            if (!txtProjectID.Text.SafeProjectID())
             {
                 e.Cancel = true;
+                errorProviderMain.SetError(txtProjectID, "מספר פרויקט לא חוקי");
                 txtProjectID.Select(0, txtProjectID.Text.Length);
                 txtProjectID.BackColor = System.Drawing.Color.Red;
-                tsslStatus.Text = "מספר פרויקט לא חוקי";
-                picBoxProjectID.Visible = true;
+                tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
+                ShowInvalidProjectIDError();
             }
         }
 
         private void txtProjectID_Validated(object sender, EventArgs e)
         {
+            errorProviderMain.SetError(txtProjectID, string.Empty);
             txtProjectID.BackColor = System.Drawing.Color.White;
-            picBoxProjectID.Visible = false;
-            tsslStatus.Text = string.Empty;
+            tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
+            //settingsModel = SettingsHelpers.LoadProjectSettings(((TextBox)sender).Text);
+            //SettingsModel settings = new SettingsModel
+            //{
+            //    ProjectRootFolder = settingsModel.ProjectRootFolder,
+            //};
+            ProcessProjectID(txtProjectID.Text);
+            UpdateAutoCompleteSource();
 
-            ClearForm();
-            LoadXmls();
+
+            if (string.IsNullOrEmpty(settingsModel.RootDrive))
+            {
+                HandleFirstRun();
+            }
+
+            if (_mailItem is MailItem mailItem)
+            {
+                ProcessMailItem(_mailItem);
+            }
+            else
+            {
+                ShowInvalidMailItemError();
+            }
+
             _dataLoaded = true;
         }
 

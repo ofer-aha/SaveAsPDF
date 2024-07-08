@@ -59,6 +59,7 @@ namespace SaveAsPDF
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnSaveTreeFile = new System.Windows.Forms.Button();
             this.lblTreePath = new System.Windows.Forms.Label();
             this.txtTreePath = new System.Windows.Forms.TextBox();
             this.btnLoadDefaultTree = new System.Windows.Forms.Button();
@@ -66,17 +67,22 @@ namespace SaveAsPDF
             this.btnSaveAsTreeFile = new System.Windows.Forms.Button();
             this.btnLoadTreeFile = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblDateTag = new System.Windows.Forms.Label();
+            this.lblProjectRootTag = new System.Windows.Forms.Label();
+            this.lblXmlEmployeesFile = new System.Windows.Forms.Label();
+            this.lblXmlProjectFile = new System.Windows.Forms.Label();
+            this.lblSaveAsPDFFolder = new System.Windows.Forms.Label();
             this.txtDateTag = new System.Windows.Forms.TextBox();
             this.txtProjectRootTag = new System.Windows.Forms.TextBox();
             this.txtXmlEmployeesFile = new System.Windows.Forms.TextBox();
             this.txtXmlProjectFile = new System.Windows.Forms.TextBox();
             this.txtSaveAsPDFFolder = new System.Windows.Forms.TextBox();
-            this.btnSaveTreeFile = new System.Windows.Forms.Button();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.lsbLastProjects = new System.Windows.Forms.ListBox();
+            this.txtMaxProjectCount = new System.Windows.Forms.TextBox();
+            this.lblMaxProjectCount = new System.Windows.Forms.Label();
+            this.btnClearList = new System.Windows.Forms.Button();
+            this.errorProviderSettings = new System.Windows.Forms.ErrorProvider(this.components);
             this.menuTree.SuspendLayout();
             this.groupBoxDefaultFolder.SuspendLayout();
             this.gbAttaments.SuspendLayout();
@@ -85,6 +91,8 @@ namespace SaveAsPDF
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProviderSettings)).BeginInit();
             this.SuspendLayout();
             // 
             // bntCancel
@@ -252,7 +260,7 @@ namespace SaveAsPDF
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
             this.textBox2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.textBox2.Size = new System.Drawing.Size(338, 47);
+            this.textBox2.Size = new System.Drawing.Size(330, 47);
             this.textBox2.TabIndex = 18;
             this.textBox2.Text = "קבצים קטנים בד\"כ מהווים חלק מהחתימה הקבועה במייל ורצוי להתעלם מהם\r\nbytes  8192: ע" +
     "רך מומלץ\r\n";
@@ -268,18 +276,19 @@ namespace SaveAsPDF
             // 
             // txtMinAttSize
             // 
-            this.txtMinAttSize.Location = new System.Drawing.Point(6, 20);
+            this.txtMinAttSize.Location = new System.Drawing.Point(26, 20);
             this.txtMinAttSize.Name = "txtMinAttSize";
             this.txtMinAttSize.Size = new System.Drawing.Size(80, 20);
             this.txtMinAttSize.TabIndex = 1;
-            this.txtMinAttSize.TextChanged += new System.EventHandler(this.txtMinAttSize_TextChanged);
+            this.txtMinAttSize.Validating += new System.ComponentModel.CancelEventHandler(this.txtMinAttSize_Validating);
+            this.txtMinAttSize.Validated += new System.EventHandler(this.txtMinAttSize_Validated);
             // 
             // lblMinAttSize
             // 
             this.lblMinAttSize.AutoSize = true;
             this.lblMinAttSize.Location = new System.Drawing.Point(170, 27);
             this.lblMinAttSize.Name = "lblMinAttSize";
-            this.lblMinAttSize.Size = new System.Drawing.Size(177, 13);
+            this.lblMinAttSize.Size = new System.Drawing.Size(169, 13);
             this.lblMinAttSize.TabIndex = 0;
             this.lblMinAttSize.Text = "גודל מינימלי לקבצים מצורפים:";
             // 
@@ -303,6 +312,7 @@ namespace SaveAsPDF
             // 
             this.tabControl.Controls.Add(this.tabPage1);
             this.tabControl.Controls.Add(this.tabPage2);
+            this.tabControl.Controls.Add(this.tabPage3);
             this.tabControl.Location = new System.Drawing.Point(389, 19);
             this.tabControl.Name = "tabControl";
             this.tabControl.RightToLeftLayout = true;
@@ -337,6 +347,16 @@ namespace SaveAsPDF
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "מבנה תיקיות";
             // 
+            // btnSaveTreeFile
+            // 
+            this.btnSaveTreeFile.Location = new System.Drawing.Point(219, 103);
+            this.btnSaveTreeFile.Name = "btnSaveTreeFile";
+            this.btnSaveTreeFile.Size = new System.Drawing.Size(110, 23);
+            this.btnSaveTreeFile.TabIndex = 18;
+            this.btnSaveTreeFile.Text = "&שמור קובץ";
+            this.btnSaveTreeFile.UseVisualStyleBackColor = true;
+            this.btnSaveTreeFile.Click += new System.EventHandler(this.btnSaveTreeFile_Click);
+            // 
             // lblTreePath
             // 
             this.lblTreePath.AutoSize = true;
@@ -348,6 +368,7 @@ namespace SaveAsPDF
             // 
             // txtTreePath
             // 
+            this.txtTreePath.Enabled = false;
             this.txtTreePath.Location = new System.Drawing.Point(6, 17);
             this.txtTreePath.Name = "txtTreePath";
             this.txtTreePath.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -400,11 +421,11 @@ namespace SaveAsPDF
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.label6);
-            this.tabPage2.Controls.Add(this.label5);
-            this.tabPage2.Controls.Add(this.label4);
-            this.tabPage2.Controls.Add(this.label2);
-            this.tabPage2.Controls.Add(this.label1);
+            this.tabPage2.Controls.Add(this.lblDateTag);
+            this.tabPage2.Controls.Add(this.lblProjectRootTag);
+            this.tabPage2.Controls.Add(this.lblXmlEmployeesFile);
+            this.tabPage2.Controls.Add(this.lblXmlProjectFile);
+            this.tabPage2.Controls.Add(this.lblSaveAsPDFFolder);
             this.tabPage2.Controls.Add(this.txtDateTag);
             this.tabPage2.Controls.Add(this.txtProjectRootTag);
             this.tabPage2.Controls.Add(this.txtXmlEmployeesFile);
@@ -418,55 +439,55 @@ namespace SaveAsPDF
             this.tabPage2.Text = "הגדרות מתקדמות";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // label6
+            // lblDateTag
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(250, 138);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(60, 13);
-            this.label6.TabIndex = 4;
-            this.label6.Text = "txtDateTag";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblDateTag.AutoSize = true;
+            this.lblDateTag.Location = new System.Drawing.Point(250, 138);
+            this.lblDateTag.Name = "lblDateTag";
+            this.lblDateTag.Size = new System.Drawing.Size(60, 13);
+            this.lblDateTag.TabIndex = 4;
+            this.lblDateTag.Text = "txtDateTag";
+            this.lblDateTag.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label5
+            // lblProjectRootTag
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(250, 112);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(93, 13);
-            this.label5.TabIndex = 4;
-            this.label5.Text = "txtProjectRootTag";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblProjectRootTag.AutoSize = true;
+            this.lblProjectRootTag.Location = new System.Drawing.Point(250, 112);
+            this.lblProjectRootTag.Name = "lblProjectRootTag";
+            this.lblProjectRootTag.Size = new System.Drawing.Size(93, 13);
+            this.lblProjectRootTag.TabIndex = 4;
+            this.lblProjectRootTag.Text = "txtProjectRootTag";
+            this.lblProjectRootTag.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label4
+            // lblXmlEmployeesFile
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(250, 84);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(102, 13);
-            this.label4.TabIndex = 4;
-            this.label4.Text = "txtXmlEmployeesFile";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblXmlEmployeesFile.AutoSize = true;
+            this.lblXmlEmployeesFile.Location = new System.Drawing.Point(250, 84);
+            this.lblXmlEmployeesFile.Name = "lblXmlEmployeesFile";
+            this.lblXmlEmployeesFile.Size = new System.Drawing.Size(102, 13);
+            this.lblXmlEmployeesFile.TabIndex = 4;
+            this.lblXmlEmployeesFile.Text = "txtXmlEmployeesFile";
+            this.lblXmlEmployeesFile.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label2
+            // lblXmlProjectFile
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(250, 58);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(84, 13);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "txtXmlProjectFile";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblXmlProjectFile.AutoSize = true;
+            this.lblXmlProjectFile.Location = new System.Drawing.Point(250, 58);
+            this.lblXmlProjectFile.Name = "lblXmlProjectFile";
+            this.lblXmlProjectFile.Size = new System.Drawing.Size(84, 13);
+            this.lblXmlProjectFile.TabIndex = 4;
+            this.lblXmlProjectFile.Text = "txtXmlProjectFile";
+            this.lblXmlProjectFile.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // label1
+            // lblSaveAsPDFFolder
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(250, 30);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(105, 13);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "txtSaveAsPDFFolder";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblSaveAsPDFFolder.AutoSize = true;
+            this.lblSaveAsPDFFolder.Location = new System.Drawing.Point(250, 30);
+            this.lblSaveAsPDFFolder.Name = "lblSaveAsPDFFolder";
+            this.lblSaveAsPDFFolder.Size = new System.Drawing.Size(105, 13);
+            this.lblSaveAsPDFFolder.TabIndex = 4;
+            this.lblSaveAsPDFFolder.Text = "txtSaveAsPDFFolder";
+            this.lblSaveAsPDFFolder.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // txtDateTag
             // 
@@ -513,18 +534,63 @@ namespace SaveAsPDF
             this.txtSaveAsPDFFolder.TabIndex = 0;
             this.txtSaveAsPDFFolder.TextChanged += new System.EventHandler(this.txtSaveAsPDFFolder_TextChanged);
             // 
-            // btnSaveTreeFile
+            // tabPage3
             // 
-            this.btnSaveTreeFile.Location = new System.Drawing.Point(219, 103);
-            this.btnSaveTreeFile.Name = "btnSaveTreeFile";
-            this.btnSaveTreeFile.Size = new System.Drawing.Size(110, 23);
-            this.btnSaveTreeFile.TabIndex = 18;
-            this.btnSaveTreeFile.Text = "&שמור קובץ";
-            this.btnSaveTreeFile.UseVisualStyleBackColor = true;
-            this.btnSaveTreeFile.Click += new System.EventHandler(this.btnSaveTreeFile_Click);
+            this.tabPage3.Controls.Add(this.btnClearList);
+            this.tabPage3.Controls.Add(this.lblMaxProjectCount);
+            this.tabPage3.Controls.Add(this.txtMaxProjectCount);
+            this.tabPage3.Controls.Add(this.lsbLastProjects);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(375, 289);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "פרויקטים אחרונים";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // lsbLastProjects
+            // 
+            this.lsbLastProjects.FormattingEnabled = true;
+            this.lsbLastProjects.Location = new System.Drawing.Point(24, 24);
+            this.lsbLastProjects.Name = "lsbLastProjects";
+            this.lsbLastProjects.Size = new System.Drawing.Size(119, 173);
+            this.lsbLastProjects.TabIndex = 0;
+            // 
+            // txtMaxProjectCount
+            // 
+            this.txtMaxProjectCount.Location = new System.Drawing.Point(164, 24);
+            this.txtMaxProjectCount.Name = "txtMaxProjectCount";
+            this.txtMaxProjectCount.Size = new System.Drawing.Size(36, 20);
+            this.txtMaxProjectCount.TabIndex = 1;
+            this.txtMaxProjectCount.Validating += new System.ComponentModel.CancelEventHandler(this.txtMaxProjectCount_Validating);
+            this.txtMaxProjectCount.Validated += new System.EventHandler(this.txtMaxProjectCount_Validated);
+            // 
+            // lblMaxProjectCount
+            // 
+            this.lblMaxProjectCount.AutoSize = true;
+            this.lblMaxProjectCount.Location = new System.Drawing.Point(206, 24);
+            this.lblMaxProjectCount.Name = "lblMaxProjectCount";
+            this.lblMaxProjectCount.Size = new System.Drawing.Size(121, 13);
+            this.lblMaxProjectCount.TabIndex = 2;
+            this.lblMaxProjectCount.Text = "מס\' פרויקטים אחרונים";
+            // 
+            // btnClearList
+            // 
+            this.btnClearList.Location = new System.Drawing.Point(164, 60);
+            this.btnClearList.Name = "btnClearList";
+            this.btnClearList.Size = new System.Drawing.Size(75, 23);
+            this.btnClearList.TabIndex = 3;
+            this.btnClearList.Text = "נקה רשימה";
+            this.btnClearList.UseVisualStyleBackColor = true;
+            // 
+            // errorProviderSettings
+            // 
+            this.errorProviderSettings.ContainerControl = this;
+            this.errorProviderSettings.RightToLeft = true;
             // 
             // frmSettings
             // 
+            this.CancelButton = this.bntCancel;
             this.ClientSize = new System.Drawing.Size(786, 440);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.statusStrip);
@@ -547,6 +613,7 @@ namespace SaveAsPDF
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "הגדרות";
             this.TopMost = true;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmSettings_FormClosing);
             this.Load += new System.EventHandler(this.frmSettings_Load);
             this.menuTree.ResumeLayout(false);
             this.groupBoxDefaultFolder.ResumeLayout(false);
@@ -560,6 +627,9 @@ namespace SaveAsPDF
             this.groupBox1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProviderSettings)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -606,12 +676,18 @@ namespace SaveAsPDF
         private System.Windows.Forms.TextBox txtProjectRootTag;
         private System.Windows.Forms.TextBox txtXmlEmployeesFile;
         private System.Windows.Forms.TextBox txtXmlProjectFile;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblSaveAsPDFFolder;
         private System.Windows.Forms.TextBox txtDateTag;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblDateTag;
+        private System.Windows.Forms.Label lblProjectRootTag;
+        private System.Windows.Forms.Label lblXmlEmployeesFile;
+        private System.Windows.Forms.Label lblXmlProjectFile;
         private System.Windows.Forms.Button btnSaveTreeFile;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.ListBox lsbLastProjects;
+        private System.Windows.Forms.TextBox txtMaxProjectCount;
+        private System.Windows.Forms.Label lblMaxProjectCount;
+        private System.Windows.Forms.Button btnClearList;
+        private System.Windows.Forms.ErrorProvider errorProviderSettings;
     }
 }

@@ -156,13 +156,12 @@ namespace SaveAsPDF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int LastProjectsCount {
+        public int MaxProjectCount {
             get {
-                return ((int)(this["LastProjectsCount"]));
+                return ((int)(this["MaxProjectCount"]));
             }
             set {
-                this["LastProjectsCount"] = value;
+                this["MaxProjectCount"] = value;
             }
         }
         

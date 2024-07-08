@@ -74,7 +74,7 @@ namespace SaveAsPDF
             this.txtSaveLocation = new System.Windows.Forms.TextBox();
             this.lblSaveLocation = new System.Windows.Forms.Label();
             this.chbOpenPDF = new System.Windows.Forms.CheckBox();
-            this.picBoxProjectID = new System.Windows.Forms.PictureBox();
+            this.errorProviderMain = new System.Windows.Forms.ErrorProvider(this.components);
             this.stsStrip.SuspendLayout();
             this.tabNotes.SuspendLayout();
             this.tabProjectNote.SuspendLayout();
@@ -85,7 +85,7 @@ namespace SaveAsPDF
             this.tabFolsers.SuspendLayout();
             this.tabAtachments.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAttachments)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picBoxProjectID)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProviderMain)).BeginInit();
             this.SuspendLayout();
             // 
             // btnCancel
@@ -401,19 +401,16 @@ namespace SaveAsPDF
             this.chbOpenPDF.UseVisualStyleBackColor = true;
             this.chbOpenPDF.CheckedChanged += new System.EventHandler(this.chbOpenPDF_CheckedChanged);
             // 
-            // picBoxProjectID
+            // errorProviderMain
             // 
-            this.picBoxProjectID.Image = global::SaveAsPDF.Properties.Resources.error;
-            resources.ApplyResources(this.picBoxProjectID, "picBoxProjectID");
-            this.picBoxProjectID.Name = "picBoxProjectID";
-            this.picBoxProjectID.TabStop = false;
+            this.errorProviderMain.ContainerControl = this;
+            resources.ApplyResources(this.errorProviderMain, "errorProviderMain");
             // 
             // frmMain
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.Controls.Add(this.picBoxProjectID);
             this.Controls.Add(this.chbOpenPDF);
             this.Controls.Add(this.lblSaveLocation);
             this.Controls.Add(this.txtSaveLocation);
@@ -452,7 +449,7 @@ namespace SaveAsPDF
             this.tabAtachments.ResumeLayout(false);
             this.tabAtachments.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvAttachments)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picBoxProjectID)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProviderMain)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -502,6 +499,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.DataGridViewTextBoxColumn lastName;
         private System.Windows.Forms.DataGridViewTextBoxColumn emailAddress;
         private System.Windows.Forms.CheckBox chbOpenPDF;
-        private System.Windows.Forms.PictureBox picBoxProjectID;
+        private System.Windows.Forms.ErrorProvider errorProviderMain;
     }
 }

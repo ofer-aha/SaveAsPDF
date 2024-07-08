@@ -26,14 +26,13 @@ namespace SaveAsPDF.Models
             return options;
         }
 
-        // for WPF support
-        //public bool? ShowDialog(Window owner = null, bool throwOnError = false)
-        //{
-        //    owner ??= Application.Current.MainWindow;
-        //    return ShowDialog(owner != null ? new WindowInteropHelper(owner).Handle : IntPtr.Zero, throwOnError);
-        //}
-
         // for all .NET
+        /// <summary>
+        /// Shows the folder picker dialog.
+        /// </summary>
+        /// <param name="owner">The handle of the owner window.</param>
+        /// <param name="throwOnError">Indicates whether to throw an exception on error.</param>
+        /// <returns>True if the dialog was shown successfully, false if the dialog was canceled, or null if an error occurred.</returns>
         public virtual bool? ShowDialog(IntPtr owner, bool throwOnError = false)
         {
             IFileOpenDialog dialog = (IFileOpenDialog)new FileOpenDialog();

@@ -107,7 +107,7 @@ namespace SaveAsPDF.Helpers
                 Settings.Default.DefaultFolderID = defaultFolderID;
                 Settings.Default.ProjectRootTag = projectRootTag;
                 Settings.Default.OpenPDF = openPDF;
-                Settings.Default.LastProjectsCount = lastProjectsCount;
+                Settings.Default.MaxProjectCount = lastProjectsCount;
                 Settings.Default.sProjectRootFolders = sProjectRootFolders;
             }
         }

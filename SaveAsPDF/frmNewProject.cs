@@ -22,6 +22,9 @@ namespace SaveAsPDF
             LoadSettings();
         }
 
+        /// <summary>
+        /// Loads the settings for the form.
+        /// </summary>
         private void LoadSettings()
         {
             tvDefaultSubFolders.LoadDefaultTree();
@@ -47,6 +50,8 @@ namespace SaveAsPDF
                     FileFoldersHelper.MkDir(subFolder);
                 }
 
+                //call the calling form to add the new project
+                //TODO1: initialize the projectModel 
                 callingForm.NewProjectComplete(projectModel);
 
                 Close();

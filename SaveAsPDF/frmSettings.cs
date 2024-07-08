@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: // Ignore Spelling: frm מפשחה הכל יש לבחור הודעות דואר אלקטרוני בלבד אימייל הסר הכול שם קובץ גודל יש לבחור הודעות דואר אלקטרוני בלבד ההודעה נשמרה ב  תאריך  שמירה  שם הפרויקט  מס פרויקט  הערות  שם משתמש בחר  הסר  מספר פרויקט כפי שמופיע במסטרפלן שם לא חוקי  אין להשתמש בתווים הבאים  עריכת שם שם לא חוקי לא ניתן ליצור שם ריק חובה תו אחד לפחות עריכת שם מספר פרויקט לא חוקי
 using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
+using SaveAsPDF.Properties;
 using System;
 using System.IO;
 using System.Windows.Controls;
@@ -356,5 +357,65 @@ namespace SaveAsPDF
             }
         }
 
+        private void txtMaxProjectCount_Validated(object sender, EventArgs e)
+        {
+            int.TryParse(txtMaxProjectCount.Text, out int count);
+            Settings.Default.MaxProjectCount = count;
+            Settings.Default.Save();
+            errorProviderSettings.Clear();
+            toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMaxProjectCount);
+            _isDirty = true;
+
+        }
+
+        private void txtMaxProjectCount_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (int.TryParse(txtMaxProjectCount.Text, out int count))
+            {
+                if (count < 0 || count > 99)
+                {
+                    e.Cancel = true;
+                    errorProviderSettings.SetError(txtMaxProjectCount, "ניתן להזין ערכים בין 0 ל- 99. ערך מומלץ 10");
+                    txtMaxProjectCount.Select(0, txtMaxProjectCount.Text.Length);
+                    toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMaxProjectCount);
+                }
+            }
+            else
+            {
+                e.Cancel = true;
+                errorProviderSettings.SetError(txtMaxProjectCount, "יש להזין ספרות בלבד");
+                txtMaxProjectCount.Select(0, txtMaxProjectCount.Text.Length);
+                toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMaxProjectCount);
+            }
+        }
+
+        private void txtMinAttSize_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (int.TryParse(txtMinAttSize.Text, out int count))
+            {
+                if (count < 0 || count > 9999)
+                {
+                    e.Cancel = true;
+                    errorProviderSettings.SetError(txtMinAttSize, "ניתן להזין ערכים בין 0 ל- 9999. ערך מומלץ 8192");
+                    txtMinAttSize.Select(0, txtMinAttSize.Text.Length);
+                    toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMinAttSize);
+                }
+            }
+            else
+            {
+                e.Cancel = true;
+                errorProviderSettings.SetError(txtMinAttSize, "יש להזין ספרות בלבד");
+                txtMinAttSize.Select(0, txtMinAttSize.Text.Length);
+                toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMinAttSize);
+            }
+
+        }
+
+        private void txtMinAttSize_Validated(object sender, EventArgs e)
+        {
+            errorProviderSettings.Clear();
+            toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMinAttSize);
+            _isDirty = true;
+        }
     }
 }

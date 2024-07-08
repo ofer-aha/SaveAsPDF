@@ -35,8 +35,8 @@
     <Setting Name="LastProjects" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="LastProjectsCount" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+    <Setting Name="MaxProjectCount" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="sProjectRootFolders" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
