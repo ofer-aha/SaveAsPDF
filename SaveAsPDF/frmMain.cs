@@ -50,6 +50,10 @@ namespace SaveAsPDF
         public frmMain()
         {
             InitializeComponent();
+        }
+
+        private void frmMain_Load(object sender, EventArgs e)
+        {
 
             //Employees dataGridView columns headers 
             dgvEmployees.Columns[0].Visible = false;
@@ -111,6 +115,7 @@ namespace SaveAsPDF
 
                 KeyDown += frmMain_KeyDown; //add the key-down event to the form
             }
+
         }
 
         private void LoadSearchHistory()
@@ -150,7 +155,8 @@ namespace SaveAsPDF
         {
             if (e.KeyCode == Keys.Enter)
             {
-                txtProjectID_Validating(sender, new System.ComponentModel.CancelEventArgs());
+                //when the user press Enter key, we will process the project ID (trigger the Validating event)
+                btnOK.Select();
             }
         }
 
@@ -209,11 +215,6 @@ namespace SaveAsPDF
                 btnOK.Focus();
                 _dataLoaded = true;
             }
-        }
-        private void ShowInvalidProjectIDError()
-        {
-            txtProjectID.BackColor = System.Drawing.Color.Red;
-            txtProjectID.SelectAll();
         }
 
         private void ProcessMailItem(MailItem mailItem)
@@ -774,22 +775,14 @@ namespace SaveAsPDF
                 e.Cancel = true;
                 errorProviderMain.SetError(txtProjectID, "מספר פרויקט לא חוקי");
                 txtProjectID.Select(0, txtProjectID.Text.Length);
-                txtProjectID.BackColor = System.Drawing.Color.Red;
                 tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
-                ShowInvalidProjectIDError();
             }
         }
 
         private void txtProjectID_Validated(object sender, EventArgs e)
         {
-            errorProviderMain.SetError(txtProjectID, string.Empty);
-            txtProjectID.BackColor = System.Drawing.Color.White;
+            errorProviderMain.SetError(txtProjectID, string.Empty); //clear the error
             tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
-            //settingsModel = SettingsHelpers.LoadProjectSettings(((TextBox)sender).Text);
-            //SettingsModel settings = new SettingsModel
-            //{
-            //    ProjectRootFolder = settingsModel.ProjectRootFolder,
-            //};
             ProcessProjectID(txtProjectID.Text);
             UpdateAutoCompleteSource();
 
@@ -870,5 +863,6 @@ namespace SaveAsPDF
                 Close();
             }
         }
+
     }
 }
