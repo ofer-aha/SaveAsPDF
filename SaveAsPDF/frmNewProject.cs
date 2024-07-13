@@ -13,7 +13,7 @@ namespace SaveAsPDF
         private readonly INewProjectRequester callingForm;
         private List<string> _subFolfers = new List<string>();
         private TreeNode _mySelectedNode;
-        public frmNewProject()
+        public frmNewProject(INewProjectRequester caller)
         {
             InitializeComponent();
             txtProjectNotes.EnableContextMenu();

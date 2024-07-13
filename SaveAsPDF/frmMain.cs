@@ -1,5 +1,4 @@
 ﻿// Ignore Spelling: frm
-
 using Microsoft.Office.Interop.Outlook;
 using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
@@ -196,21 +195,60 @@ namespace SaveAsPDF
         {
             //ClearForm();
             //settingsModel.ProjectRootFolder = txtProjectID.Text.ProjectFullPath(settingsModel.RootDrive);
-            //txtSaveLocation.Text = $@"{settingsModel.ProjectRootFolder.FullName}
-            //                  {settingsModel.DefaultSavePath.Replace(settingsModel.ProjectRootTag,
-            //                          settingsModel.ProjectRootFolder.FullName).Replace(settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"))}";
             if (projectID.SafeProjectID())
             {
                 settingsModel = SettingsHelpers.LoadProjectSettings(projectID);
-                //SettingsModel settings = new SettingsModel
-                //{
-                //    ProjectRootFolder = settingsModel.ProjectRootFolder,
-                //};
 
-                LoadXmls();
+                if (settingsModel.ProjectRootFolder.Exists)
+                {
+                    // j:\12\1245\  - exist 
+                    // construct the full path for everything
+                    settingsModel.ProjectRootFolder.FullName.CreateHiddenFolder();
+                    _xmlSaveAsPdfFolder = new DirectoryInfo(settingsModel.XmlSaveAsPDFFolder);
+                    _xmlProjectFile = settingsModel.XmlProjectFile;
+                    _xmlEmploeeysFile = settingsModel.XmlEmployeesFile;
+
+                    if (File.Exists(_xmlProjectFile))
+                    {
+                        //load the XML file to _projectModel model
+                        _projectModel = _xmlProjectFile.XmlProjectFileToModel();
+
+                        if (_projectModel != null)
+                        {
+                            txtProjectName.Text = _projectModel.ProjectName;
+                            chkbSendNote.Checked = _projectModel.NoteEmployee;
+                            rtxtProjectNotes.Text = _projectModel.ProjectNotes;
+
+                        }
+                    }
+
+                    dgvEmployees.Rows.Clear();
+                    //load the XML file to Employees list-box
+                    if (File.Exists(_xmlEmploeeysFile))
+                    {
+                        _employeesModel = _xmlEmploeeysFile.XmlEmployeesFileToModel();
+                        if (_employeesModel != null)
+                        {
+                            foreach (EmployeeModel em in _employeesModel)
+                            {
+                                dgvEmployees.Rows.Add(em.Id, em.FirstName, em.LastName, em.EmailAddress);
+                            }
+                        }
+                    }
+                }
+
+                tvFolders.Nodes.Clear();
+                tvFolders.Nodes.Add(TreeHelpers.CreateDirectoryNode(settingsModel.ProjectRootFolder));
+                tvFolders.ExpandAll();
+                tvFolders.SelectedNode = tvFolders.Nodes[0];
+
+
 
                 txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
                 txtSaveLocation.Text = settingsModel.DefaultSavePath;
+                //txtSaveLocation.Text = $@"{settingsModel.ProjectRootFolder.FullName}
+                //                  {settingsModel.DefaultSavePath.Replace(settingsModel.ProjectRootTag,
+                //                          settingsModel.ProjectRootFolder.FullName).Replace(settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"))}";
 
                 btnOK.Focus();
                 _dataLoaded = true;
@@ -260,53 +298,6 @@ namespace SaveAsPDF
 
 
         /// <summary>
-        /// Load XML files from .SaveAsPDF folder to the models and construct the full path for everything
-        /// </summary>
-        private void LoadXmls()
-        {
-            if (settingsModel.ProjectRootFolder.Exists)
-            {
-                // j:\12\1245\  - exist 
-                // construct the full path for everything
-                settingsModel.ProjectRootFolder.FullName.CreateHiddenFolder();
-                _xmlSaveAsPdfFolder = new DirectoryInfo(settingsModel.XmlSaveAsPDFFolder);
-                _xmlProjectFile = settingsModel.XmlProjectFile;
-                _xmlEmploeeysFile = settingsModel.XmlEmployeesFile;
-
-                if (File.Exists(_xmlProjectFile))
-                {
-                    //load the XML file to _projectModel model
-                    _projectModel = _xmlProjectFile.XmlProjectFileToModel();
-
-                    if (_projectModel != null)
-                    {
-                        txtProjectName.Text = _projectModel.ProjectName;
-                        chkbSendNote.Checked = _projectModel.NoteEmployee;
-                        rtxtProjectNotes.Text = _projectModel.ProjectNotes;
-                    }
-                }
-
-                dgvEmployees.Rows.Clear();
-                //load the XML file to Employees list-box
-                if (File.Exists(_xmlEmploeeysFile))
-                {
-                    _employeesModel = _xmlEmploeeysFile.XmlEmployeesFileToModel();
-                    if (_employeesModel != null)
-                    {
-                        foreach (EmployeeModel em in _employeesModel)
-                        {
-                            dgvEmployees.Rows.Add(em.Id, em.FirstName, em.LastName, em.EmailAddress);
-                        }
-                    }
-                }
-            }
-
-            tvFolders.Nodes.Clear();
-            tvFolders.Nodes.Add(TreeHelpers.CreateDirectoryNode(settingsModel.ProjectRootFolder));
-            tvFolders.ExpandAll();
-            tvFolders.SelectedNode = tvFolders.Nodes[0];
-        }
-        /// <summary>
         /// clear the form from previews use
         /// </summary>
         private void ClearForm()
@@ -323,10 +314,10 @@ namespace SaveAsPDF
         }
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (!_dataLoaded)
-            {
-                LoadXmls();
-            }
+            //if (!_dataLoaded)
+            //{
+            //    LoadXmls();
+            //}
 
             #region Populate Models
 
@@ -623,7 +614,7 @@ namespace SaveAsPDF
 
         private void btnNewProject_Click(object sender, EventArgs e)
         {
-            frmNewProject frm = new frmNewProject();
+            frmNewProject frm = new frmNewProject(this);
             frm.ShowDialog(this);
         }
 
@@ -732,7 +723,7 @@ namespace SaveAsPDF
 
         private void chbOpenPDF_CheckedChanged(object sender, EventArgs e)
         {
-            //TODO1: make sure it works 
+            //TODO1: chbOpenPDF_CheckedChanged:make sure it works 
             //_settingsModel.OpenPDF = chbOpenPDF.Checked;
             Settings.Default.OpenPDF = chbOpenPDF.Checked;
             Settings.Default.Save();
@@ -772,10 +763,11 @@ namespace SaveAsPDF
         {
             if (!txtProjectID.Text.SafeProjectID())
             {
-                e.Cancel = true;
+                // Cancel the event and select the text to be corrected by the user.
                 errorProviderMain.SetError(txtProjectID, "מספר פרויקט לא חוקי");
                 txtProjectID.Select(0, txtProjectID.Text.Length);
                 tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
+                e.Cancel = true;
             }
         }
 
@@ -783,6 +775,7 @@ namespace SaveAsPDF
         {
             errorProviderMain.SetError(txtProjectID, string.Empty); //clear the error
             tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
+
             ProcessProjectID(txtProjectID.Text);
             UpdateAutoCompleteSource();
 

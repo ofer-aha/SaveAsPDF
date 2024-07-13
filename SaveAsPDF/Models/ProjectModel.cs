@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SaveAsPDF.Models
+﻿namespace SaveAsPDF.Models
 {
     public class ProjectModel
     {
@@ -23,7 +21,7 @@ namespace SaveAsPDF.Models
         /// <summary>
         /// The Default _projectModel sub folders
         /// </summary>
-        public List<string> SubFolders { get; set; }
+        public string DefaultSaveFolder { get; set; }
         /// <summary>
         /// General _projectModel notes left by the user
         /// </summary>

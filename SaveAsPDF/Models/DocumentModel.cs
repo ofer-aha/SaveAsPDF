@@ -16,7 +16,7 @@ namespace SaveAsPDF.Models
         /// <summary>
         /// CC: field from mailItem
         /// </summary>
-        public List<string> CcField { get; set; }
+        public List<string> CcField { get; set; } = new List<string>();
         /// <summary>
         /// Subject: field from mailItem
         /// </summary>
@@ -32,7 +32,7 @@ namespace SaveAsPDF.Models
         /// <summary>
         /// List of Attachment objects 
         /// </summary>
-        public List<Attachment> Attachments { get; set; }
+        public List<Attachment> Attachments { get; set; } = new List<Attachment>();
 
 
     }

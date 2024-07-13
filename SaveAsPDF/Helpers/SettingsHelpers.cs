@@ -151,7 +151,7 @@ namespace SaveAsPDF.Helpers
                     model.ProjectRootFolder = projectID.ProjectFullPath(model.RootDrive); // J:\12\1234
 
                     // J:\12\1234\ + letters
-                    model.DefaultSavePath = $@"{model.ProjectRootFolder.Parent.FullName}\{Settings.Default.DefaultSavePath}".Replace(model.ProjectRootTag, projectID);
+                    model.DefaultSavePath = $@"{model.ProjectRootFolder.FullName}{Settings.Default.DefaultSavePath}".Replace(model.ProjectRootTag, projectID);
 
                     // SaveAsPDF files and folder
                     model.XmlSaveAsPDFFolder = $@"{model.ProjectRootFolder}{Settings.Default.xmlSaveAsPDFFolder}"; // J:\12\1234\.SaveAsPDF
