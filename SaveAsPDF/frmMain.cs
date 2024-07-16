@@ -162,11 +162,11 @@ namespace SaveAsPDF
         /// <summary>
         /// Updates the auto complete source with the current text in the project ID textbox.
         /// </summary>
-        private void UpdateAutoCompleteSource()
+        private void UpdateAutoCompleteSource(string text)
         {
-            if (!searchHistory.Contains(txtProjectID.Text))
+            if (!searchHistory.Contains(text))
             {
-                searchHistory.Add(txtProjectID.Text);
+                searchHistory.Add(text);
                 Settings.Default.LastProjects = new StringCollection();
                 Settings.Default.LastProjects.AddRange(searchHistory.ToArray());
                 Settings.Default.Save();
@@ -777,7 +777,7 @@ namespace SaveAsPDF
             tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
 
             ProcessProjectID(txtProjectID.Text);
-            UpdateAutoCompleteSource();
+            UpdateAutoCompleteSource(txtProjectID.Text);
 
 
             if (string.IsNullOrEmpty(settingsModel.RootDrive))

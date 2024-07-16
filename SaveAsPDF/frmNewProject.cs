@@ -27,7 +27,7 @@ namespace SaveAsPDF
         /// </summary>
         private void LoadSettings()
         {
-            tvDefaultSubFolders.LoadDefaultTree();
+            tvDefaultSubFolders.LoadTreeViewFromList();
         }
 
         private void btmNewProject_Click(object sender, EventArgs e)

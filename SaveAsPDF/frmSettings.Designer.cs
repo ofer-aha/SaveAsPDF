@@ -64,7 +64,6 @@ namespace SaveAsPDF
             this.txtTreePath = new System.Windows.Forms.TextBox();
             this.btnLoadDefaultTree = new System.Windows.Forms.Button();
             this.tvProjectSubFolders = new System.Windows.Forms.TreeView();
-            this.btnSaveAsTreeFile = new System.Windows.Forms.Button();
             this.btnLoadTreeFile = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.lblDateTag = new System.Windows.Forms.Label();
@@ -78,11 +77,13 @@ namespace SaveAsPDF
             this.txtXmlProjectFile = new System.Windows.Forms.TextBox();
             this.txtSaveAsPDFFolder = new System.Windows.Forms.TextBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.lsbLastProjects = new System.Windows.Forms.ListBox();
-            this.txtMaxProjectCount = new System.Windows.Forms.TextBox();
-            this.lblMaxProjectCount = new System.Windows.Forms.Label();
             this.btnClearList = new System.Windows.Forms.Button();
+            this.lblMaxProjectCount = new System.Windows.Forms.Label();
+            this.txtMaxProjectCount = new System.Windows.Forms.TextBox();
+            this.lsbLastProjects = new System.Windows.Forms.ListBox();
             this.errorProviderSettings = new System.Windows.Forms.ErrorProvider(this.components);
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.menuTree.SuspendLayout();
             this.groupBoxDefaultFolder.SuspendLayout();
             this.gbAttaments.SuspendLayout();
@@ -98,6 +99,7 @@ namespace SaveAsPDF
             // bntCancel
             // 
             this.bntCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.bntCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bntCancel.Location = new System.Drawing.Point(487, 388);
             this.bntCancel.Name = "bntCancel";
             this.bntCancel.Size = new System.Drawing.Size(75, 23);
@@ -338,7 +340,6 @@ namespace SaveAsPDF
             this.groupBox1.Controls.Add(this.txtTreePath);
             this.groupBox1.Controls.Add(this.btnLoadDefaultTree);
             this.groupBox1.Controls.Add(this.tvProjectSubFolders);
-            this.groupBox1.Controls.Add(this.btnSaveAsTreeFile);
             this.groupBox1.Controls.Add(this.btnLoadTreeFile);
             this.groupBox1.Location = new System.Drawing.Point(15, 5);
             this.groupBox1.Name = "groupBox1";
@@ -398,16 +399,6 @@ namespace SaveAsPDF
             this.tvProjectSubFolders.TabIndex = 15;
             this.tvProjectSubFolders.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.tvProjectSubFolders_AfterLabelEdit);
             this.tvProjectSubFolders.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tvProjectSubFolders_MouseDown);
-            // 
-            // btnSaveAsTreeFile
-            // 
-            this.btnSaveAsTreeFile.Location = new System.Drawing.Point(219, 132);
-            this.btnSaveAsTreeFile.Name = "btnSaveAsTreeFile";
-            this.btnSaveAsTreeFile.Size = new System.Drawing.Size(110, 23);
-            this.btnSaveAsTreeFile.TabIndex = 3;
-            this.btnSaveAsTreeFile.Text = "&שמור קובץ בשם";
-            this.btnSaveAsTreeFile.UseVisualStyleBackColor = true;
-            this.btnSaveAsTreeFile.Click += new System.EventHandler(this.btnSaveAsTreeFile_Click);
             // 
             // btnLoadTreeFile
             // 
@@ -548,22 +539,14 @@ namespace SaveAsPDF
             this.tabPage3.Text = "פרויקטים אחרונים";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // lsbLastProjects
+            // btnClearList
             // 
-            this.lsbLastProjects.FormattingEnabled = true;
-            this.lsbLastProjects.Location = new System.Drawing.Point(24, 24);
-            this.lsbLastProjects.Name = "lsbLastProjects";
-            this.lsbLastProjects.Size = new System.Drawing.Size(119, 173);
-            this.lsbLastProjects.TabIndex = 0;
-            // 
-            // txtMaxProjectCount
-            // 
-            this.txtMaxProjectCount.Location = new System.Drawing.Point(164, 24);
-            this.txtMaxProjectCount.Name = "txtMaxProjectCount";
-            this.txtMaxProjectCount.Size = new System.Drawing.Size(36, 20);
-            this.txtMaxProjectCount.TabIndex = 1;
-            this.txtMaxProjectCount.Validating += new System.ComponentModel.CancelEventHandler(this.txtMaxProjectCount_Validating);
-            this.txtMaxProjectCount.Validated += new System.EventHandler(this.txtMaxProjectCount_Validated);
+            this.btnClearList.Location = new System.Drawing.Point(164, 60);
+            this.btnClearList.Name = "btnClearList";
+            this.btnClearList.Size = new System.Drawing.Size(75, 23);
+            this.btnClearList.TabIndex = 3;
+            this.btnClearList.Text = "נקה רשימה";
+            this.btnClearList.UseVisualStyleBackColor = true;
             // 
             // lblMaxProjectCount
             // 
@@ -574,19 +557,31 @@ namespace SaveAsPDF
             this.lblMaxProjectCount.TabIndex = 2;
             this.lblMaxProjectCount.Text = "מס\' פרויקטים אחרונים";
             // 
-            // btnClearList
+            // txtMaxProjectCount
             // 
-            this.btnClearList.Location = new System.Drawing.Point(164, 60);
-            this.btnClearList.Name = "btnClearList";
-            this.btnClearList.Size = new System.Drawing.Size(75, 23);
-            this.btnClearList.TabIndex = 3;
-            this.btnClearList.Text = "נקה רשימה";
-            this.btnClearList.UseVisualStyleBackColor = true;
+            this.txtMaxProjectCount.Location = new System.Drawing.Point(164, 24);
+            this.txtMaxProjectCount.Name = "txtMaxProjectCount";
+            this.txtMaxProjectCount.Size = new System.Drawing.Size(36, 20);
+            this.txtMaxProjectCount.TabIndex = 1;
+            this.txtMaxProjectCount.Validating += new System.ComponentModel.CancelEventHandler(this.txtMaxProjectCount_Validating);
+            this.txtMaxProjectCount.Validated += new System.EventHandler(this.txtMaxProjectCount_Validated);
+            // 
+            // lsbLastProjects
+            // 
+            this.lsbLastProjects.FormattingEnabled = true;
+            this.lsbLastProjects.Location = new System.Drawing.Point(24, 24);
+            this.lsbLastProjects.Name = "lsbLastProjects";
+            this.lsbLastProjects.Size = new System.Drawing.Size(119, 173);
+            this.lsbLastProjects.TabIndex = 0;
             // 
             // errorProviderSettings
             // 
             this.errorProviderSettings.ContainerControl = this;
             this.errorProviderSettings.RightToLeft = true;
+            // 
+            // openFileDialog
+            // 
+            this.openFileDialog.FileName = "openFileDialog1";
             // 
             // frmSettings
             // 
@@ -669,7 +664,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.TextBox txtTreePath;
         private System.Windows.Forms.Button btnLoadDefaultTree;
         private System.Windows.Forms.TreeView tvProjectSubFolders;
-        private System.Windows.Forms.Button btnSaveAsTreeFile;
         private System.Windows.Forms.Button btnLoadTreeFile;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TextBox txtSaveAsPDFFolder;
@@ -689,5 +683,7 @@ namespace SaveAsPDF
         private System.Windows.Forms.Label lblMaxProjectCount;
         private System.Windows.Forms.Button btnClearList;
         private System.Windows.Forms.ErrorProvider errorProviderSettings;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.OpenFileDialog openFileDialog;
     }
 }

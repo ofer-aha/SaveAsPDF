@@ -1,13 +1,10 @@
-﻿// Ignore Spelling: frm  הכל יש לבחור הודעות דואר אלקטרוני בלבד אימייל הסר הכול שם קובץ גודל יש לבחור הודעות דואר אלקטרוני בלבד ההודעה נשמרה ב  תאריך  שמירה  שם הפרויקט  מס פרויקט  הערות  שם משתמש בחר  הסר  מספר פרויקט כפי שמופיע במסטרפלן שם לא חוקי  אין להשתמש בתווים הבאים  עריכת שם שם לא חוקי לא ניתן ליצור שם ריק חובה תו אחד לפחות עריכת שם מספר פרויקט לא חוקי trv
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Windows.Forms;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace SaveAsPDF.Helpers
 {
@@ -34,7 +31,7 @@ namespace SaveAsPDF.Helpers
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "SaveAsPDF:CreateDirectoryNode");
             }
@@ -145,32 +142,6 @@ namespace SaveAsPDF.Helpers
         }
 
 
-        //public static TreeNode TraverseDirectory(string path)
-        //{
-        //    TreeNode result = new TreeNode(path);
-        //    Cursor.Current = Cursors.WaitCursor; //show the user we are doing something..... "the computer is thinking"
-        //    if (Directory.Exists(path))
-        //    {
-        //        foreach (string subdirectory in Directory.GetDirectories(path))
-        //        {
-        //            if (!subdirectory.IsHidden())
-        //            {
-        //                TraverseDirectory(subdirectory);
-        //                string[] s = subdirectory.Split('\\');
-        //                result.Nodes.Add(s[s.Length - 1]);
-
-        //                //result.Nodes.Add(TraverseDirectory(subdirectory);
-        //            }
-        //        }
-        //        result.ExpandAll();
-        //        return result;
-        //    }
-        //    else
-        //    {
-        //        result.Nodes.Clear();
-        //        Cursor.Current = Cursors.Default;
-        //        return result;
-        //    }
         //}
         /// <summary>
         /// Rename the node name according to user typing
@@ -206,10 +177,6 @@ namespace SaveAsPDF.Helpers
             {
                 //treeView.SelectedNode = _mySelectedNode;
                 treeView.SelectedNode.Name = newName.SafeFolderName();
-                //if (!_mySelectedNode.IsEditing)
-                //{
-                //    _mySelectedNode.BeginEdit();
-                //}
             }
             else
             {
@@ -300,7 +267,21 @@ namespace SaveAsPDF.Helpers
             }
             return output;
         }
-
+        public static List<string> ListNodesPath(TreeNode oParentNode, ComboBox comboBox)
+        {
+            List<string> list = new List<string>();
+            if (oParentNode.Nodes.Count == 0)
+            {
+                list.Add(oParentNode.FullPath);
+                comboBox.Items.Add(oParentNode.FullPath);
+            }
+            // Start recursion on all sub-nodes.
+            foreach (TreeNode oSubNode in oParentNode.Nodes)
+            {
+                list.AddRange(ListNodesPath(oSubNode, comboBox));
+            }
+            return list;
+        }
         /// <summary>
         /// Convert a node to List of Strings full path  
         /// </summary>
@@ -339,21 +320,6 @@ namespace SaveAsPDF.Helpers
 
         }
 
-        /// <summary>
-        /// Write this node's subtree into the StringBuilder.
-        /// </summary>
-        /// <param name="level">Node Level as int.</param>
-        /// <param name="node">Node object</param>
-        /// <param name="sb">string line to be processed</param>
-        private static void WriteNodeIntoString(int level, TreeNode node, StringBuilder sb)
-        {
-            // Append the correct number of tabs and the node's text.
-            sb.AppendLine(new string('\t', level) + node.Text);
-
-            // Recursively add children with one greater level of tabs.
-            foreach (TreeNode child in node.Nodes)
-                WriteNodeIntoString(level + 1, child, sb);
-        }
 
         /// <summary>
         /// Write the TreeView's values into a file that uses tabs
@@ -363,18 +329,20 @@ namespace SaveAsPDF.Helpers
         /// <param name="trv"></param>
         public static void SaveTreeViewIntoFile(string file_name, TreeView trv)
         {
-            // Build a string containing the TreeView's contents.
-            StringBuilder sb = new StringBuilder();
-            foreach (TreeNode node in trv.Nodes)
-            {
-                WriteNodeIntoString(0, node, sb);
-            }
+            List<string> lst = new List<string>();
+            lst = GetPathsFromTreeView(trv.Nodes);
             try
             {
-                // Write the result into the file.
-                File.WriteAllText(file_name, sb.ToString());
+                using (StreamWriter sw = new StreamWriter(file_name))
+                {
+                    foreach (string line in lst)
+                    {
+                        sw.WriteLine(line);
+                    }
+                }
             }
-            catch (FieldAccessException e)
+            catch (Exception e)
+
             {
                 MessageBox.Show(e.Message, "TreeHelper: SaveTreeViewIntoFile()");
             }
@@ -382,10 +350,10 @@ namespace SaveAsPDF.Helpers
 
 
         /// <summary>
-        /// Tree-view to list string 
+        /// Convert the TreeView control to a list of paths.
         /// </summary>
-        /// <param name="treeView"></param>
-        /// <returns></returns>
+        /// <param name="treeView">The TreeView control to convert.</param>
+        /// <returns>A list of paths representing the nodes in the TreeView control.</returns>
         public static List<string> TreeToList(TreeView treeView)
         {
             List<string> list = new List<string>();
@@ -397,6 +365,77 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
+        /// Load the default folder tree into the TreeView control.
+        /// If the folder tree file does not exist, a default folder tree will be loaded.
+        /// </summary>
+        /// <param name="treeView">The TreeView control to load the folder tree into.</param>
+        public static void LoadTreeViewFromList(this TreeView treeView)
+        {
+            string[] defaultTree = new string[]
+            {
+                @"_מספר_פרויקט_",
+                @"_מספר_פרויקט_\DWG",
+                @"_מספר_פרויקט_\מכתבים",
+                @"_מספר_פרויקט_\OLD",
+                @"_מספר_פרויקט_\PDF",
+                @"_מספר_פרויקט_\אישור ציוד",
+                @"_מספר_פרויקט_\אישור ציוד\לוח חשמל ראשי",
+                @"_מספר_פרויקט_\אישור ציוד\דיזל גנרטור",
+                @"_מספר_פרויקט_\אישור ציוד\גופי תאורה",
+                @"_מספר_פרויקט_\התקבל",
+                @"_מספר_פרויקט_\התקבל\אדריכלות",
+                @"_מספר_פרויקט_\התקבל\קונסטרוקציה",
+                @"_מספר_פרויקט_\התקבל\מיזוג אויר",
+                @"_מספר_פרויקט_\התקבל\בטיחות",
+                @"_מספר_פרויקט_\התקבל\כבישים",
+                @"_מספר_פרויקט_\נשלח",
+                @"_מספר_פרויקט_\נשלח\אדריכלות",
+                @"_מספר_פרויקט_\נשלח\קונסטרוקציה",
+                @"_מספר_פרויקט_\נשלח\מיזוג אויר",
+                @"_מספר_פרויקט_\נשלח\בטיחות",
+                @"_מספר_פרויקט_\נשלח\כבישים"
+            };
+            treeView.LoadTreeViewFromFile(defaultTree);
+        }
+
+
+        /// <summary>
+        /// Load the TreeView control from a list of paths.
+        /// </summary>
+        /// <param name="treeView">The TreeView control to load the folder tree into.</param>
+        /// <param name="list">The list of paths to populate the TreeView control.</param>
+        public static void LoadTreeViewFromFile(this TreeView treeView, string[] list)
+        {
+            treeView.Nodes.Clear();
+            foreach (string path in list)
+            {
+                string[] nodeNames = path.Split('\\');
+                TreeNode parentNode = null;
+                foreach (string nodeName in nodeNames)
+                {
+                    if (parentNode == null)
+                    {
+                        parentNode = treeView.Nodes.Cast<TreeNode>().FirstOrDefault(n => n.Text == nodeName);
+                        if (parentNode == null)
+                        {
+                            parentNode = treeView.Nodes.Add(nodeName);
+                        }
+                    }
+                    else
+                    {
+                        TreeNode childNode = parentNode.Nodes.Cast<TreeNode>().FirstOrDefault(n => n.Text == nodeName);
+                        if (childNode == null)
+                        {
+                            childNode = parentNode.Nodes.Add(nodeName);
+                        }
+                        parentNode = childNode;
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
         /// Load a TreeView control from a file that uses tabs
         /// to show indentation.
         /// </summary>
@@ -404,94 +443,53 @@ namespace SaveAsPDF.Helpers
         /// <param name="trv"></param>
         public static void LoadTreeViewFromFile(this TreeView trv, string file_name)
         {
-            try
+            if (!string.IsNullOrEmpty(file_name))
             {
-                // Get the file's contents.
-                string file_contents = File.ReadAllText(file_name);
-                // Process the lines.
-                trv.Nodes.Clear();
-                Dictionary<int, TreeNode> parents = new Dictionary<int, TreeNode>();
-
-                // Break the file into lines.
-                string[] lines = file_contents.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string text_line in lines)
+                try
                 {
-                    // See how many tabs are at the start of the line.
-                    int level = text_line.Length - text_line.TrimStart('\t').Length;
+                    // Get the file's contents.
+                    string file_contents = File.ReadAllText(file_name);
+                    // Process the lines.
+                    trv.Nodes.Clear();
+                    Dictionary<int, TreeNode> parents = new Dictionary<int, TreeNode>();
 
-                    // Add the new node.
-                    if (level == 0)
-                        parents[level] = trv.Nodes.Add(text_line.Trim());
-                    else
-                        parents[level] = parents[level - 1].Nodes.Add(text_line.Trim());
-                    parents[level].EnsureVisible();
+                    // Break the file into lines.
+                    string[] lines = file_contents.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string text_line in lines)
+                    {
+                        // See how many tabs are at the start of the line.
+                        int level = text_line.Length - text_line.TrimStart('\t').Length;
+
+                        // Add the new node.
+                        if (level == 0)
+                            parents[level] = trv.Nodes.Add(text_line.Trim());
+                        else
+                            parents[level] = parents[level - 1].Nodes.Add(text_line.Trim());
+                        parents[level].EnsureVisible();
+                    }
+
+                }
+                catch (System.Exception e)
+                {
+                    var trace = new StackTrace(e);
+                    var frame = trace.GetFrame(0);
+                    var method = frame.GetMethod();
+                    MessageBox.Show($"{method.DeclaringType.FullName}\n{method.Name}\n{e.Message}", "TreeHelper:LoadTreeViewFromFile()");
                 }
 
             }
-            catch (System.Exception e)
-            {
-                var trace = new StackTrace(e);
-                var frame = trace.GetFrame(0);
-                var method = frame.GetMethod();
-                MessageBox.Show($"{method.DeclaringType.FullName}\n{method.Name}\n{e.Message}", "TreeHelper:LoadTreeViewFromFile()");
-
-
-                //MessageBox.Show($"{e.TargetSite.Name}\n{e.Message}", "TreeHelper:LoadTreeViewFromFile()");
-            }
-
-        }
-
-
-        /// <summary>
-        /// Load the default folder tree from the default folder tree file.
-        /// If the folder tree file does not exist a default folder tree will be loaded
-        /// </summary>
-        /// <param name="treeView"></param>
-        public static void LoadDefaultTree(this TreeView treeView)
-        {
-
-
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            string location = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);  //assembly.CodeBase;
-                                                                                                 //string fullPath = new Uri(location).LocalPath; // path including the dll 
-                                                                                                 //string directoryPath = Path.GetDirectoryName(fullPath); // directory path 
-
-            string defaultTreeFileName = $@"{location}\SaveAsPDFDefaultTree.fld";
-
-            if (File.Exists(defaultTreeFileName))
-            {
-                treeView.LoadTreeViewFromFile(defaultTreeFileName);
-            }
             else
             {
-                //Default tree file was not found -  create a new default free file
-                string defaultTree = "_מספר_פרויקט_\n"
-                                     + "\tDWG\n"
-                                     + "\tמכתבים\n"
-                                     + "\tOLD\n"
-                                     + "\tPDF\n"
-                                     + "\tאישור ציוד\n"
-                                     + "\t\tלוח חשמל ראשי\n"
-                                     + "\t\tדיזל גנרטור\n"
-                                     + "\t\tגופי תאורה\n"
-                                     + "\tהתקבל\n"
-                                     + "\t\tאדריכלות\n"
-                                     + "\t\tקונסטרוקציה\n"
-                                     + "\t\tמיזוג אויר\n"
-                                     + "\t\tבטיחות\n"
-                                     + "\t\tכבישים\n"
-                                     + "\tנשלח\n"
-                                     + "\t\tאדריכלות\n"
-                                     + "\t\tקונסטרוקציה\n"
-                                     + "\t\tמיזוג אויר\n"
-                                     + "\t\tבטיחות\n"
-                                     + "\t\tכבישים\n ";
-
-                File.WriteAllText(defaultTreeFileName, defaultTree);
-                treeView.LoadTreeViewFromFile(defaultTreeFileName);
-                treeView.Nodes.Add(defaultTree);
+                trv.LoadTreeViewFromList();
+                //MessageBox.Show("File name is empty", "TreeHelper:LoadTreeViewFromFile()");
             }
         }
+
+
+
+
+
+
         /// <summary>
         /// Populate the tree view 
         /// </summary>
@@ -567,6 +565,32 @@ namespace SaveAsPDF.Helpers
                 nodes = currentNode.Nodes;
             }
             return currentNode;
+        }
+        /// <summary>
+        /// Retrieves the paths of all nodes in a TreeView.
+        /// </summary>
+        /// <param name="nodes">The collection of TreeNodes to retrieve paths from.</param>
+        /// <param name="path">The current path of the nodes.</param>
+        /// <returns>A list of paths for all nodes in the TreeView.</returns>
+        static List<string> GetPathsFromTreeView(TreeNodeCollection nodes, string path = "")
+        {
+            var paths = new List<string>();
+
+            foreach (TreeNode node in nodes)
+            {
+                string currentPath = path + node.Text;
+
+                if (node.Nodes.Count > 0)
+                {
+                    paths.AddRange(GetPathsFromTreeView(node.Nodes, currentPath + @"\"));
+                }
+                else
+                {
+                    paths.Add(currentPath);
+                }
+            }
+
+            return paths;
         }
     }
 }
