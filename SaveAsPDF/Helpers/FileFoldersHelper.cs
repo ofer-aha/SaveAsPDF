@@ -104,6 +104,7 @@ namespace SaveAsPDF.Helpers
         /// <returns> <see cref="bool"/> is it in the correct format </returns>
         public static bool SafeProjectID(this string projectID)
         {
+            projectID = projectID.Trim();
             if (projectID == null) { return false; }
 
             string pattern = @"^\w{3,5}(-\w{1,3})?(-\w{1,2})?$";
@@ -245,8 +246,13 @@ namespace SaveAsPDF.Helpers
         /// <param name="folder"> string representing the hidden folder name to create </param>
         /// <param name="defName"> default folder name. When left empty the default is to create the .SaveAsPDF folder </param>
         /// 
-        public static void CreateHiddenFolder(this string folder, string defName = null)
+        public static void CreateHiddenDirectory(this string folder, string defName = null)
         {
+            if (Path.HasExtension(folder))
+            {
+                folder = Path.GetDirectoryName(folder);
+            }
+
             if (!string.IsNullOrEmpty(defName))
             {
                 if (!Directory.Exists($@"{folder}\{defName}"))
@@ -259,7 +265,7 @@ namespace SaveAsPDF.Helpers
             {
                 try
                 {
-                    DirectoryInfo di = Directory.CreateDirectory($@"{SettingsHelpers.xmlSaveAsPDFFolder}");
+                    DirectoryInfo di = Directory.CreateDirectory(folder);
                     di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
                 }
                 catch (Exception e)
@@ -274,7 +280,7 @@ namespace SaveAsPDF.Helpers
         /// if the folder already exists it will name it New Folder (2)... New Folder (3)  and so on. 
         /// </summary>
         /// <param name="folder">string representing the folder name to create</param>
-        public static string MkDir(string baseFolder)
+        public static string CreateDirectory(string baseFolder)
         {
             if (string.IsNullOrEmpty(baseFolder))
             {
@@ -305,7 +311,7 @@ namespace SaveAsPDF.Helpers
         /// Delete folder recursive
         /// </summary>
         /// <param name="folder">The folder to be deleted as string</param>
-        public static void RmDir(string folder)
+        public static void DeleteDirectory(string folder)
         {
             if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder))
             {
@@ -315,7 +321,7 @@ namespace SaveAsPDF.Helpers
             string[] dirs = Directory.GetDirectories(folder);
             foreach (string dir in dirs)
             {
-                RmDir(dir);
+                DeleteDirectory(dir);
             }
             try
             {
@@ -331,7 +337,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="di">Directory object</param>
         /// <param name="folder">New name for the directory</param>
-        public static void RnDir(this DirectoryInfo di, string folder)
+        public static void RenameDirectory(this DirectoryInfo di, string folder)
         {
             if (di == null || string.IsNullOrEmpty(folder))
             {
@@ -343,5 +349,6 @@ namespace SaveAsPDF.Helpers
                 di.MoveTo(folder);
             }
         }
+
     }
 }

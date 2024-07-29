@@ -1,7 +1,7 @@
 ﻿
 namespace SaveAsPDF
 {
-    partial class frmMain
+    partial class FormMain
     {
         /// <summary>
         /// Required designer variable.
@@ -30,7 +30,7 @@ namespace SaveAsPDF
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.btnCancel = new System.Windows.Forms.Button();
             this.txtProjectID = new System.Windows.Forms.TextBox();
             this.lblProjectID = new System.Windows.Forms.Label();
@@ -163,7 +163,6 @@ namespace SaveAsPDF
             // 
             resources.ApplyResources(this.txtProjectName, "txtProjectName");
             this.txtProjectName.Name = "txtProjectName";
-            this.txtProjectName.ReadOnly = true;
             // 
             // txtSubject
             // 
@@ -433,9 +432,9 @@ namespace SaveAsPDF
             this.MaximizeBox = false;
             this.Name = "frmMain";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
             this.Load += new System.EventHandler(this.frmMain_Load);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.frmMain_KeyDown);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyDown);
             this.stsStrip.ResumeLayout(false);
             this.stsStrip.PerformLayout();
             this.tabNotes.ResumeLayout(false);

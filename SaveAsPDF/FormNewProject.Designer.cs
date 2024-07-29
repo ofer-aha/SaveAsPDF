@@ -1,7 +1,7 @@
 ﻿
 namespace SaveAsPDF
 {
-    partial class frmNewProject
+    partial class FormNewProject
     {
         /// <summary>
         /// Required designer variable.
@@ -30,7 +30,7 @@ namespace SaveAsPDF
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmNewProject));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormNewProject));
             this.txtProjectName = new System.Windows.Forms.TextBox();
             this.lblProjectName = new System.Windows.Forms.Label();
             this.lblProjectID = new System.Windows.Forms.Label();
@@ -237,7 +237,7 @@ namespace SaveAsPDF
             this.RightToLeftLayout = true;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "פרויקט חדש";
-            this.Load += new System.EventHandler(this.frmNewProject_Load);
+            this.Load += new System.EventHandler(this.FormNewProject_Load);
             this.menuTree.ResumeLayout(false);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();

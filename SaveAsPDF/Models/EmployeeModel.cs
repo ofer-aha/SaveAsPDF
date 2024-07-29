@@ -36,6 +36,16 @@
         /// First name and last name combined with email address
         /// </summary>
         public string FullName => $"{FirstName} {LastName} <{EmailAddress}>";
+
+        public EmployeeModel()
+        {
+            Id = 0;
+            FirstName = string.Empty;
+            LastName = string.Empty;
+            EmailAddress = string.Empty;
+            PhoneNumber = string.Empty;
+            IsLeader = false;
+        }
     }
 
 }

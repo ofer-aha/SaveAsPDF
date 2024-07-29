@@ -8,12 +8,12 @@ using System.Windows.Forms;
 
 namespace SaveAsPDF
 {
-    public partial class frmNewProject : Form
+    public partial class FormNewProject : Form
     {
         private readonly INewProjectRequester callingForm;
         private List<string> _subFolfers = new List<string>();
         private TreeNode _mySelectedNode;
-        public frmNewProject(INewProjectRequester caller)
+        public FormNewProject(INewProjectRequester caller)
         {
             InitializeComponent();
             txtProjectNotes.EnableContextMenu();
@@ -47,7 +47,7 @@ namespace SaveAsPDF
                 _subFolfers = TreeHelpers.ListNodesPath(tvDefaultSubFolders.Nodes[0]);
                 foreach (string subFolder in _subFolfers)
                 {
-                    FileFoldersHelper.MkDir(subFolder);
+                    FileFoldersHelper.CreateDirectory(subFolder);
                 }
 
                 //call the calling form to add the new project
@@ -144,7 +144,7 @@ namespace SaveAsPDF
             _mySelectedNode = tvDefaultSubFolders.SelectedNode;
         }
 
-        private void frmNewProject_Load(object sender, EventArgs e)
+        private void FormNewProject_Load(object sender, EventArgs e)
         {
             //TODO: default values? 
         }

@@ -43,11 +43,18 @@ namespace SaveAsPDF.Helpers
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;
             // Save the document to a file and auto-indent the _employeesModel.
+
+
+            FileFoldersHelper.CreateHiddenDirectory(path);
+
             XmlWriter writer = XmlWriter.Create(path, settings);
 
             try
             {
                 doc.Save(writer);
+                //close the writer
+                writer.Close();
+
             }
             catch (Exception ex)
             {
@@ -97,6 +104,8 @@ namespace SaveAsPDF.Helpers
             try
             {
                 xmlDocument.Save(writer);
+                //close the writer
+                writer.Close();
             }
             catch (Exception ex)
             {
@@ -131,6 +140,7 @@ namespace SaveAsPDF.Helpers
             projectModel.ProjectName = projectName[0].InnerText;
             projectModel.NoteEmployee = bool.Parse(noteEmployee[0].InnerText);
             projectModel.ProjectNotes = projectNotes[0].InnerText;
+
 
             return projectModel;
         }

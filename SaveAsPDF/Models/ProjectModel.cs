@@ -27,5 +27,20 @@
         /// </summary>
         public string ProjectNotes { get; set; }
 
+        /// <summary>
+        /// The last save path of the project
+        /// </summary>
+        public string LastSavePath { get; set; }
+
+        public ProjectModel()
+        {
+            Id = 0;
+            ProjectNumber = string.Empty;
+            ProjectName = string.Empty;
+            NoteEmployee = false;
+            DefaultSaveFolder = string.Empty;
+            ProjectNotes = string.Empty;
+            LastSavePath = string.Empty;
+        }
     }
 }

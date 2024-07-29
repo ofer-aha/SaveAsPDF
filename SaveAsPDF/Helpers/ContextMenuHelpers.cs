@@ -174,8 +174,8 @@ namespace SaveAsPDF.Helpers
                 {
                     try
                     {
-                        string[] tf = FileFoldersHelper.MkDir($@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\{frmMain.mySelectedNode.FullPath}\New Folder").Split('\\');
-                        tv.AddNode(frmMain.mySelectedNode, tf[tf.Length - 1]);
+                        string[] tf = FileFoldersHelper.CreateDirectory($@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{FormMain.mySelectedNode.FullPath}\New Folder").Split('\\');
+                        tv.AddNode(FormMain.mySelectedNode, tf[tf.Length - 1]);
 
                     }
                     catch (Exception ex)
@@ -193,8 +193,8 @@ namespace SaveAsPDF.Helpers
                 {
                     try
                     {
-                        string[] tf = FileFoldersHelper.MkDir($@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\{frmMain.mySelectedNode.FullPath}\{date.ToString("dd.MM.yyyy")}").Split('\\');
-                        tv.AddNode(frmMain.mySelectedNode, tf[tf.Length - 1]);
+                        string[] tf = FileFoldersHelper.CreateDirectory($@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{FormMain.mySelectedNode.FullPath}\{date.ToString("dd.MM.yyyy")}").Split('\\');
+                        tv.AddNode(FormMain.mySelectedNode, tf[tf.Length - 1]);
                     }
                     catch (Exception ex)
                     {
@@ -214,7 +214,7 @@ namespace SaveAsPDF.Helpers
                 {
                     //TODO: maybe this will work with open PDF 
 
-                    Process.Start($@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\{frmMain.mySelectedNode.FullPath}");
+                    Process.Start($@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{FormMain.mySelectedNode.FullPath}");
                 };
                 cms.Items.Add(tsmiOpen);
 
@@ -222,13 +222,13 @@ namespace SaveAsPDF.Helpers
                 ToolStripMenuItem tsmiDelete = new ToolStripMenuItem(menuNameDelete);
                 tsmiDelete.Click += (sender, e) =>
                 {
-                    if (frmMain.mySelectedNode.Parent != null)
+                    if (FormMain.mySelectedNode.Parent != null)
                     {
                         if (MessageBox.Show("האם למחוק תיקייה ואת כל הקבצים והתיקיות שהיא מכילה?\n" +
-                                $@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\{frmMain.mySelectedNode.FullPath}", "SaveAsPDF", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                $@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{FormMain.mySelectedNode.FullPath}", "SaveAsPDF", MessageBoxButtons.YesNo) == DialogResult.Yes)
                         {
-                            FileFoldersHelper.RmDir($@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\{frmMain.mySelectedNode.FullPath}");
-                            tv.DelNode(frmMain.mySelectedNode);
+                            FileFoldersHelper.DeleteDirectory($@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{FormMain.mySelectedNode.FullPath}");
+                            tv.DelNode(FormMain.mySelectedNode);
                         }
                     }
                     else
@@ -242,12 +242,12 @@ namespace SaveAsPDF.Helpers
                 ToolStripMenuItem tsmiRename = new ToolStripMenuItem(menuNameRename);
                 tsmiRename.Click += (sender, e) =>
                 {
-                    string oldName = $@"{frmMain.settingsModel.ProjectRootFolder.Parent.FullName}\frmMain.{frmMain.mySelectedNode.FullPath}";
+                    string oldName = $@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\frmMain.{FormMain.mySelectedNode.FullPath}";
                     DirectoryInfo directoryInfo = new DirectoryInfo(oldName.SafeFolderName());
 
-                    tv.RenameNode(frmMain.mySelectedNode);
+                    tv.RenameNode(FormMain.mySelectedNode);
                     //tvFolders.Refresh();
-                    frmMain.mySelectedNode = tv.SelectedNode;
+                    FormMain.mySelectedNode = tv.SelectedNode;
 
                 };
                 cms.Items.Add(tsmiRename);
@@ -260,7 +260,7 @@ namespace SaveAsPDF.Helpers
                 tsmiRefresh.Click += (sender, e) =>
                 {
                     tv.Nodes.Clear();
-                    tv.Nodes.Add(TreeHelpers.CreateDirectoryNode(frmMain.settingsModel.ProjectRootFolder));
+                    tv.Nodes.Add(TreeHelpers.CreateDirectoryNode(FormMain.settingsModel.ProjectRootFolder));
                     tv.ExpandAll();
                     tv.SelectedNode = tv.Nodes[0];
                 };

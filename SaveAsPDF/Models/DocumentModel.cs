@@ -34,6 +34,14 @@ namespace SaveAsPDF.Models
         /// </summary>
         public List<Attachment> Attachments { get; set; } = new List<Attachment>();
 
+        public DocumentModel()
+        {
+            ToField = string.Empty;
+            FromField = string.Empty;
+            Subject = string.Empty;
+            Body = string.Empty;
+            Notes = string.Empty;
+        }
 
     }
 }

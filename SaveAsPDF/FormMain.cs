@@ -14,7 +14,7 @@ using Exception = System.Exception;
 
 namespace SaveAsPDF
 {
-    public partial class frmMain : Form, IEmployeeRequester, INewProjectRequester, ISettingsRequester
+    public partial class FormMain : Form, IEmployeeRequester, INewProjectRequester, ISettingsRequester
     {
         //Preparing the models - Private fields 
         private List<EmployeeModel> _employeesModel = new List<EmployeeModel>();
@@ -46,7 +46,7 @@ namespace SaveAsPDF
         //List<Attachment> attachments = new List<Attachment>();
         List<AttachmentsModel> attachmentsModels = new List<AttachmentsModel>();
 
-        public frmMain()
+        public FormMain()
         {
             InitializeComponent();
         }
@@ -75,6 +75,7 @@ namespace SaveAsPDF
 
             txtProjectID.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             txtProjectID.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
             LoadSearchHistory();
 
             settingsModel = SettingsHelpers.LoadProjectSettings();
@@ -112,9 +113,25 @@ namespace SaveAsPDF
 
                 tvFolders.Nodes.Add(node);
 
-                KeyDown += frmMain_KeyDown; //add the key-down event to the form
+                KeyDown += FormMain_KeyDown; //add the key-down event to the form
             }
 
+        }
+        /// <summary>
+        /// Updates the auto complete source with the current text in the project ID textbox.
+        /// </summary>
+        private void UpdateAutoCompleteSource(string text)
+        {
+            if (!searchHistory.Contains(text)) //not adding duplicates
+            {
+                searchHistory.Add(text);
+                if (Settings.Default.LastProjects == null)
+                {
+                    Settings.Default.LastProjects = new StringCollection();
+                }
+                Settings.Default.LastProjects.AddRange(searchHistory.ToArray());
+                Settings.Default.Save();
+            }
         }
 
         private void LoadSearchHistory()
@@ -123,7 +140,9 @@ namespace SaveAsPDF
             {
                 Settings.Default.LastProjects = new StringCollection();
             }
-            txtProjectID.AutoCompleteCustomSource.AddRange(Settings.Default.LastProjects.Cast<string>().ToArray());
+            //remove duplicates fromSettings.Default.LastProjects
+            searchHistory = Settings.Default.LastProjects.Cast<string>().Distinct().ToList();
+            txtProjectID.AutoCompleteCustomSource.AddRange(searchHistory.ToArray());
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -159,19 +178,6 @@ namespace SaveAsPDF
             }
         }
 
-        /// <summary>
-        /// Updates the auto complete source with the current text in the project ID textbox.
-        /// </summary>
-        private void UpdateAutoCompleteSource(string text)
-        {
-            if (!searchHistory.Contains(text))
-            {
-                searchHistory.Add(text);
-                Settings.Default.LastProjects = new StringCollection();
-                Settings.Default.LastProjects.AddRange(searchHistory.ToArray());
-                Settings.Default.Save();
-            }
-        }
 
         /// <summary>
         /// If rootDrive (j:\) does not exist on settings.settings or folder not exist, we shout check it 
@@ -199,60 +205,56 @@ namespace SaveAsPDF
             {
                 settingsModel = SettingsHelpers.LoadProjectSettings(projectID);
 
-                if (settingsModel.ProjectRootFolder.Exists)
+                // j:\12\1245\  - exist 
+                // construct the full path for everything
+                _xmlSaveAsPdfFolder = new DirectoryInfo(settingsModel.XmlSaveAsPDFFolder);
+                _xmlProjectFile = settingsModel.XmlProjectFile;
+                _xmlEmploeeysFile = settingsModel.XmlEmployeesFile;
+
+                FileFoldersHelper.CreateHiddenDirectory(_xmlSaveAsPdfFolder.FullName);
+
+                //settingsModel.ProjectRootFolder.FullName.CreateHiddenDirectory();
+
+                if (File.Exists(_xmlProjectFile))
                 {
-                    // j:\12\1245\  - exist 
-                    // construct the full path for everything
-                    settingsModel.ProjectRootFolder.FullName.CreateHiddenFolder();
-                    _xmlSaveAsPdfFolder = new DirectoryInfo(settingsModel.XmlSaveAsPDFFolder);
-                    _xmlProjectFile = settingsModel.XmlProjectFile;
-                    _xmlEmploeeysFile = settingsModel.XmlEmployeesFile;
+                    //load the XML file to _projectModel model
+                    _projectModel = _xmlProjectFile.XmlProjectFileToModel();
 
-                    if (File.Exists(_xmlProjectFile))
+                    if (_projectModel != null)
                     {
-                        //load the XML file to _projectModel model
-                        _projectModel = _xmlProjectFile.XmlProjectFileToModel();
+                        txtProjectName.Text = _projectModel.ProjectName;
+                        chkbSendNote.Checked = _projectModel.NoteEmployee;
+                        rtxtProjectNotes.Text = _projectModel.ProjectNotes;
 
-                        if (_projectModel != null)
-                        {
-                            txtProjectName.Text = _projectModel.ProjectName;
-                            chkbSendNote.Checked = _projectModel.NoteEmployee;
-                            rtxtProjectNotes.Text = _projectModel.ProjectNotes;
-
-                        }
-                    }
-
-                    dgvEmployees.Rows.Clear();
-                    //load the XML file to Employees list-box
-                    if (File.Exists(_xmlEmploeeysFile))
-                    {
-                        _employeesModel = _xmlEmploeeysFile.XmlEmployeesFileToModel();
-                        if (_employeesModel != null)
-                        {
-                            foreach (EmployeeModel em in _employeesModel)
-                            {
-                                dgvEmployees.Rows.Add(em.Id, em.FirstName, em.LastName, em.EmailAddress);
-                            }
-                        }
                     }
                 }
 
-                tvFolders.Nodes.Clear();
-                tvFolders.Nodes.Add(TreeHelpers.CreateDirectoryNode(settingsModel.ProjectRootFolder));
-                tvFolders.ExpandAll();
-                tvFolders.SelectedNode = tvFolders.Nodes[0];
-
-
-
-                txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
-                txtSaveLocation.Text = settingsModel.DefaultSavePath;
-                //txtSaveLocation.Text = $@"{settingsModel.ProjectRootFolder.FullName}
-                //                  {settingsModel.DefaultSavePath.Replace(settingsModel.ProjectRootTag,
-                //                          settingsModel.ProjectRootFolder.FullName).Replace(settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"))}";
-
-                btnOK.Focus();
-                _dataLoaded = true;
+                dgvEmployees.Rows.Clear();
+                //load the XML file to Employees list-box
+                if (File.Exists(_xmlEmploeeysFile))
+                {
+                    _employeesModel = _xmlEmploeeysFile.XmlEmployeesFileToModel();
+                    if (_employeesModel != null)
+                    {
+                        foreach (EmployeeModel em in _employeesModel)
+                        {
+                            dgvEmployees.Rows.Add(em.Id, em.FirstName, em.LastName, em.EmailAddress);
+                        }
+                    }
+                }
             }
+
+            tvFolders.Nodes.Clear();
+            tvFolders.Nodes.Add(TreeHelpers.CreateDirectoryNode(settingsModel.ProjectRootFolder));
+            tvFolders.ExpandAll();
+            tvFolders.SelectedNode = tvFolders.Nodes[0];
+
+            txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
+            txtSaveLocation.Text = settingsModel.DefaultSavePath;
+
+            btnOK.Focus();
+            _dataLoaded = true;
+
         }
 
         private void ProcessMailItem(MailItem mailItem)
@@ -339,7 +341,7 @@ namespace SaveAsPDF
             #region Create XML files for the models
 
             //create the SaveAsPDF hidden folder
-            //_xmlSaveAsPdfFolder.FullName.CreateHiddenFolder(); //already doing it on LoadXml() 
+            //_xmlSaveAsPdfFolder.FullName.CreateHiddenDirectory(); //already doing it on LoadXml() 
 
             //create _projectModel XML file
             _xmlProjectFile.ProjectModelToXmlFile(_projectModel);
@@ -354,7 +356,7 @@ namespace SaveAsPDF
                 DirectoryInfo directory = new DirectoryInfo(txtSaveLocation.Text);
                 if (!directory.Exists)
                 {
-                    FileFoldersHelper.MkDir(directory.FullName);
+                    FileFoldersHelper.CreateDirectory(directory.FullName);
                 }
             }
             else
@@ -431,7 +433,7 @@ namespace SaveAsPDF
 
         private void BtnSettings_Click(object sender, EventArgs e)
         {
-            frmSettings frm = new frmSettings(this);
+            FormSettings frm = new FormSettings(this);
             frm.ShowDialog();
         }
 
@@ -456,7 +458,7 @@ namespace SaveAsPDF
 
         private void btnPhoneBook_Click(object sender, EventArgs e)
         {
-            frmContacts frmContacts = new frmContacts(this);
+            FormContacts frmContacts = new FormContacts(this);
             frmContacts.ShowDialog(this);
         }
 
@@ -614,7 +616,7 @@ namespace SaveAsPDF
 
         private void btnNewProject_Click(object sender, EventArgs e)
         {
-            frmNewProject frm = new frmNewProject(this);
+            FormNewProject frm = new FormNewProject(this);
             frm.ShowDialog(this);
         }
 
@@ -696,7 +698,7 @@ namespace SaveAsPDF
                 {
 
                     DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.FullPath));  // old path
-                    directoryInfo.RnDir($@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.Parent.FullPath}\{nodeNewLable}"); //nodeNewLable = new SAFE name
+                    directoryInfo.RenameDirectory($@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.Parent.FullPath}\{nodeNewLable}"); //nodeNewLable = new SAFE name
 
                     string specificPath = $@"{e.Node.Parent.FullPath}\{e.Label}";
 
@@ -779,7 +781,6 @@ namespace SaveAsPDF
             ProcessProjectID(txtProjectID.Text);
             UpdateAutoCompleteSource(txtProjectID.Text);
 
-
             if (string.IsNullOrEmpty(settingsModel.RootDrive))
             {
                 HandleFirstRun();
@@ -797,12 +798,23 @@ namespace SaveAsPDF
             _dataLoaded = true;
         }
 
-        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
+        private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Close all open files
+
+
+
             // TODO: Implement code to close all open files
+            //if (e.CloseReason == CloseReason.UserClosing)
+            //{
+            //    if (MessageBox.Show("האם לצאת מהתוכנה?", "SaveAsPDF", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            //    {
+            //        e.Cancel = true;
+            //    }
+            //}
 
             // Rest of the code
+
         }
 
         private void tvFolders_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
@@ -818,7 +830,7 @@ namespace SaveAsPDF
             _isDoubleClick = e.Clicks > 1;
         }
 
-        private void frmMain_KeyDown(object sender, KeyEventArgs e)
+        private void FormMain_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.F2)
             {
@@ -827,7 +839,7 @@ namespace SaveAsPDF
                     tvFolders.SelectedNode.BeginEdit();
                 }
             }
-            if (e.KeyCode == Keys.Delete)
+            else if (e.KeyCode == Keys.Delete)
             {
                 if (tvFolders.SelectedNode != null)
                 {
@@ -846,16 +858,19 @@ namespace SaveAsPDF
                     }
                 }
             }
-            if (e.KeyCode == Keys.F5)
+            else if (e.KeyCode == Keys.F5)
             {
                 tvFolders.Nodes.Clear();
                 tvFolders.Nodes.Add(TreeHelpers.TraverseDirectory(settingsModel.ProjectRootFolder.FullName, 1));
             }
-            if (e.KeyCode == Keys.Escape)
+            else if (e.KeyCode == Keys.Escape)
             {
-                Close();
+                if (txtProjectID.Text.Length == 0)
+                {
+                    Close();
+                }
+                txtProjectID.Clear();
             }
         }
-
     }
 }

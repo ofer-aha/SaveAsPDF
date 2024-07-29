@@ -1,7 +1,7 @@
 ﻿
 namespace SaveAsPDF
 {
-    partial class frmContacts
+    partial class FormContacts
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@ namespace SaveAsPDF
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmContacts));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormContacts));
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.lblLoading = new System.Windows.Forms.Label();
             this.dgvContacs = new System.Windows.Forms.DataGridView();
@@ -161,8 +161,8 @@ namespace SaveAsPDF
             this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "בחר אנשי קשר";
-            this.Activated += new System.EventHandler(this.frmContacts_Activated);
-            this.Load += new System.EventHandler(this.frmContacts_Load);
+            this.Activated += new System.EventHandler(this.FormContacts_Activated);
+            this.Load += new System.EventHandler(this.FormContacts_Load);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel1.PerformLayout();
             this.splitContainer.Panel2.ResumeLayout(false);

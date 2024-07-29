@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace SaveAsPDF
 {
-    public partial class frmSettings : Form
+    public partial class FormSettings : Form
     {
         private ISettingsRequester _callingForm;
         private SettingsModel _settingsModel = new SettingsModel();
@@ -17,7 +17,7 @@ namespace SaveAsPDF
         private bool _isDirty = false;
 
 
-        public frmSettings(ISettingsRequester caller)
+        public FormSettings(ISettingsRequester caller)
         {
             InitializeComponent();
             _callingForm = caller;
@@ -36,15 +36,37 @@ namespace SaveAsPDF
             txtMinAttSize.Text = _settingsModel.MinAttachmentSize.ToString();
 
             txtTreePath.Text = _settingsModel.DefaultTreeFile;
-            tvProjectSubFolders.LoadTreeViewFromList();
-            tvProjectSubFolders.SelectedNode = tvProjectSubFolders.Nodes[0];
+
+            try
+            {
+                string[] lines = File.ReadAllLines(_settingsModel.DefaultTreeFile);
+                tvProjectSubFolders.LoadTreeViewFromFile(lines);
+                tvProjectSubFolders.ExpandAll();
+                tvProjectSubFolders.SelectedNode = tvProjectSubFolders.Nodes[0];
+
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Error loading tree file: \n{e.Message}", "FormSettings");
+
+            }
 
             cmbDefaultFolder.Items.Clear();
-
-            //TreeHelpers.TvNodesToCombo(cmbDefaultFolder, tvProjectSubFolders.Nodes[0]);
-
             TreeHelpers.ListNodesPath(tvProjectSubFolders.Nodes[0], cmbDefaultFolder);
             cmbDefaultFolder.SelectedIndex = _settingsModel == null ? 0 : _settingsModel.DefaultFolderID;
+
+
+        }
+
+
+        private void FormSettings_Activated(object sender, EventArgs e)
+        {
+            //refresh data if dirty? 
+
+        }
+
+        private void FormSettings_Load(object sender, EventArgs e)
+        {
 
             //advanced settings tab 
             txtSaveAsPDFFolder.Text = _settingsModel.XmlSaveAsPDFFolder;
@@ -53,21 +75,20 @@ namespace SaveAsPDF
             txtProjectRootTag.Text = _settingsModel.ProjectRootTag;
             txtDateTag.Text = _settingsModel.DateTag;
 
-        }
+            //Last projects
+            lsbLastProjects.Items.Clear();
+            foreach (var item in Settings.Default.LastProjects)
+            {
+                //don't add duplicates
+                if (!lsbLastProjects.Items.Contains(item))
+                {
+                    lsbLastProjects.Items.Add(item);
+                }
 
+            }
 
-        private void frmSettings_Activated(object sender, EventArgs e)
-        {
-            //refresh data if dirty? 
+            txtMaxProjectCount.Text = Settings.Default.MaxProjectCount.ToString();
 
-        }
-
-        private void frmSettings_Load(object sender, EventArgs e)
-        {
-            //public frmSettings()
-
-            //TODO1:frmSettings_Load
-            // ON HOLD
 
             //reset Dirty flag 
             _isDirty = false;
@@ -127,19 +148,19 @@ namespace SaveAsPDF
             }
         }
 
-        private void menueAdd_Click(object sender, EventArgs e)
+        private void MenueAdd_Click(object sender, EventArgs e)
         {
             tvProjectSubFolders.AddNode(mySelectedNode);
             _isDirty = true;
         }
 
-        private void menuDel_Click(object sender, EventArgs e)
+        private void MenuDel_Click(object sender, EventArgs e)
         {
             tvProjectSubFolders.DelNode(mySelectedNode);
             _isDirty = true;
         }
 
-        private void menuRename_Click(object sender, EventArgs e)
+        private void MenuRename_Click(object sender, EventArgs e)
         {
             tvProjectSubFolders.RenameNode(mySelectedNode);
             _isDirty = true;
@@ -223,7 +244,7 @@ namespace SaveAsPDF
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "frmSettings: btnSaveTreeFile_Click");
+                MessageBox.Show(ex.Message, "FormSettings: btnSaveTreeFile_Click");
             }
 
 
@@ -268,7 +289,7 @@ namespace SaveAsPDF
 
         }
 
-        private void menuAppendDate_Click(object sender, EventArgs e)
+        private void MenuAppendDate_Click(object sender, EventArgs e)
         {
             //tvProjectSubFolders.SelectedNode.Name += _settingsModel.dateTag;
             TreeHelpers.RenameNode(tvProjectSubFolders, mySelectedNode, mySelectedNode.Name + _settingsModel.DateTag);
@@ -277,8 +298,9 @@ namespace SaveAsPDF
         private void cmbDefaultFolder_SelectedIndexChanged(object sender, EventArgs e)
         {
             //update settings 
-            _settingsModel.DefaultFolderID = (int)cmbDefaultFolder.SelectedIndex;
-            _settingsModel.ProjectRootFolder = new DirectoryInfo(cmbDefaultFolder.Text);
+            //_settingsModel.DefaultFolderID = (int)cmbDefaultFolder.SelectedIndex;
+            //_settingsModel.ProjectRootFolder = new DirectoryInfo(cmbDefaultFolder.Text);
+            _settingsModel.DefaultSavePath = cmbDefaultFolder.Text;
             _isDirty = true;
         }
 
@@ -317,7 +339,7 @@ namespace SaveAsPDF
             _isDirty = true;
         }
 
-        private void frmSettings_FormClosing(object sender, FormClosingEventArgs e)
+        private void FormSettings_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (_isDirty)
             {

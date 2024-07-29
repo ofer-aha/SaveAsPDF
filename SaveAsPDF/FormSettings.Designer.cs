@@ -1,7 +1,7 @@
 ﻿
 namespace SaveAsPDF
 {
-    partial class frmSettings
+    partial class FormSettings
     {
         /// <summary>
         /// Required designer variable.
@@ -31,7 +31,7 @@ namespace SaveAsPDF
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSettings));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormSettings));
             this.bntCancel = new System.Windows.Forms.Button();
             this.menuTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menueAdd = new System.Windows.Forms.ToolStripMenuItem();
@@ -126,7 +126,7 @@ namespace SaveAsPDF
             this.menueAdd.Name = "menueAdd";
             this.menueAdd.Size = new System.Drawing.Size(201, 22);
             this.menueAdd.Text = "הוסף תיקייה";
-            this.menueAdd.Click += new System.EventHandler(this.menueAdd_Click);
+            this.menueAdd.Click += new System.EventHandler(this.MenueAdd_Click);
             // 
             // menuAddDate
             // 
@@ -141,21 +141,21 @@ namespace SaveAsPDF
             this.menuDel.Name = "menuDel";
             this.menuDel.Size = new System.Drawing.Size(201, 22);
             this.menuDel.Text = "מחק תיקייה";
-            this.menuDel.Click += new System.EventHandler(this.menuDel_Click);
+            this.menuDel.Click += new System.EventHandler(this.MenuDel_Click);
             // 
             // menuRename
             // 
             this.menuRename.Name = "menuRename";
             this.menuRename.Size = new System.Drawing.Size(201, 22);
             this.menuRename.Text = "שנה שם";
-            this.menuRename.Click += new System.EventHandler(this.menuRename_Click);
+            this.menuRename.Click += new System.EventHandler(this.MenuRename_Click);
             // 
             // menuAppendDate
             // 
             this.menuAppendDate.Name = "menuAppendDate";
             this.menuAppendDate.Size = new System.Drawing.Size(201, 22);
             this.menuAppendDate.Text = "הוסף תאריך לשם תיקייה";
-            this.menuAppendDate.Click += new System.EventHandler(this.menuAppendDate_Click);
+            this.menuAppendDate.Click += new System.EventHandler(this.MenuAppendDate_Click);
             // 
             // imageList
             // 
@@ -583,7 +583,7 @@ namespace SaveAsPDF
             // 
             this.openFileDialog.FileName = "openFileDialog1";
             // 
-            // frmSettings
+            // FormSettings
             // 
             this.CancelButton = this.bntCancel;
             this.ClientSize = new System.Drawing.Size(786, 440);
@@ -601,15 +601,15 @@ namespace SaveAsPDF
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "frmSettings";
+            this.Name = "FormSettings";
             this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.RightToLeftLayout = true;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "הגדרות";
             this.TopMost = true;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmSettings_FormClosing);
-            this.Load += new System.EventHandler(this.frmSettings_Load);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormSettings_FormClosing);
+            this.Load += new System.EventHandler(this.FormSettings_Load);
             this.menuTree.ResumeLayout(false);
             this.groupBoxDefaultFolder.ResumeLayout(false);
             this.gbAttaments.ResumeLayout(false);

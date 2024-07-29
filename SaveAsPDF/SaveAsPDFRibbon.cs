@@ -11,7 +11,7 @@ namespace SaveAsPDF
 
         private void buttonDemo_Click(object sender, RibbonControlEventArgs e)
         {
-            frmMain frm = new frmMain();
+            FormMain frm = new FormMain();
             frm.ShowDialog();
         }
 

@@ -228,17 +228,17 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="frmContacts.cs">
+    <Compile Include="FormContacts.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmContacts.Designer.cs">
-      <DependentUpon>frmContacts.cs</DependentUpon>
+    <Compile Include="FormContacts.Designer.cs">
+      <DependentUpon>FormContacts.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmNewProject.cs">
+    <Compile Include="FormNewProject.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmNewProject.Designer.cs">
-      <DependentUpon>frmNewProject.cs</DependentUpon>
+    <Compile Include="FormNewProject.Designer.cs">
+      <DependentUpon>FormNewProject.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\SettingsHelpers.cs" />
     <Compile Include="Helpers\ContextMenuHelpers.cs" />
@@ -254,11 +254,11 @@
     <Compile Include="Models\DocumentModel.cs" />
     <Compile Include="Models\EmployeeModel.cs" />
     <Compile Include="Models\FolderPicker.cs" />
-    <Compile Include="frmMain.cs">
+    <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMain.Designer.cs">
-      <DependentUpon>frmMain.cs</DependentUpon>
+    <Compile Include="FormMain.Designer.cs">
+      <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Microsoft\Office\Interop\Outlook\application.cs" />
     <Compile Include="Helpers\FileFoldersHelper.cs" />
@@ -270,15 +270,15 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <EmbeddedResource Include="frmContacts.resx">
-      <DependentUpon>frmContacts.cs</DependentUpon>
+    <EmbeddedResource Include="FormContacts.resx">
+      <DependentUpon>FormContacts.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmMain.resx">
-      <DependentUpon>frmMain.cs</DependentUpon>
+    <EmbeddedResource Include="FormMain.resx">
+      <DependentUpon>FormMain.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmNewProject.resx">
-      <DependentUpon>frmNewProject.cs</DependentUpon>
+    <EmbeddedResource Include="FormNewProject.resx">
+      <DependentUpon>FormNewProject.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Helpers\InputBox.resx">
       <DependentUpon>InputBox.cs</DependentUpon>
@@ -293,8 +293,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="frmSettings.resx">
-      <DependentUpon>frmSettings.cs</DependentUpon>
+    <EmbeddedResource Include="FormSettings.resx">
+      <DependentUpon>FormSettings.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="SaveAsPDFRibbon.resx">
@@ -318,11 +318,11 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="frmSettings.cs">
+    <Compile Include="FormSettings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSettings.Designer.cs">
-      <DependentUpon>frmSettings.cs</DependentUpon>
+    <Compile Include="FormSettings.Designer.cs">
+      <DependentUpon>FormSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\TextHelpers.cs" />
     <Compile Include="SaveAsPDFRibbon.cs">

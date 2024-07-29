@@ -8,21 +8,21 @@ using System.Windows.Forms;
 
 namespace SaveAsPDF
 {
-    public partial class frmContacts : Form
+    public partial class FormContacts : Form
     {
         private readonly IEmployeeRequester callingForm;
         List<EmployeeModel> employees = new List<EmployeeModel>();
 
 
 
-        public frmContacts(IEmployeeRequester caller)
+        public FormContacts(IEmployeeRequester caller)
         {
             InitializeComponent();
 
             callingForm = caller;
         }
 
-        private void frmContacts_Load(object sender, EventArgs e)
+        private void FormContacts_Load(object sender, EventArgs e)
         {
             lblLoading.Visible = true;
             dgvContacs.DataSource = employees;
@@ -32,7 +32,7 @@ namespace SaveAsPDF
             dgvContacs.Columns[3].HeaderText = "אימייל";
             dgvContacs.Columns[4].Visible = false;
         }
-        private void frmContacts_Activated(object sender, EventArgs e)
+        private void FormContacts_Activated(object sender, EventArgs e)
         {
             //TODO: is the right event to do this? 
 

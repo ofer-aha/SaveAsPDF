@@ -57,7 +57,22 @@ namespace SaveAsPDF.Models
         /// </summary>
         public DirectoryInfo ProjectRootFolder { get; set; }
 
-        public SettingsModel() { }
+        public SettingsModel()
+        {
+            //reset fields to default values
+            RootDrive = @"C:\Projects\";
+            XmlSaveAsPDFFolder = @".SaveAsPDF\";
+            XmlProjectFile = @".SaveAsPDF_Project.xml";
+            XmlEmployeesFile = @".SaveAsPDF_Emploeeys.xml";
+            DefaultTreeFile = @"C:\Projects\tree.fld";
+            MinAttachmentSize = 8192;
+            DateTag = "_תאריך_";
+            DefaultFolderID = 1;
+            ProjectRootTag = "_מספר_פרויקט_";
+            OpenPDF = false;
+            ProjectRootFolder = new DirectoryInfo($@"{RootDrive}10\1000\");
+            DefaultSavePath = $@"{RootDrive}{ProjectRootFolder}Inbox\";
+        }
 
 
 

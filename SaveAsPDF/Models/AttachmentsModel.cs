@@ -20,6 +20,14 @@
         /// </summary>
         public string fileSize { get; set; }
 
+        public AttachmentsModel()
+        {
+            attachmentId = 0;
+            isChecked = true;
+            fileName = string.Empty;
+            fileSize = string.Empty;
+        }
+
     }
 
 }
