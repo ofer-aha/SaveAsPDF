@@ -71,10 +71,10 @@ namespace SaveAsPDF
             this.tabAtachments = new System.Windows.Forms.TabPage();
             this.chkbSelectAllAttachments = new System.Windows.Forms.CheckBox();
             this.dgvAttachments = new System.Windows.Forms.DataGridView();
-            this.txtSaveLocation = new System.Windows.Forms.TextBox();
             this.lblSaveLocation = new System.Windows.Forms.Label();
             this.chbOpenPDF = new System.Windows.Forms.CheckBox();
             this.errorProviderMain = new System.Windows.Forms.ErrorProvider(this.components);
+            this.cmbSaveLocation = new System.Windows.Forms.ComboBox();
             this.stsStrip.SuspendLayout();
             this.tabNotes.SuspendLayout();
             this.tabProjectNote.SuspendLayout();
@@ -382,12 +382,6 @@ namespace SaveAsPDF
             this.dgvAttachments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvAttachments.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvAttachments_CellDoubleClick);
             // 
-            // txtSaveLocation
-            // 
-            resources.ApplyResources(this.txtSaveLocation, "txtSaveLocation");
-            this.txtSaveLocation.Name = "txtSaveLocation";
-            this.txtSaveLocation.ReadOnly = true;
-            // 
             // lblSaveLocation
             // 
             resources.ApplyResources(this.lblSaveLocation, "lblSaveLocation");
@@ -405,14 +399,21 @@ namespace SaveAsPDF
             this.errorProviderMain.ContainerControl = this;
             resources.ApplyResources(this.errorProviderMain, "errorProviderMain");
             // 
-            // frmMain
+            // cmbSaveLocation
+            // 
+            this.cmbSaveLocation.FormattingEnabled = true;
+            resources.ApplyResources(this.cmbSaveLocation, "cmbSaveLocation");
+            this.cmbSaveLocation.Name = "cmbSaveLocation";
+            this.cmbSaveLocation.SelectedValueChanged += new System.EventHandler(this.cmbSaveLocation_SelectedValueChanged);
+            // 
+            // FormMain
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
+            this.Controls.Add(this.cmbSaveLocation);
             this.Controls.Add(this.chbOpenPDF);
             this.Controls.Add(this.lblSaveLocation);
-            this.Controls.Add(this.txtSaveLocation);
             this.Controls.Add(this.tabFilesFolders);
             this.Controls.Add(this.groupBoxEmployee);
             this.Controls.Add(this.tabNotes);
@@ -430,10 +431,10 @@ namespace SaveAsPDF
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.HelpButton = true;
             this.MaximizeBox = false;
-            this.Name = "frmMain";
+            this.Name = "FormMain";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
-            this.Load += new System.EventHandler(this.frmMain_Load);
+            this.Load += new System.EventHandler(this.FormMain_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyDown);
             this.stsStrip.ResumeLayout(false);
             this.stsStrip.PerformLayout();
@@ -492,7 +493,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.TabPage tabAtachments;
         private System.Windows.Forms.CheckBox chkbSelectAllAttachments;
         private System.Windows.Forms.DataGridView dgvAttachments;
-        private System.Windows.Forms.TextBox txtSaveLocation;
         private System.Windows.Forms.Label lblSaveLocation;
         private System.Windows.Forms.DataGridViewTextBoxColumn iD;
         private System.Windows.Forms.DataGridViewTextBoxColumn firstName;
@@ -500,5 +500,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.DataGridViewTextBoxColumn emailAddress;
         private System.Windows.Forms.CheckBox chbOpenPDF;
         private System.Windows.Forms.ErrorProvider errorProviderMain;
+        private System.Windows.Forms.ComboBox cmbSaveLocation;
     }
 }

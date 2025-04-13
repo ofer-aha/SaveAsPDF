@@ -133,7 +133,7 @@ namespace SaveAsPDF
             this.menuAddDate.Name = "menuAddDate";
             this.menuAddDate.Size = new System.Drawing.Size(201, 22);
             this.menuAddDate.Text = "הוסף תאריך";
-            this.menuAddDate.Click += new System.EventHandler(this.menuAddDate_Click);
+            this.menuAddDate.Click += new System.EventHandler(this.MenuAddDate_Click);
             // 
             // menuDel
             // 

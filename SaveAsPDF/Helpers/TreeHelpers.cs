@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Word;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -121,33 +121,47 @@ namespace SaveAsPDF.Helpers
             return result;
         }
 
+        /// <summary>
+        /// Traverses the subdirectories of a given path and adds the directories as child nodes to a parent node in a TreeView.
+        /// </summary>
+        /// <param name="path">The path of the directory to traverse.</param>
+        /// <param name="parentNode">The parent node to add the child nodes to.</param>
+        /// <param name="maxDepth">The maximum depth of the traversal. If set to 0, all subdirectories will be traversed.</param>
+        /// <param name="currentDepth">The current depth of the traversal.</param>
         private static void TraverseSubdirectories(string path, TreeNode parentNode, int maxDepth, int currentDepth)
         {
             if (currentDepth >= maxDepth)
                 return;
 
-            foreach (string subdirectory in Directory.GetDirectories(path))
+            try
             {
-                if (!File.GetAttributes(subdirectory).HasFlag(FileAttributes.Hidden))
+                foreach (string subdirectory in Directory.GetDirectories(path))
                 {
-                    string subNodeName = Path.GetFileName(subdirectory); // Get only the directory name
-                    TreeNode subNode = new TreeNode(subNodeName);
-                    parentNode.Nodes.Add(subNode);
-                    if (maxDepth != 0)
+                    DirectoryInfo directoryInfo = new DirectoryInfo(subdirectory);
+                    if (!directoryInfo.Attributes.HasFlag(FileAttributes.Hidden))
                     {
-                        TraverseSubdirectories(subdirectory, subNode, maxDepth, currentDepth + 1);
+                        string subNodeName = directoryInfo.Name; // Get only the directory name
+                        TreeNode subNode = new TreeNode(subNodeName);
+                        parentNode.Nodes.Add(subNode);
+                        if (maxDepth != 0)
+                        {
+                            TraverseSubdirectories(subdirectory, subNode, maxDepth, currentDepth + 1);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "SaveAsPDF:TraverseSubdirectories");
             }
         }
 
 
-        //}
         /// <summary>
-        /// Rename the node name according to user typing
+        /// Renames the selected node in the TreeView.
         /// </summary>
-        /// <param name="treeView"></param>
-        /// <param name="mySelectedNode"></param>
+        /// <param name="treeView">The TreeView control.</param>
+        /// <param name="mySelectedNode">The selected TreeNode.</param>
         public static void RenameNode(this TreeView treeView, TreeNode mySelectedNode)
         {
             if (mySelectedNode != null & mySelectedNode.Parent != null)
@@ -166,17 +180,21 @@ namespace SaveAsPDF.Helpers
             }
         }
         /// <summary>
-        /// Rename the node name to 'newName' parameter
+        /// Renames the selected node in the TreeView.
         /// </summary>
-        /// <param name="treeView"></param>
-        /// <param name="mySelectedNode"></param>
-        /// <param name="newName"></param>
+        /// <param name="treeView">The TreeView control.</param>
+        /// <param name="mySelectedNode">The selected TreeNode.</param>
+        /// <param name="newName">The new name for the node.</param>
         public static void RenameNode(this TreeView treeView, TreeNode mySelectedNode, string newName)
         {
             if (mySelectedNode != null && mySelectedNode.Parent != null)
             {
-                //treeView.SelectedNode = _mySelectedNode;
-                treeView.SelectedNode.Name = newName.SafeFolderName();
+                treeView.SelectedNode = mySelectedNode;
+                treeView.LabelEdit = true;
+                if (!mySelectedNode.IsEditing)
+                {
+                    mySelectedNode.BeginEdit();
+                }
             }
             else
             {
@@ -267,6 +285,12 @@ namespace SaveAsPDF.Helpers
             }
             return output;
         }
+        /// <summary>
+        /// Retrieves the paths of all nodes in a TreeView.
+        /// </summary>
+        /// <param name="oParentNode">The parent TreeNode.</param>
+        /// <param name="comboBox">The ComboBox to populate with the paths.</param>
+        /// <returns>A list of paths for all nodes in the TreeView.</returns>
         public static List<string> ListNodesPath(TreeNode oParentNode, ComboBox comboBox)
         {
             List<string> list = new List<string>();
@@ -369,7 +393,7 @@ namespace SaveAsPDF.Helpers
         /// If the folder tree file does not exist, a default folder tree will be loaded.
         /// </summary>
         /// <param name="treeView">The TreeView control to load the folder tree into.</param>
-        public static void LoadTreeViewFromList(this TreeView treeView)
+        public static void LoadFromList(this TreeView treeView)
         {
             string[] defaultTree = new string[]
             {
@@ -395,7 +419,7 @@ namespace SaveAsPDF.Helpers
                 @"_מספר_פרויקט_\נשלח\בטיחות",
                 @"_מספר_פרויקט_\נשלח\כבישים"
             };
-            treeView.LoadTreeViewFromFile(defaultTree);
+            treeView.LoadFromFile(defaultTree);
         }
 
 
@@ -404,7 +428,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="treeView">The TreeView control to load the folder tree into.</param>
         /// <param name="list">The list of paths to populate the TreeView control.</param>
-        public static void LoadTreeViewFromFile(this TreeView treeView, string[] list)
+        public static void LoadFromFile(this TreeView treeView, string[] list)
         {
             treeView.Nodes.Clear();
             foreach (string path in list)
@@ -434,57 +458,55 @@ namespace SaveAsPDF.Helpers
             }
         }
 
-
         /// <summary>
-        /// Load a TreeView control from a file that uses tabs
-        /// to show indentation.
+        /// Create a combo box by loading the default list of paths from a file with ProjectID.
         /// </summary>
-        /// <param name="file_name"></param>
-        /// <param name="trv"></param>
-        public static void LoadTreeViewFromFile(this TreeView trv, string file_name)
-        {
-            if (!string.IsNullOrEmpty(file_name))
-            {
-                try
-                {
-                    // Get the file's contents.
-                    string file_contents = File.ReadAllText(file_name);
-                    // Process the lines.
-                    trv.Nodes.Clear();
-                    Dictionary<int, TreeNode> parents = new Dictionary<int, TreeNode>();
+        /// <param name="comboBox">The combo box to load the paths into.</param>
+        /// <param name="fileName">The name of the file containing the paths.</param>
+        //public static void LoadFromFile(this ComboBox comboBox, string fileName, string projectID)
+        //{
+        //    string[] list = File.ReadAllLines(fileName);
+        //    comboBox.Items.Clear();
+        //    foreach (string path in list)
+        //    {
+        //        comboBox.Items.Add(path);
+        //    }
+        //}
 
-                    // Break the file into lines.
-                    string[] lines = file_contents.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string text_line in lines)
-                    {
-                        // See how many tabs are at the start of the line.
-                        int level = text_line.Length - text_line.TrimStart('\t').Length;
 
-                        // Add the new node.
-                        if (level == 0)
-                            parents[level] = trv.Nodes.Add(text_line.Trim());
-                        else
-                            parents[level] = parents[level - 1].Nodes.Add(text_line.Trim());
-                        parents[level].EnsureVisible();
-                    }
 
-                }
-                catch (System.Exception e)
-                {
-                    var trace = new StackTrace(e);
-                    var frame = trace.GetFrame(0);
-                    var method = frame.GetMethod();
-                    MessageBox.Show($"{method.DeclaringType.FullName}\n{method.Name}\n{e.Message}", "TreeHelper:LoadTreeViewFromFile()");
-                }
+        ///// <summary>
+        ///// Create a combo box by loading the default list of paths from a file with ProjectID.
+        ///// </summary>
+        ///// <param name="comboBox">The combo box to load the paths into.</param>
+        ///// <param name="fileName">The name of the file containing the paths.</param>
+        ///// <param name="projectID">The ProjectID to filter or modify the paths.</param>
+        //public static void LoadFromFile(this ComboBox comboBox, string fileName, string projectID)
+        //{
+        //    if (string.IsNullOrWhiteSpace(fileName) || string.IsNullOrWhiteSpace(projectID))
+        //    {
+        //        throw new ArgumentException("File name and ProjectID cannot be null or empty.");
+        //    }
 
-            }
-            else
-            {
-                trv.LoadTreeViewFromList();
-                //MessageBox.Show("File name is empty", "TreeHelper:LoadTreeViewFromFile()");
-            }
-        }
+        //    if (!File.Exists(fileName))
+        //    {
+        //        throw new FileNotFoundException($"The file '{fileName}' does not exist.");
+        //    }
 
+        //    string[] list = File.ReadAllLines(fileName);
+        //    comboBox.Items.Clear();
+
+        //    foreach (string path in list)
+        //    {
+        //        // Replace placeholder with the ProjectID
+        //        string modifiedPath = path.Replace(FormMain.settingsModel.ProjectRootTag, projectID);
+
+        //        // Replace DateTag with the current date in "dd/MM/yyyy" format
+        //        modifiedPath = modifiedPath.Replace(FormMain.settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"));
+
+        //        comboBox.Items.Add($"{FormMain.settingsModel.RootDrive}{modifiedPath}");
+        //    }
+        //}
 
 
 
@@ -506,8 +528,10 @@ namespace SaveAsPDF.Helpers
                     PopulateTreeView(childNode, subdirectory); // Recursive call for subdirectories
                 }
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException e)
             {
+                MessageBox.Show(e.Message, "TreeHelper: PopulateTreeView()");
+
                 // Handle unauthorized access (optional)
             }
         }

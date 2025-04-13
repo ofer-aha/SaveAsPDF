@@ -1,6 +1,7 @@
 ﻿// Ignore Spelling: frm
 using Microsoft.Office.Interop.Outlook;
 using SaveAsPDF.Helpers;
+
 using SaveAsPDF.Models;
 using SaveAsPDF.Properties;
 using System;
@@ -10,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+
 using Exception = System.Exception;
 
 namespace SaveAsPDF
@@ -46,12 +48,23 @@ namespace SaveAsPDF
         //List<Attachment> attachments = new List<Attachment>();
         List<AttachmentsModel> attachmentsModels = new List<AttachmentsModel>();
 
+        public static object settingmodel { get; internal set; }
+
         public FormMain()
         {
             InitializeComponent();
+            this.Load += new EventHandler(FormMain_Load);
         }
+        private string LoadEmailSubject()
+        {
+            // load the email subject from mail item
+            if (_mailItem != null)
+                return _mailItem.Subject;
+            else
+                return "Default Email Subject";
 
-        private void frmMain_Load(object sender, EventArgs e)
+        }
+        private void FormMain_Load(object sender, EventArgs e)
         {
 
             //Employees dataGridView columns headers 
@@ -75,6 +88,9 @@ namespace SaveAsPDF
 
             txtProjectID.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             txtProjectID.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
+            // Load the email subject into txtSubject
+            txtSubject.Text = LoadEmailSubject();
 
             LoadSearchHistory();
 
@@ -199,62 +215,166 @@ namespace SaveAsPDF
         /// <param name="projectID">The project ID entered by the user.</param>
         private void ProcessProjectID(string projectID)
         {
-            //ClearForm();
-            //settingsModel.ProjectRootFolder = txtProjectID.Text.ProjectFullPath(settingsModel.RootDrive);
-            if (projectID.SafeProjectID())
+            if (!projectID.SafeProjectID())
             {
+                MessageBox.Show(Resources.InvalidProjectIDMessage ?? "Invalid Project ID",
+                                Resources.ErrorTitle ?? "Error",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                // Load settings for the given project ID
                 settingsModel = SettingsHelpers.LoadProjectSettings(projectID);
 
-                // j:\12\1245\  - exist 
-                // construct the full path for everything
-                _xmlSaveAsPdfFolder = new DirectoryInfo(settingsModel.XmlSaveAsPDFFolder);
-                _xmlProjectFile = settingsModel.XmlProjectFile;
-                _xmlEmploeeysFile = settingsModel.XmlEmployeesFile;
+                // Initialize paths and load data
+                InitializePaths();
+                LoadProjectData();
+                LoadEmployeeData();
 
-                FileFoldersHelper.CreateHiddenDirectory(_xmlSaveAsPdfFolder.FullName);
+                // Update the UI with the loaded data
+                UpdateUI();
 
-                //settingsModel.ProjectRootFolder.FullName.CreateHiddenDirectory();
+                // Mark data as loaded
+                _dataLoaded = true;
+            }
+            catch (FileNotFoundException ex)
+            {
+                MessageBox.Show($"A required file was not found: {ex.Message}",
+                                "File Not Found",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                MessageBox.Show($"Access to a file or directory was denied: {ex.Message}",
+                                "Access Denied",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An unexpected error occurred while processing the project ID: {ex.Message}",
+                                "Error",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+            }
+        }
 
-                if (File.Exists(_xmlProjectFile))
+        private void InitializePaths()
+        {
+            _xmlSaveAsPdfFolder = new DirectoryInfo(settingsModel.XmlSaveAsPDFFolder);
+            _xmlProjectFile = settingsModel.XmlProjectFile;
+            _xmlEmploeeysFile = settingsModel.XmlEmployeesFile;
+            FileFoldersHelper.CreateHiddenDirectory(_xmlSaveAsPdfFolder.FullName);
+        }
+
+        private void LoadProjectData()
+        {
+            if (File.Exists(_xmlProjectFile))
+            {
+                _projectModel = _xmlProjectFile.XmlProjectFileToModel();
+                if (_projectModel != null)
                 {
-                    //load the XML file to _projectModel model
-                    _projectModel = _xmlProjectFile.XmlProjectFileToModel();
-
-                    if (_projectModel != null)
-                    {
-                        txtProjectName.Text = _projectModel.ProjectName;
-                        chkbSendNote.Checked = _projectModel.NoteEmployee;
-                        rtxtProjectNotes.Text = _projectModel.ProjectNotes;
-
-                    }
+                    txtProjectName.Text = _projectModel.ProjectName;
+                    chkbSendNote.Checked = _projectModel.NoteToProjectLeader;
+                    rtxtProjectNotes.Text = _projectModel.ProjectNotes;
                 }
+            }
+        }
 
-                dgvEmployees.Rows.Clear();
-                //load the XML file to Employees list-box
-                if (File.Exists(_xmlEmploeeysFile))
+        private void LoadEmployeeData()
+        {
+            dgvEmployees.Rows.Clear();
+            if (File.Exists(_xmlEmploeeysFile))
+            {
+                _employeesModel = _xmlEmploeeysFile.XmlEmployeesFileToModel();
+                if (_employeesModel != null)
                 {
-                    _employeesModel = _xmlEmploeeysFile.XmlEmployeesFileToModel();
-                    if (_employeesModel != null)
+                    foreach (EmployeeModel em in _employeesModel)
                     {
-                        foreach (EmployeeModel em in _employeesModel)
-                        {
-                            dgvEmployees.Rows.Add(em.Id, em.FirstName, em.LastName, em.EmailAddress);
-                        }
+                        dgvEmployees.Rows.Add(em.Id, em.FirstName, em.LastName, em.EmailAddress);
                     }
                 }
             }
+        }
 
-            tvFolders.Nodes.Clear();
-            tvFolders.Nodes.Add(TreeHelpers.CreateDirectoryNode(settingsModel.ProjectRootFolder));
-            tvFolders.ExpandAll();
-            tvFolders.SelectedNode = tvFolders.Nodes[0];
+        /// <summary>
+        /// Updates the UI elements based on the current settings and project data.
+        /// </summary>
+        private void UpdateUI()
+        {
+            try
+            {
+                // Clear and reload the save location combo box
+                //cmbSaveLocation.Items.Clear();
+                //cmbSaveLocation.LoadFromFile(settingsModel.DefaultTreeFile, txtProjectID.Text);
 
-            txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
-            txtSaveLocation.Text = settingsModel.DefaultSavePath;
+                cmbSaveLocation.Items.Clear();
+                cmbSaveLocation.LoadFromFile(settingsModel.DefaultTreeFile, settingsModel.ProjectRootTag);
+                //cmbSaveLocation.SetBreadcrumbPath(settingsModel.ProjectRootFolder.FullName);
 
-            btnOK.Focus();
-            _dataLoaded = true;
 
+                for (int i = 0; i < cmbSaveLocation.Items.Count; i++)
+                {
+                    if (cmbSaveLocation.Items[i] is string item)
+                    {
+                        cmbSaveLocation.Items[i] = item.Replace(settingsModel.ProjectRootTag,
+                                                                settingsModel.ProjectRootFolder.FullName.TrimEnd('\\'));
+                        //replace the DateTag with the current date
+                        //cmbSaveLocation.Items[i] = item.Replace(settingsModel.DateTag,DateTime.Now.ToString("yyyy.MM.dd"));
+                    }
+                    else
+                    {
+                        throw new InvalidCastException($"Item at index {i} in cmbSaveLocation is not a string.");
+                    }
+                }
+
+                // Set the default selected index
+                if (cmbSaveLocation.Items.Count > 0)
+                {
+                    cmbSaveLocation.SelectedIndex = 0;
+                }
+
+                // Clear and reload the folder tree view
+                tvFolders.Nodes.Clear();
+                if (settingsModel.ProjectRootFolder.Exists)
+                {
+                    tvFolders.Nodes.Add(TreeHelpers.CreateDirectoryNode(settingsModel.ProjectRootFolder));
+                    tvFolders.ExpandAll();
+                    tvFolders.SelectedNode = tvFolders.Nodes[0];
+                }
+                else
+                {
+                    MessageBox.Show("The project root folder does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                // Update the full path text box
+                txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
+
+                // Handle the default save path in the combo box
+                if (!string.IsNullOrEmpty(settingsModel.DefaultSavePath))
+                {
+                    if (cmbSaveLocation.Items.Contains(settingsModel.DefaultSavePath))
+                    {
+                        cmbSaveLocation.SelectedItem = settingsModel.DefaultSavePath;
+                    }
+                    else
+                    {
+                        cmbSaveLocation.Items.Add(settingsModel.DefaultSavePath);
+                        cmbSaveLocation.SelectedItem = settingsModel.DefaultSavePath;
+                    }
+                }
+
+                // Set focus to the OK button
+                btnOK.Focus();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while updating the UI: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void ProcessMailItem(MailItem mailItem)
@@ -306,7 +426,7 @@ namespace SaveAsPDF
         {
             txtProjectName.Clear();
             txtFullPath.Clear();
-            txtSaveLocation.Clear();
+            cmbSaveLocation.Items.Clear();
             rtxtNotes.Clear();
             rtxtProjectNotes.Clear();
             dgvAttachments.DataSource = null;
@@ -331,17 +451,15 @@ namespace SaveAsPDF
             //build _projectModel model
             _projectModel.ProjectName = txtProjectName.Text;
             _projectModel.ProjectNumber = txtProjectID.Text; //not in use
-            _projectModel.NoteEmployee = chkbSendNote.Checked;
+            _projectModel.NoteToProjectLeader = chkbSendNote.Checked;
             _projectModel.ProjectNotes = rtxtProjectNotes.Text;
+            _projectModel.LastSavePath = cmbSaveLocation.SelectedText;
 
             //build the Employees model
             _employeesModel = dgvEmployees.DgvEmployeesToModel();
             #endregion
 
             #region Create XML files for the models
-
-            //create the SaveAsPDF hidden folder
-            //_xmlSaveAsPdfFolder.FullName.CreateHiddenDirectory(); //already doing it on LoadXml() 
 
             //create _projectModel XML file
             _xmlProjectFile.ProjectModelToXmlFile(_projectModel);
@@ -351,9 +469,9 @@ namespace SaveAsPDF
 
             #endregion
 
-            if (!string.IsNullOrEmpty(txtSaveLocation.Text))
+            if (!string.IsNullOrEmpty(cmbSaveLocation.SelectedText))
             {
-                DirectoryInfo directory = new DirectoryInfo(txtSaveLocation.Text);
+                DirectoryInfo directory = new DirectoryInfo(cmbSaveLocation.SelectedText);
                 if (!directory.Exists)
                 {
                     FileFoldersHelper.CreateDirectory(directory.FullName);
@@ -365,12 +483,12 @@ namespace SaveAsPDF
                 Dialog.InputPath = settingsModel.RootDrive;
                 if (Dialog.ShowDialog(Handle) == true)
                 {
-                    txtSaveLocation.Text = Dialog.ResultPath;
+                    cmbSaveLocation.SelectedText = Dialog.ResultPath;
                 }
             }
             //save the _mailItem to the current working directory and create an attachment list to add to PDF/mail   
 
-            List<string> attList = new List<string>();
+            List<string> attachmentsList = new List<string>();
             //convert the message to HTML 
             if (_mailItem.BodyFormat != OlBodyFormat.olFormatHTML)
             {
@@ -378,9 +496,8 @@ namespace SaveAsPDF
             }
 
             //Save the attachments and returning the actual file name list
-            attList.AddRange(_mailItem.SaveAttachments(dgvAttachments, txtSaveLocation.Text, false));
+            attachmentsList.AddRange(_mailItem.SaveAttachments(dgvAttachments, cmbSaveLocation.SelectedText, false));
 
-            //string tableStyle = "<style> table, th,td {border: 1px solid black; text-align: right;}</style><br>";
             string tableStyle = "<html><head><style>" +
                                 "table, td, th { " +
                                 //"border: 0px solid blue; " +
@@ -392,30 +509,28 @@ namespace SaveAsPDF
                                 "<tr><td colspan=\"3\"></td></tr>" + //empty line 
                                 $"<tr style=\"text-align:center\"><th colspan=\"3\">SaveAsPDF ver.{Assembly.GetExecutingAssembly().GetName().Version.ToString()}</th></tr>" +
                                 "<tr><td colspan=\"3\"></td></tr>" + //empty line 
-                                $"<tr style=\"text-align:right\"><td colspan=\"3\"><a href='file://{txtSaveLocation.Text}'>{txtSaveLocation.Text}</a> :ההודעה נשמרה ב</td></tr>" +
+                                $"<tr style=\"text-align:right\"><td colspan=\"3\"><a href='file://{cmbSaveLocation.SelectedText}'>{cmbSaveLocation.SelectedText}</a> :ההודעה נשמרה ב</td></tr>" +
                                 $"<tr style=\"text-align:right\"><td colspan=\"3\">{DateTime.Now.ToString("HH:mm dd/MM/yyyy")} :תאריך שמירה </td></tr>" +
                                 "<tr><td colspan=\"3\"></td></tr>"; //empty line 
 
-            string projData = $"<tr style=\"text-align:right\"><td></td><td>{txtProjectName.Text}</td><th>שם הפרויקט</th></tr>" +
+            string projectData = $"<tr style=\"text-align:right\"><td></td><td>{txtProjectName.Text}</td><th>שם הפרויקט</th></tr>" +
                               $"<tr style=\"text-align:right\"><td></td><td>{txtProjectID.Text}</td><th >מס' פרויקט</th></tr>" +
                               $"<tr style=\"text-align:right\"><td></td><td>{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th >הערות</th></tr>" +
                               $"<tr style=\"text-align:right\"><td></td><td>{Environment.UserName}</td><th>שם משתמש</th></tr>";
 
 
-            string attString = attList.AttachmentsToString(txtSaveLocation.Text);
-            string empString = dgvEmployees.dgvEmployeesToString();
+            string attachmetsString = attachmentsList.AttachmentsToString(cmbSaveLocation.SelectedText);
+            string employeeString = dgvEmployees.dgvEmployeesToString();
 
             //construct the HTMLbody message 
             _mailItem.HTMLBody = tableStyle +
-                                projData +
-                                empString +
-                                attString +
+                                projectData +
+                                employeeString +
+                                attachmetsString +
                                 "</table></body>" +
                                 _mailItem.HTMLBody;
 
-
-            OfficeHelpers.SaveToPDF(_mailItem, txtSaveLocation.Text);
-
+            OfficeHelpers.SaveToPDF(_mailItem, cmbSaveLocation.SelectedText);
 
             Close();
 
@@ -552,49 +667,6 @@ namespace SaveAsPDF
 
 
 
-            //tvFolders.Nodes.Clear();
-            // tvFolders.Nodes.Add(TreeHelper.TraverseDirectory(e.Node.Text, 1));
-            //if (e.Node.Nodes.Count > 0)
-            //{
-            //    if (e.Node.Nodes[0].Text == "..." && e.Node.Nodes[0].Tag == null)
-            //    {
-            //        e.Node.Nodes.Clear();
-
-            //        //get the list of sub directory
-            //        string[] dirs = Directory.GetDirectories(e.Node.Tag.ToString());
-
-            //        foreach (string dir in dirs)
-            //        {
-            //            DirectoryInfo di = new DirectoryInfo(dir);
-            //            TreeNode node = new TreeNode(di.Name, 0, 1);
-
-            //            try
-            //            {
-            //                //keep the directory's full path in the tag for use later
-            //                node.Tag = dir;
-
-            //                //if the directory has sub directories add the place holder
-            //                if (di.GetDirectories().Count() > 0)
-            //                    node.Nodes.Add(null, "...", 0, 0);
-            //            }
-            //            catch (UnauthorizedAccessException)
-            //            {
-            //                //display a locked folder icon
-            //                node.ImageIndex = 12;
-            //                node.SelectedImageIndex = 12;
-            //            }
-            //            catch (Exception ex)
-            //            {
-            //                MessageBox.Show(ex.Message, "SaveAsPDF: treeView1_BeforeExpand",
-            //                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //            }
-            //            finally
-            //            {
-            //                e.Node.Nodes.Add(node);
-            //            }
-            //        }
-            //    }
-            //}
         }
 
 
@@ -726,37 +798,34 @@ namespace SaveAsPDF
         private void chbOpenPDF_CheckedChanged(object sender, EventArgs e)
         {
             //TODO1: chbOpenPDF_CheckedChanged:make sure it works 
-            //_settingsModel.OpenPDF = chbOpenPDF.Checked;
-            Settings.Default.OpenPDF = chbOpenPDF.Checked;
-            Settings.Default.Save();
+
+            //Settings.Default.OpenPDF = chbOpenPDF.Checked;
+            //Settings.Default.Save();
+
+            settingsModel.OpenPDF = chbOpenPDF.Checked;
+
 
         }
 
         private void tvFolders_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            txtSaveLocation.Text = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
+            //TODO1: open the folder in explorer and update the path in the cmbSaveLocation
 
-            //try
-            //{
-            //    if (Directory.Exists(e.Node.FullPath))
-            //    {
-            //        Process.Start(e.Node.FullPath);
-            //    }
-            //    else
-            //    {
-            //        Process.Start($@"{settingsModel.RootDrive}\{e.Node.FullPath}");
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show($"ex:{ex.Message}\n settingsmodel:{settingsModel.ProjectRootFolder}\n e.node:{e.Node.FullPath}");
-            //}
+            string path = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
+            System.Diagnostics.Process.Start("explorer.exe", path);
+            //cmbSaveLocation.SelectedText = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
+            cmbSaveLocation.SelectedText = path;
+
+            //cmbSaveLocation.SelectedText = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
+
         }
 
         private void tvFolders_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            //_mySelectedNode = e.Node;
-            //MessageBox.Show($"e.node.Name:{e.Node.Text} _mySelectedNode: {_mySelectedNode.FullPath}");
+            //update cmbSaveLocation with the selected node path
+            cmbSaveLocation.SelectedText = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
+
+
         }
 
 
@@ -773,9 +842,23 @@ namespace SaveAsPDF
             }
         }
 
+        /// <summary>
+        /// Handles the Validated event for the txtProjectID TextBox.
+        /// This method is triggered after the txtProjectID control has been successfully validated.
+        /// It performs the following actions:
+        /// - Clears any error messages associated with the txtProjectID control.
+        /// - Updates the status label with the current error state of txtProjectID.
+        /// - Processes the entered project ID by calling <see cref="ProcessProjectID(string)"/>.
+        /// - Updates the autocomplete source with the entered project ID.
+        /// - Handles the first run scenario if the root drive is not set in the settings.
+        /// - Processes the current mail item if it is valid; otherwise, displays an error message.
+        /// - Sets the data loaded flag to true.
+        /// </summary>
+        /// <param name="sender">The source of the event, typically the txtProjectID control.</param>
+        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
         private void txtProjectID_Validated(object sender, EventArgs e)
         {
-            errorProviderMain.SetError(txtProjectID, string.Empty); //clear the error
+            errorProviderMain.SetError(txtProjectID, string.Empty); // Clear the error
             tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
 
             ProcessProjectID(txtProjectID.Text);
@@ -802,12 +885,10 @@ namespace SaveAsPDF
         {
             // Close all open files
 
-
-
-            // TODO: Implement code to close all open files
+            //TODO: Implement code to close all open files
             //if (e.CloseReason == CloseReason.UserClosing)
             //{
-            //    if (MessageBox.Show("האם לצאת מהתוכנה?", "SaveAsPDF", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            //    if (MessageBox.Show("האם לצאת מהיישום?", "SaveAsPDF", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
             //    {
             //        e.Cancel = true;
             //    }
@@ -871,6 +952,13 @@ namespace SaveAsPDF
                 }
                 txtProjectID.Clear();
             }
+        }
+
+        private void cmbSaveLocation_SelectedValueChanged(object sender, EventArgs e)
+        {
+            //save the selected path to the _projectModel model
+            _projectModel.LastSavePath = cmbSaveLocation.SelectedText;
+
         }
     }
 }

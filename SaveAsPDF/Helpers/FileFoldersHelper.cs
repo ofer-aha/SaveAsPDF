@@ -93,15 +93,11 @@ namespace SaveAsPDF.Helpers
         }
 
 
-
         /// <summary>
-        /// make sure the project number pattern is right format i.e.:
-        /// <list>
-        /// XXX XXX-X XXX-XX XXXX XXXX-X XXXX-XX and so on XXXX-XX-XX 
-        /// </list>
+        /// Validates if the given projectID is in a safe format.
         /// </summary>
-        /// <param name="projectID"></param>
-        /// <returns> <see cref="bool"/> is it in the correct format </returns>
+        /// <param name="projectID">The projectID to validate</param>
+        /// <returns>True if the projectID is in a safe format, otherwise false</returns>
         public static bool SafeProjectID(this string projectID)
         {
             projectID = projectID.Trim();

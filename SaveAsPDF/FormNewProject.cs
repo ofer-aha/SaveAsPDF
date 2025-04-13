@@ -27,7 +27,7 @@ namespace SaveAsPDF
         /// </summary>
         private void LoadSettings()
         {
-            tvDefaultSubFolders.LoadTreeViewFromList();
+            tvDefaultSubFolders.LoadFromList();
         }
 
         private void btmNewProject_Click(object sender, EventArgs e)
@@ -52,6 +52,9 @@ namespace SaveAsPDF
 
                 //call the calling form to add the new project
                 //TODO1: initialize the projectModel 
+                //< appSettings >
+                //  < add key = "MaxProjectCount" value = "5" />
+                //</ appSettings >
                 callingForm.NewProjectComplete(projectModel);
 
                 Close();

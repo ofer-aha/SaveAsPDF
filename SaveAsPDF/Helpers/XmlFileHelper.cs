@@ -32,8 +32,8 @@ namespace SaveAsPDF.Helpers
             newElem.InnerText = project.ProjectName;
             doc.DocumentElement.AppendChild(newElem);
 
-            newElem = doc.CreateElement("NoteEmployee");
-            newElem.InnerText = project.NoteEmployee.ToString();
+            newElem = doc.CreateElement("NoteToProjectLeader");
+            newElem.InnerText = project.NoteToProjectLeader.ToString();
             doc.DocumentElement.AppendChild(newElem);
 
             newElem = doc.CreateElement("ProjectNotes");
@@ -134,11 +134,11 @@ namespace SaveAsPDF.Helpers
                 return null;
             }
             XmlNodeList projectName = xmlDoc.GetElementsByTagName("ProjectName");
-            XmlNodeList noteEmployee = xmlDoc.GetElementsByTagName("NoteEmployee");
+            XmlNodeList NoteToProjectLeader = xmlDoc.GetElementsByTagName("NoteToProjectLeader");
             XmlNodeList projectNotes = xmlDoc.GetElementsByTagName("ProjectNotes");
 
             projectModel.ProjectName = projectName[0].InnerText;
-            projectModel.NoteEmployee = bool.Parse(noteEmployee[0].InnerText);
+            projectModel.NoteToProjectLeader = bool.Parse(NoteToProjectLeader[0].InnerText);
             projectModel.ProjectNotes = projectNotes[0].InnerText;
 
 

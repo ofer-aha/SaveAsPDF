@@ -31,6 +31,14 @@ namespace SaveAsPDF
             tvProjectSubFolders.HideSelection = false;
             tvProjectSubFolders.PathSeparator = @"\";
 
+            lblSaveAsPDFFolder.Text = "תיקיית שמירת קבצי PDF";
+            lblXmlProjectFile.Text = "קובץ פרויקטים";
+            lblXmlEmployeesFile.Text = "קובץ עובדים";
+            lblProjectRootTag.Text = "תגית שורש פרויקט";
+            lblDateTag.Text = "תגית תאריך";
+            lblTreePath.Text = "קובץ תיקיות";
+            lblRootFolder.Text = "תיקיית ראשית";
+            lblMinAttSize.Text = "גודל מינימלי לקובץ מצורף";
 
             txtRootFolder.Text = _settingsModel.RootDrive;
             txtMinAttSize.Text = _settingsModel.MinAttachmentSize.ToString();
@@ -40,7 +48,7 @@ namespace SaveAsPDF
             try
             {
                 string[] lines = File.ReadAllLines(_settingsModel.DefaultTreeFile);
-                tvProjectSubFolders.LoadTreeViewFromFile(lines);
+                tvProjectSubFolders.LoadFromFile(lines);
                 tvProjectSubFolders.ExpandAll();
                 tvProjectSubFolders.SelectedNode = tvProjectSubFolders.Nodes[0];
 
@@ -210,7 +218,7 @@ namespace SaveAsPDF
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string[] lines = File.ReadAllLines(openFileDialog.FileName);
-                tvProjectSubFolders.LoadTreeViewFromFile(lines);
+                tvProjectSubFolders.LoadFromFile(lines);
                 tvProjectSubFolders.ExpandAll();
                 txtTreePath.Text = openFileDialog.FileName;
                 _settingsModel.DefaultTreeFile = openFileDialog.FileName;
@@ -266,7 +274,7 @@ namespace SaveAsPDF
         private void btnLoadDefaultTree_Click(object sender, EventArgs e)
         {
             //tvProjectSubFolders.LoadDefaultTree();
-            tvProjectSubFolders.LoadTreeViewFromList();
+            tvProjectSubFolders.LoadFromList();
             cmbDefaultFolder.Items.Clear();
             TreeHelpers.ListNodesPath(tvProjectSubFolders.Nodes[0], cmbDefaultFolder);
 
@@ -281,7 +289,7 @@ namespace SaveAsPDF
 
 
 
-        private void menuAddDate_Click(object sender, EventArgs e)
+        private void MenuAddDate_Click(object sender, EventArgs e)
         {
 
             tvProjectSubFolders.AddNode(mySelectedNode, _settingsModel.DateTag);

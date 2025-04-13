@@ -17,7 +17,7 @@
         /// <summary>
         /// Send mail notification to the employee(s) responsible for the _projectModel?
         /// </summary>
-        public bool NoteEmployee { get; set; }
+        public bool NoteToProjectLeader { get; set; }
         /// <summary>
         /// The Default _projectModel sub folders
         /// </summary>
@@ -28,7 +28,7 @@
         public string ProjectNotes { get; set; }
 
         /// <summary>
-        /// The last save path of the project
+        /// The last save path used for this particular project
         /// </summary>
         public string LastSavePath { get; set; }
 
@@ -37,7 +37,7 @@
             Id = 0;
             ProjectNumber = string.Empty;
             ProjectName = string.Empty;
-            NoteEmployee = false;
+            NoteToProjectLeader = false;
             DefaultSaveFolder = string.Empty;
             ProjectNotes = string.Empty;
             LastSavePath = string.Empty;

@@ -240,6 +240,7 @@
     <Compile Include="FormNewProject.Designer.cs">
       <DependentUpon>FormNewProject.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ComboBoxExtensions.cs" />
     <Compile Include="Helpers\SettingsHelpers.cs" />
     <Compile Include="Helpers\ContextMenuHelpers.cs" />
     <Compile Include="Helpers\InputBox.cs">

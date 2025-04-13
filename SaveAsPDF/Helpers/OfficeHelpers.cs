@@ -19,36 +19,10 @@ namespace SaveAsPDF.Helpers
     public static class OfficeHelpers
     {
         /// <summary>
-        /// Create an attachments list 
+        /// Converts the DataGridView to a list of EmployeeModel objects.
         /// </summary>
-        /// <param name="email"></param>
-        /// <returns></returns>
-        //public static List<AttachmentsModel> AttachmentsToModel(this MailItem email)
-        //{
-        //    List<AttachmentsModel> output = new List<AttachmentsModel>();
-        //    int i = 0;
-        //    foreach (Attachment attachment in email.Attachments)
-        //    {
-        //        i += 1;
-        //        AttachmentsModel att = new AttachmentsModel
-        //        {
-        //            attachmentId = i,
-        //            isChecked = true,
-        //            fileName = attachment.FileName,
-        //            fileSize = attachment.Size.BytesToString()
-        //        };
-        //        if (attachment.Size >= _settingsModel.MinAttachmentSize)
-        //        {
-        //            output.Add(att);
-        //        }
-        //    }
-        //    return output;
-        //}
-        /// <summary>
-        /// convert DataGridView to Model 
-        /// </summary>
-        /// <param name="dgv"></param>
-        /// <returns></returns>
+        /// <param name="dgv">The DataGridView to convert.</param>
+        /// <returns>A list of EmployeeModel objects.</returns>
         public static List<EmployeeModel> DgvEmployeesToModel(this DataGridView dgv)
         {
             List<EmployeeModel> output = new List<EmployeeModel>();
@@ -57,9 +31,9 @@ namespace SaveAsPDF.Helpers
                 EmployeeModel e = new EmployeeModel
                 {
                     Id = row.Index,
-                    FirstName = (string)row.Cells[1].Value,
-                    LastName = (string)row.Cells[2].Value,
-                    EmailAddress = (string)row.Cells[3].Value
+                    FirstName = row.Cells[1].Value?.ToString(),
+                    LastName = row.Cells[2].Value?.ToString(),
+                    EmailAddress = row.Cells[3].Value?.ToString()
                 };
                 output.Add(e);
             }
@@ -78,35 +52,12 @@ namespace SaveAsPDF.Helpers
 
             foreach (DataGridViewRow row in dgv.Rows)
             {
-                output += $"<tr><td style=\"text-align:left\">{row.Cells[3].Value.ToString()}</td>" +
-                        $"<td style=\"text-align:right\">{row.Cells[2].Value.ToString()}</td>" +
-                        $"<td style=\"text-align:right\">{row.Cells[1].Value.ToString()}</td></tr>";
+                output += $"<tr><td style=\"text-align:left\">{row.Cells[3].Value?.ToString()}</td>" +
+                        $"<td style=\"text-align:right\">{row.Cells[2].Value?.ToString()}</td>" +
+                        $"<td style=\"text-align:right\">{row.Cells[1].Value?.ToString()}</td></tr>";
             }
             return output;
         }
-
-
-        /// <summary>
-        /// convert a MailItem object to .MHT file ready to be saved as PDF 
-        /// </summary>
-        /// <param name="mailItem"></param>
-        /// <param name="path"></param>
-        //public static void SaveToPDF(this MailItem _mailItem, string path)
-        //{
-        //    //create temp file name with unique time stamp 
-        //    string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
-        //    string tFilename = $@"{Path.GetTempPath()}{timeStamp}.mht";
-
-        //    _mailItem.SaveAs(tFilename, OlSaveAsType.olMHTML);
-
-        //    word.Application oWord = new word.Application();
-        //    word.Document oDOC = oWord.Documents.Open(@tFilename, false);
-
-        //    oDOC.ConvertToPDF($@"{path}\\{timeStamp}_{_mailItem.Subject.SafeFolderName()}.pdf");
-
-        //    oDOC.Close();
-        //    oWord.Quit();
-        //}
 
         /// <summary>
         /// created by AI
@@ -192,13 +143,12 @@ namespace SaveAsPDF.Helpers
             }
             return output;
         }
-
         /// <summary>
-        /// List attachments to string 
+        /// Converts the list of attachment file names to an HTML table string.
         /// </summary>
-        /// <param name="attachmentList"></param>
-        /// <param name="path"></param>        
-        /// <returns></returns>
+        /// <param name="attachmentList">The list of attachment file names.</param>
+        /// <param name="path">The path where the attachments are saved.</param>
+        /// <returns>The HTML table string representing the attachments.</returns>
         public static string AttachmentsToString(this List<string> attachmentList, string path)
         {
             string output = string.Empty;
@@ -208,7 +158,7 @@ namespace SaveAsPDF.Helpers
             }
             else
             {
-                if (attachmentList.Count == 1) //set the title 
+                if (attachmentList.Count == 1)
                 {
                     output = "<tr style=\"text-align:center\"><th colspan=\"3\">נשמר קובץ אחד</th></tr>";
                 }
@@ -229,10 +179,10 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// Method to get all attachments that are NOT in line attachments (like images and stuff).
+        /// Retrieves the attachments from a MailItem object.
         /// </summary>
-        /// <param name="mailItem"></param>
-        /// <returns> Attachment list </returns>
+        /// <param name="mailItem">The MailItem object.</param>
+        /// <returns>A list of Attachment objects.</returns>
         public static List<Attachment> GetAttachmentsFromEmail(this MailItem mailItem)
         {
             const string PR_ATTACH_METHOD = "http://schemas.microsoft.com/mapi/proptag/0x37050003";
@@ -244,20 +194,18 @@ namespace SaveAsPDF.Helpers
             {
                 if (mailItem.BodyFormat == OlBodyFormat.olFormatPlain && mailItem.Attachments.Count > 0)
                 {
-                    attachments.AddRange(mailItem.Attachments.Cast<object>().Select(attachment => attachment as Attachment));
+                    attachments.AddRange(mailItem.Attachments.Cast<Attachment>());
                 }
                 else if (mailItem.BodyFormat == OlBodyFormat.olFormatRichText)
                 {
                     attachments.AddRange(
-                        mailItem.Attachments.Cast<object>()
-                            .Select(attachment => attachment as Attachment)
+                        mailItem.Attachments.Cast<Attachment>()
                             .Where(thisAttachment => (int)thisAttachment.PropertyAccessor.GetProperty(PR_ATTACH_METHOD) != 6));
                 }
                 else if (mailItem.BodyFormat == OlBodyFormat.olFormatHTML)
                 {
                     attachments.AddRange(
-                        mailItem.Attachments.Cast<object>()
-                            .Select(attachment => attachment as Attachment)
+                        mailItem.Attachments.Cast<Attachment>()
                             .Where(thisAttachment => (int)thisAttachment.PropertyAccessor.GetProperty(PR_ATTACH_FLAGS) != 4));
                 }
             }
@@ -288,14 +236,13 @@ namespace SaveAsPDF.Helpers
             return output;
         }
         /// <summary>
-        /// Save the attachment files to the chosen path. 
-        /// if overWrite=True existing files will be over write else "(n)" will be appended to file names
+        /// Saves the selected attachments from a MailItem object to the specified path.
         /// </summary>
-        /// <param name="mi">Source mailItem to extract the files form</param>
-        /// <param name="dgv"> Source Data grid </param>
-        /// <param name="path">Destination folder </param>
-        /// <param name="overWrite"> default = false</param>
-        /// <returns> list of attachments </returns>
+        /// <param name="mi">The MailItem object.</param>
+        /// <param name="dgv">The DataGridView containing the attachments.</param>
+        /// <param name="path">The path where the attachments will be saved.</param>
+        /// <param name="overWrite">A flag indicating whether to overwrite existing files with the same name.</param>
+        /// <returns>A list of strings representing the saved attachments.</returns>
         public static List<string> SaveAttachments(this MailItem mi, DataGridView dgv, string path, bool overWrite = false)
         {
             var selectedFileNames = new HashSet<string>(dgv.GetSelectedAttachmentFiles(), StringComparer.OrdinalIgnoreCase);
@@ -305,14 +252,15 @@ namespace SaveAsPDF.Helpers
             {
                 try
                 {
-                    string originalFileName = attachment.DisplayName;
+                    string originalFileName = attachment.FileName;
                     string safeFileName = Path.GetFileNameWithoutExtension(originalFileName);
                     string extension = Path.GetExtension(originalFileName);
 
                     // Ensure safe filename (replace invalid characters)
                     safeFileName = string.Join("_", safeFileName.Split(Path.GetInvalidFileNameChars()));
 
-                    string targetFilePath = Path.Combine(path, safeFileName + extension);
+                    // Combine the safe file name and extension using Path.ChangeExtension method
+                    string targetFilePath = Path.ChangeExtension(Path.Combine(path, safeFileName), extension);
 
                     if (selectedFileNames.Contains(originalFileName))
                     {
@@ -321,7 +269,7 @@ namespace SaveAsPDF.Helpers
                             int suffix = 2;
                             while (File.Exists(targetFilePath))
                             {
-                                targetFilePath = Path.Combine(path, $"{safeFileName}_({suffix}){extension}");
+                                targetFilePath = Path.ChangeExtension(Path.Combine(path, $"{safeFileName}_({suffix})"), extension);
                                 suffix++;
                             }
                         }
@@ -333,7 +281,7 @@ namespace SaveAsPDF.Helpers
                 catch (System.Exception ex)
                 {
                     // Handle exceptions (e.g., invalid filenames, permissions, etc.)
-                    output.Add($"Error saving attachment: {attachment.DisplayName} ({ex.Message})");
+                    output.Add($"Error saving attachment: {attachment.FileName} ({ex.Message})");
                 }
             }
 

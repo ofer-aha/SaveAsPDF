@@ -128,19 +128,19 @@ namespace SaveAsPDF.Helpers
         /// <returns><see cref="SettingsModel"/> object </returns>
         public static SettingsModel LoadProjectSettings(this string projectID)
         {
-            SettingsModel model = new SettingsModel();
+            SettingsModel settingsModel = new SettingsModel();
 
-            model.RootDrive = Settings.Default.RootDrive; // j:\
+            settingsModel.RootDrive = Settings.Default.RootDrive; // j:\
 
             // Folder tags
-            model.DateTag = Settings.Default.DateTag;
-            model.ProjectRootTag = Settings.Default.ProjectRootTag;
+            settingsModel.DateTag = Settings.Default.DateTag;
+            settingsModel.ProjectRootTag = Settings.Default.ProjectRootTag;
 
             // More settings
-            model.DefaultFolderID = Settings.Default.DefaultFolderID;
-            model.MinAttachmentSize = Settings.Default.MinAttachmentSize;
-            model.DefaultTreeFile = Settings.Default.DefaultTreeFile;
-            model.OpenPDF = Settings.Default.OpenPDF;
+            settingsModel.DefaultFolderID = Settings.Default.DefaultFolderID;
+            settingsModel.MinAttachmentSize = Settings.Default.MinAttachmentSize;
+            settingsModel.DefaultTreeFile = Settings.Default.DefaultTreeFile;
+            settingsModel.OpenPDF = Settings.Default.OpenPDF;
 
 
             if (!string.IsNullOrEmpty(projectID))
@@ -148,35 +148,26 @@ namespace SaveAsPDF.Helpers
                 try
                 {
                     // Project folder
-                    model.ProjectRootFolder = projectID.ProjectFullPath(model.RootDrive); // J:\12\1234
+                    settingsModel.ProjectRootFolder = projectID.ProjectFullPath(settingsModel.RootDrive); // J:\12\1234
 
                     // J:\12\1234\ + letters
-                    model.DefaultSavePath = $@"{model.ProjectRootFolder.Parent.FullName}\{Settings.Default.DefaultSavePath}".Replace(model.ProjectRootTag, projectID);
+                    settingsModel.DefaultSavePath = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{Settings.Default.DefaultSavePath}".Replace(settingsModel.ProjectRootTag, projectID);
 
                     // SaveAsPDF files and folder
-                    model.XmlSaveAsPDFFolder = $@"{model.ProjectRootFolder}{Settings.Default.xmlSaveAsPDFFolder}"; // J:\12\1234\.SaveAsPDF
-                    model.XmlEmployeesFile = $@"{model.XmlSaveAsPDFFolder}{Settings.Default.xmlEmployeesFile}"; // J:\12\1234\.SaveAsPDF\.SaveAsPDF_Employees.xml
-                    model.XmlProjectFile = $@"{model.XmlSaveAsPDFFolder}{Settings.Default.xmlProjectFile}"; // J:\12\1234\.SaveAsPDF\.SaveAsPDF_Project.xml
+                    settingsModel.XmlSaveAsPDFFolder = $@"{settingsModel.ProjectRootFolder}{Settings.Default.xmlSaveAsPDFFolder}"; // J:\12\1234\.SaveAsPDF
+                    settingsModel.XmlEmployeesFile = $@"{settingsModel.XmlSaveAsPDFFolder}{Settings.Default.xmlEmployeesFile}"; // J:\12\1234\.SaveAsPDF\.SaveAsPDF_Employees.xml
+                    settingsModel.XmlProjectFile = $@"{settingsModel.XmlSaveAsPDFFolder}{Settings.Default.xmlProjectFile}"; // J:\12\1234\.SaveAsPDF\.SaveAsPDF_Project.xml
 
-                    FileFoldersHelper.CreateHiddenDirectory(model.XmlSaveAsPDFFolder);
-
-                    //model = Settings.Default.settingsModel;
+                    FileFoldersHelper.CreateHiddenDirectory(settingsModel.XmlSaveAsPDFFolder);
                 }
                 catch (Exception ex)
                 {
                     // Log the exception (you can replace this with your logging mechanism)
                     MessageBox.Show($"Error loading project settings for project ID {projectID}:\n{ex.Message}");
-
-                    // Optionally, rethrow the exception or handle it as needed
-                    //throw;
                 }
             }
 
-
-            //model = LoadSettingsToModel(model);
-
-
-            return model;
+            return settingsModel;
         }
 
     }
