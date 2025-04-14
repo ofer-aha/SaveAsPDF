@@ -48,7 +48,8 @@ namespace SaveAsPDF
         //List<Attachment> attachments = new List<Attachment>();
         List<AttachmentsModel> attachmentsModels = new List<AttachmentsModel>();
 
-        public static object settingmodel { get; internal set; }
+        public static object SettingModel { get; internal set; }
+
 
         public FormMain()
         {
@@ -230,12 +231,11 @@ namespace SaveAsPDF
                 settingsModel = SettingsHelpers.LoadProjectSettings(projectID);
 
                 // Initialize paths and load data
-                InitializePaths();
-                LoadProjectData();
-                LoadEmployeeData();
+                InitializePaths(); // Initialize paths for XML files
+                LoadProjectData(); // Load project data from XML file .SaveAsPDF_Project.xml
+                LoadEmployeeData(); // Load employee data from XML file .SaveAsPDF_Employees.xml
 
-                // Update the UI with the loaded data
-                UpdateUI();
+                UpdateUI(); // Update the UI elements based on the loaded data
 
                 // Mark data as loaded
                 _dataLoaded = true;
@@ -271,19 +271,87 @@ namespace SaveAsPDF
             FileFoldersHelper.CreateHiddenDirectory(_xmlSaveAsPdfFolder.FullName);
         }
 
+        //private void LoadProjectData()
+        //{
+        //    if (File.Exists(_xmlProjectFile))
+        //    {
+        //        _projectModel = _xmlProjectFile.XmlProjectFileToModel();
+        //        if (_projectModel != null)
+        //        {
+        //            txtProjectName.Text = _projectModel.ProjectName;
+        //            chkbSendNote.Checked = _projectModel.NoteToProjectLeader;
+        //            rtxtProjectNotes.Text = _projectModel.ProjectNotes;
+        //        }
+        //    }
+        //}
+
         private void LoadProjectData()
         {
             if (File.Exists(_xmlProjectFile))
             {
-                _projectModel = _xmlProjectFile.XmlProjectFileToModel();
-                if (_projectModel != null)
+                try
                 {
+                    // Attempt to load the project model from the XML file
+                    _projectModel = _xmlProjectFile.XmlProjectFileToModel();
+                    if (_projectModel != null)
+                    {
+                        txtProjectName.Text = _projectModel.ProjectName;
+                        chkbSendNote.Checked = _projectModel.NoteToProjectLeader;
+                        rtxtProjectNotes.Text = _projectModel.ProjectNotes;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Handle XML file error
+                    MessageBox.Show($"Error loading project data: {ex.Message}\nThe file will be overwritten with default values.",
+                                    "SaveAsPDF:LoadProjectData",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+
+                    // Overwrite the XML file with default values
+                    _projectModel = new ProjectModel
+                    {
+                        ProjectName = "Default Project",
+                        ProjectNumber = "0000",
+                        NoteToProjectLeader = false,
+                        DefaultSaveFolder = settingsModel.DefaultSavePath,
+                        ProjectNotes = "Default notes",
+                        LastSavePath = settingsModel.DefaultSavePath
+                    };
+
+                    // Save the default project model to the XML file
+                    _xmlProjectFile.ProjectModelToXmlFile(_projectModel);
+
+                    // Update the UI with default values
                     txtProjectName.Text = _projectModel.ProjectName;
                     chkbSendNote.Checked = _projectModel.NoteToProjectLeader;
                     rtxtProjectNotes.Text = _projectModel.ProjectNotes;
                 }
             }
+            else
+            {
+                // If the file does not exist, create it with default values
+                _projectModel = new ProjectModel
+                {
+                    ProjectName = "Default Project",
+                    ProjectNumber = "0000",
+                    NoteToProjectLeader = false,
+                    DefaultSaveFolder = settingsModel.DefaultSavePath,
+                    ProjectNotes = "Default notes",
+                    LastSavePath = settingsModel.DefaultSavePath
+                };
+
+                // Save the default project model to the XML file
+                _xmlProjectFile.ProjectModelToXmlFile(_projectModel);
+
+                // Update the UI with default values
+                txtProjectName.Text = _projectModel.ProjectName;
+                chkbSendNote.Checked = _projectModel.NoteToProjectLeader;
+                rtxtProjectNotes.Text = _projectModel.ProjectNotes;
+            }
         }
+
+
 
         private void LoadEmployeeData()
         {
@@ -310,7 +378,7 @@ namespace SaveAsPDF
             {
                 // Clear and reload the save location combo box
                 //cmbSaveLocation.Items.Clear();
-                //cmbSaveLocation.LoadFromFile(settingsModel.DefaultTreeFile, txtProjectID.Text);
+                //cmbSaveLocation.LoadTreeViewFromList(settingsModel.DefaultTreeFile, txtProjectID.Text);
 
                 cmbSaveLocation.Items.Clear();
                 cmbSaveLocation.LoadFromFile(settingsModel.DefaultTreeFile, settingsModel.ProjectRootTag);
@@ -956,9 +1024,25 @@ namespace SaveAsPDF
 
         private void cmbSaveLocation_SelectedValueChanged(object sender, EventArgs e)
         {
-            //save the selected path to the _projectModel model
-            _projectModel.LastSavePath = cmbSaveLocation.SelectedText;
+            // Ensure _projectModel is initialized before interacting with it
+            if (_projectModel == null)
+            {
+                // Initialize _projectModel with default values if it is null
+                //TODO: make sure defaults are correct
+                _projectModel = new ProjectModel
+                {
+                    ProjectName = "Default Project",
+                    ProjectNumber = "0000",
+                    NoteToProjectLeader = false,
+                    DefaultSaveFolder = settingsModel.DefaultSavePath,
+                    ProjectNotes = "Default notes",
+                    LastSavePath = settingsModel.DefaultSavePath
+                };
+            }
 
+            // Save the selected path to the _projectModel model
+            _projectModel.LastSavePath = cmbSaveLocation.SelectedItem?.ToString();
         }
+
     }
 }

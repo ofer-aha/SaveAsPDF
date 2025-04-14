@@ -6,13 +6,13 @@ namespace SaveAsPDF.Helpers
     public static class TextHelpers
     {
         /// <summary>
-        /// convert the file size to "human" readable figures 
+        /// Convert the file size to "human" readable figures.
         /// </summary>
-        /// <param name="byteCount"></param>
-        /// <returns>String XXKB/MB/GB</returns>
-        public static String BytesToString(this int byteCount)
+        /// <param name="byteCount">The size in bytes.</param>
+        /// <returns>String representation in B, KB, MB, etc.</returns>
+        public static string BytesToString(this long byteCount)
         {
-            string[] suf = { " B", " KB", " MB", " GB", " TB", " PB", " EB" }; //Longs run out around EB
+            string[] suf = { " B", " KB", " MB", " GB", " TB", " PB", " EB" }; // Longs run out around EB
             if (byteCount == 0)
             {
                 return "0" + suf[0];
@@ -22,6 +22,16 @@ namespace SaveAsPDF.Helpers
             double num = Math.Round(bytes / Math.Pow(1024, place), 1);
             return (Math.Sign(byteCount) * num).ToString() + suf[place];
         }
+        /// <summary>
+        /// Convert the file size to "human" readable figures.
+        /// </summary>
+        /// <param name="byteCount">The size in bytes (int).</param>
+        /// <returns>String representation in B, KB, MB, etc.</returns>
+        public static string BytesToString(this int byteCount)
+        {
+            return BytesToString((long)byteCount);
+        }
+
 
         /// <summary>
         /// validate the email address format only if text.length>0

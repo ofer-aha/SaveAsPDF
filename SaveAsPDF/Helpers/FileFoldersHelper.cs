@@ -5,315 +5,250 @@ using System.Windows.Forms;
 
 namespace SaveAsPDF.Helpers
 {
+    /// <summary>
+    /// Provides helper methods for working with files and folders, including creating directories,
+    /// sanitizing folder names, and generating unique folder paths.
+    /// </summary>
     public static class FileFoldersHelper
-
     {
         /// <summary>
-        /// Extension method: 
-        /// <list>
-        /// Construct the full project path based on the projectNumber (NOT ID) 
-        /// so projectNumber 1234 => j:\12\1234 
-        /// </list>
+        /// Constructs the full project path based on the project number.
+        /// For example, project number 1234 => j:\12\1234.
         /// </summary>
-        /// <param name="projectNumber"> The _projectModel name </param>
-        /// <param name="rootDrive"> The default root drive </param>
-        /// <returns> 
-        /// string representing the _projectModel's path, default value is rootDrive
-        /// </returns>
+        /// <param name="projectNumber">The project number.</param>
+        /// <param name="rootDrive">The root drive where the project resides.</param>
+        /// <returns>A <see cref="DirectoryInfo"/> object representing the full project path.</returns>
         public static DirectoryInfo ProjectFullPath(this string projectNumber, string rootDrive)
         {
-            string output = rootDrive;
+            if (string.IsNullOrWhiteSpace(projectNumber))
+            {
+                throw new ArgumentException("מספר הפרויקט לא יכול להיות ריק או שגוי.", nameof(projectNumber));
+            }
+
+            if (string.IsNullOrWhiteSpace(rootDrive))
+            {
+                throw new ArgumentException("כונן השורש לא יכול להיות ריק או שגוי.", nameof(rootDrive));
+            }
+
+            string output = rootDrive.TrimEnd('\\') + "\\"; // Ensure rootDrive ends with a backslash
             projectNumber = projectNumber.Trim();
 
             if (!projectNumber.SafeProjectID())
             {
-                //Error handling, user input was incorrect projectid format 
-                //Default return: root drive.
+                // Return the root drive if the project number is invalid
                 return new DirectoryInfo(output);
             }
 
             if (!projectNumber.Contains("-"))
             {
-                //simple ProjectId 123 or 1234
-                if (projectNumber.Length == 3)
-                {
-                    //projectID: 123 = > J:\01 (rootDrive+"0"+first_digit(123)) 
-                    output += $"0{projectNumber}".Substring(0, 2);
-                }
-                else
-                {
-                    //projectID: XXXX => J:\XX
-                    output += projectNumber.Substring(0, 2);
-                }
+                // Simple project number (e.g., 123 or 1234)
+                output += projectNumber.Length == 3
+                    ? $"0{projectNumber}".Substring(0, 2)
+                    : projectNumber.Substring(0, 2);
             }
             else
             {
-                //more complicated _projectModel id: XXX-X or XXX-XX or XXX-X-XX well you catch my point....
-                string[] split = projectNumber.Split('-'); //split the projectid to parts
+                // Complex project number (e.g., XXX-X or XXXX-XX)
+                string[] split = projectNumber.Split('-');
 
-                if (split[0].Length == 3)
-                {
-                    output += $"0{split[0]}".Substring(0, 2);
-                }
-                else
-                {
-                    output += split[0].Substring(0, 2);
-                }
-                //if NOT exist   J:\XX\XXXX-XX
+                output += split[0].Length == 3
+                    ? $"0{split[0]}".Substring(0, 2)
+                    : split[0].Substring(0, 2);
+
                 if (!Directory.Exists($@"{output}\{projectNumber}\"))
                 {
-                    // J:\XX\XXXX\XXXX-XX\
                     output += $@"\{split[0]}";
                 }
-                //output = J:\
-                //projectID = XXX || XXXX || XXX-X || XXXX-XX
-                //split[0].substring(0,2)  = XX
-                //split[0] = XXX || XXXX
-                //split[1] = X || XX 
-                //if exist   J:\XX\XXXX-XX   then    J:\XX\XXXX-X\       else           J:\XX\XXXX\XXXX-X
 
-                if (split.Length == 3) //projectID looks like this XXXX-XX-XX 
-                                       //   if exist   J:\XX\XXXX-XX\XXXX-XX-X\            then       
+                if (split.Length == 3)
                 {
-                    if (!Directory.Exists($@"{output}\{split[0]}-{split[1]}\{projectNumber}\"))
-                    {
-
-                        output += $"-{split[1]}";
-                    }
-                    else
-                    {
-                        output += $@"\{split[0]}-{split[1]}";
-                    }
+                    output += !Directory.Exists($@"{output}\{split[0]}-{split[1]}\{projectNumber}\")
+                        ? $"-{split[1]}"
+                        : $@"\{split[0]}-{split[1]}";
                 }
-
-
             }
+
             output += $@"\{projectNumber}\";
             return new DirectoryInfo(output);
         }
 
-
         /// <summary>
-        /// Validates if the given projectID is in a safe format.
+        /// Validates if the given project ID is in a safe format.
+        /// A valid project ID must match the following pattern:
+        /// - 3 to 5 alphanumeric characters, optionally followed by:
+        ///   - A hyphen and 1 to 3 alphanumeric characters, optionally followed by:
+        ///   - Another hyphen and 1 to 2 alphanumeric characters.
         /// </summary>
-        /// <param name="projectID">The projectID to validate</param>
-        /// <returns>True if the projectID is in a safe format, otherwise false</returns>
+        /// <param name="projectID">The project ID to validate.</param>
+        /// <returns>True if the project ID is in a safe format, otherwise false.</returns>
         public static bool SafeProjectID(this string projectID)
         {
-            projectID = projectID.Trim();
-            if (projectID == null) { return false; }
+            if (string.IsNullOrWhiteSpace(projectID))
+            {
+                return false;
+            }
 
-            string pattern = @"^\w{3,5}(-\w{1,3})?(-\w{1,2})?$";
+            projectID = projectID.Trim();
+            string pattern = @"^[a-zA-Z0-9]{3,5}(-[a-zA-Z0-9]{1,3})?(-[a-zA-Z0-9]{1,2})?$";
             return Regex.IsMatch(projectID, pattern);
         }
 
-
         /// <summary>
-        /// Create a directory 
-        /// <list>
-        /// created by AI 
-        /// </list>
+        /// Creates a directory and all its parent directories if they do not exist.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path">The full path of the directory to create.</param>
         public static void CreateDirectoryRecursively(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException("Path cannot be null or empty.", nameof(path));
+                throw new ArgumentException("הנתיב לא יכול להיות ריק או שגוי.", nameof(path));
             }
 
-            // Normalize the path to handle different directory separators
-            path = Path.GetFullPath(path);
-
-            // Create the directory if it doesn't exist
-            if (!Directory.Exists(path))
+            try
             {
-                try
-                {
-                    Directory.CreateDirectory(path);
-                }
-                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
-                {
-                    // Handle exceptions related to directory creation
-                    Console.WriteLine($"Error creating directory '{path}': {ex.Message}");
-                }
+                path = Path.GetFullPath(path);
+                Directory.CreateDirectory(path);
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException)
+            {
+                MessageBox.Show($"שגיאה ביצירת תיקיה '{path}': {ex.Message}", "SaveAsPDF:CreateDirectoryRecursively", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-
-        //private static void CreateDirectoryRecursively(string path)
-        //{
-        //    string parentDirectory = Path.GetDirectoryName(path);
-        //    if (!string.IsNullOrEmpty(parentDirectory))
-        //    {
-        //        CreateDirectoryRecursively(parentDirectory);
-        //    }
-
-        //    if (!Directory.Exists(path))
-        //    {
-        //        try
-        //        {
-        //            Directory.CreateDirectory(path);
-        //            //debugging only 
-        //            //MessageBox.Show("The directory was created successfully at {0}.", path);
-        //        }
-        //        catch (IOException ioEx)
-        //        {
-        //            MessageBox.Show("An IO exception occurred: " + ioEx.Message);
-        //        }
-        //        catch (UnauthorizedAccessException unAuthEx)
-        //        {
-        //            MessageBox.Show("UnauthorizedAccessException: " + unAuthEx.Message);
-        //        }
-        //        catch (ArgumentException argEx)
-        //        {
-        //            MessageBox.Show("ArgumentException: " + argEx.Message);
-        //        }
-        //        // Additional exception handling can be added here if necessary
-        //    }
-        //}
-
         /// <summary>
-        /// Get unique folder name like "New Folder(2)" 
+        /// Generates a unique directory path by appending a number to the folder name if it already exists.
+        /// For example, if "New Folder" exists, it will create "New Folder (2)", "New Folder (3)", and so on.
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns>
-        /// path
-        /// </returns>
+        /// <param name="path">The base path of the directory to check for uniqueness.</param>
+        /// <returns>A unique directory path.</returns>
         private static string GetUniqueDirectoryPath(string path)
         {
-            int counter = 2;
-            string uniquePath = path;
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new ArgumentException("הנתיב לא יכול להיות ריק או שגוי.", nameof(path));
+            }
+
             string directoryName = Path.GetFileName(path);
             string directoryPath = Path.GetDirectoryName(path);
+            string uniquePath = path;
+            int counter = 2;
+
+            if (string.IsNullOrEmpty(directoryPath))
+            {
+                throw new ArgumentException("נתיב תיקיה לא חוקי.", nameof(path));
+            }
 
             while (Directory.Exists(uniquePath))
             {
-                // If the directory exists, append a number to make it unique
                 uniquePath = Path.Combine(directoryPath, $"{directoryName} ({counter++})");
             }
 
             return uniquePath;
         }
+
         /// <summary>
-        ///  Define a regex pattern to match invalid characters(e.g., backslash, colon, asterisk, question mark, double quotes, angle brackets, and pipe).
-        ///  Replace these invalid characters with underscores.
-        ///  Check if the sanitized folder name matches any system reserved names (e.g., “CON,” “PRN,” etc.). If it does, append an underscore to avoid conflicts.
-        ///  Ensure the resulting folder name is safe for use.
+        /// Sanitizes a folder name to make it safe for use in the file system.
+        /// - Replaces invalid characters (e.g., \ / : * ? " < > |) with underscores.
+        /// - Appends an underscore if the name matches a reserved system name (e.g., CON, PRN).
         /// </summary>
-        /// <param name="folderName"></param>
-        /// <returns>
-        /// A safe file-system folder name
-        /// </returns>
+        /// <param name="folderName">The folder name to sanitize.</param>
+        /// <returns>A sanitized folder name that is safe for use in the file system.</returns>
         public static string SafeFolderName(this string folderName)
         {
-            if (string.IsNullOrEmpty(folderName))
+            if (string.IsNullOrWhiteSpace(folderName))
             {
-                return folderName;
+                throw new ArgumentException("שם התיקיה לא יכול להיות ריק או שגוי.", nameof(folderName));
             }
-            // Define the regex pattern to match invalid characters
-            string invalidCharsPattern = @"[\\/:*?""<>|]";
 
-            // Replace invalid characters with underscores
+            string invalidCharsPattern = @"[\\/:*?""<>|]";
             string cleanFolderName = Regex.Replace(folderName, invalidCharsPattern, "_");
-            // Check if the sanitized folder name matches any system reserved names
+
             string[] reservedNames = { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "LPT1", "LPT2", "LPT3" };
             foreach (string reservedName in reservedNames)
             {
                 if (string.Equals(cleanFolderName, reservedName, StringComparison.OrdinalIgnoreCase))
                 {
-                    // Append an underscore to avoid conflicts with reserved names
                     cleanFolderName += "_";
                     break;
                 }
             }
+
             return cleanFolderName;
         }
 
-
         /// <summary>
-        /// <list>
-        /// Extension method to create hidden folders.
-        /// </list>
-        /// Mainly used to create the <b><u>.SaveAsPDF </u></b> hidden folder 
-        /// use internally - no need to verify input
+        /// Creates a hidden directory at the specified path.
+        /// If a default folder name is provided, it appends it to the path.
         /// </summary>
-        /// <param name="folder"> string representing the hidden folder name to create </param>
-        /// <param name="defName"> default folder name. When left empty the default is to create the .SaveAsPDF folder </param>
-        /// 
+        /// <param name="folder">The base path where the hidden folder will be created.</param>
+        /// <param name="defName">Optional default folder name to append to the path.</param>
         public static void CreateHiddenDirectory(this string folder, string defName = null)
         {
-            if (Path.HasExtension(folder))
+            try
             {
-                folder = Path.GetDirectoryName(folder);
-            }
-
-            if (!string.IsNullOrEmpty(defName))
-            {
-                if (!Directory.Exists($@"{folder}\{defName}"))
+                if (Path.HasExtension(folder))
                 {
-                    DirectoryInfo di = Directory.CreateDirectory($@"{folder}\{defName}");
-                    di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+                    folder = Path.GetDirectoryName(folder);
                 }
-            }
-            else
-            {
-                try
+
+                if (!string.IsNullOrEmpty(defName))
+                {
+                    folder = Path.Combine(folder, defName);
+                }
+
+                if (!Directory.Exists(folder))
                 {
                     DirectoryInfo di = Directory.CreateDirectory(folder);
                     di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
                 }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.Message, "FileFolderHelper:CreatHiddenFolde");
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"שגיאה ביצירת תיקיה מוסתרת '{folder}': {ex.Message}", "FileFoldersHelper:CreateHiddenDirectory", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         /// <summary>
-        /// Create a new folder
-        /// if the folder already exists it will name it New Folder (2)... New Folder (3)  and so on. 
+        /// Creates a new folder.
+        /// If the folder already exists, it generates a unique name by appending a number (e.g., "New Folder (2)", "New Folder (3)").
         /// </summary>
-        /// <param name="folder">string representing the folder name to create</param>
+        /// <param name="baseFolder">The base path of the folder to create.</param>
+        /// <returns>The path of the created folder.</returns>
         public static string CreateDirectory(string baseFolder)
         {
             if (string.IsNullOrEmpty(baseFolder))
             {
-                MessageBox.Show("שם תיקיה לא יכול להיות ריק");
+                MessageBox.Show("שם התיקיה לא יכול להיות ריק.", "שגיאה", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return baseFolder;
             }
-            // Remove invalid characters from the folder name
-            //string sanitizedFolder = SanitizeFolderName(baseFolder);
-            string sanitizedFolder = baseFolder;
-            // Check if the directory already exists
+
+            string sanitizedFolder = SafeFolderName(baseFolder);
+
             if (Directory.Exists(sanitizedFolder))
             {
-                // Create the unique directory
                 string uniqueFolder = GetUniqueDirectoryPath(sanitizedFolder);
-
                 Directory.CreateDirectory(uniqueFolder);
                 return uniqueFolder;
             }
             else
             {
-                // Create the directory
                 Directory.CreateDirectory(sanitizedFolder);
                 return sanitizedFolder;
             }
         }
 
         /// <summary>
-        /// Delete folder recursive
+        /// Deletes a folder recursively.
         /// </summary>
-        /// <param name="folder">The folder to be deleted as string</param>
+        /// <param name="folder">The folder to delete.</param>
         public static void DeleteDirectory(string folder)
         {
             if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder))
             {
-                MessageBox.Show("תיקיה לא קיימת או שם ריק");
+                MessageBox.Show("התיקיה לא קיימת או שהשם ריק.", "שגיאה", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
             string[] dirs = Directory.GetDirectories(folder);
             foreach (string dir in dirs)
             {
@@ -325,19 +260,20 @@ namespace SaveAsPDF.Helpers
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message + "\n" + folder, "SaveAsPDF");
+                MessageBox.Show($"שגיאה במחיקת תיקיה '{folder}': {e.Message}", "SaveAsPDF", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         /// <summary>
-        /// Extension method to Rename a directory
+        /// Renames a directory.
         /// </summary>
-        /// <param name="di">Directory object</param>
-        /// <param name="folder">New name for the directory</param>
+        /// <param name="di">The <see cref="DirectoryInfo"/> object representing the directory to rename.</param>
+        /// <param name="folder">The new name for the directory.</param>
         public static void RenameDirectory(this DirectoryInfo di, string folder)
         {
             if (di == null || string.IsNullOrEmpty(folder))
             {
-                MessageBox.Show("שם תיקייה לא חוקי");
+                MessageBox.Show("שם התיקיה לא חוקי.", "שגיאה", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             else
@@ -345,6 +281,5 @@ namespace SaveAsPDF.Helpers
                 di.MoveTo(folder);
             }
         }
-
     }
 }

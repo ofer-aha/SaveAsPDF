@@ -1,5 +1,4 @@
-﻿using Microsoft.Office.Interop.Word;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -350,11 +349,11 @@ namespace SaveAsPDF.Helpers
         /// to show indentation.
         /// </summary>
         /// <param name="file_name"></param>
-        /// <param name="trv"></param>
-        public static void SaveTreeViewIntoFile(string file_name, TreeView trv)
+        /// <param name="treeView"></param>
+        public static void SaveTreeViewIntoFile(string file_name, TreeView treeView)
         {
             List<string> lst = new List<string>();
-            lst = GetPathsFromTreeView(trv.Nodes);
+            lst = GetPathsFromTreeView(treeView.Nodes);
             try
             {
                 using (StreamWriter sw = new StreamWriter(file_name))
@@ -366,7 +365,6 @@ namespace SaveAsPDF.Helpers
                 }
             }
             catch (Exception e)
-
             {
                 MessageBox.Show(e.Message, "TreeHelper: SaveTreeViewIntoFile()");
             }
@@ -419,7 +417,7 @@ namespace SaveAsPDF.Helpers
                 @"_מספר_פרויקט_\נשלח\בטיחות",
                 @"_מספר_פרויקט_\נשלח\כבישים"
             };
-            treeView.LoadFromFile(defaultTree);
+            treeView.LoadTreeViewFromList(defaultTree);
         }
 
 
@@ -428,7 +426,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="treeView">The TreeView control to load the folder tree into.</param>
         /// <param name="list">The list of paths to populate the TreeView control.</param>
-        public static void LoadFromFile(this TreeView treeView, string[] list)
+        public static void LoadTreeViewFromList(this TreeView treeView, string[] list)
         {
             treeView.Nodes.Clear();
             foreach (string path in list)
@@ -458,55 +456,6 @@ namespace SaveAsPDF.Helpers
             }
         }
 
-        /// <summary>
-        /// Create a combo box by loading the default list of paths from a file with ProjectID.
-        /// </summary>
-        /// <param name="comboBox">The combo box to load the paths into.</param>
-        /// <param name="fileName">The name of the file containing the paths.</param>
-        //public static void LoadFromFile(this ComboBox comboBox, string fileName, string projectID)
-        //{
-        //    string[] list = File.ReadAllLines(fileName);
-        //    comboBox.Items.Clear();
-        //    foreach (string path in list)
-        //    {
-        //        comboBox.Items.Add(path);
-        //    }
-        //}
-
-
-
-        ///// <summary>
-        ///// Create a combo box by loading the default list of paths from a file with ProjectID.
-        ///// </summary>
-        ///// <param name="comboBox">The combo box to load the paths into.</param>
-        ///// <param name="fileName">The name of the file containing the paths.</param>
-        ///// <param name="projectID">The ProjectID to filter or modify the paths.</param>
-        //public static void LoadFromFile(this ComboBox comboBox, string fileName, string projectID)
-        //{
-        //    if (string.IsNullOrWhiteSpace(fileName) || string.IsNullOrWhiteSpace(projectID))
-        //    {
-        //        throw new ArgumentException("File name and ProjectID cannot be null or empty.");
-        //    }
-
-        //    if (!File.Exists(fileName))
-        //    {
-        //        throw new FileNotFoundException($"The file '{fileName}' does not exist.");
-        //    }
-
-        //    string[] list = File.ReadAllLines(fileName);
-        //    comboBox.Items.Clear();
-
-        //    foreach (string path in list)
-        //    {
-        //        // Replace placeholder with the ProjectID
-        //        string modifiedPath = path.Replace(FormMain.settingsModel.ProjectRootTag, projectID);
-
-        //        // Replace DateTag with the current date in "dd/MM/yyyy" format
-        //        modifiedPath = modifiedPath.Replace(FormMain.settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"));
-
-        //        comboBox.Items.Add($"{FormMain.settingsModel.RootDrive}{modifiedPath}");
-        //    }
-        //}
 
 
 

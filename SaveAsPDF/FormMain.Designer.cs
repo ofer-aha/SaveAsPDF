@@ -75,6 +75,7 @@ namespace SaveAsPDF
             this.chbOpenPDF = new System.Windows.Forms.CheckBox();
             this.errorProviderMain = new System.Windows.Forms.ErrorProvider(this.components);
             this.cmbSaveLocation = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.stsStrip.SuspendLayout();
             this.tabNotes.SuspendLayout();
             this.tabProjectNote.SuspendLayout();
@@ -319,6 +320,7 @@ namespace SaveAsPDF
             // 
             // tabFolsers
             // 
+            this.tabFolsers.Controls.Add(this.label1);
             this.tabFolsers.Controls.Add(this.txtFullPath);
             this.tabFolsers.Controls.Add(this.btnFolders);
             this.tabFolsers.Controls.Add(this.tvFolders);
@@ -405,6 +407,11 @@ namespace SaveAsPDF
             resources.ApplyResources(this.cmbSaveLocation, "cmbSaveLocation");
             this.cmbSaveLocation.Name = "cmbSaveLocation";
             this.cmbSaveLocation.SelectedValueChanged += new System.EventHandler(this.cmbSaveLocation_SelectedValueChanged);
+            // 
+            // label1
+            // 
+            resources.ApplyResources(this.label1, "label1");
+            this.label1.Name = "label1";
             // 
             // FormMain
             // 
@@ -501,5 +508,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.CheckBox chbOpenPDF;
         private System.Windows.Forms.ErrorProvider errorProviderMain;
         private System.Windows.Forms.ComboBox cmbSaveLocation;
+        private System.Windows.Forms.Label label1;
     }
 }

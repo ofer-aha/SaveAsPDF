@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace SaveAsPDF.Helpers
@@ -13,55 +12,40 @@ namespace SaveAsPDF.Helpers
     public static class XmlFileHelper
     {
         /// <summary>
-        /// Convert the ProjectModel to XML file
+        /// Converts the ProjectModel to an XML file and saves it to the specified file path.
         /// </summary>
-        /// <param name="project">ProjectModel</param>
-        /// <param name="path">The path for the .SaveAsPDF hidden folder</param>
-        public static void ProjectModelToXmlFile(this string path, ProjectModel project)
+        /// <param name="filePath">The full path to the XML file where the ProjectModel will be saved.</param>
+        /// <param name="projectModel">The ProjectModel object to be serialized and saved.</param>
+        public static void ProjectModelToXmlFile(this string filePath, ProjectModel projectModel)
         {
-            // Create the XmlDocument.
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml("<Project></Project>");
-
-            // Add a price element.
-            XmlElement newElem = doc.CreateElement("ProjectNumber");
-            newElem.InnerText = project.ProjectNumber;
-            doc.DocumentElement.AppendChild(newElem);
-
-            newElem = doc.CreateElement("ProjectName");
-            newElem.InnerText = project.ProjectName;
-            doc.DocumentElement.AppendChild(newElem);
-
-            newElem = doc.CreateElement("NoteToProjectLeader");
-            newElem.InnerText = project.NoteToProjectLeader.ToString();
-            doc.DocumentElement.AppendChild(newElem);
-
-            newElem = doc.CreateElement("ProjectNotes");
-            newElem.InnerText = project.ProjectNotes;
-            doc.DocumentElement.AppendChild(newElem);
-
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            // Save the document to a file and auto-indent the _employeesModel.
-
-
-            FileFoldersHelper.CreateHiddenDirectory(path);
-
-            XmlWriter writer = XmlWriter.Create(path, settings);
-
             try
             {
-                doc.Save(writer);
-                //close the writer
-                writer.Close();
+                // Ensure the directory exists
+                string directoryPath = Path.GetDirectoryName(filePath);
+                if (!string.IsNullOrEmpty(directoryPath) && !Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
 
+                // Serialize the ProjectModel to XML and save it to the file
+                XmlSerializer serializer = new XmlSerializer(typeof(ProjectModel));
+                using (StreamWriter writer = new StreamWriter(filePath))
+                {
+                    serializer.Serialize(writer, projectModel);
+                }
             }
             catch (Exception ex)
             {
-
-                MessageBox.Show(ex.Message, "SaveAsPDF:ProjectModelToXmlFile");
+                MessageBox.Show($"An error occurred while saving the project model to XML: {ex.Message}",
+                                "SaveAsPDF:ProjectModelToXmlFile",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
             }
         }
+
+
+
+
         /// <summary>
         /// Converts Employee model to XML file
         /// </summary>
@@ -69,43 +53,17 @@ namespace SaveAsPDF.Helpers
         /// <param name="path">File Name as string</param>
         public static void EmployeesModelToXmlFile(this string path, List<EmployeeModel> employees)
         {
-            XmlDocument xmlDocument = new XmlDocument();
-            XmlNode docNode = xmlDocument.CreateXmlDeclaration("1.0", "UTF-8", null);
-            xmlDocument.AppendChild(docNode);
-
-            XmlNode employeesNode = xmlDocument.CreateElement("Employees");
-            xmlDocument.AppendChild(employeesNode);
-
-            foreach (EmployeeModel employee in employees)
-            {
-                XmlNode employeeNode = xmlDocument.CreateElement("Employee");
-                employeesNode.AppendChild(employeeNode);
-
-                XmlNode idNode = xmlDocument.CreateElement("ID");
-                idNode.AppendChild(xmlDocument.CreateTextNode(employee.Id.ToString()));
-                employeeNode.AppendChild(idNode);
-
-                XmlNode firstNameNode = xmlDocument.CreateElement("FirstName");
-                firstNameNode.AppendChild(xmlDocument.CreateTextNode(employee.FirstName));
-                employeeNode.AppendChild(firstNameNode);
-
-                XmlNode lastNameNode = xmlDocument.CreateElement("LastName");
-                lastNameNode.AppendChild(xmlDocument.CreateTextNode(employee.LastName));
-                employeeNode.AppendChild(lastNameNode);
-
-                XmlNode emailAddressNode = xmlDocument.CreateElement("EmailAddress");
-                emailAddressNode.AppendChild(xmlDocument.CreateTextNode(employee.EmailAddress));
-                employeeNode.AppendChild(emailAddressNode);
-            }
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            // Save the document to a file and auto-indent the _employeesModel.
-            XmlWriter writer = XmlWriter.Create(path, settings);
             try
             {
-                xmlDocument.Save(writer);
-                //close the writer
-                writer.Close();
+                // Ensure the directory exists
+                FileFoldersHelper.CreateHiddenDirectory(Path.GetDirectoryName(path));
+
+                // Serialize the EmployeeModel list to XML
+                XmlSerializer serializer = new XmlSerializer(typeof(List<EmployeeModel>));
+                using (StreamWriter writer = new StreamWriter(path))
+                {
+                    serializer.Serialize(writer, employees);
+                }
             }
             catch (Exception ex)
             {
@@ -114,75 +72,88 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// Extension method Converts the Project XML file to ProjectModel
+        /// Extension method to import the XML file into a ProjectModel.
         /// </summary>
-        /// <param name="xmlFile">Source file name</param>
-        /// <returns><see cref="ProjectModel"/></returns>
+        /// <param name="xmlFile">Full path to the XML file.</param>
+        /// <returns><see cref="ProjectModel"/> containing the project data.</returns>
         public static ProjectModel XmlProjectFileToModel(this string xmlFile)
         {
-            ProjectModel projectModel = new ProjectModel();
-            XmlDocument xmlDoc = new XmlDocument();
-
             try
             {
+                // Check if the file exists
+                if (!File.Exists(xmlFile))
+                {
+                    throw new FileNotFoundException($"The file '{xmlFile}' does not exist.");
+                }
+
+                // Load the XML file and parse it into a ProjectModel
+                var xmlDoc = new System.Xml.XmlDocument();
                 xmlDoc.Load(xmlFile);
+
+                var project = new ProjectModel
+                {
+                    ProjectNumber = xmlDoc.SelectSingleNode("//Project/ProjectNumber")?.InnerText,
+                    ProjectName = xmlDoc.SelectSingleNode("//Project/ProjectName")?.InnerText,
+                    NoteToProjectLeader = bool.Parse(xmlDoc.SelectSingleNode("//Project/NoteToProjectLeader")?.InnerText ?? "false"),
+                    ProjectNotes = xmlDoc.SelectSingleNode("//Project/ProjectNotes")?.InnerText
+                };
+
+                return project;
             }
             catch (Exception ex)
             {
-
-                MessageBox.Show(ex.Message, "SaveAsPDF:XmlProjectFileToModel");
+                MessageBox.Show($"An error occurred while loading the project: {ex.Message}", "SaveAsPDF:XmlProjectFileToModel", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
-            XmlNodeList projectName = xmlDoc.GetElementsByTagName("ProjectName");
-            XmlNodeList NoteToProjectLeader = xmlDoc.GetElementsByTagName("NoteToProjectLeader");
-            XmlNodeList projectNotes = xmlDoc.GetElementsByTagName("ProjectNotes");
-
-            projectModel.ProjectName = projectName[0].InnerText;
-            projectModel.NoteToProjectLeader = bool.Parse(NoteToProjectLeader[0].InnerText);
-            projectModel.ProjectNotes = projectNotes[0].InnerText;
-
-
-            return projectModel;
         }
+
+
+
+
+
+
 
         /// <summary>
-        /// Extension method Import the XML file to employee model
+        /// Extension method to import the XML file into a list of EmployeeModel.
         /// </summary>
-        /// <param name="xmlFile">Full path to XML file</param>
-        /// <returns><see cref="ProjectModel"/></returns>
+        /// <param name="xmlFile">Full path to the XML file.</param>
+        /// <returns><see cref="List{EmployeeModel}"/> containing the employees.</returns>
         public static List<EmployeeModel> XmlEmployeesFileToModel(this string xmlFile)
         {
-            List<EmployeeModel> employeesModel = new List<EmployeeModel>();
-            XmlDocument xmlDoc = new XmlDocument();
             try
             {
+                // Check if the file exists
+                if (!File.Exists(xmlFile))
+                {
+                    throw new FileNotFoundException($"The file '{xmlFile}' does not exist.");
+                }
+
+                // Load the XML file and parse it into a list of EmployeeModel
+                var employees = new List<EmployeeModel>();
+                var xmlDoc = new System.Xml.XmlDocument();
                 xmlDoc.Load(xmlFile);
+
+                foreach (System.Xml.XmlNode node in xmlDoc.SelectNodes("//Employee"))
+                {
+                    var employee = new EmployeeModel
+                    {
+                        Id = int.Parse(node["ID"]?.InnerText ?? "0"),
+                        FirstName = node["FirstName"]?.InnerText,
+                        LastName = node["LastName"]?.InnerText,
+                        EmailAddress = node["EmailAddress"]?.InnerText
+                    };
+                    employees.Add(employee);
+                }
+
+                return employees;
             }
             catch (Exception ex)
             {
-
-                MessageBox.Show(ex.Message, "SaveAsPDF:XmlEmployeesFileToModel");
+                MessageBox.Show($"An error occurred while loading employees: {ex.Message}", "SaveAsPDF:XmlEmployeesFileToModel", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
-
-            XmlNodeList FirstName = xmlDoc.GetElementsByTagName("FirstName");
-            XmlNodeList LastName = xmlDoc.GetElementsByTagName("LastName");
-            XmlNodeList EmailAddress = xmlDoc.GetElementsByTagName("EmailAddress");
-
-            for (int i = 0; i < FirstName.Count; i++)
-            {
-                EmployeeModel em = new EmployeeModel
-                {
-                    FirstName = FirstName[i].InnerXml.ToString(),
-                    LastName = LastName[i].InnerXml.ToString(),
-                    EmailAddress = EmailAddress[i].InnerXml.ToString()
-                };
-                employeesModel.Add(em);
-            }
-
-            //xmlDoc.Save(xmlFile);
-            return employeesModel;
         }
+
 
 
         /// <summary>

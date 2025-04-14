@@ -105,28 +105,51 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="oDOC"></param>
         /// <param name="oFileName"></param>
+        //private static void ConvertToPDF(this Document oDOC, string oFileName)
+        //{
+        //    object misValue = System.Reflection.Missing.Value;
+        //    //oDOC.ExportAsFixedFormat(@oFileName, //file name 
+        //    //                word.WdExportFormat.wdExportFormatPDF,//export format
+        //    //                false, //OpenAfterExport
+        //    //                word.WdExportOptimizeFor.wdExportOptimizeForPrint, //OptimizeFor
+        //    //                word.WdExportRange.wdExportAllDocument,  //Range
+        //    //                (int)misValue, //From
+        //    //                (int)misValue, //To 
+        //    //                WdExportItem.wdExportDocumentWithMarkup, //Item
+        //    //                false,//IncludeDocProps
+        //    //                false, //KeepIRM
+        //    //                WdExportCreateBookmarks.wdExportCreateWordBookmarks, //CreateBookmarks
+        //    //                true, //DocStructureTags
+        //    //                true, //BitmapMissingFonts
+        //    //                false, //UseISO19005_1
+        //    //                misValue);//FixedFormatExtClassPtr
+
+        //    oDOC.SaveAs2(@oFileName,  //file name 
+        //                    WdExportFormat.wdExportFormatPDF);//export format
+        //}
+
         private static void ConvertToPDF(this Document oDOC, string oFileName)
         {
             object misValue = System.Reflection.Missing.Value;
-            //oDOC.ExportAsFixedFormat(@oFileName, //file name 
-            //                word.WdExportFormat.wdExportFormatPDF,//export format
-            //                false, //OpenAfterExport
-            //                word.WdExportOptimizeFor.wdExportOptimizeForPrint, //OptimizeFor
-            //                word.WdExportRange.wdExportAllDocument,  //Range
-            //                (int)misValue, //From
-            //                (int)misValue, //To 
-            //                WdExportItem.wdExportDocumentWithMarkup, //Item
-            //                false,//IncludeDocProps
-            //                false, //KeepIRM
-            //                WdExportCreateBookmarks.wdExportCreateWordBookmarks, //CreateBookmarks
-            //                true, //DocStructureTags
-            //                true, //BitmapMissingFonts
-            //                false, //UseISO19005_1
-            //                misValue);//FixedFormatExtClassPtr
-
-            oDOC.SaveAs2(@oFileName,  //file name 
-                            WdExportFormat.wdExportFormatPDF);//export format
+            oDOC.ExportAsFixedFormat(
+                oFileName, // File name
+                WdExportFormat.wdExportFormatPDF, // Export format
+                false, // OpenAfterExport
+                WdExportOptimizeFor.wdExportOptimizeForPrint, // OptimizeFor
+                WdExportRange.wdExportAllDocument, // Range
+                (int)misValue, // From
+                (int)misValue, // To
+                WdExportItem.wdExportDocumentWithMarkup, // Item
+                false, // IncludeDocProps
+                false, // KeepIRM
+                WdExportCreateBookmarks.wdExportCreateWordBookmarks, // CreateBookmarks
+                true, // DocStructureTags
+                true, // BitmapMissingFonts
+                false, // UseISO19005_1
+                misValue // FixedFormatExtClassPtr
+            );
         }
+
 
         /// <summary>
         /// Convert List of Attachments to List of String 

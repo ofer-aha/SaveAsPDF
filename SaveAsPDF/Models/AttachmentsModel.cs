@@ -1,7 +1,6 @@
 ﻿namespace SaveAsPDF.Models
 {
     public class AttachmentsModel
-
     {
         /// <summary>
         /// File ID in the list.... future use? 
@@ -10,7 +9,7 @@
         /// <summary>
         /// The checked-box in the dataGridView. Default: True
         /// </summary>
-        public bool isChecked { get; set; } = true;
+        public bool isChecked { get; set; } = true; // Removed duplicate property
         /// <summary>
         /// File name... nothing to say about this 
         /// </summary>
@@ -19,15 +18,6 @@
         /// File size.... see file name... 
         /// </summary>
         public string fileSize { get; set; }
-
-        public AttachmentsModel()
-        {
-            attachmentId = 0;
-            isChecked = true;
-            fileName = string.Empty;
-            fileSize = string.Empty;
-        }
-
     }
 
 }

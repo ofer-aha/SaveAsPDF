@@ -48,7 +48,7 @@ namespace SaveAsPDF
             try
             {
                 string[] lines = File.ReadAllLines(_settingsModel.DefaultTreeFile);
-                tvProjectSubFolders.LoadFromFile(lines);
+                tvProjectSubFolders.LoadTreeViewFromList(lines);
                 tvProjectSubFolders.ExpandAll();
                 tvProjectSubFolders.SelectedNode = tvProjectSubFolders.Nodes[0];
 
@@ -218,7 +218,7 @@ namespace SaveAsPDF
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string[] lines = File.ReadAllLines(openFileDialog.FileName);
-                tvProjectSubFolders.LoadFromFile(lines);
+                tvProjectSubFolders.LoadTreeViewFromList(lines);
                 tvProjectSubFolders.ExpandAll();
                 txtTreePath.Text = openFileDialog.FileName;
                 _settingsModel.DefaultTreeFile = openFileDialog.FileName;
