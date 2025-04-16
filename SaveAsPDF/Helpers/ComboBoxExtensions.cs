@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 //using System.Windows.Controls;
 using System.Windows.Forms;
 
@@ -12,12 +9,12 @@ namespace SaveAsPDF.Helpers
     public static class ComboBoxExtensions
     {
         /// <summary>
-        /// Create a combo box by loading the default list of paths from a file with ProjectID.
+        /// Loads a ComboBox with paths from a specified file, replacing placeholders with the ProjectID and current date.
         /// </summary>
         /// <param name="comboBox">The combo box to load the paths into.</param>
         /// <param name="fileName">The name of the file containing the paths.</param>
         /// <param name="projectID">The ProjectID to filter or modify the paths.</param>
-        public static void LoadFromFile(this ComboBox comboBox, string fileName, string projectID)
+        public static void LoadComboBoxWithPaths(this ComboBox comboBox, string fileName, string projectID)
         {
             if (string.IsNullOrWhiteSpace(fileName) || string.IsNullOrWhiteSpace(projectID))
             {
@@ -35,13 +32,80 @@ namespace SaveAsPDF.Helpers
             foreach (string path in list)
             {
                 // Replace placeholder with the ProjectID
-                string modifiedPath = path.Replace(FormMain.settingsModel.ProjectRootTag, projectID);
+                // Assuming FormMain.settingsModel.ProjectRootTag is a placeholder in the path
+
+                string modifiedPath = path.Replace(FormMain.settingsModel.ProjectRootTag, FormMain.settingsModel.ProjectRootFolder.ToString());
 
                 // Replace DateTag with the current date in "dd/MM/yyyy" format
                 modifiedPath = modifiedPath.Replace(FormMain.settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"));
 
-                comboBox.Items.Add($"{FormMain.settingsModel.RootDrive}{modifiedPath}");
+                modifiedPath = modifiedPath.Replace("\\\\", "\\");
+
+                // Validate the path
+                if (IsValidPath(modifiedPath))
+                {
+                    comboBox.Items.Add(modifiedPath);
+                }
+                else
+                {
+                    // Highlight invalid paths by prefixing them with "INVALID:"
+                    comboBox.Items.Add($"INVALID: {modifiedPath}");
+                }
             }
+        }
+
+        /// <summary>
+        /// Validates whether a given path is in a legal format.
+        /// </summary>
+        /// <param name="path">The path to validate.</param>
+        /// <returns>True if the path is valid; otherwise, false.</returns>
+        private static bool IsValidPath(string path)
+        {
+            try
+            {
+                // Check if the path is rooted and does not contain invalid characters
+                return Path.IsPathRooted(path) && path.IndexOfAny(Path.GetInvalidPathChars()) == -1;
+            }
+            catch
+            {
+                // If any exception occurs, the path is considered invalid
+                return false;
+            }
+        }
+        /// <summary>
+        /// Customizes the ComboBox to draw items with different colors based on their content.
+        /// </summary>
+        /// <param name="comboBox"></param>
+        public static void CustomizeComboBox(ComboBox comboBox)
+        {
+            // Set the DrawMode to OwnerDrawFixed
+            comboBox.DrawMode = DrawMode.OwnerDrawFixed;
+
+            // Handle the DrawItem event
+            comboBox.DrawItem += (sender, e) =>
+            {
+                // Check if the index is valid
+                if (e.Index < 0) return;
+
+                // Get the item text
+                string itemText = comboBox.Items[e.Index].ToString();
+
+                // Determine the color based on the item text
+
+                Color textColor = !Directory.Exists(itemText) ? Color.Red : Color.Black;
+
+                // Draw the background
+                e.DrawBackground();
+
+                // Draw the text with the specified color
+                using (Brush brush = new SolidBrush(textColor))
+                {
+                    e.Graphics.DrawString(itemText, e.Font, brush, e.Bounds);
+                }
+
+                // Draw the focus rectangle if the item is selected
+                e.DrawFocusRectangle();
+            };
         }
 
         /// <summary>
@@ -50,12 +114,13 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="comboBox">The target ComboBox.</param>
         /// <param name="path">The Windows Explorer path to convert.</param>
-        public static void SetBreadcrumbPath(this ComboBox comboBox, string path)
+        public static void SetBreadcrumbPath(this ComboBox comboBox)
         {
             if (comboBox == null)
                 throw new ArgumentNullException(nameof(comboBox));
 
-            if (string.IsNullOrWhiteSpace(path))
+            // Ensure the SelectedItem is valid
+            if (comboBox.SelectedItem == null || !(comboBox.SelectedItem is string path) || string.IsNullOrWhiteSpace(path))
                 return;
 
             // Trim trailing backslashes to avoid empty segments.

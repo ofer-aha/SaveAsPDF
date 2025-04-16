@@ -43,9 +43,6 @@ namespace SaveAsPDF.Helpers
             }
         }
 
-
-
-
         /// <summary>
         /// Converts Employee model to XML file
         /// </summary>

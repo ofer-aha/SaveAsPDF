@@ -47,7 +47,9 @@ namespace SaveAsPDF
 
         //List<Attachment> attachments = new List<Attachment>();
         List<AttachmentsModel> attachmentsModels = new List<AttachmentsModel>();
-
+        /// <summary>
+        /// The model for the settings form.
+        /// </summary>
         public static object SettingModel { get; internal set; }
 
 
@@ -56,6 +58,10 @@ namespace SaveAsPDF
             InitializeComponent();
             this.Load += new EventHandler(FormMain_Load);
         }
+        /// <summary>
+        /// Load the email subject from the mail item.
+        /// </summary>
+        /// <returns></returns>
         private string LoadEmailSubject()
         {
             // load the email subject from mail item
@@ -65,6 +71,11 @@ namespace SaveAsPDF
                 return "Default Email Subject";
 
         }
+        /// <summary>
+        /// Handles the form load event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FormMain_Load(object sender, EventArgs e)
         {
 
@@ -136,6 +147,7 @@ namespace SaveAsPDF
         }
         /// <summary>
         /// Updates the auto complete source with the current text in the project ID textbox.
+        /// <param name="text"> The text to be added to the auto-complete source.</param>
         /// </summary>
         private void UpdateAutoCompleteSource(string text)
         {
@@ -150,7 +162,9 @@ namespace SaveAsPDF
                 Settings.Default.Save();
             }
         }
-
+        /// <summary>
+        /// Loads the search history from settings and adds it to the auto-complete source of the project ID textbox.
+        /// </summary>
         private void LoadSearchHistory()
         {
             if (Settings.Default.LastProjects == null)
@@ -161,12 +175,22 @@ namespace SaveAsPDF
             searchHistory = Settings.Default.LastProjects.Cast<string>().Distinct().ToList();
             txtProjectID.AutoCompleteCustomSource.AddRange(searchHistory.ToArray());
         }
-
+        /// <summary>
+        /// Handles the key down event for the form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnCancel_Click(object sender, EventArgs e)
         {
             //close the form - do  nothing
             Close();
         }
+        /// <summary>
+        /// Handles the key down event for the form.
+        /// <param name="sender"></param>"
+        /// </summary>
+        /// <param name="sender"> The source of the event.</param>
+        /// <param name="e"> The event data.</param>
         private void btnFolders_Click(object sender, EventArgs e)
         {
             var Dialog = new FolderPicker();
@@ -262,7 +286,9 @@ namespace SaveAsPDF
                                 MessageBoxIcon.Error);
             }
         }
-
+        /// <summary>
+        /// Initializes the paths for the XML files based on the settings model.
+        /// </summary>
         private void InitializePaths()
         {
             _xmlSaveAsPdfFolder = new DirectoryInfo(settingsModel.XmlSaveAsPDFFolder);
@@ -271,20 +297,9 @@ namespace SaveAsPDF
             FileFoldersHelper.CreateHiddenDirectory(_xmlSaveAsPdfFolder.FullName);
         }
 
-        //private void LoadProjectData()
-        //{
-        //    if (File.Exists(_xmlProjectFile))
-        //    {
-        //        _projectModel = _xmlProjectFile.XmlProjectFileToModel();
-        //        if (_projectModel != null)
-        //        {
-        //            txtProjectName.Text = _projectModel.ProjectName;
-        //            chkbSendNote.Checked = _projectModel.NoteToProjectLeader;
-        //            rtxtProjectNotes.Text = _projectModel.ProjectNotes;
-        //        }
-        //    }
-        //}
-
+        /// <summary>
+        /// Loads the project data from the XML file.
+        /// </summary>
         private void LoadProjectData()
         {
             if (File.Exists(_xmlProjectFile))
@@ -352,7 +367,9 @@ namespace SaveAsPDF
         }
 
 
-
+        /// <summary>
+        /// Loads the employee data from the XML file.
+        /// </summary>
         private void LoadEmployeeData()
         {
             dgvEmployees.Rows.Clear();
@@ -376,29 +393,12 @@ namespace SaveAsPDF
         {
             try
             {
-                // Clear and reload the save location combo box
-                //cmbSaveLocation.Items.Clear();
-                //cmbSaveLocation.LoadTreeViewFromList(settingsModel.DefaultTreeFile, txtProjectID.Text);
+                //Clear and reload the save location combo box
 
                 cmbSaveLocation.Items.Clear();
-                cmbSaveLocation.LoadFromFile(settingsModel.DefaultTreeFile, settingsModel.ProjectRootTag);
-                //cmbSaveLocation.SetBreadcrumbPath(settingsModel.ProjectRootFolder.FullName);
+                cmbSaveLocation.LoadComboBoxWithPaths(settingsModel.DefaultTreeFile, txtProjectID.Text);
+                ComboBoxExtensions.CustomizeComboBox(cmbSaveLocation);
 
-
-                for (int i = 0; i < cmbSaveLocation.Items.Count; i++)
-                {
-                    if (cmbSaveLocation.Items[i] is string item)
-                    {
-                        cmbSaveLocation.Items[i] = item.Replace(settingsModel.ProjectRootTag,
-                                                                settingsModel.ProjectRootFolder.FullName.TrimEnd('\\'));
-                        //replace the DateTag with the current date
-                        //cmbSaveLocation.Items[i] = item.Replace(settingsModel.DateTag,DateTime.Now.ToString("yyyy.MM.dd"));
-                    }
-                    else
-                    {
-                        throw new InvalidCastException($"Item at index {i} in cmbSaveLocation is not a string.");
-                    }
-                }
 
                 // Set the default selected index
                 if (cmbSaveLocation.Items.Count > 0)
@@ -423,18 +423,18 @@ namespace SaveAsPDF
                 txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
 
                 // Handle the default save path in the combo box
-                if (!string.IsNullOrEmpty(settingsModel.DefaultSavePath))
-                {
-                    if (cmbSaveLocation.Items.Contains(settingsModel.DefaultSavePath))
-                    {
-                        cmbSaveLocation.SelectedItem = settingsModel.DefaultSavePath;
-                    }
-                    else
-                    {
-                        cmbSaveLocation.Items.Add(settingsModel.DefaultSavePath);
-                        cmbSaveLocation.SelectedItem = settingsModel.DefaultSavePath;
-                    }
-                }
+                //if (!string.IsNullOrEmpty(settingsModel.DefaultSavePath))
+                //{
+                //    if (cmbSaveLocation.Items.Contains(settingsModel.DefaultSavePath))
+                //    {
+                //        cmbSaveLocation.SelectedItem = settingsModel.DefaultSavePath;
+                //    }
+                //    else
+                //    {
+                //        cmbSaveLocation.Items.Add(settingsModel.DefaultSavePath);
+                //        cmbSaveLocation.SelectedItem = settingsModel.DefaultSavePath;
+                //    }
+                //}
 
                 // Set focus to the OK button
                 btnOK.Focus();
@@ -444,7 +444,10 @@ namespace SaveAsPDF
                 MessageBox.Show($"An error occurred while updating the UI: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        /// <summary>
+        /// Process the mail item and display its subject and attachments in the UI.
+        /// </summary>
+        /// <param name="mailItem"></param>
         private void ProcessMailItem(MailItem mailItem)
         {
             txtSubject.Text = mailItem.Subject;
@@ -479,7 +482,9 @@ namespace SaveAsPDF
             dgvAttachments.Columns[3].HeaderText = "גודל";
             dgvAttachments.Columns[3].ReadOnly = true;
         }
-
+        /// <summary>
+        /// Checks if the selected item is a mail item.
+        /// </summary>
         private void ShowInvalidMailItemError()
         {
             MessageBox.Show("יש לבחור הודעות דואר אלקטרוני בלבד", "SaveAsPDF");
@@ -608,7 +613,6 @@ namespace SaveAsPDF
                 MessageBox.Show("open PDF =" + chbOpenPDF.Checked.ToString());
             }
 
-
             //_settingsModel.Save();
             //TODO: save settings 
 
@@ -729,11 +733,6 @@ namespace SaveAsPDF
             {
                 e.Cancel = true;
             }
-
-
-
-
-
 
         }
 
@@ -891,8 +890,13 @@ namespace SaveAsPDF
         private void tvFolders_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             //update cmbSaveLocation with the selected node path
-            cmbSaveLocation.SelectedText = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
+            //cmbSaveLocation.Items.Clear();
 
+            //clear the selected item in cmbSaveLocation 
+            cmbSaveLocation.Select();
+            cmbSaveLocation.SelectedItem = null;
+            //enter the selected path to the combo box
+            cmbSaveLocation.SelectedText = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
 
         }
 
@@ -1044,5 +1048,10 @@ namespace SaveAsPDF
             _projectModel.LastSavePath = cmbSaveLocation.SelectedItem?.ToString();
         }
 
+        private void cmbSaveLocation_TextUpdate(object sender, EventArgs e)
+        {
+            // Update the breadcrumb path in the combo box "C > 12 > 123"
+            cmbSaveLocation.SetBreadcrumbPath();
+        }
     }
 }

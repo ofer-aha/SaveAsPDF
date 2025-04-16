@@ -218,7 +218,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAAB0
-        DwAAAk1TRnQBSQFMAgEBCAEAAYgBAQGIAQEBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        DwAAAk1TRnQBSQFMAgEBCAEAAZABAQGQAQEBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABQAMAATADAAEBAQABCAYAAQwYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -386,6 +386,9 @@
   <metadata name="stsStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="tsslStatus.Size" type="System.Drawing.Size, System.Drawing">
+    <value>0, 17</value>
+  </data>
   <data name="stsStrip.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 539</value>
   </data>
@@ -409,9 +412,6 @@
   </data>
   <data name="&gt;&gt;stsStrip.ZOrder" xml:space="preserve">
     <value>10</value>
-  </data>
-  <data name="tsslStatus.Size" type="System.Drawing.Size, System.Drawing">
-    <value>0, 17</value>
   </data>
   <data name="lblProjectName.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -530,105 +530,6 @@
   <data name="&gt;&gt;btnNewProject.ZOrder" xml:space="preserve">
     <value>6</value>
   </data>
-  <data name="&gt;&gt;tabProjectNote.Name" xml:space="preserve">
-    <value>tabProjectNote</value>
-  </data>
-  <data name="&gt;&gt;tabProjectNote.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabProjectNote.Parent" xml:space="preserve">
-    <value>tabNotes</value>
-  </data>
-  <data name="&gt;&gt;tabProjectNote.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;tabMailNotes.Name" xml:space="preserve">
-    <value>tabMailNotes</value>
-  </data>
-  <data name="&gt;&gt;tabMailNotes.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabMailNotes.Parent" xml:space="preserve">
-    <value>tabNotes</value>
-  </data>
-  <data name="&gt;&gt;tabMailNotes.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="tabNotes.Location" type="System.Drawing.Point, System.Drawing">
-    <value>395, 222</value>
-  </data>
-  <data name="tabNotes.RightToLeftLayout" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="tabNotes.Size" type="System.Drawing.Size, System.Drawing">
-    <value>371, 257</value>
-  </data>
-  <data name="tabNotes.TabIndex" type="System.Int32, mscorlib">
-    <value>38</value>
-  </data>
-  <data name="&gt;&gt;tabNotes.Name" xml:space="preserve">
-    <value>tabNotes</value>
-  </data>
-  <data name="&gt;&gt;tabNotes.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabControl, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabNotes.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;tabNotes.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;rtxtProjectNotes.Name" xml:space="preserve">
-    <value>rtxtProjectNotes</value>
-  </data>
-  <data name="&gt;&gt;rtxtProjectNotes.Type" xml:space="preserve">
-    <value>System.Windows.Forms.RichTextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;rtxtProjectNotes.Parent" xml:space="preserve">
-    <value>tabProjectNote</value>
-  </data>
-  <data name="&gt;&gt;rtxtProjectNotes.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;btnCopyNotesToMail.Name" xml:space="preserve">
-    <value>btnCopyNotesToMail</value>
-  </data>
-  <data name="&gt;&gt;btnCopyNotesToMail.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btnCopyNotesToMail.Parent" xml:space="preserve">
-    <value>tabProjectNote</value>
-  </data>
-  <data name="&gt;&gt;btnCopyNotesToMail.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="tabProjectNote.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 22</value>
-  </data>
-  <data name="tabProjectNote.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
-  </data>
-  <data name="tabProjectNote.Size" type="System.Drawing.Size, System.Drawing">
-    <value>363, 231</value>
-  </data>
-  <data name="tabProjectNote.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="tabProjectNote.Text" xml:space="preserve">
-    <value>הערות לפרויקט</value>
-  </data>
-  <data name="&gt;&gt;tabProjectNote.Name" xml:space="preserve">
-    <value>tabProjectNote</value>
-  </data>
-  <data name="&gt;&gt;tabProjectNote.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;tabProjectNote.Parent" xml:space="preserve">
-    <value>tabNotes</value>
-  </data>
-  <data name="&gt;&gt;tabProjectNote.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
   <data name="rtxtProjectNotes.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 43</value>
   </data>
@@ -680,68 +581,32 @@
   <data name="&gt;&gt;btnCopyNotesToMail.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="&gt;&gt;btnCopyNotesToProject.Name" xml:space="preserve">
-    <value>btnCopyNotesToProject</value>
-  </data>
-  <data name="&gt;&gt;btnCopyNotesToProject.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btnCopyNotesToProject.Parent" xml:space="preserve">
-    <value>tabMailNotes</value>
-  </data>
-  <data name="&gt;&gt;btnCopyNotesToProject.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;btnStyle.Name" xml:space="preserve">
-    <value>btnStyle</value>
-  </data>
-  <data name="&gt;&gt;btnStyle.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btnStyle.Parent" xml:space="preserve">
-    <value>tabMailNotes</value>
-  </data>
-  <data name="&gt;&gt;btnStyle.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;rtxtNotes.Name" xml:space="preserve">
-    <value>rtxtNotes</value>
-  </data>
-  <data name="&gt;&gt;rtxtNotes.Type" xml:space="preserve">
-    <value>System.Windows.Forms.RichTextBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;rtxtNotes.Parent" xml:space="preserve">
-    <value>tabMailNotes</value>
-  </data>
-  <data name="&gt;&gt;rtxtNotes.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="tabMailNotes.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="tabProjectNote.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 22</value>
   </data>
-  <data name="tabMailNotes.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="tabProjectNote.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 3, 3, 3</value>
   </data>
-  <data name="tabMailNotes.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="tabProjectNote.Size" type="System.Drawing.Size, System.Drawing">
     <value>363, 231</value>
   </data>
-  <data name="tabMailNotes.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
+  <data name="tabProjectNote.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
   </data>
-  <data name="tabMailNotes.Text" xml:space="preserve">
-    <value>הערות למייל</value>
+  <data name="tabProjectNote.Text" xml:space="preserve">
+    <value>הערות לפרויקט</value>
   </data>
-  <data name="&gt;&gt;tabMailNotes.Name" xml:space="preserve">
-    <value>tabMailNotes</value>
+  <data name="&gt;&gt;tabProjectNote.Name" xml:space="preserve">
+    <value>tabProjectNote</value>
   </data>
-  <data name="&gt;&gt;tabMailNotes.Type" xml:space="preserve">
+  <data name="&gt;&gt;tabProjectNote.Type" xml:space="preserve">
     <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;tabMailNotes.Parent" xml:space="preserve">
+  <data name="&gt;&gt;tabProjectNote.Parent" xml:space="preserve">
     <value>tabNotes</value>
   </data>
-  <data name="&gt;&gt;tabMailNotes.ZOrder" xml:space="preserve">
-    <value>1</value>
+  <data name="&gt;&gt;tabProjectNote.ZOrder" xml:space="preserve">
+    <value>0</value>
   </data>
   <data name="btnCopyNotesToProject.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -827,77 +692,56 @@
   <data name="&gt;&gt;rtxtNotes.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="&gt;&gt;RemoveEmployee.Name" xml:space="preserve">
-    <value>RemoveEmployee</value>
+  <data name="tabMailNotes.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 22</value>
   </data>
-  <data name="&gt;&gt;RemoveEmployee.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="tabMailNotes.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
   </data>
-  <data name="&gt;&gt;RemoveEmployee.Parent" xml:space="preserve">
-    <value>groupBoxEmployee</value>
+  <data name="tabMailNotes.Size" type="System.Drawing.Size, System.Drawing">
+    <value>363, 231</value>
   </data>
-  <data name="&gt;&gt;RemoveEmployee.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.Name" xml:space="preserve">
-    <value>dgvEmployees</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DataGridView, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.Parent" xml:space="preserve">
-    <value>groupBoxEmployee</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.ZOrder" xml:space="preserve">
+  <data name="tabMailNotes.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
-  <data name="&gt;&gt;btnPhoneBook.Name" xml:space="preserve">
-    <value>btnPhoneBook</value>
+  <data name="tabMailNotes.Text" xml:space="preserve">
+    <value>הערות למייל</value>
   </data>
-  <data name="&gt;&gt;btnPhoneBook.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="&gt;&gt;tabMailNotes.Name" xml:space="preserve">
+    <value>tabMailNotes</value>
   </data>
-  <data name="&gt;&gt;btnPhoneBook.Parent" xml:space="preserve">
-    <value>groupBoxEmployee</value>
+  <data name="&gt;&gt;tabMailNotes.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;btnPhoneBook.ZOrder" xml:space="preserve">
-    <value>2</value>
+  <data name="&gt;&gt;tabMailNotes.Parent" xml:space="preserve">
+    <value>tabNotes</value>
   </data>
-  <data name="&gt;&gt;chkbSendNote.Name" xml:space="preserve">
-    <value>chkbSendNote</value>
+  <data name="&gt;&gt;tabMailNotes.ZOrder" xml:space="preserve">
+    <value>1</value>
   </data>
-  <data name="&gt;&gt;chkbSendNote.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="tabNotes.Location" type="System.Drawing.Point, System.Drawing">
+    <value>395, 222</value>
   </data>
-  <data name="&gt;&gt;chkbSendNote.Parent" xml:space="preserve">
-    <value>groupBoxEmployee</value>
+  <data name="tabNotes.RightToLeftLayout" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
-  <data name="&gt;&gt;chkbSendNote.ZOrder" xml:space="preserve">
-    <value>3</value>
+  <data name="tabNotes.Size" type="System.Drawing.Size, System.Drawing">
+    <value>371, 257</value>
   </data>
-  <data name="groupBoxEmployee.Location" type="System.Drawing.Point, System.Drawing">
-    <value>395, 31</value>
+  <data name="tabNotes.TabIndex" type="System.Int32, mscorlib">
+    <value>38</value>
   </data>
-  <data name="groupBoxEmployee.Size" type="System.Drawing.Size, System.Drawing">
-    <value>371, 172</value>
+  <data name="&gt;&gt;tabNotes.Name" xml:space="preserve">
+    <value>tabNotes</value>
   </data>
-  <data name="groupBoxEmployee.TabIndex" type="System.Int32, mscorlib">
-    <value>39</value>
+  <data name="&gt;&gt;tabNotes.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TabControl, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="groupBoxEmployee.Text" xml:space="preserve">
-    <value>מתכנן אחראי</value>
-  </data>
-  <data name="&gt;&gt;groupBoxEmployee.Name" xml:space="preserve">
-    <value>groupBoxEmployee</value>
-  </data>
-  <data name="&gt;&gt;groupBoxEmployee.Type" xml:space="preserve">
-    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;groupBoxEmployee.Parent" xml:space="preserve">
+  <data name="&gt;&gt;tabNotes.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
-  <data name="&gt;&gt;groupBoxEmployee.ZOrder" xml:space="preserve">
-    <value>4</value>
+  <data name="&gt;&gt;tabNotes.ZOrder" xml:space="preserve">
+    <value>5</value>
   </data>
   <data name="RemoveEmployee.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -925,42 +769,6 @@
   </data>
   <data name="&gt;&gt;RemoveEmployee.ZOrder" xml:space="preserve">
     <value>0</value>
-  </data>
-  <metadata name="iD.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="firstName.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="lastName.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="emailAddress.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <data name="dgvEmployees.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 19</value>
-  </data>
-  <data name="dgvEmployees.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Yes</value>
-  </data>
-  <data name="dgvEmployees.Size" type="System.Drawing.Size, System.Drawing">
-    <value>351, 116</value>
-  </data>
-  <data name="dgvEmployees.TabIndex" type="System.Int32, mscorlib">
-    <value>38</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.Name" xml:space="preserve">
-    <value>dgvEmployees</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DataGridView, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.Parent" xml:space="preserve">
-    <value>groupBoxEmployee</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.ZOrder" xml:space="preserve">
-    <value>1</value>
   </data>
   <metadata name="iD.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
@@ -1000,6 +808,30 @@
   </data>
   <data name="emailAddress.Width" type="System.Int32, mscorlib">
     <value>69</value>
+  </data>
+  <data name="dgvEmployees.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 19</value>
+  </data>
+  <data name="dgvEmployees.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Yes</value>
+  </data>
+  <data name="dgvEmployees.Size" type="System.Drawing.Size, System.Drawing">
+    <value>351, 116</value>
+  </data>
+  <data name="dgvEmployees.TabIndex" type="System.Int32, mscorlib">
+    <value>38</value>
+  </data>
+  <data name="&gt;&gt;dgvEmployees.Name" xml:space="preserve">
+    <value>dgvEmployees</value>
+  </data>
+  <data name="&gt;&gt;dgvEmployees.Type" xml:space="preserve">
+    <value>System.Windows.Forms.DataGridView, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;dgvEmployees.Parent" xml:space="preserve">
+    <value>groupBoxEmployee</value>
+  </data>
+  <data name="&gt;&gt;dgvEmployees.ZOrder" xml:space="preserve">
+    <value>1</value>
   </data>
   <data name="btnPhoneBook.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -1063,6 +895,30 @@
   </data>
   <data name="&gt;&gt;chkbSendNote.ZOrder" xml:space="preserve">
     <value>3</value>
+  </data>
+  <data name="groupBoxEmployee.Location" type="System.Drawing.Point, System.Drawing">
+    <value>395, 31</value>
+  </data>
+  <data name="groupBoxEmployee.Size" type="System.Drawing.Size, System.Drawing">
+    <value>371, 172</value>
+  </data>
+  <data name="groupBoxEmployee.TabIndex" type="System.Int32, mscorlib">
+    <value>39</value>
+  </data>
+  <data name="groupBoxEmployee.Text" xml:space="preserve">
+    <value>מתכנן אחראי</value>
+  </data>
+  <data name="&gt;&gt;groupBoxEmployee.Name" xml:space="preserve">
+    <value>groupBoxEmployee</value>
+  </data>
+  <data name="&gt;&gt;groupBoxEmployee.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;groupBoxEmployee.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;groupBoxEmployee.ZOrder" xml:space="preserve">
+    <value>4</value>
   </data>
   <data name="label1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1199,6 +1055,27 @@
   <data name="&gt;&gt;tabFolsers.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
+  <data name="chkbSelectAllAttachments.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="chkbSelectAllAttachments.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="chkbSelectAllAttachments.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 6</value>
+  </data>
+  <data name="chkbSelectAllAttachments.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>Yes</value>
+  </data>
+  <data name="chkbSelectAllAttachments.Size" type="System.Drawing.Size, System.Drawing">
+    <value>70, 17</value>
+  </data>
+  <data name="chkbSelectAllAttachments.TabIndex" type="System.Int32, mscorlib">
+    <value>33</value>
+  </data>
+  <data name="chkbSelectAllAttachments.Text" xml:space="preserve">
+    <value>בחר הכל</value>
+  </data>
   <data name="&gt;&gt;chkbSelectAllAttachments.Name" xml:space="preserve">
     <value>chkbSelectAllAttachments</value>
   </data>
@@ -1210,6 +1087,18 @@
   </data>
   <data name="&gt;&gt;chkbSelectAllAttachments.ZOrder" xml:space="preserve">
     <value>0</value>
+  </data>
+  <data name="dgvAttachments.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 29</value>
+  </data>
+  <data name="dgvAttachments.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
+    <value>No</value>
+  </data>
+  <data name="dgvAttachments.Size" type="System.Drawing.Size, System.Drawing">
+    <value>327, 196</value>
+  </data>
+  <data name="dgvAttachments.TabIndex" type="System.Int32, mscorlib">
+    <value>32</value>
   </data>
   <data name="&gt;&gt;dgvAttachments.Name" xml:space="preserve">
     <value>dgvAttachments</value>
@@ -1273,63 +1162,6 @@
   </data>
   <data name="&gt;&gt;tabFilesFolders.ZOrder" xml:space="preserve">
     <value>3</value>
-  </data>
-  <data name="chkbSelectAllAttachments.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="chkbSelectAllAttachments.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="chkbSelectAllAttachments.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 6</value>
-  </data>
-  <data name="chkbSelectAllAttachments.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>Yes</value>
-  </data>
-  <data name="chkbSelectAllAttachments.Size" type="System.Drawing.Size, System.Drawing">
-    <value>70, 17</value>
-  </data>
-  <data name="chkbSelectAllAttachments.TabIndex" type="System.Int32, mscorlib">
-    <value>33</value>
-  </data>
-  <data name="chkbSelectAllAttachments.Text" xml:space="preserve">
-    <value>בחר הכל</value>
-  </data>
-  <data name="&gt;&gt;chkbSelectAllAttachments.Name" xml:space="preserve">
-    <value>chkbSelectAllAttachments</value>
-  </data>
-  <data name="&gt;&gt;chkbSelectAllAttachments.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;chkbSelectAllAttachments.Parent" xml:space="preserve">
-    <value>tabAtachments</value>
-  </data>
-  <data name="&gt;&gt;chkbSelectAllAttachments.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="dgvAttachments.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 29</value>
-  </data>
-  <data name="dgvAttachments.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
-    <value>No</value>
-  </data>
-  <data name="dgvAttachments.Size" type="System.Drawing.Size, System.Drawing">
-    <value>327, 196</value>
-  </data>
-  <data name="dgvAttachments.TabIndex" type="System.Int32, mscorlib">
-    <value>32</value>
-  </data>
-  <data name="&gt;&gt;dgvAttachments.Name" xml:space="preserve">
-    <value>dgvAttachments</value>
-  </data>
-  <data name="&gt;&gt;dgvAttachments.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DataGridView, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;dgvAttachments.Parent" xml:space="preserve">
-    <value>tabAtachments</value>
-  </data>
-  <data name="&gt;&gt;dgvAttachments.ZOrder" xml:space="preserve">
-    <value>1</value>
   </data>
   <data name="lblSaveLocation.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>

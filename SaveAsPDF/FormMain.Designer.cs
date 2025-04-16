@@ -65,6 +65,7 @@ namespace SaveAsPDF
             this.chkbSendNote = new System.Windows.Forms.CheckBox();
             this.tabFilesFolders = new System.Windows.Forms.TabControl();
             this.tabFolsers = new System.Windows.Forms.TabPage();
+            this.label1 = new System.Windows.Forms.Label();
             this.txtFullPath = new System.Windows.Forms.TextBox();
             this.btnFolders = new System.Windows.Forms.Button();
             this.tvFolders = new System.Windows.Forms.TreeView();
@@ -75,7 +76,6 @@ namespace SaveAsPDF
             this.chbOpenPDF = new System.Windows.Forms.CheckBox();
             this.errorProviderMain = new System.Windows.Forms.ErrorProvider(this.components);
             this.cmbSaveLocation = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.stsStrip.SuspendLayout();
             this.tabNotes.SuspendLayout();
             this.tabProjectNote.SuspendLayout();
@@ -328,6 +328,11 @@ namespace SaveAsPDF
             this.tabFolsers.Name = "tabFolsers";
             this.tabFolsers.UseVisualStyleBackColor = true;
             // 
+            // label1
+            // 
+            resources.ApplyResources(this.label1, "label1");
+            this.label1.Name = "label1";
+            // 
             // txtFullPath
             // 
             resources.ApplyResources(this.txtFullPath, "txtFullPath");
@@ -406,12 +411,8 @@ namespace SaveAsPDF
             this.cmbSaveLocation.FormattingEnabled = true;
             resources.ApplyResources(this.cmbSaveLocation, "cmbSaveLocation");
             this.cmbSaveLocation.Name = "cmbSaveLocation";
+            this.cmbSaveLocation.TextUpdate += new System.EventHandler(this.cmbSaveLocation_TextUpdate);
             this.cmbSaveLocation.SelectedValueChanged += new System.EventHandler(this.cmbSaveLocation_SelectedValueChanged);
-            // 
-            // label1
-            // 
-            resources.ApplyResources(this.label1, "label1");
-            this.label1.Name = "label1";
             // 
             // FormMain
             // 
