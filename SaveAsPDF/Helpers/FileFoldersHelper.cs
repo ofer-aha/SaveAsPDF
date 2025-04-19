@@ -182,18 +182,13 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="folder">The base path where the hidden folder will be created.</param>
         /// <param name="defName">Optional default folder name to append to the path.</param>
-        public static void CreateHiddenDirectory(this string folder, string defName = null)
+        public static void CreateHiddenDirectory(string folder)
         {
             try
             {
                 if (Path.HasExtension(folder))
                 {
                     folder = Path.GetDirectoryName(folder);
-                }
-
-                if (!string.IsNullOrEmpty(defName))
-                {
-                    folder = Path.Combine(folder, defName);
                 }
 
                 if (!Directory.Exists(folder))

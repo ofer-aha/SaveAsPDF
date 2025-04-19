@@ -89,10 +89,10 @@ namespace SaveAsPDF.Helpers
 
                 var project = new ProjectModel
                 {
-                    ProjectNumber = xmlDoc.SelectSingleNode("//Project/ProjectNumber")?.InnerText,
-                    ProjectName = xmlDoc.SelectSingleNode("//Project/ProjectName")?.InnerText,
-                    NoteToProjectLeader = bool.Parse(xmlDoc.SelectSingleNode("//Project/NoteToProjectLeader")?.InnerText ?? "false"),
-                    ProjectNotes = xmlDoc.SelectSingleNode("//Project/ProjectNotes")?.InnerText
+                    ProjectNumber = xmlDoc.SelectSingleNode("//ProjectModel/ProjectNumber")?.InnerText,
+                    ProjectName = xmlDoc.SelectSingleNode("//ProjectModel/ProjectName")?.InnerText,
+                    NoteToProjectLeader = bool.Parse(xmlDoc.SelectSingleNode("//ProjectModel/NoteToProjectLeader")?.InnerText ?? "false"),
+                    ProjectNotes = xmlDoc.SelectSingleNode("//ProjectModel/ProjectNotes")?.InnerText
                 };
 
                 return project;
@@ -115,6 +115,7 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="xmlFile">Full path to the XML file.</param>
         /// <returns><see cref="List{EmployeeModel}"/> containing the employees.</returns>
+
         public static List<EmployeeModel> XmlEmployeesFileToModel(this string xmlFile)
         {
             try
@@ -125,24 +126,12 @@ namespace SaveAsPDF.Helpers
                     throw new FileNotFoundException($"The file '{xmlFile}' does not exist.");
                 }
 
-                // Load the XML file and parse it into a list of EmployeeModel
-                var employees = new List<EmployeeModel>();
-                var xmlDoc = new System.Xml.XmlDocument();
-                xmlDoc.Load(xmlFile);
-
-                foreach (System.Xml.XmlNode node in xmlDoc.SelectNodes("//Employee"))
+                // Deserialize the XML file into a list of EmployeeModel
+                XmlSerializer serializer = new XmlSerializer(typeof(List<EmployeeModel>), new XmlRootAttribute("ArrayOfEmployeeModel"));
+                using (FileStream fileStream = new FileStream(xmlFile, FileMode.Open))
                 {
-                    var employee = new EmployeeModel
-                    {
-                        Id = int.Parse(node["ID"]?.InnerText ?? "0"),
-                        FirstName = node["FirstName"]?.InnerText,
-                        LastName = node["LastName"]?.InnerText,
-                        EmailAddress = node["EmailAddress"]?.InnerText
-                    };
-                    employees.Add(employee);
+                    return (List<EmployeeModel>)serializer.Deserialize(fileStream);
                 }
-
-                return employees;
             }
             catch (Exception ex)
             {
@@ -150,7 +139,6 @@ namespace SaveAsPDF.Helpers
                 return null;
             }
         }
-
 
 
         /// <summary>

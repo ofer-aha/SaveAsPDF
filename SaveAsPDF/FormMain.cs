@@ -26,9 +26,9 @@ namespace SaveAsPDF
 
 
         // construct the full path for everything
-        private DirectoryInfo _xmlSaveAsPdfFolder;
-        private string _xmlProjectFile;
-        private string _xmlEmploeeysFile;
+        //private DirectoryInfo _xmlSaveAsPdfFolder;
+        //private string _xmlProjectFile;
+        //private string _xmlEmploeeysFile;
 
         private bool _dataLoaded = false;
 
@@ -61,7 +61,7 @@ namespace SaveAsPDF
         /// <summary>
         /// Load the email subject from the mail item.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> mailItem.subject </returns>
         private string LoadEmailSubject()
         {
             // load the email subject from mail item
@@ -254,12 +254,16 @@ namespace SaveAsPDF
                 // Load settings for the given project ID
                 settingsModel = SettingsHelpers.LoadProjectSettings(projectID);
 
+
                 // Initialize paths and load data
-                InitializePaths(); // Initialize paths for XML files
+                //itializePaths(); // Initialize paths for XML files
                 LoadProjectData(); // Load project data from XML file .SaveAsPDF_Project.xml
+
                 LoadEmployeeData(); // Load employee data from XML file .SaveAsPDF_Employees.xml
 
                 UpdateUI(); // Update the UI elements based on the loaded data
+
+                cmbSaveLocation.Text = settingsModel.DefaultSavePath;
 
                 // Mark data as loaded
                 _dataLoaded = true;
@@ -286,28 +290,26 @@ namespace SaveAsPDF
                                 MessageBoxIcon.Error);
             }
         }
-        /// <summary>
-        /// Initializes the paths for the XML files based on the settings model.
-        /// </summary>
-        private void InitializePaths()
-        {
-            _xmlSaveAsPdfFolder = new DirectoryInfo(settingsModel.XmlSaveAsPDFFolder);
-            _xmlProjectFile = settingsModel.XmlProjectFile;
-            _xmlEmploeeysFile = settingsModel.XmlEmployeesFile;
-            FileFoldersHelper.CreateHiddenDirectory(_xmlSaveAsPdfFolder.FullName);
-        }
 
         /// <summary>
         /// Loads the project data from the XML file.
         /// </summary>
         private void LoadProjectData()
         {
-            if (File.Exists(_xmlProjectFile))
+            if (File.Exists(settingsModel.XmlProjectFile))
             {
                 try
                 {
-                    // Attempt to load the project model from the XML file
-                    _projectModel = _xmlProjectFile.XmlProjectFileToModel();
+                    // Deserialize the XML file into a ProjectModel using XmlSerializer
+                    _projectModel =  XmlFileHelper.XmlProjectFileToModel(settingsModel.XmlProjectFile);
+
+                    //XmlSerializer serializer = new XmlSerializer(typeof(ProjectModel));
+                    //using (FileStream fileStream = new FileStream(settingsModel.XmlProjectFile, FileMode.Open))
+                    //{
+                    //    _projectModel = (ProjectModel)serializer.Deserialize(fileStream);
+                    //}
+
+                    // Update the UI with the loaded project data
                     if (_projectModel != null)
                     {
                         txtProjectName.Text = _projectModel.ProjectName;
@@ -335,7 +337,7 @@ namespace SaveAsPDF
                     };
 
                     // Save the default project model to the XML file
-                    _xmlProjectFile.ProjectModelToXmlFile(_projectModel);
+                    settingsModel.XmlProjectFile.ProjectModelToXmlFile(_projectModel);
 
                     // Update the UI with default values
                     txtProjectName.Text = _projectModel.ProjectName;
@@ -357,7 +359,7 @@ namespace SaveAsPDF
                 };
 
                 // Save the default project model to the XML file
-                _xmlProjectFile.ProjectModelToXmlFile(_projectModel);
+                settingsModel.XmlProjectFile.ProjectModelToXmlFile(_projectModel);
 
                 // Update the UI with default values
                 txtProjectName.Text = _projectModel.ProjectName;
@@ -373,9 +375,9 @@ namespace SaveAsPDF
         private void LoadEmployeeData()
         {
             dgvEmployees.Rows.Clear();
-            if (File.Exists(_xmlEmploeeysFile))
+            if (File.Exists(settingsModel.XmlProjectFile))
             {
-                _employeesModel = _xmlEmploeeysFile.XmlEmployeesFileToModel();
+                _employeesModel = settingsModel.XmlEmployeesFile.XmlEmployeesFileToModel();
                 if (_employeesModel != null)
                 {
                     foreach (EmployeeModel em in _employeesModel)
@@ -422,19 +424,6 @@ namespace SaveAsPDF
                 // Update the full path text box
                 txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
 
-                // Handle the default save path in the combo box
-                //if (!string.IsNullOrEmpty(settingsModel.DefaultSavePath))
-                //{
-                //    if (cmbSaveLocation.Items.Contains(settingsModel.DefaultSavePath))
-                //    {
-                //        cmbSaveLocation.SelectedItem = settingsModel.DefaultSavePath;
-                //    }
-                //    else
-                //    {
-                //        cmbSaveLocation.Items.Add(settingsModel.DefaultSavePath);
-                //        cmbSaveLocation.SelectedItem = settingsModel.DefaultSavePath;
-                //    }
-                //}
 
                 // Set focus to the OK button
                 btnOK.Focus();
@@ -535,10 +524,10 @@ namespace SaveAsPDF
             #region Create XML files for the models
 
             //create _projectModel XML file
-            _xmlProjectFile.ProjectModelToXmlFile(_projectModel);
+            settingsModel.XmlProjectFile.ProjectModelToXmlFile(_projectModel);
 
             //create the _employeesModel XML file from List<EmployeeModel> 
-            _xmlEmploeeysFile.EmployeesModelToXmlFile(_employeesModel);
+            settingsModel.XmlEmployeesFile.EmployeesModelToXmlFile(_employeesModel);
 
             #endregion
 

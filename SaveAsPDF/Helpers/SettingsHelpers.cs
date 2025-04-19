@@ -137,36 +137,43 @@ namespace SaveAsPDF.Helpers
         /// <returns><see cref="SettingsModel"/> object </returns>
         public static SettingsModel LoadProjectSettings(this string projectID)
         {
-            SettingsModel settingsModel = new SettingsModel();
+            //SettingsModel settingsModel = new SettingsModel();
 
             try
             {
-                settingsModel.RootDrive = Settings.Default.RootDrive ?? rootDrive;
+
+                // Load the root drive
+                FormMain.settingsModel.RootDrive = Settings.Default.RootDrive ?? rootDrive;
+                
 
                 // Folder tags
-                settingsModel.DateTag = Settings.Default.DateTag ?? dateTag;
-                settingsModel.ProjectRootTag = Settings.Default.ProjectRootTag ?? projectRootTag;
+                FormMain.settingsModel.DateTag = Settings.Default.DateTag ?? dateTag;
+                FormMain.settingsModel.ProjectRootTag = Settings.Default.ProjectRootTag ?? projectRootTag;
 
                 // More settings
-                settingsModel.DefaultFolderID = Settings.Default.DefaultFolderID > 0 ? Settings.Default.DefaultFolderID : defaultFolderID;
-                settingsModel.MinAttachmentSize = Settings.Default.MinAttachmentSize > 0 ? Settings.Default.MinAttachmentSize : minAttachmentSize;
-                settingsModel.DefaultTreeFile = Settings.Default.DefaultTreeFile ?? defaultTreeFile;
-                settingsModel.OpenPDF = Settings.Default.OpenPDF;
+                FormMain.settingsModel.DefaultFolderID = Settings.Default.DefaultFolderID > 0 ? Settings.Default.DefaultFolderID : defaultFolderID;
+                FormMain.settingsModel.MinAttachmentSize = Settings.Default.MinAttachmentSize > 0 ? Settings.Default.MinAttachmentSize : minAttachmentSize;
+                FormMain.settingsModel.DefaultTreeFile = Settings.Default.DefaultTreeFile ?? defaultTreeFile;
+                FormMain.settingsModel.OpenPDF = Settings.Default.OpenPDF;
 
                 if (!string.IsNullOrEmpty(projectID))
                 {
                     // Project folder
-                    settingsModel.ProjectRootFolder = projectID.ProjectFullPath(settingsModel.RootDrive);
+                    FormMain.settingsModel.ProjectRootFolder = projectID.ProjectFullPath(FormMain.settingsModel.RootDrive);
 
                     // Default save path
-                    settingsModel.DefaultSavePath = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{Settings.Default.DefaultSavePath}".Replace(settingsModel.ProjectRootTag, projectID);
+                    string sPth = $@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{Settings.Default.DefaultSavePath}";
+                    sPth = sPth.Replace(FormMain.settingsModel.ProjectRootTag, projectID);
+                    sPth = sPth.Replace(FormMain.settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"));
 
-                    // SaveAsPDF files and folder
-                    settingsModel.XmlSaveAsPDFFolder = $@"{settingsModel.ProjectRootFolder}{Settings.Default.xmlSaveAsPDFFolder}";
-                    settingsModel.XmlEmployeesFile = $@"{settingsModel.XmlSaveAsPDFFolder}{Settings.Default.xmlEmployeesFile}";
-                    settingsModel.XmlProjectFile = $@"{settingsModel.XmlSaveAsPDFFolder}{Settings.Default.xmlProjectFile}";
+                    FormMain.settingsModel.DefaultSavePath = sPth;
 
-                    FileFoldersHelper.CreateHiddenDirectory(settingsModel.XmlSaveAsPDFFolder);
+                    // set the SaveAsPDF files and folder paths 
+                    FormMain.settingsModel.XmlSaveAsPDFFolder = $@"{FormMain.settingsModel.ProjectRootFolder}{Settings.Default.xmlSaveAsPDFFolder}";
+                    FormMain.settingsModel.XmlEmployeesFile = $@"{FormMain.settingsModel.XmlSaveAsPDFFolder}{Settings.Default.xmlEmployeesFile}";
+                    FormMain.settingsModel.XmlProjectFile = $@"{FormMain.settingsModel.XmlSaveAsPDFFolder}{Settings.Default.xmlProjectFile}";
+
+                    FileFoldersHelper.CreateHiddenDirectory(FormMain.settingsModel.XmlSaveAsPDFFolder);
                 }
             }
             catch (Exception ex)
@@ -174,7 +181,7 @@ namespace SaveAsPDF.Helpers
                 MessageBox.Show($"Error loading project settings for project ID {projectID}:\n{ex.Message}", "SettingsHelpers:LoadProjectSettings");
             }
 
-            return settingsModel;
+            return FormMain.settingsModel;
         }
     }
 }
