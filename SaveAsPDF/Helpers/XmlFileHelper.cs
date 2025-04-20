@@ -29,10 +29,17 @@ namespace SaveAsPDF.Helpers
 
                 // Serialize the ProjectModel to XML and save it to the file
                 XmlSerializer serializer = new XmlSerializer(typeof(ProjectModel));
-                using (StreamWriter writer = new StreamWriter(filePath))
+                using (StreamWriter writer = new StreamWriter(filePath, false)) // Ensure file is overwritten if it exists
                 {
                     serializer.Serialize(writer, projectModel);
                 }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                MessageBox.Show($"Access to the path is denied: {ex.Message}",
+                                "SaveAsPDF:ProjectModelToXmlFile",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
@@ -127,15 +134,26 @@ namespace SaveAsPDF.Helpers
                 }
 
                 // Deserialize the XML file into a list of EmployeeModel
-                XmlSerializer serializer = new XmlSerializer(typeof(List<EmployeeModel>), new XmlRootAttribute("ArrayOfEmployeeModel"));
+                XmlSerializer serializer = new XmlSerializer(typeof(List<EmployeeModel>));
                 using (FileStream fileStream = new FileStream(xmlFile, FileMode.Open))
                 {
                     return (List<EmployeeModel>)serializer.Deserialize(fileStream);
                 }
             }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show($"An error occurred while deserializing the XML file: {ex.InnerException?.Message ?? ex.Message}",
+                                "SaveAsPDF:XmlEmployeesFileToModel",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                return null;
+            }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred while loading employees: {ex.Message}", "SaveAsPDF:XmlEmployeesFileToModel", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"An error occurred while loading employees: {ex.Message}",
+                                "SaveAsPDF:XmlEmployeesFileToModel",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
                 return null;
             }
         }

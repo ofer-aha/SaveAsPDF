@@ -150,9 +150,10 @@ namespace SaveAsPDF.Helpers
         /// Sanitizes a folder name to make it safe for use in the file system.
         /// - Replaces invalid characters (e.g., \ / : * ? " < > |) with underscores.
         /// - Appends an underscore if the name matches a reserved system name (e.g., CON, PRN).
+        /// If the input is a full path, it breaks it into parts, sanitizes each part, and reconstructs the sanitized path.
         /// </summary>
-        /// <param name="folderName">The folder name to sanitize.</param>
-        /// <returns>A sanitized folder name that is safe for use in the file system.</returns>
+        /// <param name="folderName">The folder name or full path to sanitize.</param>
+        /// <returns>A sanitized folder name or full path that is safe for use in the file system.</returns>
         public static string SafeFolderName(this string folderName)
         {
             if (string.IsNullOrWhiteSpace(folderName))
@@ -160,6 +161,24 @@ namespace SaveAsPDF.Helpers
                 throw new ArgumentException("שם התיקיה לא יכול להיות ריק או שגוי.", nameof(folderName));
             }
 
+            // Check if the input is a full path
+            if (Path.IsPathRooted(folderName))
+            {
+                // Break the path into parts
+                string root = Path.GetPathRoot(folderName); // Get the root (e.g., "C:\")
+                string[] parts = folderName.Substring(root.Length).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+                // Sanitize each part of the path
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    parts[i] = parts[i].SafeFolderName(); // Recursively sanitize each part
+                }
+
+                // Reconstruct the sanitized path
+                return Path.Combine(root, Path.Combine(parts));
+            }
+
+            // Sanitize a single folder name
             string invalidCharsPattern = @"[\\/:*?""<>|]";
             string cleanFolderName = Regex.Replace(folderName, invalidCharsPattern, "_");
 
@@ -207,7 +226,7 @@ namespace SaveAsPDF.Helpers
         /// Creates a new folder.
         /// If the folder already exists, it generates a unique name by appending a number (e.g., "New Folder (2)", "New Folder (3)").
         /// </summary>
-        /// <param name="baseFolder">The base path of the folder to create.</param>
+        /// <param name="baseFolder">The base path of the folder to create. Can be a full path like "c:\dir\subdir".</param>
         /// <returns>The path of the created folder.</returns>
         public static string CreateDirectory(string baseFolder)
         {
@@ -217,18 +236,29 @@ namespace SaveAsPDF.Helpers
                 return baseFolder;
             }
 
-            string sanitizedFolder = SafeFolderName(baseFolder);
+            try
+            {
+                // Ensure the full path is sanitized
+                string sanitizedFolder = Path.GetFullPath(SafeFolderName(baseFolder));
 
-            if (Directory.Exists(sanitizedFolder))
-            {
-                string uniqueFolder = GetUniqueDirectoryPath(sanitizedFolder);
-                Directory.CreateDirectory(uniqueFolder);
-                return uniqueFolder;
+                if (Directory.Exists(sanitizedFolder))
+                {
+                    // Generate a unique folder name if it already exists
+                    string uniqueFolder = GetUniqueDirectoryPath(sanitizedFolder);
+                    Directory.CreateDirectory(uniqueFolder);
+                    return uniqueFolder;
+                }
+                else
+                {
+                    // Create the directory if it does not exist
+                    Directory.CreateDirectory(sanitizedFolder);
+                    return sanitizedFolder;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Directory.CreateDirectory(sanitizedFolder);
-                return sanitizedFolder;
+                MessageBox.Show($"שגיאה ביצירת תיקיה '{baseFolder}': {ex.Message}", "SaveAsPDF:CreateDirectory", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return baseFolder;
             }
         }
 

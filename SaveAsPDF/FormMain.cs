@@ -301,7 +301,7 @@ namespace SaveAsPDF
                 try
                 {
                     // Deserialize the XML file into a ProjectModel using XmlSerializer
-                    _projectModel =  XmlFileHelper.XmlProjectFileToModel(settingsModel.XmlProjectFile);
+                    _projectModel = XmlFileHelper.XmlProjectFileToModel(settingsModel.XmlProjectFile);
 
                     //XmlSerializer serializer = new XmlSerializer(typeof(ProjectModel));
                     //using (FileStream fileStream = new FileStream(settingsModel.XmlProjectFile, FileMode.Open))
@@ -399,8 +399,7 @@ namespace SaveAsPDF
 
                 cmbSaveLocation.Items.Clear();
                 cmbSaveLocation.LoadComboBoxWithPaths(settingsModel.DefaultTreeFile, txtProjectID.Text);
-                ComboBoxExtensions.CustomizeComboBox(cmbSaveLocation);
-
+                cmbSaveLocation.CustomizeComboBox(); //highlight the paths exist on the template but not exist on the file system
 
                 // Set the default selected index
                 if (cmbSaveLocation.Items.Count > 0)
@@ -530,10 +529,10 @@ namespace SaveAsPDF
             settingsModel.XmlEmployeesFile.EmployeesModelToXmlFile(_employeesModel);
 
             #endregion
-
-            if (!string.IsNullOrEmpty(cmbSaveLocation.SelectedText))
+            string sPath = cmbSaveLocation.Text; //the current selected path in the combo box
+            if (!string.IsNullOrEmpty(sPath))
             {
-                DirectoryInfo directory = new DirectoryInfo(cmbSaveLocation.SelectedText);
+                DirectoryInfo directory = new DirectoryInfo(sPath);
                 if (!directory.Exists)
                 {
                     FileFoldersHelper.CreateDirectory(directory.FullName);
@@ -545,7 +544,7 @@ namespace SaveAsPDF
                 Dialog.InputPath = settingsModel.RootDrive;
                 if (Dialog.ShowDialog(Handle) == true)
                 {
-                    cmbSaveLocation.SelectedText = Dialog.ResultPath;
+                    sPath = Dialog.ResultPath;
                 }
             }
             //save the _mailItem to the current working directory and create an attachment list to add to PDF/mail   
@@ -557,48 +556,72 @@ namespace SaveAsPDF
                 _mailItem.BodyFormat = OlBodyFormat.olFormatHTML;
             }
 
-            //Save the attachments and returning the actual file name list
-            attachmentsList.AddRange(_mailItem.SaveAttachments(dgvAttachments, cmbSaveLocation.SelectedText, false));
+            // Save the attachments and retrieve their filenames
+            attachmentsList.AddRange(_mailItem.SaveAttachments(dgvAttachments, sPath, false));
 
-            string tableStyle = "<html><head><style>" +
-                                "table, td, th { " +
-                                //"border: 0px solid blue; " +
-                                //"border-collapse:collapse " +
-                                "tr:nth-child(even) {background-color:#f2f2f2};" +
-                                "}</style></head>" +
-                                "<body>" +
-                                "<table style=\"float:right;\">" +
-                                "<tr><td colspan=\"3\"></td></tr>" + //empty line 
-                                $"<tr style=\"text-align:center\"><th colspan=\"3\">SaveAsPDF ver.{Assembly.GetExecutingAssembly().GetName().Version.ToString()}</th></tr>" +
-                                "<tr><td colspan=\"3\"></td></tr>" + //empty line 
-                                $"<tr style=\"text-align:right\"><td colspan=\"3\"><a href='file://{cmbSaveLocation.SelectedText}'>{cmbSaveLocation.SelectedText}</a> :ההודעה נשמרה ב</td></tr>" +
-                                $"<tr style=\"text-align:right\"><td colspan=\"3\">{DateTime.Now.ToString("HH:mm dd/MM/yyyy")} :תאריך שמירה </td></tr>" +
-                                "<tr><td colspan=\"3\"></td></tr>"; //empty line 
+            // Build the HTML table style and header
+            string tableStyle = @"
+<html>
+<head>
+    <style>
+        table, td, th {
+            border-collapse: collapse;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <table style='float:right;'>
+        <tr><td colspan='3'></td></tr>
+        <tr style='text-align:center'>
+            <th colspan='3'>SaveAsPDF ver." + Assembly.GetExecutingAssembly().GetName().Version + @"</th>
+        </tr>
+        <tr><td colspan='3'></td></tr>
+        <tr style='text-align:right'>
+            <td colspan='3'><a href='file://" + sPath + @"'>" + sPath + @"</a> :ההודעה נשמרה ב</td>
+        </tr>
+        <tr style='text-align:right'>
+            <td colspan='3'>" + DateTime.Now.ToString("HH:mm dd/MM/yyyy") + @" :תאריך שמירה </td>
+        </tr>
+        <tr><td colspan='3'></td></tr>";
 
-            string projectData = $"<tr style=\"text-align:right\"><td></td><td>{txtProjectName.Text}</td><th>שם הפרויקט</th></tr>" +
-                              $"<tr style=\"text-align:right\"><td></td><td>{txtProjectID.Text}</td><th >מס' פרויקט</th></tr>" +
-                              $"<tr style=\"text-align:right\"><td></td><td>{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th >הערות</th></tr>" +
-                              $"<tr style=\"text-align:right\"><td></td><td>{Environment.UserName}</td><th>שם משתמש</th></tr>";
+            // Add project-related metadata
+            string projectData = $@"
+<tr style='text-align:right'><td></td><td>{txtProjectName.Text}</td><th>שם הפרויקט</th></tr>
+<tr style='text-align:right'><td></td><td>{txtProjectID.Text}</td><th>מס' פרויקט</th></tr>
+<tr style='text-align:right'><td></td><td>{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th>הערות</th></tr>
+<tr style='text-align:right'><td></td><td>{Environment.UserName}</td><th>שם משתמש</th></tr>";
 
-
-            string attachmetsString = attachmentsList.AttachmentsToString(cmbSaveLocation.SelectedText);
+            // Convert attachments and employee info to HTML rows
+            string attachmetsString = attachmentsList.AttachmentsToString(sPath);
             string employeeString = dgvEmployees.dgvEmployeesToString();
 
-            //construct the HTMLbody message 
-            _mailItem.HTMLBody = tableStyle +
-                                projectData +
-                                employeeString +
-                                attachmetsString +
-                                "</table></body>" +
-                                _mailItem.HTMLBody;
+            // Append all sections and close HTML structure
+            _mailItem.HTMLBody = tableStyle + projectData + employeeString + attachmetsString + "</table></body>" + _mailItem.HTMLBody;
 
-            OfficeHelpers.SaveToPDF(_mailItem, cmbSaveLocation.SelectedText);
-
+            // Save mail as PDF and persist changes
+            _mailItem.SaveToPDF(sPath);
+            _mailItem.Save();
             Close();
 
+            // Open the PDF file if the checkbox is checked
             if (chbOpenPDF.Checked)
             {
+                string pdfFilePath = Path.Combine(sPath, $"{_mailItem.Subject}.pdf");
+                if (File.Exists(pdfFilePath))
+                {
+                    System.Diagnostics.Process.Start(pdfFilePath);
+                }
+                else
+                {
+                    MessageBox.Show("The PDF file could not be found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            {
                 //TODO1:0 Open the PDF file
+
                 MessageBox.Show("open PDF =" + chbOpenPDF.Checked.ToString());
             }
 

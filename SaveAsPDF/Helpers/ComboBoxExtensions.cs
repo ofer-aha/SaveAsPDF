@@ -76,7 +76,7 @@ namespace SaveAsPDF.Helpers
         /// Customizes the ComboBox to draw items with different colors based on their content.
         /// </summary>
         /// <param name="comboBox"></param>
-        public static void CustomizeComboBox(ComboBox comboBox)
+        public static void CustomizeComboBox(this ComboBox comboBox)
         {
             // Set the DrawMode to OwnerDrawFixed
             comboBox.DrawMode = DrawMode.OwnerDrawFixed;

@@ -9,31 +9,37 @@ namespace SaveAsPDF.Helpers
 {
     public static class TreeHelpers
     {
-        //XmlDocument xmlDocument;
-        //TreeNode _mySelectedNode;
-
         /// <summary>
-        /// List folders to treeView
+        /// Creates a TreeNode representing a directory and its subdirectories.
         /// </summary>
-        /// <param name="directoryInfo"></param>
-        /// <returns>TreeNode folder name</returns>
+        /// <param name="directoryInfo">The directory information to create the node from.</param>
+        /// <returns>A <see cref="TreeNode"/> representing the directory.</returns>
         public static TreeNode CreateDirectoryNode(DirectoryInfo directoryInfo)
         {
             var directoryNode = new TreeNode(directoryInfo.Name) { ImageIndex = 1 };
+
             try
             {
+                // Iterate through subdirectories
                 foreach (var directory in directoryInfo.GetDirectories())
                 {
-                    if (!directory.Attributes.HasFlag(FileAttributes.Hidden))
+                    // Skip hidden directories
+                    if (!directory.Attributes.HasFlag(FileAttributes.Hidden) && !directory.Attributes.HasFlag(FileAttributes.System))
                     {
                         directoryNode.Nodes.Add(CreateDirectoryNode(directory));
                     }
                 }
             }
+            catch (UnauthorizedAccessException)
+            {
+                // Ignore directories that cannot be accessed due to permissions
+            }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "SaveAsPDF:CreateDirectoryNode");
+                // Log or display the error message
+                MessageBox.Show($"Error creating directory node for {directoryInfo.FullName}: {ex.Message}", "SaveAsPDF:CreateDirectoryNode", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
             return directoryNode;
         }
 
