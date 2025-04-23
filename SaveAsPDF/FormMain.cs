@@ -811,65 +811,50 @@ namespace SaveAsPDF
 
         private void tvFolders_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            string nodeNewLable = e.Label.SafeFolderName();
-
-            if (nodeNewLable != null)
+            if (e.Label == null)
             {
-                if (nodeNewLable.Length > 0)
-                {
-
-                    if (nodeNewLable.IndexOfAny(new char[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) == -1)
-
-                    {
-                        // Stop editing without canceling the label change.
-                        e.Node.EndEdit(false);
-                    }
-                    else
-                    {
-                        /* Cancel the label edit action, inform the user, and
-                           place the node in edit mode again. */
-                        e.CancelEdit = true;
-                        MessageBox.Show("שם לא חוקי.\n" +
-                           "אין להשתמש בתווים הבאים \n'\\', '/', ':', '*', '?', '<', '>', '|' '\"' ",
-                           "עריכת שם");
-                        e.Node.BeginEdit();
-                    }
-                }
-                else
-                {
-                    // Cancel the label edit action, inform the user, and
-                    // place the node in edit mode again. 
-                    e.CancelEdit = true;
-                    MessageBox.Show("שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות", "עריכת שם");
-                    e.Node.BeginEdit();
-                    return;
-                }
-
-                try
-                {
-
-                    DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.FullPath));  // old path
-                    directoryInfo.RenameDirectory($@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.Parent.FullPath}\{nodeNewLable}"); //nodeNewLable = new SAFE name
-
-                    string specificPath = $@"{e.Node.Parent.FullPath}\{e.Label}";
-
-                    TreeNode existingNode = TreeHelpers.FindNodeByPath(tvFolders.Nodes, e.Node.FullPath);
-                    if (existingNode != null)
-                    {
-                        TreeNode newNode = new TreeNode(nodeNewLable);
-                        existingNode.Parent.Nodes.Insert(existingNode.Index, newNode.Text);
-                        existingNode.Remove();
-
-                    }
-                }
-                catch (Exception ex)
-                {
-
-                    MessageBox.Show(ex.Message + "\n" + Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.FullPath), "SaveAsPDF:tvFolders_AfterLabelEdit");
-                }
-
+                // Cancel the edit if the label is null (user pressed ESC or left it empty)
+                e.CancelEdit = true;
+                MessageBox.Show("שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות", "עריכת שם");
+                return;
             }
 
+            string nodeNewLabel = e.Label.SafeFolderName();
+
+            if (string.IsNullOrWhiteSpace(nodeNewLabel))
+            {
+                // Cancel the edit if the label is empty or whitespace
+                e.CancelEdit = true;
+                MessageBox.Show("שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות", "עריכת שם");
+                return;
+            }
+
+            if (nodeNewLabel.IndexOfAny(new char[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) != -1)
+            {
+                // Cancel the edit if the label contains invalid characters
+                e.CancelEdit = true;
+                MessageBox.Show("שם לא חוקי.\nאין להשתמש בתווים הבאים \n'\\', '/', ':', '*', '?', '<', '>', '|' '\"' ", "עריכת שם");
+                return;
+            }
+
+            try
+            {
+                // Rename the directory
+                string oldPath = Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.FullPath);
+                string newPath = Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.Parent.FullPath, nodeNewLabel);
+
+                DirectoryInfo directoryInfo = new DirectoryInfo(oldPath);
+                directoryInfo.RenameDirectory(newPath);
+
+                // Update the TreeView node
+                e.Node.Text = nodeNewLabel;
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors during the renaming process
+                e.CancelEdit = true;
+                MessageBox.Show($"Error renaming folder: {ex.Message}\n{Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.FullPath)}", "SaveAsPDF:tvFolders_AfterLabelEdit");
+            }
         }
 
 
@@ -892,15 +877,19 @@ namespace SaveAsPDF
 
             string path = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
             System.Diagnostics.Process.Start("explorer.exe", path);
-            //cmbSaveLocation.SelectedText = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
+
             cmbSaveLocation.SelectedText = path;
 
-            //cmbSaveLocation.SelectedText = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
 
         }
 
         private void tvFolders_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
+
+            string path = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
+
+
+
             //update cmbSaveLocation with the selected node path
             //cmbSaveLocation.Items.Clear();
 
@@ -908,7 +897,7 @@ namespace SaveAsPDF
             cmbSaveLocation.Select();
             cmbSaveLocation.SelectedItem = null;
             //enter the selected path to the combo box
-            cmbSaveLocation.SelectedText = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
+            cmbSaveLocation.SelectedText = path;
 
         }
 
@@ -946,6 +935,8 @@ namespace SaveAsPDF
             tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
 
             ProcessProjectID(txtProjectID.Text);
+            //CustomMessageBox.Show("הפרויקט נשמר בהצלחה", "SaveAsPDF", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            CustomMessageBox.Show("הפרויקט נשמר בהצלחה", "SaveAsPDF", CustomMessageBoxButtons.OK, CustomMessageBoxIcon.Information);
             UpdateAutoCompleteSource(txtProjectID.Text);
 
             if (string.IsNullOrEmpty(settingsModel.RootDrive))

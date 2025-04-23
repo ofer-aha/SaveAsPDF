@@ -158,7 +158,8 @@ namespace SaveAsPDF.Helpers
         {
             if (string.IsNullOrWhiteSpace(folderName))
             {
-                throw new ArgumentException("שם התיקיה לא יכול להיות ריק או שגוי.", nameof(folderName));
+                //throw new ArgumentException("שם התיקיה לא יכול להיות ריק או שגוי.", nameof(folderName));
+                return string.Empty; // Return an empty string instead of throwing an exception
             }
 
             // Check if the input is a full path

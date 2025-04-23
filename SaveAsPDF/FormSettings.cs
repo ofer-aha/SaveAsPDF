@@ -61,7 +61,15 @@ namespace SaveAsPDF
 
             cmbDefaultFolder.Items.Clear();
             TreeHelpers.ListNodesPath(tvProjectSubFolders.Nodes[0], cmbDefaultFolder);
-            cmbDefaultFolder.SelectedIndex = _settingsModel == null ? 0 : _settingsModel.DefaultFolderID;
+            if (_settingsModel != null && _settingsModel.DefaultFolderID >= 0 && _settingsModel.DefaultFolderID < cmbDefaultFolder.Items.Count)
+            {
+                cmbDefaultFolder.SelectedIndex = _settingsModel.DefaultFolderID;
+            }
+            else
+            {
+                cmbDefaultFolder.SelectedIndex = 0; // Default to the first item
+            }
+            //cmbDefaultFolder.SelectedIndex = _settingsModel == null ? 0 : _settingsModel.DefaultFolderID;
 
 
         }
