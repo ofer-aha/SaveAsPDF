@@ -935,8 +935,8 @@ namespace SaveAsPDF
             tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
 
             ProcessProjectID(txtProjectID.Text);
-            //CustomMessageBox.Show("הפרויקט נשמר בהצלחה", "SaveAsPDF", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-            CustomMessageBox.Show("הפרויקט נשמר בהצלחה", "SaveAsPDF", CustomMessageBoxButtons.OK, CustomMessageBoxIcon.Information);
+            //XMessageBox.Show("הפרויקט נשמר בהצלחה", "SaveAsPDF", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            XMessageBox.Show("הפרויקט נשמר בהצלחה", "SaveAsPDF", XMessageBoxButtons.OK, XMessageBoxIcon.Information);
             UpdateAutoCompleteSource(txtProjectID.Text);
 
             if (string.IsNullOrEmpty(settingsModel.RootDrive))

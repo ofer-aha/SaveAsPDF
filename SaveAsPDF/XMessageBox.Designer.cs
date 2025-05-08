@@ -1,23 +1,36 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
-using System;
 
 namespace SaveAsPDF
 {
-
-    public class CustomMessageBoxForm : Form
+    /// <summary>
+    /// Custom message box form that supports right-to-left layouts and multilingual buttons.
+    /// </summary>
+    public class XMessageBoxForm : Form
     {
         private Label messageLabel;
         private PictureBox iconBox;
         private FlowLayoutPanel buttonPanel;
-        private CustomMessageLanguage language;
+        private XMessageLanguage language;
 
-        public CustomMessageBoxForm(string text, string caption, CustomMessageBoxButtons buttons, CustomMessageBoxIcon icon, CustomMessageAlignment alignment, CustomMessageLanguage language)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XMessageBoxForm"/> class.
+        /// </summary>
+        /// <param name="text">The message text to display.</param>
+        /// <param name="caption">The caption for the message box.</param>
+        /// <param name="buttons">The buttons to display in the message box.</param>
+        /// <param name="icon">The icon to display in the message box.</param>
+        /// <param name="alignment">The text alignment (default: Left).</param>
+        /// <param name="language">The language for button text (default: English).</param>
+        public XMessageBoxForm(string text, string caption, XMessageBoxButtons buttons, XMessageBoxIcon icon,
+                XMessageAlignment alignment = XMessageAlignment.Left,
+                XMessageLanguage language = XMessageLanguage.English)
         {
             this.language = language;
             this.Text = caption;
-            this.RightToLeftLayout = true;
-            this.RightToLeft = alignment == CustomMessageAlignment.Right ? RightToLeft.Yes : RightToLeft.No;
+            this.RightToLeftLayout = alignment == XMessageAlignment.Right;
+            this.RightToLeft = alignment == XMessageAlignment.Right ? RightToLeft.Yes : RightToLeft.No;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.MinimizeBox = false;
@@ -43,8 +56,10 @@ namespace SaveAsPDF
             messageLabel.Text = text;
             messageLabel.Dock = DockStyle.Fill;
             messageLabel.Padding = new Padding(8);
-            messageLabel.TextAlign = GetAlignment(alignment);
-            messageLabel.RightToLeft = alignment == CustomMessageAlignment.Right ? RightToLeft.Yes : RightToLeft.No;
+            messageLabel.TextAlign = alignment == XMessageAlignment.Right ? ContentAlignment.MiddleRight :
+                                     alignment == XMessageAlignment.Center ? ContentAlignment.MiddleCenter :
+                                     ContentAlignment.MiddleLeft;
+            messageLabel.RightToLeft = alignment == XMessageAlignment.Right ? RightToLeft.Yes : RightToLeft.No;
             messageLabel.AutoSize = false;
 
             Panel messagePanel = new Panel();
@@ -57,11 +72,11 @@ namespace SaveAsPDF
             buttonPanel = new FlowLayoutPanel();
             buttonPanel.Dock = DockStyle.Fill;
             buttonPanel.AutoSize = true;
-            buttonPanel.FlowDirection = alignment == CustomMessageAlignment.Right ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+            buttonPanel.FlowDirection = alignment == XMessageAlignment.Right ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
 
             AddButtons(buttons, alignment);
 
-            if (alignment == CustomMessageAlignment.Right)
+            if (alignment == XMessageAlignment.Right)
             {
                 table.Controls.Add(iconBox, 1, 0);
                 table.SetRowSpan(iconBox, 2);
@@ -79,21 +94,32 @@ namespace SaveAsPDF
             Controls.Add(table);
         }
 
-        private ContentAlignment GetAlignment(CustomMessageAlignment alignment)
+        /// <summary>
+        /// Gets the appropriate ContentAlignment based on the XMessageAlignment.
+        /// </summary>
+        /// <param name="alignment">The custom alignment.</param>
+        /// <returns>The corresponding ContentAlignment.</returns>
+        private ContentAlignment GetAlignment(XMessageAlignment alignment)
         {
             switch (alignment)
             {
-                case CustomMessageAlignment.Left: return ContentAlignment.TopLeft;
-                case CustomMessageAlignment.Center: return ContentAlignment.TopCenter;
-                default: return ContentAlignment.TopRight;
+                case XMessageAlignment.Right: return ContentAlignment.TopRight;
+                case XMessageAlignment.Center: return ContentAlignment.TopCenter;
+                default: return ContentAlignment.TopLeft;
             }
         }
 
-        private void AddButtons(CustomMessageBoxButtons buttons, CustomMessageAlignment alignment)
+        /// <summary>
+        /// Adds buttons to the message box based on the specified button configuration.
+        /// </summary>
+        /// <param name="buttons">The button configuration to use.</param>
+        /// <param name="alignment">The alignment of the buttons.</param>
+        private void AddButtons(XMessageBoxButtons buttons, XMessageAlignment alignment)
         {
+            // Function to get the localized text for button labels
             Func<string, string> L = delegate (string key)
             {
-                if (language == CustomMessageLanguage.English)
+                if (language == XMessageLanguage.English)
                 {
                     switch (key)
                     {
@@ -118,6 +144,7 @@ namespace SaveAsPDF
                 return key;
             };
 
+            // Function to create and add a button
             Action<string, DialogResult> Add = delegate (string text, DialogResult result)
             {
                 var btn = new Button();
@@ -128,39 +155,45 @@ namespace SaveAsPDF
                 buttonPanel.Controls.Add(btn);
             };
 
+            // Add buttons based on the button configuration
             switch (buttons)
             {
-                case CustomMessageBoxButtons.OK:
+                case XMessageBoxButtons.OK:
                     Add(L("OK"), DialogResult.OK);
                     break;
-                case CustomMessageBoxButtons.OKCancel:
+                case XMessageBoxButtons.OKCancel:
                     Add(L("Cancel"), DialogResult.Cancel);
                     Add(L("OK"), DialogResult.OK);
                     break;
-                case CustomMessageBoxButtons.YesNo:
+                case XMessageBoxButtons.YesNo:
                     Add(L("No"), DialogResult.No);
                     Add(L("Yes"), DialogResult.Yes);
                     break;
-                case CustomMessageBoxButtons.YesNoCancel:
+                case XMessageBoxButtons.YesNoCancel:
                     Add(L("Cancel"), DialogResult.Cancel);
                     Add(L("No"), DialogResult.No);
                     Add(L("Yes"), DialogResult.Yes);
                     break;
-                case CustomMessageBoxButtons.RetryCancel:
+                case XMessageBoxButtons.RetryCancel:
                     Add(L("Cancel"), DialogResult.Cancel);
                     Add(L("Retry"), DialogResult.Retry);
                     break;
             }
         }
 
-        private Image GetIconImage(CustomMessageBoxIcon icon)
+        /// <summary>
+        /// Gets the appropriate system icon image based on the specified icon type.
+        /// </summary>
+        /// <param name="icon">The type of icon to retrieve.</param>
+        /// <returns>The system icon as an image.</returns>
+        private Image GetIconImage(XMessageBoxIcon icon)
         {
             switch (icon)
             {
-                case CustomMessageBoxIcon.Information: return SystemIcons.Information.ToBitmap();
-                case CustomMessageBoxIcon.Warning: return SystemIcons.Warning.ToBitmap();
-                case CustomMessageBoxIcon.Error: return SystemIcons.Error.ToBitmap();
-                case CustomMessageBoxIcon.Question: return SystemIcons.Question.ToBitmap();
+                case XMessageBoxIcon.Information: return SystemIcons.Information.ToBitmap();
+                case XMessageBoxIcon.Warning: return SystemIcons.Warning.ToBitmap();
+                case XMessageBoxIcon.Error: return SystemIcons.Error.ToBitmap();
+                case XMessageBoxIcon.Question: return SystemIcons.Question.ToBitmap();
                 default: return null;
             }
         }

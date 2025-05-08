@@ -4,7 +4,7 @@ using System.Windows.Forms;
 namespace SaveAsPDF.Tests
 {
     [TestClass]
-    public class CustomMessageBoxTests
+    public class XMessageBoxTests
     {
         [TestMethod]
         public void Show_1ShouldReturnOK_WhenOKButtonIsClicked()
@@ -13,15 +13,15 @@ namespace SaveAsPDF.Tests
             //string text = "שורה בעברית טיפה ארוכה";
             string text = "Hello! I'm Jithu Thomas, a passionate .NET Developer with a knack for creating robust and scalable";
             string caption = "Test caption";
-            CustomMessageBoxButtons buttons = CustomMessageBoxButtons.OKCancel;
-            CustomMessageBoxIcon icon = CustomMessageBoxIcon.Information;
-            CustomMessageAlignment alignment = CustomMessageAlignment.Left;
-            CustomMessageLanguage language = CustomMessageLanguage.English;
+            XMessageBoxButtons buttons = XMessageBoxButtons.OKCancel;
+            XMessageBoxIcon icon = XMessageBoxIcon.Information;
+            XMessageAlignment alignment = XMessageAlignment.Left;
+            XMessageLanguage language = XMessageLanguage.English;
 
 
             // Act
-            DialogResult result = CustomMessageBox.Show(text, caption, buttons, icon, alignment, language);
-
+            DialogResult result = XMessageBox.Show(text, caption, buttons, icon, alignment, language);
+            //DialogResult result = XMessageBox.Show(text, caption, buttons, icon);
             // Assert
             Assert.AreEqual(DialogResult.OK, result);
         }
@@ -32,12 +32,12 @@ namespace SaveAsPDF.Tests
             // Arrange
             string text = "hit cancel";
             string caption = "Test caption";
-            CustomMessageBoxButtons buttons = CustomMessageBoxButtons.OKCancel;
-            CustomMessageBoxIcon icon = CustomMessageBoxIcon.Warning;
-            CustomMessageAlignment alignment = CustomMessageAlignment.Left;
-            CustomMessageLanguage language = CustomMessageLanguage.English;
+            XMessageBoxButtons buttons = XMessageBoxButtons.OKCancel;
+            XMessageBoxIcon icon = XMessageBoxIcon.Warning;
+            XMessageAlignment alignment = XMessageAlignment.Left;
+            XMessageLanguage language = XMessageLanguage.English;
             // Act
-            DialogResult result = CustomMessageBox.Show(text, caption, buttons, icon, alignment, language);
+            DialogResult result = XMessageBox.Show(text, caption, buttons, icon, alignment, language);
 
             // Assert
             Assert.AreEqual(DialogResult.Cancel, result);
@@ -49,11 +49,11 @@ namespace SaveAsPDF.Tests
             // Arrange
             string text = "hit yes";
             string caption = "Test caption";
-            CustomMessageBoxButtons buttons = CustomMessageBoxButtons.YesNo;
-            CustomMessageBoxIcon icon = CustomMessageBoxIcon.Question;
+            XMessageBoxButtons buttons = XMessageBoxButtons.YesNo;
+            XMessageBoxIcon icon = XMessageBoxIcon.Question;
 
             // Act
-            DialogResult result = CustomMessageBox.Show(text, caption, buttons, icon);
+            DialogResult result = XMessageBox.Show(text, caption, buttons, icon);
 
             // Assert
             Assert.AreEqual(DialogResult.Yes, result);
@@ -65,11 +65,11 @@ namespace SaveAsPDF.Tests
             // Arrange
             string text = "hit no";
             string caption = "Test caption";
-            CustomMessageBoxButtons buttons = CustomMessageBoxButtons.YesNo;
-            CustomMessageBoxIcon icon = CustomMessageBoxIcon.Error;
+            XMessageBoxButtons buttons = XMessageBoxButtons.YesNo;
+            XMessageBoxIcon icon = XMessageBoxIcon.Error;
 
             // Act
-            DialogResult result = CustomMessageBox.Show(text, caption, buttons, icon);
+            DialogResult result = XMessageBox.Show(text, caption, buttons, icon);
 
             // Assert
             Assert.AreEqual(DialogResult.No, result);

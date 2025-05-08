@@ -228,9 +228,9 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="CustomMessageBox.cs" />
-    <Compile Include="CustomMessageBox.Designer.cs">
-      <DependentUpon>CustomMessageBox.cs</DependentUpon>
+    <Compile Include="XMessageBox.cs" />
+    <Compile Include="XMessageBox.Designer.cs">
+      <DependentUpon>XMessageBox.cs</DependentUpon>
     </Compile>
     <Compile Include="FormContacts.cs">
       <SubType>Form</SubType>
