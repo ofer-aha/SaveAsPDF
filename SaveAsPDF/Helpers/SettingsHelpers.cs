@@ -144,7 +144,7 @@ namespace SaveAsPDF.Helpers
 
                 // Load the root drive
                 FormMain.settingsModel.RootDrive = Settings.Default.RootDrive ?? rootDrive;
-                
+
 
                 // Folder tags
                 FormMain.settingsModel.DateTag = Settings.Default.DateTag ?? dateTag;

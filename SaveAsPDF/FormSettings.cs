@@ -3,7 +3,6 @@ using SaveAsPDF.Models;
 using SaveAsPDF.Properties;
 using System;
 using System.IO;
-using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -16,7 +15,6 @@ namespace SaveAsPDF
         private TreeNode mySelectedNode;
         private bool _isDirty = false;
 
-
         public FormSettings(ISettingsRequester caller)
         {
             InitializeComponent();
@@ -24,10 +22,7 @@ namespace SaveAsPDF
 
             _callingForm.SettingsComplete(_settingsModel);
 
-            //load settings.settings to _settingsModel 
-            //SettingsHelpers.LoadSettingsToModel(_settingsModel);
-
-            tvProjectSubFolders.Nodes.Add(_settingsModel.ProjectRootTag);
+            //tvProjectSubFolders.Nodes.Add(_settingsModel.ProjectRootTag);
             tvProjectSubFolders.HideSelection = false;
             tvProjectSubFolders.PathSeparator = @"\";
 
@@ -42,90 +37,73 @@ namespace SaveAsPDF
 
             txtRootFolder.Text = _settingsModel.RootDrive;
             txtMinAttSize.Text = _settingsModel.MinAttachmentSize.ToString();
-
             txtTreePath.Text = _settingsModel.DefaultTreeFile;
 
             try
             {
                 string[] lines = File.ReadAllLines(_settingsModel.DefaultTreeFile);
-                tvProjectSubFolders.LoadTreeViewFromList(lines);
+                LoadTreeViewFromList(tvProjectSubFolders, lines);
                 tvProjectSubFolders.ExpandAll();
-                tvProjectSubFolders.SelectedNode = tvProjectSubFolders.Nodes[0];
-
+                if (tvProjectSubFolders.Nodes.Count > 0)
+                    tvProjectSubFolders.SelectedNode = tvProjectSubFolders.Nodes[0];
             }
             catch (Exception e)
             {
-                MessageBox.Show($"Error loading tree file: \n{e.Message}", "FormSettings");
-
+                XMessageBox.Show(
+                    $"שגיאה בטעינת קובץ התיקיות: \n{e.Message}",
+                    "FormSettings",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
 
             cmbDefaultFolder.Items.Clear();
-            TreeHelpers.ListNodesPath(tvProjectSubFolders.Nodes[0], cmbDefaultFolder);
+            PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
             if (_settingsModel != null && _settingsModel.DefaultFolderID >= 0 && _settingsModel.DefaultFolderID < cmbDefaultFolder.Items.Count)
             {
                 cmbDefaultFolder.SelectedIndex = _settingsModel.DefaultFolderID;
             }
             else
             {
-                cmbDefaultFolder.SelectedIndex = 0; // Default to the first item
+                cmbDefaultFolder.SelectedIndex = 0;
             }
-            //cmbDefaultFolder.SelectedIndex = _settingsModel == null ? 0 : _settingsModel.DefaultFolderID;
-
-
         }
-
 
         private void FormSettings_Activated(object sender, EventArgs e)
         {
             //refresh data if dirty? 
-
         }
 
         private void FormSettings_Load(object sender, EventArgs e)
         {
-
-            //advanced settings tab 
             txtSaveAsPDFFolder.Text = _settingsModel.XmlSaveAsPDFFolder;
             txtXmlProjectFile.Text = _settingsModel.XmlProjectFile;
             txtXmlEmployeesFile.Text = _settingsModel.XmlEmployeesFile;
             txtProjectRootTag.Text = _settingsModel.ProjectRootTag;
             txtDateTag.Text = _settingsModel.DateTag;
 
-            //Last projects
             lsbLastProjects.Items.Clear();
             foreach (var item in Settings.Default.LastProjects)
             {
-                //don't add duplicates
                 if (!lsbLastProjects.Items.Contains(item))
                 {
                     lsbLastProjects.Items.Add(item);
                 }
-
             }
 
             txtMaxProjectCount.Text = Settings.Default.MaxProjectCount.ToString();
-
-
-            //reset Dirty flag 
             _isDirty = false;
         }
-
-
 
         private void bntCancel_Click(object sender, EventArgs e)
         {
             Close();
         }
 
-        /// <summary>
-        /// Get the tree node under the mouse pointer and 
-        /// save it in the _mySelectedNode variable.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void tvProjectSubFolders_MouseDown(object sender, MouseEventArgs e)
         {
-            //TODO3: recheck - do i need it? 
             mySelectedNode = tvProjectSubFolders.GetNodeAt(e.X, e.Y);
         }
 
@@ -136,29 +114,35 @@ namespace SaveAsPDF
                 _isDirty = true;
                 if (e.Label.Length > 0)
                 {
-
                     if (e.Label.IndexOfAny(new char[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) == -1)
                     {
-                        // Stop editing without canceling the label change.
                         e.Node.EndEdit(false);
                     }
                     else
                     {
-                        /* Cancel the label edit action, inform the user, and
-                           place the node in edit mode again. */
                         e.CancelEdit = true;
-                        MessageBox.Show("שם לא חוקי.\n" +
-                           "אין להשתמש בתווים הבאים '\\', '/', ':', '*', '?', '<', '>', '|', '\"' ",
-                           "עריכת שם");
+                        XMessageBox.Show(
+                            "שם לא חוקי.\nאין להשתמש בתווים הבאים '\\', '/', ':', '*', '?', '<', '>', '|', '\"' ",
+                            "עריכת שם",
+                            XMessageBoxButtons.OK,
+                            XMessageBoxIcon.Warning,
+                            XMessageAlignment.Right,
+                            XMessageLanguage.Hebrew
+                        );
                         e.Node.BeginEdit();
                     }
                 }
                 else
                 {
-                    // Cancel the label edit action, inform the user, and
-                    // place the node in edit mode again. 
                     e.CancelEdit = true;
-                    MessageBox.Show("שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות", "עריכת שם");
+                    XMessageBox.Show(
+                        "שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות",
+                        "עריכת שם",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Warning,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew
+                    );
                     e.Node.BeginEdit();
                 }
             }
@@ -166,19 +150,19 @@ namespace SaveAsPDF
 
         private void MenueAdd_Click(object sender, EventArgs e)
         {
-            tvProjectSubFolders.AddNode(mySelectedNode);
+            TreeHelpers.AddNode(tvProjectSubFolders, mySelectedNode);
             _isDirty = true;
         }
 
         private void MenuDel_Click(object sender, EventArgs e)
         {
-            tvProjectSubFolders.DelNode(mySelectedNode);
+            TreeHelpers.DeleteNode(tvProjectSubFolders);
             _isDirty = true;
         }
 
         private void MenuRename_Click(object sender, EventArgs e)
         {
-            tvProjectSubFolders.RenameNode(mySelectedNode);
+            TreeHelpers.RenameNode(tvProjectSubFolders, mySelectedNode);
             _isDirty = true;
         }
 
@@ -186,13 +170,19 @@ namespace SaveAsPDF
         {
             if (_isDirty)
             {
-                DialogResult result = MessageBox.Show("שמור שינויים?", "SaveAsPDF", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                var result = XMessageBox.Show(
+                    "שמור שינויים?",
+                    "SaveAsPDF",
+                    XMessageBoxButtons.YesNo,
+                    XMessageBoxIcon.Question,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
                 if (result == DialogResult.Yes)
                 {
                     SettingsHelpers.SaveModelToSettings(_settingsModel);
                 }
             }
-            //send the updated model back to MainForm 
             _callingForm.SettingsComplete(_settingsModel);
             _isDirty = false;
             Close();
@@ -204,13 +194,10 @@ namespace SaveAsPDF
             _isDirty = false;
         }
 
-
         private void btnFolders_Click(object sender, EventArgs e)
         {
             var Dialog = new FolderPicker();
-
             Dialog.InputPath = _settingsModel.RootDrive;
-
             if (Dialog.ShowDialog(Handle) == true)
             {
                 _isDirty = true;
@@ -226,15 +213,14 @@ namespace SaveAsPDF
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string[] lines = File.ReadAllLines(openFileDialog.FileName);
-                tvProjectSubFolders.LoadTreeViewFromList(lines);
+                LoadTreeViewFromList(tvProjectSubFolders, lines);
                 tvProjectSubFolders.ExpandAll();
                 txtTreePath.Text = openFileDialog.FileName;
                 _settingsModel.DefaultTreeFile = openFileDialog.FileName;
                 cmbDefaultFolder.Items.Clear();
-                TreeHelpers.ListNodesPath(tvProjectSubFolders.Nodes[0], cmbDefaultFolder);
+                PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
                 _isDirty = true;
             }
-
         }
 
         private void btnSaveTreeFile_Click(object sender, EventArgs e)
@@ -248,74 +234,123 @@ namespace SaveAsPDF
                 {
                     saveFileDialog.CheckPathExists = true;
                     saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                    TreeHelpers.SaveTreeViewIntoFile(saveFileDialog.FileName, tvProjectSubFolders);
+                    SaveTreeViewToFile(tvProjectSubFolders, saveFileDialog.FileName);
                     tvProjectSubFolders.ExpandAll();
                     txtTreePath.Text = saveFileDialog.FileName;
                     _settingsModel.DefaultTreeFile = saveFileDialog.FileName;
                     cmbDefaultFolder.Items.Clear();
-                    TreeHelpers.ListNodesPath(tvProjectSubFolders.Nodes[0], cmbDefaultFolder);
+                    PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
                     _isDirty = false;
                 }
-
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "FormSettings: btnSaveTreeFile_Click");
+                XMessageBox.Show(
+                    ex.Message,
+                    "FormSettings: btnSaveTreeFile_Click",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
-
-
-
         }
 
-        private XmlNode GetXmlNode(TreeViewItem tnode, XmlDocument d)
+        // Helper: Load tree from string array
+        private void LoadTreeViewFromList(TreeView treeView, string[] lines)
+        {
+            treeView.Nodes.Clear();
+            foreach (var line in lines)
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    treeView.Nodes.Add(line.Trim());
+                }
+            }
+        }
+
+        // Helper: Save tree to file
+        private void SaveTreeViewToFile(TreeView treeView, string fileName)
+        {
+            using (var writer = new StreamWriter(fileName, false))
+            {
+                foreach (TreeNode node in treeView.Nodes)
+                {
+                    WriteNodeRecursive(writer, node, "");
+                }
+            }
+        }
+
+        private void WriteNodeRecursive(StreamWriter writer, TreeNode node, string indent)
+        {
+            writer.WriteLine($"{indent}{node.Text}");
+            foreach (TreeNode child in node.Nodes)
+            {
+                WriteNodeRecursive(writer, child, indent + "  ");
+            }
+        }
+
+        // Helper: Populate ComboBox from TreeView
+        private void PopulateComboBoxFromTree(TreeView treeView, ComboBox comboBox)
+        {
+            comboBox.Items.Clear();
+            foreach (TreeNode node in treeView.Nodes)
+            {
+                AddNodePathsToComboBox(node, comboBox);
+            }
+        }
+
+        private void AddNodePathsToComboBox(TreeNode node, ComboBox comboBox)
+        {
+            comboBox.Items.Add(node.FullPath);
+            foreach (TreeNode child in node.Nodes)
+            {
+                AddNodePathsToComboBox(child, comboBox);
+            }
+        }
+
+        private XmlNode GetXmlNode(System.Windows.Controls.TreeViewItem tnode, XmlDocument d)
         {
             XmlNode n = d.CreateNode(XmlNodeType.Element, tnode.Name, "");
-            foreach (TreeViewItem t in tnode.Items)
+            foreach (System.Windows.Controls.TreeViewItem t in tnode.Items)
             {
                 n.AppendChild(GetXmlNode(t, d));
             }
             return n;
         }
 
-
-
         private void btnLoadDefaultTree_Click(object sender, EventArgs e)
         {
-            //tvProjectSubFolders.LoadDefaultTree();
-            tvProjectSubFolders.LoadFromList();
+            // If you have a default list, load it here. Otherwise, clear and add a root node.
+            tvProjectSubFolders.Nodes.Clear();
+            tvProjectSubFolders.Nodes.Add(_settingsModel.ProjectRootTag);
             cmbDefaultFolder.Items.Clear();
-            TreeHelpers.ListNodesPath(tvProjectSubFolders.Nodes[0], cmbDefaultFolder);
-
+            PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
             _isDirty = true;
         }
-
 
         private void txtMinAttSize_TextChanged(object sender, EventArgs e)
         {
             _isDirty = true;
         }
 
-
-
         private void MenuAddDate_Click(object sender, EventArgs e)
         {
-
-            tvProjectSubFolders.AddNode(mySelectedNode, _settingsModel.DateTag);
+            TreeHelpers.AddNode(tvProjectSubFolders, mySelectedNode, _settingsModel.DateTag);
             _isDirty = true;
-
         }
 
         private void MenuAppendDate_Click(object sender, EventArgs e)
         {
-            //tvProjectSubFolders.SelectedNode.Name += _settingsModel.dateTag;
-            TreeHelpers.RenameNode(tvProjectSubFolders, mySelectedNode, mySelectedNode.Name + _settingsModel.DateTag);
+            if (mySelectedNode != null)
+            {
+                mySelectedNode.Text += _settingsModel.DateTag;
+                _isDirty = true;
+            }
         }
 
         private void cmbDefaultFolder_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //update settings 
-            //_settingsModel.DefaultFolderID = (int)cmbDefaultFolder.SelectedIndex;
-            //_settingsModel.ProjectRootFolder = new DirectoryInfo(cmbDefaultFolder.Text);
             _settingsModel.DefaultSavePath = cmbDefaultFolder.Text;
             _isDirty = true;
         }
@@ -371,7 +406,6 @@ namespace SaveAsPDF
             errorProviderSettings.Clear();
             toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMaxProjectCount);
             _isDirty = true;
-
         }
 
         private void txtMaxProjectCount_Validating(object sender, System.ComponentModel.CancelEventArgs e)
@@ -414,7 +448,6 @@ namespace SaveAsPDF
                 txtMinAttSize.Select(0, txtMinAttSize.Text.Length);
                 toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMinAttSize);
             }
-
         }
 
         private void txtMinAttSize_Validated(object sender, EventArgs e)

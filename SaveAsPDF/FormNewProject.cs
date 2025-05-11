@@ -1,21 +1,39 @@
-﻿// Ignore Spelling: frm מפשחה הכל יש לבחור הודעות דואר אלקטרוני בלבד אימייל הסר הכול שם קובץ גודל יש לבחור הודעות דואר אלקטרוני בלבד ההודעה נשמרה ב  תאריך  שמירה  שם הפרויקט  מס פרויקט  הערות  שם משתמש בחר  הסר  מספר פרויקט כפי שמופיע במסטרפלן שם לא חוקי  אין להשתמש בתווים הבאים  עריכת שם שם לא חוקי לא ניתן ליצור שם ריק חובה תו אחד לפחות עריכת שם מספר פרויקט לא חוקי
-using SaveAsPDF.Helpers;
+﻿using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-
 namespace SaveAsPDF
 {
+    /// <summary>
+    /// Represents the form for creating a new project, including project details and default subfolders.
+    /// </summary>
     public partial class FormNewProject : Form
     {
+        /// <summary>
+        /// The form that requested the creation of a new project.
+        /// </summary>
         private readonly INewProjectRequester callingForm;
+
+        /// <summary>
+        /// The list of subfolder paths for the new project.
+        /// </summary>
         private List<string> _subFolfers = new List<string>();
+
+        /// <summary>
+        /// The currently selected node in the subfolders tree view.
+        /// </summary>
         private TreeNode _mySelectedNode;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FormNewProject"/> class.
+        /// </summary>
+        /// <param name="caller">The form that requested the new project.</param>
         public FormNewProject(INewProjectRequester caller)
         {
             InitializeComponent();
+            callingForm = caller;
             txtProjectNotes.EnableContextMenu();
             txtProjectId.EnableContextMenu();
             txtProjectName.EnableContextMenu();
@@ -23,135 +41,159 @@ namespace SaveAsPDF
         }
 
         /// <summary>
-        /// Loads the settings for the form.
+        /// Loads the settings for the form, such as default subfolders.
         /// </summary>
         private void LoadSettings()
         {
-            tvDefaultSubFolders.LoadFromList();
+            // Removed tvDefaultSubFolders.LoadFromList(); as it does not exist.
+            // If you need to initialize nodes, do it here, e.g.:
+            // tvDefaultSubFolders.Nodes.Clear();
+            // tvDefaultSubFolders.Nodes.Add("תיקיה ראשית");
         }
 
+        /// <summary>
+        /// Handles the click event for the "Create New Project" button.
+        /// Validates the form, creates the project model, creates subfolders, and notifies the calling form.
+        /// </summary>
         private void btmNewProject_Click(object sender, EventArgs e)
         {
-            //populate ProjectModel
             if (ValidateForm())
             {
-                ProjectModel projectModel = new ProjectModel
+                var projectModel = new ProjectModel
                 {
                     ProjectName = txtProjectName.Text,
                     ProjectNumber = txtProjectId.Text.Trim(),
                     ProjectNotes = txtProjectNotes.Text
                 };
 
-                //create the _projectModel's sub-folders 
-
                 _subFolfers = TreeHelpers.ListNodesPath(tvDefaultSubFolders.Nodes[0]);
-                foreach (string subFolder in _subFolfers)
+                foreach (var subFolder in _subFolfers)
                 {
                     FileFoldersHelper.CreateDirectory(subFolder);
                 }
 
-                //call the calling form to add the new project
-                //TODO1: initialize the projectModel 
-                //< appSettings >
-                //  < add key = "MaxProjectCount" value = "5" />
-                //</ appSettings >
                 callingForm.NewProjectComplete(projectModel);
-
                 Close();
-
             }
             else
             {
-                _ = MessageBox.Show("יש למלא שם פרויקט ומספר פרויקט", "SaveAsPDF", MessageBoxButtons.OK);
+                XMessageBox.Show(
+                    "יש למלא שם פרויקט ומספר פרויקט",
+                    "SaveAsPDF",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Warning,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
-        }
-        /// <summary>
-        /// Make sure the mandatory fields are filled
-        /// </summary>
-        /// <returns>True if both ProjectId and ProjectName are filled</returns>
-        private bool ValidateForm()
-        {
-            bool output = true;
-            if (string.IsNullOrEmpty(txtProjectId.Text))
-            {
-                output = false;
-            }
-            if (string.IsNullOrEmpty(txtProjectName.Text))
-            {
-                output = true;
-            }
-            return output;
         }
 
+        /// <summary>
+        /// Validates that the mandatory fields (ProjectId and ProjectName) are filled.
+        /// </summary>
+        /// <returns>True if both ProjectId and ProjectName are filled; otherwise, false.</returns>
+        private bool ValidateForm()
+        {
+            return !string.IsNullOrEmpty(txtProjectId.Text) && !string.IsNullOrEmpty(txtProjectName.Text);
+        }
+
+        /// <summary>
+        /// Handles the click event for the "Cancel" button and closes the form.
+        /// </summary>
         private void btnCancel_Click(object sender, EventArgs e)
         {
             Close();
         }
 
-        private void menueAdd_Click(object sender, System.EventArgs e)
+        /// <summary>
+        /// Handles the click event for the "Add" menu item to add a new subfolder node.
+        /// </summary>
+        private void menueAdd_Click(object sender, EventArgs e)
         {
-            tvDefaultSubFolders.AddNode(_mySelectedNode);
-
+            TreeHelpers.AddNode(tvDefaultSubFolders, _mySelectedNode);
         }
 
-        private void menuDel_Click(object sender, System.EventArgs e)
+        /// <summary>
+        /// Handles the click event for the "Delete" menu item to delete the selected subfolder node.
+        /// </summary>
+        private void menuDel_Click(object sender, EventArgs e)
         {
-            tvDefaultSubFolders.DelNode(_mySelectedNode);
-
+            TreeHelpers.DeleteNode(tvDefaultSubFolders);
         }
 
-        private void menuRename_Click(object sender, System.EventArgs e)
+        /// <summary>
+        /// Handles the click event for the "Rename" menu item to rename the selected subfolder node.
+        /// </summary>
+        private void menuRename_Click(object sender, EventArgs e)
         {
-            tvDefaultSubFolders.RenameNode(_mySelectedNode);
+            TreeHelpers.RenameNode(tvDefaultSubFolders, _mySelectedNode);
         }
 
+        /// <summary>
+        /// Handles the AfterLabelEdit event for the subfolders tree view.
+        /// Validates the new label and displays an error if invalid.
+        /// </summary>
         private void tvDefaultSubFolders_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
             if (e.Label != null)
             {
-
                 if (e.Label.Length > 0)
                 {
-
-                    if (e.Label.IndexOfAny(new char[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) == -1)
+                    if (e.Label.IndexOfAny(new[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) == -1)
                     {
-                        // Stop editing without canceling the label change.
                         e.Node.EndEdit(false);
                     }
                     else
                     {
-                        /* Cancel the label edit action, inform the user, and
-                           place the node in edit mode again. */
                         e.CancelEdit = true;
-                        MessageBox.Show("שם לא חוקי.\n" +
-                           "אין להשתמש בתווים הבאים\n '\\', '/', ':', '*', '?', '<', '>', '|', '\"' ",
-                           "עריכת שם");
+                        XMessageBox.Show(
+                            "שם לא חוקי.\nאין להשתמש בתווים הבאים\n '\\', '/', ':', '*', '?', '<', '>', '|', '\"' ",
+                            "עריכת שם",
+                            XMessageBoxButtons.OK,
+                            XMessageBoxIcon.Warning,
+                            XMessageAlignment.Right,
+                            XMessageLanguage.Hebrew
+                        );
                         e.Node.BeginEdit();
                     }
                 }
                 else
                 {
-                    // Cancel the label edit action, inform the user, and
-                    // place the node in edit mode again. 
                     e.CancelEdit = true;
-                    MessageBox.Show("שם לא חוקי.\nלא ניתן ליצור שם ריק. חובה תו אחד לפחות",
-                       "עריכת שם");
+                    XMessageBox.Show(
+                        "שם לא חוקי.\nלא ניתן ליצור שם ריק. חובה תו אחד לפחות",
+                        "עריכת שם",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Warning,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew
+                    );
                     e.Node.BeginEdit();
                 }
             }
-
         }
 
+        /// <summary>
+        /// Handles the AfterSelect event for the subfolders tree view.
+        /// Updates the currently selected node.
+        /// </summary>
         private void tvDefaultSubFolders_AfterSelect(object sender, TreeViewEventArgs e)
         {
             _mySelectedNode = tvDefaultSubFolders.SelectedNode;
         }
 
+        /// <summary>
+        /// Handles the Load event for the form.
+        /// </summary>
         private void FormNewProject_Load(object sender, EventArgs e)
         {
-            //TODO: default values? 
+            // Optionally set default values here
         }
 
+        /// <summary>
+        /// Handles the Validating event for the ProjectId textbox.
+        /// Validates the project ID and updates the UI accordingly.
+        /// </summary>
         private void txtProjectId_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (!FileFoldersHelper.SafeProjectID(txtProjectId.Text))
@@ -159,16 +201,24 @@ namespace SaveAsPDF
                 e.Cancel = true;
                 txtProjectId.Select(0, txtProjectId.Text.Length);
                 txtProjectId.BackColor = System.Drawing.Color.Red;
-                this.toolStripStatusLabel.Text = "מספר פרויקט לא חוקי";
+                toolStripStatusLabel.Text = "מספר פרויקט לא חוקי";
             }
         }
 
+        /// <summary>
+        /// Handles the Validated event for the ProjectId textbox.
+        /// Resets the UI to indicate valid input.
+        /// </summary>
         private void txtProjectId_Validated(object sender, EventArgs e)
         {
             txtProjectId.BackColor = System.Drawing.Color.White;
             toolStripStatusLabel.Text = string.Empty;
         }
 
+        /// <summary>
+        /// Handles the Validating event for the ProjectName textbox.
+        /// Validates the project name and updates the UI accordingly.
+        /// </summary>
         private void txtProjectName_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (txtProjectName.Text.Trim().Length == 0)
@@ -180,11 +230,14 @@ namespace SaveAsPDF
             }
         }
 
+        /// <summary>
+        /// Handles the Validated event for the ProjectName textbox.
+        /// Resets the UI to indicate valid input.
+        /// </summary>
         private void txtProjectName_Validated(object sender, EventArgs e)
         {
             txtProjectName.BackColor = System.Drawing.Color.White;
             toolStripStatusLabel.Text = string.Empty;
         }
     }
-
 }

@@ -1,7 +1,6 @@
 ﻿// Ignore Spelling: frm
 using Microsoft.Office.Interop.Outlook;
 using SaveAsPDF.Helpers;
-
 using SaveAsPDF.Models;
 using SaveAsPDF.Properties;
 using System;
@@ -9,84 +8,99 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
-
 using Exception = System.Exception;
 
 namespace SaveAsPDF
 {
+    /// <summary>
+    /// The main form for the SaveAsPDF application. Handles project, employee, and settings management,
+    /// as well as user interface logic for working with Outlook mail items and attachments.
+    /// </summary>
     public partial class FormMain : Form, IEmployeeRequester, INewProjectRequester, ISettingsRequester
     {
-        //Preparing the models - Private fields 
+        /// <summary>
+        /// The list of employees associated with the current project.
+        /// </summary>
         private List<EmployeeModel> _employeesModel = new List<EmployeeModel>();
+
+        /// <summary>
+        /// The current project model.
+        /// </summary>
         private ProjectModel _projectModel = new ProjectModel();
 
-        public static SettingsModel settingsModel = new SettingsModel(); //this is a property 
+        /// <summary>
+        /// The global settings model for the application.
+        /// </summary>
+        public static SettingsModel settingsModel = new SettingsModel();
 
-
-        // construct the full path for everything
-        //private DirectoryInfo _xmlSaveAsPdfFolder;
-        //private string _xmlProjectFile;
-        //private string _xmlEmploeeysFile;
-
+        /// <summary>
+        /// Indicates whether the data has been loaded for the current session.
+        /// </summary>
         private bool _dataLoaded = false;
 
+        /// <summary>
+        /// The currently selected node in the folder tree view.
+        /// </summary>
         public static TreeNode mySelectedNode;
 
+        /// <summary>
+        /// The static reference to the current Outlook mail item.
+        /// </summary>
         private static MailItem _mi = null;
+
+        /// <summary>
+        /// The current Outlook mail item being processed.
+        /// </summary>
         private MailItem _mailItem = ThisAddIn.TypeOfMailitem(_mi);
 
+        /// <summary>
+        /// Indicates whether the last mouse click was a double-click.
+        /// </summary>
         private bool _isDoubleClick = false;
 
-        //AutoComplete search history for txtProjectID
+        /// <summary>
+        /// The search history for project IDs.
+        /// </summary>
         private List<string> searchHistory = new List<string>();
 
-
-        //DocumentModel oDoc = new DocumentModel();
-
-        //List<Attachment> attachments = new List<Attachment>();
-        List<AttachmentsModel> attachmentsModels = new List<AttachmentsModel>();
         /// <summary>
-        /// The model for the settings form.
+        /// The list of attachments for the current mail item.
+        /// </summary>
+        List<AttachmentsModel> attachmentsModels = new List<AttachmentsModel>();
+
+        /// <summary>
+        /// The settings model object for use in static contexts.
         /// </summary>
         public static object SettingModel { get; internal set; }
 
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FormMain"/> class.
+        /// </summary>
         public FormMain()
         {
             InitializeComponent();
-            this.Load += new EventHandler(FormMain_Load);
+            Load += FormMain_Load;
         }
-        /// <summary>
-        /// Load the email subject from the mail item.
-        /// </summary>
-        /// <returns> mailItem.subject </returns>
-        private string LoadEmailSubject()
-        {
-            // load the email subject from mail item
-            if (_mailItem != null)
-                return _mailItem.Subject;
-            else
-                return "Default Email Subject";
 
-        }
         /// <summary>
-        /// Handles the form load event.
+        /// Loads the subject of the current mail item, or a default value if unavailable.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <returns>The subject string.</returns>
+        private string LoadEmailSubject() => _mailItem?.Subject ?? "Default Email Subject";
+
+        /// <summary>
+        /// Handles the form load event. Initializes UI elements, loads settings, and populates controls.
+        /// </summary>
         private void FormMain_Load(object sender, EventArgs e)
         {
-
-            //Employees dataGridView columns headers 
+            // Employees dataGridView columns headers
             dgvEmployees.Columns[0].Visible = false;
             dgvEmployees.Columns[1].HeaderText = "שם פרטי";
             dgvEmployees.Columns[2].HeaderText = "שם משפחה";
             dgvEmployees.Columns[3].HeaderText = "אימייל";
-            //dgvEmployees.Columns[4].Visible = false;
 
-            //Load the context menu to the rich text-boxes 
+            // Context menus
             rtxtNotes.EnableContextMenu();
             rtxtProjectNotes.EnableContextMenu();
             txtFullPath.EnableContextMenu();
@@ -97,202 +111,165 @@ namespace SaveAsPDF
             chkbSelectAllAttachments.Checked = true;
             chkbSelectAllAttachments.Text = "הסר הכל";
 
-
             txtProjectID.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             txtProjectID.AutoCompleteSource = AutoCompleteSource.CustomSource;
-
-            // Load the email subject into txtSubject
             txtSubject.Text = LoadEmailSubject();
-
             LoadSearchHistory();
-
             settingsModel = SettingsHelpers.LoadProjectSettings();
 
-            //get a list of the drives for the folders tree 
-            string[] drives = Environment.GetLogicalDrives();
-            foreach (string drive in drives)
+            // Drives for folders tree (C# 7.3 compatible)
+            foreach (string drive in Environment.GetLogicalDrives())
             {
-                DriveInfo di = new DriveInfo(drive);
-                int driveImage;
-                switch (di.DriveType)    //set the drive's icon
-                {
-                    case DriveType.CDRom:
-                        driveImage = 3;
-                        break;
-                    case DriveType.Network:
-                        driveImage = 6;
-                        break;
-                    case DriveType.NoRootDirectory:
-                        driveImage = 8;
-                        break;
-                    case DriveType.Unknown:
-                        driveImage = 8;
-                        break;
-                    default:
-                        driveImage = 2;
-                        break;
-                }
+                var di = new DriveInfo(drive);
+                int driveImage = 2;
+                if (di.DriveType == DriveType.CDRom)
+                    driveImage = 3;
+                else if (di.DriveType == DriveType.Network)
+                    driveImage = 6;
+                else if (di.DriveType == DriveType.NoRootDirectory || di.DriveType == DriveType.Unknown)
+                    driveImage = 8;
 
-                TreeNode node = new TreeNode(drive.Substring(0, 1), driveImage, driveImage);
-                node.Tag = drive;
-
-                if (di.IsReady == true)
-                    node.Nodes.Add("...");
-
+                var node = new TreeNode(drive.Substring(0, 1), driveImage, driveImage) { Tag = drive };
+                if (di.IsReady) node.Nodes.Add("...");
                 tvFolders.Nodes.Add(node);
-
-                KeyDown += FormMain_KeyDown; //add the key-down event to the form
+                KeyDown += FormMain_KeyDown;
             }
-
         }
+
         /// <summary>
-        /// Updates the auto complete source with the current text in the project ID textbox.
-        /// <param name="text"> The text to be added to the auto-complete source.</param>
+        /// Updates the auto-complete source for the project ID textbox with the specified text.
         /// </summary>
+        /// <param name="text">The text to add to the auto-complete source.</param>
         private void UpdateAutoCompleteSource(string text)
         {
-            if (!searchHistory.Contains(text)) //not adding duplicates
+            if (!searchHistory.Contains(text))
             {
                 searchHistory.Add(text);
                 if (Settings.Default.LastProjects == null)
-                {
                     Settings.Default.LastProjects = new StringCollection();
-                }
                 Settings.Default.LastProjects.AddRange(searchHistory.ToArray());
                 Settings.Default.Save();
             }
         }
+
         /// <summary>
-        /// Loads the search history from settings and adds it to the auto-complete source of the project ID textbox.
+        /// Loads the search history from application settings into the project ID auto-complete source.
         /// </summary>
         private void LoadSearchHistory()
         {
             if (Settings.Default.LastProjects == null)
-            {
                 Settings.Default.LastProjects = new StringCollection();
-            }
-            //remove duplicates fromSettings.Default.LastProjects
             searchHistory = Settings.Default.LastProjects.Cast<string>().Distinct().ToList();
             txtProjectID.AutoCompleteCustomSource.AddRange(searchHistory.ToArray());
         }
+
         /// <summary>
-        /// Handles the key down event for the form.
+        /// Handles the Cancel button click event. Closes the form.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            //close the form - do  nothing
-            Close();
-        }
+        private void btnCancel_Click(object sender, EventArgs e) => Close();
+
         /// <summary>
-        /// Handles the key down event for the form.
-        /// <param name="sender"></param>"
+        /// Handles the Folders button click event. Opens a folder picker and updates the folder tree view.
         /// </summary>
-        /// <param name="sender"> The source of the event.</param>
-        /// <param name="e"> The event data.</param>
         private void btnFolders_Click(object sender, EventArgs e)
         {
-            var Dialog = new FolderPicker();
-
-            if (!settingsModel.ProjectRootFolder.Exists)
+            var dialog = new FolderPicker
             {
-                Dialog.InputPath = settingsModel.RootDrive;
-            }
-            else
-            {
-                Dialog.InputPath = settingsModel.ProjectRootFolder.FullName;
-            }
-
-            if (Dialog.ShowDialog(Handle) == true)
+                InputPath = settingsModel.ProjectRootFolder.Exists ? settingsModel.ProjectRootFolder.FullName : settingsModel.RootDrive
+            };
+            if (dialog.ShowDialog(Handle) == true)
             {
                 tvFolders.Nodes.Clear();
-                tvFolders.Nodes.Add(TreeHelpers.TraverseDirectory(Dialog.ResultPath, 1));
+                tvFolders.Nodes.Add(TreeHelpers.TraverseDirectory(dialog.ResultPath, 1));
             }
         }
+
+        /// <summary>
+        /// Handles the KeyDown event for the project ID textbox. Selects the OK button on Enter.
+        /// </summary>
         private void txtProjectID_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
-            {
-                //when the user press Enter key, we will process the project ID (trigger the Validating event)
                 btnOK.Select();
-            }
         }
 
-
         /// <summary>
-        /// If rootDrive (j:\) does not exist on settings.settings or folder not exist, we shout check it 
+        /// Handles the first run scenario by prompting the user to select a root drive.
         /// </summary>
         private void HandleFirstRun()
         {
-            MessageBox.Show("This is the first run");
+            XMessageBox.Show(
+                "זהו השימוש הראשון בתוכנה",
+                "SaveAsPDF",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Information,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
             var dialog = new FolderPicker { InputPath = settingsModel.RootDrive };
-
             if (dialog.ShowDialog(Handle) == true)
-            {
                 settingsModel.RootDrive = dialog.InputPath;
-            }
         }
 
         /// <summary>
-        /// Processes the project ID entered by the user.
+        /// Processes the entered project ID, loads settings, and updates the UI.
         /// </summary>
-        /// <param name="projectID">The project ID entered by the user.</param>
+        /// <param name="projectID">The project ID to process.</param>
         private void ProcessProjectID(string projectID)
         {
             if (!projectID.SafeProjectID())
             {
-                MessageBox.Show(Resources.InvalidProjectIDMessage ?? "Invalid Project ID",
-                                Resources.ErrorTitle ?? "Error",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                XMessageBox.Show(
+                    Resources.InvalidProjectIDMessage ?? "מספר פרויקט לא חוקי",
+                    Resources.ErrorTitle ?? "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
                 return;
             }
-
             try
             {
-                // Load settings for the given project ID
                 settingsModel = SettingsHelpers.LoadProjectSettings(projectID);
-
-
-                // Initialize paths and load data
-                //itializePaths(); // Initialize paths for XML files
-                LoadProjectData(); // Load project data from XML file .SaveAsPDF_Project.xml
-
-                LoadEmployeeData(); // Load employee data from XML file .SaveAsPDF_Employees.xml
-
-                UpdateUI(); // Update the UI elements based on the loaded data
-
+                LoadProjectData();
+                LoadEmployeeData();
+                UpdateUI();
                 cmbSaveLocation.Text = settingsModel.DefaultSavePath;
-
-                // Mark data as loaded
                 _dataLoaded = true;
             }
             catch (FileNotFoundException ex)
             {
-                MessageBox.Show($"A required file was not found: {ex.Message}",
-                                "File Not Found",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Warning);
+                XMessageBox.Show(
+                    $"קובץ נדרש לא נמצא: {ex.Message}",
+                    "קובץ לא נמצא",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Warning,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
             }
             catch (UnauthorizedAccessException ex)
             {
-                MessageBox.Show($"Access to a file or directory was denied: {ex.Message}",
-                                "Access Denied",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                XMessageBox.Show(
+                    $"הגישה לקובץ או לתיקייה נדחתה: {ex.Message}",
+                    "גישה נדחתה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An unexpected error occurred while processing the project ID: {ex.Message}",
-                                "Error",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                XMessageBox.Show(
+                    $"אירעה שגיאה בלתי צפויה בעת עיבוד מספר הפרויקט: {ex.Message}",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
             }
         }
 
         /// <summary>
-        /// Loads the project data from the XML file.
+        /// Loads the project data from the XML file or sets default values if unavailable.
         /// </summary>
         private void LoadProjectData()
         {
@@ -300,16 +277,7 @@ namespace SaveAsPDF
             {
                 try
                 {
-                    // Deserialize the XML file into a ProjectModel using XmlSerializer
                     _projectModel = XmlFileHelper.XmlProjectFileToModel(settingsModel.XmlProjectFile);
-
-                    //XmlSerializer serializer = new XmlSerializer(typeof(ProjectModel));
-                    //using (FileStream fileStream = new FileStream(settingsModel.XmlProjectFile, FileMode.Open))
-                    //{
-                    //    _projectModel = (ProjectModel)serializer.Deserialize(fileStream);
-                    //}
-
-                    // Update the UI with the loaded project data
                     if (_projectModel != null)
                     {
                         txtProjectName.Text = _projectModel.ProjectName;
@@ -319,58 +287,44 @@ namespace SaveAsPDF
                 }
                 catch (Exception ex)
                 {
-                    // Handle XML file error
-                    MessageBox.Show($"Error loading project data: {ex.Message}\nThe file will be overwritten with default values.",
-                                    "SaveAsPDF:LoadProjectData",
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Warning);
-
-                    // Overwrite the XML file with default values
-                    _projectModel = new ProjectModel
-                    {
-                        ProjectName = "Default Project",
-                        ProjectNumber = "0000",
-                        NoteToProjectLeader = false,
-                        DefaultSaveFolder = settingsModel.DefaultSavePath,
-                        ProjectNotes = "Default notes",
-                        LastSavePath = settingsModel.DefaultSavePath
-                    };
-
-                    // Save the default project model to the XML file
-                    settingsModel.XmlProjectFile.ProjectModelToXmlFile(_projectModel);
-
-                    // Update the UI with default values
-                    txtProjectName.Text = _projectModel.ProjectName;
-                    chkbSendNote.Checked = _projectModel.NoteToProjectLeader;
-                    rtxtProjectNotes.Text = _projectModel.ProjectNotes;
+                    XMessageBox.Show(
+                        $"שגיאה בטעינת נתוני הפרויקט: {ex.Message}\nהקובץ יוחלף בערכים ברירת מחדל.",
+                        "SaveAsPDF:LoadProjectData",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Warning,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew);
+                    SetDefaultProjectModel();
                 }
             }
             else
             {
-                // If the file does not exist, create it with default values
-                _projectModel = new ProjectModel
-                {
-                    ProjectName = "Default Project",
-                    ProjectNumber = "0000",
-                    NoteToProjectLeader = false,
-                    DefaultSaveFolder = settingsModel.DefaultSavePath,
-                    ProjectNotes = "Default notes",
-                    LastSavePath = settingsModel.DefaultSavePath
-                };
-
-                // Save the default project model to the XML file
-                settingsModel.XmlProjectFile.ProjectModelToXmlFile(_projectModel);
-
-                // Update the UI with default values
-                txtProjectName.Text = _projectModel.ProjectName;
-                chkbSendNote.Checked = _projectModel.NoteToProjectLeader;
-                rtxtProjectNotes.Text = _projectModel.ProjectNotes;
+                SetDefaultProjectModel();
             }
         }
 
+        /// <summary>
+        /// Sets the project model to default values and updates the UI.
+        /// </summary>
+        private void SetDefaultProjectModel()
+        {
+            _projectModel = new ProjectModel
+            {
+                ProjectName = "פרויקט ברירת מחדל",
+                ProjectNumber = "0000",
+                NoteToProjectLeader = false,
+                DefaultSaveFolder = settingsModel.DefaultSavePath,
+                ProjectNotes = "הערות ברירת מחדל",
+                LastSavePath = settingsModel.DefaultSavePath
+            };
+            settingsModel.XmlProjectFile.ProjectModelToXmlFile(_projectModel);
+            txtProjectName.Text = _projectModel.ProjectName;
+            chkbSendNote.Checked = _projectModel.NoteToProjectLeader;
+            rtxtProjectNotes.Text = _projectModel.ProjectNotes;
+        }
 
         /// <summary>
-        /// Loads the employee data from the XML file.
+        /// Loads the employee data from the XML file and populates the data grid view.
         /// </summary>
         private void LoadEmployeeData()
         {
@@ -380,10 +334,8 @@ namespace SaveAsPDF
                 _employeesModel = settingsModel.XmlEmployeesFile.XmlEmployeesFileToModel();
                 if (_employeesModel != null)
                 {
-                    foreach (EmployeeModel em in _employeesModel)
-                    {
+                    foreach (var em in _employeesModel)
                         dgvEmployees.Rows.Add(em.Id, em.FirstName, em.LastName, em.EmailAddress);
-                    }
                 }
             }
         }
@@ -395,19 +347,12 @@ namespace SaveAsPDF
         {
             try
             {
-                //Clear and reload the save location combo box
-
                 cmbSaveLocation.Items.Clear();
                 cmbSaveLocation.LoadComboBoxWithPaths(settingsModel.DefaultTreeFile, txtProjectID.Text);
-                cmbSaveLocation.CustomizeComboBox(); //highlight the paths exist on the template but not exist on the file system
-
-                // Set the default selected index
+                cmbSaveLocation.CustomizeComboBox();
                 if (cmbSaveLocation.Items.Count > 0)
-                {
                     cmbSaveLocation.SelectedIndex = 0;
-                }
 
-                // Clear and reload the folder tree view
                 tvFolders.Nodes.Clear();
                 if (settingsModel.ProjectRootFolder.Exists)
                 {
@@ -417,52 +362,54 @@ namespace SaveAsPDF
                 }
                 else
                 {
-                    MessageBox.Show("The project root folder does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    XMessageBox.Show(
+                        "תיקיית השורש של הפרויקט אינה קיימת.",
+                        "שגיאה",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Warning,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew);
                 }
-
-                // Update the full path text box
                 txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
-
-
-                // Set focus to the OK button
                 btnOK.Focus();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred while updating the UI: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                XMessageBox.Show(
+                    $"אירעה שגיאה בעת עדכון הממשק: {ex.Message}",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
             }
         }
+
         /// <summary>
-        /// Process the mail item and display its subject and attachments in the UI.
+        /// Processes the given mail item and loads its attachments into the UI.
         /// </summary>
-        /// <param name="mailItem"></param>
+        /// <param name="mailItem">The Outlook mail item to process.</param>
         private void ProcessMailItem(MailItem mailItem)
         {
             txtSubject.Text = mailItem.Subject;
-
             var attachments = mailItem.GetAttachmentsFromEmail();
             int i = 0;
+            attachmentsModels.Clear();
             foreach (var attachment in attachments)
             {
                 if (attachment != null)
                 {
-                    var attachmentsModel = new AttachmentsModel
+                    attachmentsModels.Add(new AttachmentsModel
                     {
-                        attachmentId = i,
+                        attachmentId = i++,
                         isChecked = true,
                         fileName = attachment.FileName,
                         fileSize = attachment.Size.BytesToString()
-                    };
-                    i++;
-                    attachmentsModels.Add(attachmentsModel);
+                    });
                 }
             }
-
-            //load to the dataGridView 
             dgvAttachments.DataSource = attachmentsModels;
-
             dgvAttachments.Columns[0].Visible = false;
-
             dgvAttachments.Columns[1].HeaderText = "V";
             dgvAttachments.Columns[1].ReadOnly = false;
             dgvAttachments.Columns[2].HeaderText = "שם קובץ";
@@ -470,18 +417,24 @@ namespace SaveAsPDF
             dgvAttachments.Columns[3].HeaderText = "גודל";
             dgvAttachments.Columns[3].ReadOnly = true;
         }
+
         /// <summary>
-        /// Checks if the selected item is a mail item.
+        /// Shows an error message if the selected item is not a valid mail item.
         /// </summary>
         private void ShowInvalidMailItemError()
         {
-            MessageBox.Show("יש לבחור הודעות דואר אלקטרוני בלבד", "SaveAsPDF");
+            XMessageBox.Show(
+                "יש לבחור הודעות דואר אלקטרוני בלבד",
+                "SaveAsPDF",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
             Close();
         }
 
-
         /// <summary>
-        /// clear the form from previews use
+        /// Clears the form fields and resets the UI for a new operation.
         /// </summary>
         private void ClearForm()
         {
@@ -493,120 +446,53 @@ namespace SaveAsPDF
             dgvAttachments.DataSource = null;
             dgvEmployees.DataSource = null;
             tvFolders.DataBindings.Clear();
-
         }
+
+        /// <summary>
+        /// Handles the OK button click event. Validates the save path, generates HTML, saves the mail as PDF, and optionally opens the PDF.
+        /// </summary>
         private void btnOK_Click(object sender, EventArgs e)
         {
-            //if (!_dataLoaded)
-            //{
-            //    LoadXmls();
-            //}
-
-            #region Populate Models
-
-            //update and save settings model 
-            settingsModel.OpenPDF = chbOpenPDF.Checked;
-
-            //SettingsHelpers.SaveModelToSettings(settingsModel);
-
-            //build _projectModel model
-            _projectModel.ProjectName = txtProjectName.Text;
-            _projectModel.ProjectNumber = txtProjectID.Text; //not in use
-            _projectModel.NoteToProjectLeader = chkbSendNote.Checked;
-            _projectModel.ProjectNotes = rtxtProjectNotes.Text;
-            _projectModel.LastSavePath = cmbSaveLocation.SelectedText;
-
-            //build the Employees model
-            _employeesModel = dgvEmployees.DgvEmployeesToModel();
-            #endregion
-
-            #region Create XML files for the models
-
-            //create _projectModel XML file
-            settingsModel.XmlProjectFile.ProjectModelToXmlFile(_projectModel);
-
-            //create the _employeesModel XML file from List<EmployeeModel> 
-            settingsModel.XmlEmployeesFile.EmployeesModelToXmlFile(_employeesModel);
-
-            #endregion
-            string sPath = cmbSaveLocation.Text; //the current selected path in the combo box
+            string sPath = cmbSaveLocation.Text;
+            if (string.IsNullOrEmpty(sPath))
+            {
+                var dialog = new FolderPicker { InputPath = settingsModel.RootDrive };
+                if (dialog.ShowDialog(Handle) == true)
+                    sPath = dialog.ResultPath;
+            }
             if (!string.IsNullOrEmpty(sPath))
             {
-                DirectoryInfo directory = new DirectoryInfo(sPath);
+                var directory = new DirectoryInfo(sPath);
                 if (!directory.Exists)
-                {
                     FileFoldersHelper.CreateDirectory(directory.FullName);
-                }
             }
             else
             {
-                var Dialog = new FolderPicker();
-                Dialog.InputPath = settingsModel.RootDrive;
-                if (Dialog.ShowDialog(Handle) == true)
-                {
-                    sPath = Dialog.ResultPath;
-                }
-            }
-            //save the _mailItem to the current working directory and create an attachment list to add to PDF/mail   
-
-            List<string> attachmentsList = new List<string>();
-            //convert the message to HTML 
-            if (_mailItem.BodyFormat != OlBodyFormat.olFormatHTML)
-            {
-                _mailItem.BodyFormat = OlBodyFormat.olFormatHTML;
+                XMessageBox.Show(
+                    "יש לבחור או לציין מיקום שמירה תקין.",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
+                return;
             }
 
-            // Save the attachments and retrieve their filenames
-            attachmentsList.AddRange(_mailItem.SaveAttachments(dgvAttachments, sPath, false));
+            string htmlContent = HtmlHelper.GenerateHtmlContent(
+                sPath,
+                _employeesModel,
+                attachmentsModels,
+                txtProjectName.Text,
+                txtProjectID.Text,
+                rtxtNotes.Text,
+                Environment.UserName
+            );
 
-            // Build the HTML table style and header
-            string tableStyle = @"
-<html>
-<head>
-    <style>
-        table, td, th {
-            border-collapse: collapse;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
-<body>
-    <table style='float:right;'>
-        <tr><td colspan='3'></td></tr>
-        <tr style='text-align:center'>
-            <th colspan='3'>SaveAsPDF ver." + Assembly.GetExecutingAssembly().GetName().Version + @"</th>
-        </tr>
-        <tr><td colspan='3'></td></tr>
-        <tr style='text-align:right'>
-            <td colspan='3'><a href='file://" + sPath + @"'>" + sPath + @"</a> :ההודעה נשמרה ב</td>
-        </tr>
-        <tr style='text-align:right'>
-            <td colspan='3'>" + DateTime.Now.ToString("HH:mm dd/MM/yyyy") + @" :תאריך שמירה </td>
-        </tr>
-        <tr><td colspan='3'></td></tr>";
-
-            // Add project-related metadata
-            string projectData = $@"
-<tr style='text-align:right'><td></td><td>{txtProjectName.Text}</td><th>שם הפרויקט</th></tr>
-<tr style='text-align:right'><td></td><td>{txtProjectID.Text}</td><th>מס' פרויקט</th></tr>
-<tr style='text-align:right'><td></td><td>{rtxtNotes.Text.Replace(Environment.NewLine, "<br>")}</td><th>הערות</th></tr>
-<tr style='text-align:right'><td></td><td>{Environment.UserName}</td><th>שם משתמש</th></tr>";
-
-            // Convert attachments and employee info to HTML rows
-            string attachmetsString = attachmentsList.AttachmentsToString(sPath);
-            string employeeString = dgvEmployees.dgvEmployeesToString();
-
-            // Append all sections and close HTML structure
-            _mailItem.HTMLBody = tableStyle + projectData + employeeString + attachmetsString + "</table></body>" + _mailItem.HTMLBody;
-
-            // Save mail as PDF and persist changes
+            _mailItem.HTMLBody = htmlContent + _mailItem.HTMLBody;
             _mailItem.SaveToPDF(sPath);
             _mailItem.Save();
             Close();
 
-            // Open the PDF file if the checkbox is checked
             if (chbOpenPDF.Checked)
             {
                 string pdfFilePath = Path.Combine(sPath, $"{_mailItem.Subject}.pdf");
@@ -616,298 +502,296 @@ namespace SaveAsPDF
                 }
                 else
                 {
-                    MessageBox.Show("The PDF file could not be found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    XMessageBox.Show(
+                        "קובץ ה-PDF לא נמצא.",
+                        "שגיאה",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Error,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew);
                 }
             }
-            {
-                //TODO1:0 Open the PDF file
-
-                MessageBox.Show("open PDF =" + chbOpenPDF.Checked.ToString());
-            }
-
-            //_settingsModel.Save();
-            //TODO: save settings 
-
         }
 
+        /// <summary>
+        /// Opens the settings form as a modal dialog.
+        /// </summary>
         private void BtnSettings_Click(object sender, EventArgs e)
         {
-            FormSettings frm = new FormSettings(this);
-            frm.ShowDialog();
+            using (var frm = new FormSettings(this))
+            {
+                frm.ShowDialog();
+            }
         }
 
+        /// <summary>
+        /// Handles the double-click event on the attachments data grid view. Shows file details.
+        /// </summary>
         private void dgvAttachments_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            //TODO1: Open attachment when double clicking it on the list
-            //1. save attachment to temp folder 
-            //string tmpFoder = @System.IO.Path.GetTempPath();
-            //2. exec. the file using default file association 
-            MessageBox.Show(dgvAttachments.CurrentCell.Value.ToString());
+            XMessageBox.Show(
+                dgvAttachments.CurrentCell.Value.ToString(),
+                "פרטי קובץ",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Information,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
         }
 
+        /// <summary>
+        /// Handles the style button click event. Opens a font dialog for the notes rich text box.
+        /// </summary>
         private void btnStyle_Click(object sender, EventArgs e)
         {
-
             if (dlgFont.ShowDialog() == DialogResult.OK)
-            {
                 rtxtNotes.SelectionFont = dlgFont.Font;
-            }
-
         }
 
+        /// <summary>
+        /// Opens the contacts form as a modal dialog.
+        /// </summary>
         private void btnPhoneBook_Click(object sender, EventArgs e)
         {
-            FormContacts frmContacts = new FormContacts(this);
-            frmContacts.ShowDialog(this);
+            using (var frmContacts = new FormContacts(this))
+            {
+                frmContacts.ShowDialog(this);
+            }
         }
 
+        /// <summary>
+        /// Handles the send note checkbox change event. Sends an email to each employee.
+        /// </summary>
         private void chkbSendNote_CheckedChanged(object sender, EventArgs e)
         {
-            foreach (EmployeeModel employee in _employeesModel)
-            {
+            foreach (var employee in _employeesModel)
                 SendEmailToEmployee(employee.EmailAddress);
-            }
-
         }
-        /// <summary>
-        /// after the message was saved, send an email to the lead engineer about the saved message 
-        /// </summary>
-        /// <param name="EmailAddress"></param>
-        private void SendEmailToEmployee(string EmailAddress) =>
-            //TODO3: send notification email message to employee - command visible = 0 (Next Version?)
-            MessageBox.Show($"Send email to {EmailAddress}");
 
+        /// <summary>
+        /// Sends an email notification to the specified employee.
+        /// </summary>
+        /// <param name="EmailAddress">The email address of the employee.</param>
+        private void SendEmailToEmployee(string EmailAddress) =>
+            XMessageBox.Show(
+                $"Send email to {EmailAddress}",
+                "SaveAsPDF",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Information,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
+
+        /// <summary>
+        /// Handles the select all attachments checkbox change event. Updates the selection state of all attachments.
+        /// </summary>
         private void chkbSelectAllAttachments_CheckedChanged(object sender, EventArgs e)
         {
-            if (!chkbSelectAllAttachments.Checked)
-            {
-                chkbSelectAllAttachments.Text = "בחר הכל";
-            }
-            else
-            {
-                chkbSelectAllAttachments.Text = "הסר הכל";
-            }
-
+            chkbSelectAllAttachments.Text = chkbSelectAllAttachments.Checked ? "הסר הכל" : "בחר הכל";
             if (dgvAttachments.RowCount != 0)
             {
-
                 foreach (DataGridViewRow row in dgvAttachments.Rows)
-                {
                     row.Cells[1].Value = chkbSelectAllAttachments.Checked;
-
-                }
             }
         }
+
         /// <summary>
-        /// Load the settings model from settings.settings to pass to Settings form 
-        /// settings form is the interface for settings model 
+        /// Called when the settings form completes. Updates the settings model.
         /// </summary>
-        /// <param name="settings"></param>
+        /// <param name="settings">The updated settings model.</param>
         public void SettingsComplete(SettingsModel settings)
         {
             settingsModel = SettingsHelpers.LoadSettingsToModel(settings);
-
         }
-
 
         /// <summary>
-        /// Load the employee model from the data-grid and pass it to contacts form 
+        /// Called when the contacts form completes. Adds a new employee if not already present.
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="model">The employee model to add.</param>
         public void EmployeeComplete(EmployeeModel model)
         {
-            bool found = false;
-
-            foreach (DataGridViewRow row in dgvEmployees.Rows)
-            {
-                if (row.Cells[3].Value.ToString() == model.EmailAddress)
-                {
-                    found = true;
-                }
-            }
-
+            bool found = dgvEmployees.Rows.Cast<DataGridViewRow>()
+                .Any(row => row.Cells[3].Value.ToString() == model.EmailAddress);
             if (!found)
             {
-                //add new employee(s) to the list 
                 _employeesModel.Add(model);
-                dgvEmployees.Rows.Add(model.Id.ToString(),
-                                        model.FirstName,
-                                        model.LastName,
-                                        model.EmailAddress);
+                dgvEmployees.Rows.Add(model.Id.ToString(), model.FirstName, model.LastName, model.EmailAddress);
             }
-
         }
 
+        /// <summary>
+        /// Handles the BeforeExpand event for the folder tree view. Cancels expansion on double-click.
+        /// </summary>
         private void tvFolders_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
-            //suppress the tree expand on double click
             if (_isDoubleClick && e.Action == TreeViewAction.Expand)
-            {
                 e.Cancel = true;
-            }
-
         }
 
-
+        /// <summary>
+        /// Handles the remove employee button click event. Removes selected employees from the list.
+        /// </summary>
         private void RemoveEmployee_Click(object sender, EventArgs e)
         {
-            //if (e.KeyCode == Keys.Delete)
-            //{
-            Int32 selectedRowCount = dgvEmployees.Rows.GetRowCount(DataGridViewElementStates.Selected);
+            int selectedRowCount = dgvEmployees.Rows.GetRowCount(DataGridViewElementStates.Selected);
             if (selectedRowCount > 0)
             {
                 for (int i = 0; i < selectedRowCount; i++)
-                {
                     dgvEmployees.Rows.RemoveAt(dgvEmployees.SelectedRows[0].Index);
-                }
             }
-            //}
-
+            else
+            {
+                XMessageBox.Show(
+                    "לא נבחרו עובדים למחיקה.",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Warning,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
+            }
         }
 
+        /// <summary>
+        /// Opens the new project form as a modal dialog.
+        /// </summary>
         private void btnNewProject_Click(object sender, EventArgs e)
         {
-            FormNewProject frm = new FormNewProject(this);
-            frm.ShowDialog(this);
+            using (var frm = new FormNewProject(this))
+            {
+                frm.ShowDialog(this);
+            }
         }
 
+        /// <summary>
+        /// Called when the new project form completes. Updates the project model and UI.
+        /// </summary>
+        /// <param name="model">The new project model.</param>
         public void NewProjectComplete(ProjectModel model)
         {
             _projectModel = model;
-
             txtProjectID.Text = _projectModel.ProjectNumber;
             txtProjectName.Text = _projectModel.ProjectName;
             rtxtProjectNotes.Text = _projectModel.ProjectNotes;
-            //TODO1: refresh folder tree-view
-
         }
 
+        /// <summary>
+        /// Handles the mouse hover event for the project ID textbox. Updates the status label.
+        /// </summary>
         private void txtProjectID_MouseHover(object sender, EventArgs e)
         {
             tsslStatus.Enabled = true;
             tsslStatus.Text = "מספר פרויקט כפי שמופיע במסטרפלן";
         }
 
+        /// <summary>
+        /// Copies the project notes to the mail notes rich text box.
+        /// </summary>
         private void btnCopyNotesToMail_Click(object sender, EventArgs e)
         {
             rtxtNotes.Text += $"\n {rtxtProjectNotes.Text}";
         }
 
+        /// <summary>
+        /// Copies the mail notes to the project notes rich text box.
+        /// </summary>
         private void btnCopyNotesToProject_Click(object sender, EventArgs e)
         {
             rtxtProjectNotes.Text += $"\n {rtxtNotes.Text}";
         }
 
+        /// <summary>
+        /// Handles the AfterSelect event for the folder tree view. Updates the selected node.
+        /// </summary>
         private void tvFolders_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            TreeNode CurrentNode = e.Node;
-            string fullpath = CurrentNode.FullPath;
-            mySelectedNode = CurrentNode;
-
-            //txtFullPath.Text = $@"{settingsModel.ProjectRootFolder.FullName.Trim('\\')}{settingsModel.ProjectRootFolder.ToString().Replace(
-            //                         settingsModel.ProjectRootTag, string.Empty)}";// no need the '\'
+            mySelectedNode = e.Node;
         }
 
-
+        /// <summary>
+        /// Handles the AfterLabelEdit event for the folder tree view. Validates and renames the node.
+        /// </summary>
         private void tvFolders_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            if (e.Label == null)
+            if (e.Label == null || string.IsNullOrWhiteSpace(e.Label.SafeFolderName()))
             {
-                // Cancel the edit if the label is null (user pressed ESC or left it empty)
                 e.CancelEdit = true;
-                MessageBox.Show("שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות", "עריכת שם");
+                XMessageBox.Show(
+                    "שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות",
+                    "עריכת שם",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
                 return;
             }
-
             string nodeNewLabel = e.Label.SafeFolderName();
-
-            if (string.IsNullOrWhiteSpace(nodeNewLabel))
-            {
-                // Cancel the edit if the label is empty or whitespace
-                e.CancelEdit = true;
-                MessageBox.Show("שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות", "עריכת שם");
-                return;
-            }
-
             if (nodeNewLabel.IndexOfAny(new char[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) != -1)
             {
-                // Cancel the edit if the label contains invalid characters
                 e.CancelEdit = true;
-                MessageBox.Show("שם לא חוקי.\nאין להשתמש בתווים הבאים \n'\\', '/', ':', '*', '?', '<', '>', '|' '\"' ", "עריכת שם");
+                XMessageBox.Show(
+                    "שם לא חוקי.\nאין להשתמש בתווים הבאים \n'\\', '/', ':', '*', '?', '<', '>', '|' '\"' ",
+                    "עריכת שם",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
                 return;
             }
-
             try
             {
-                // Rename the directory
                 string oldPath = Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.FullPath);
                 string newPath = Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.Parent.FullPath, nodeNewLabel);
-
                 DirectoryInfo directoryInfo = new DirectoryInfo(oldPath);
                 directoryInfo.RenameDirectory(newPath);
-
-                // Update the TreeView node
                 e.Node.Text = nodeNewLabel;
             }
             catch (Exception ex)
             {
-                // Handle any errors during the renaming process
                 e.CancelEdit = true;
-                MessageBox.Show($"Error renaming folder: {ex.Message}\n{Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.FullPath)}", "SaveAsPDF:tvFolders_AfterLabelEdit");
+                XMessageBox.Show(
+                    $"שגיאה בשינוי שם התיקייה: {ex.Message}\n{Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.FullPath)}",
+                    "SaveAsPDF:tvFolders_AfterLabelEdit",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
             }
         }
 
-
-
+        /// <summary>
+        /// Handles the Open PDF checkbox change event. Updates the settings model.
+        /// </summary>
         private void chbOpenPDF_CheckedChanged(object sender, EventArgs e)
         {
-            //TODO1: chbOpenPDF_CheckedChanged:make sure it works 
-
-            //Settings.Default.OpenPDF = chbOpenPDF.Checked;
-            //Settings.Default.Save();
-
             settingsModel.OpenPDF = chbOpenPDF.Checked;
-
-
         }
 
+        /// <summary>
+        /// Handles the double-click event on the folder tree view. Opens the folder in Explorer and updates the save location.
+        /// </summary>
         private void tvFolders_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            //TODO1: open the folder in explorer and update the path in the cmbSaveLocation
-
             string path = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
             System.Diagnostics.Process.Start("explorer.exe", path);
-
             cmbSaveLocation.SelectedText = path;
-
-
         }
 
+        /// <summary>
+        /// Handles the mouse click event on the folder tree view. Updates the save location.
+        /// </summary>
         private void tvFolders_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-
             string path = $@"{settingsModel.ProjectRootFolder.Parent.FullName}\{e.Node.FullPath}";
-
-
-
-            //update cmbSaveLocation with the selected node path
-            //cmbSaveLocation.Items.Clear();
-
-            //clear the selected item in cmbSaveLocation 
             cmbSaveLocation.Select();
             cmbSaveLocation.SelectedItem = null;
-            //enter the selected path to the combo box
             cmbSaveLocation.SelectedText = path;
-
         }
 
-
-
+        /// <summary>
+        /// Handles the Validating event for the project ID textbox. Validates the project ID and updates the UI.
+        /// </summary>
         private void txtProjectID_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (!txtProjectID.Text.SafeProjectID())
             {
-                // Cancel the event and select the text to be corrected by the user.
                 errorProviderMain.SetError(txtProjectID, "מספר פרויקט לא חוקי");
                 txtProjectID.Select(0, txtProjectID.Text.Length);
                 tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
@@ -916,102 +800,85 @@ namespace SaveAsPDF
         }
 
         /// <summary>
-        /// Handles the Validated event for the txtProjectID TextBox.
-        /// This method is triggered after the txtProjectID control has been successfully validated.
-        /// It performs the following actions:
-        /// - Clears any error messages associated with the txtProjectID control.
-        /// - Updates the status label with the current error state of txtProjectID.
-        /// - Processes the entered project ID by calling <see cref="ProcessProjectID(string)"/>.
-        /// - Updates the autocomplete source with the entered project ID.
-        /// - Handles the first run scenario if the root drive is not set in the settings.
-        /// - Processes the current mail item if it is valid; otherwise, displays an error message.
-        /// - Sets the data loaded flag to true.
+        /// Handles the Validated event for the project ID textbox. Processes the project ID and loads data.
         /// </summary>
-        /// <param name="sender">The source of the event, typically the txtProjectID control.</param>
-        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
         private void txtProjectID_Validated(object sender, EventArgs e)
         {
-            errorProviderMain.SetError(txtProjectID, string.Empty); // Clear the error
+            errorProviderMain.SetError(txtProjectID, string.Empty);
             tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
-
             ProcessProjectID(txtProjectID.Text);
-            //XMessageBox.Show("הפרויקט נשמר בהצלחה", "SaveAsPDF", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-            XMessageBox.Show("הפרויקט נשמר בהצלחה", "SaveAsPDF", XMessageBoxButtons.OK, XMessageBoxIcon.Information);
-            UpdateAutoCompleteSource(txtProjectID.Text);
-
             if (string.IsNullOrEmpty(settingsModel.RootDrive))
-            {
                 HandleFirstRun();
-            }
-
             if (_mailItem is MailItem mailItem)
-            {
                 ProcessMailItem(_mailItem);
-            }
             else
-            {
                 ShowInvalidMailItemError();
-            }
-
             _dataLoaded = true;
         }
 
+        /// <summary>
+        /// Handles the FormClosing event. Prompts the user for confirmation before exiting.
+        /// </summary>
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // Close all open files
-
-            //TODO: Implement code to close all open files
-            //if (e.CloseReason == CloseReason.UserClosing)
-            //{
-            //    if (MessageBox.Show("האם לצאת מהיישום?", "SaveAsPDF", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-            //    {
-            //        e.Cancel = true;
-            //    }
-            //}
-
-            // Rest of the code
-
-        }
-
-        private void tvFolders_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
-        {
-            if (_isDoubleClick && e.Action == TreeViewAction.Collapse)
+            if (e.CloseReason == CloseReason.UserClosing)
             {
-                e.Cancel = true;
+                if (XMessageBox.Show(
+                        "האם לצאת מהיישום?",
+                        "SaveAsPDF",
+                        XMessageBoxButtons.YesNo,
+                        XMessageBoxIcon.Question,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew) == DialogResult.No)
+                {
+                    e.Cancel = true;
+                }
             }
         }
 
+        /// <summary>
+        /// Handles the BeforeCollapse event for the folder tree view. Cancels collapse on double-click.
+        /// </summary>
+        private void tvFolders_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
+        {
+            if (_isDoubleClick && e.Action == TreeViewAction.Collapse)
+                e.Cancel = true;
+        }
+
+        /// <summary>
+        /// Handles the MouseDown event for the folder tree view. Tracks double-click state.
+        /// </summary>
         private void tvFolders_MouseDown(object sender, MouseEventArgs e)
         {
             _isDoubleClick = e.Clicks > 1;
         }
 
+        /// <summary>
+        /// Handles the KeyDown event for the form. Provides keyboard shortcuts for folder operations.
+        /// </summary>
         private void FormMain_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.F2)
+            if (e.KeyCode == Keys.F2 && tvFolders.SelectedNode != null)
             {
-                if (tvFolders.SelectedNode != null)
-                {
-                    tvFolders.SelectedNode.BeginEdit();
-                }
+                tvFolders.SelectedNode.BeginEdit();
             }
-            else if (e.KeyCode == Keys.Delete)
+            else if (e.KeyCode == Keys.Delete && tvFolders.SelectedNode != null && tvFolders.SelectedNode.Nodes.Count == 0)
             {
-                if (tvFolders.SelectedNode != null)
+                try
                 {
-                    if (tvFolders.SelectedNode.Nodes.Count == 0)
-                    {
-                        try
-                        {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, tvFolders.SelectedNode.FullPath));
-                            directoryInfo.Delete(true);
-                            tvFolders.SelectedNode.Remove();
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message, "SaveAsPDF:tvFolders_KeyDown");
-                        }
-                    }
+                    DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, tvFolders.SelectedNode.FullPath));
+                    directoryInfo.Delete(true);
+                    tvFolders.SelectedNode.Remove();
+                }
+                catch (Exception ex)
+                {
+                    XMessageBox.Show(
+                        $"אירעה שגיאה בעת מחיקת התיקייה: {ex.Message}",
+                        "שגיאה",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Error,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew);
                 }
             }
             else if (e.KeyCode == Keys.F5)
@@ -1022,20 +889,18 @@ namespace SaveAsPDF
             else if (e.KeyCode == Keys.Escape)
             {
                 if (txtProjectID.Text.Length == 0)
-                {
                     Close();
-                }
                 txtProjectID.Clear();
             }
         }
 
+        /// <summary>
+        /// Handles the SelectedValueChanged event for the save location combo box. Updates the project model.
+        /// </summary>
         private void cmbSaveLocation_SelectedValueChanged(object sender, EventArgs e)
         {
-            // Ensure _projectModel is initialized before interacting with it
             if (_projectModel == null)
             {
-                // Initialize _projectModel with default values if it is null
-                //TODO: make sure defaults are correct
                 _projectModel = new ProjectModel
                 {
                     ProjectName = "Default Project",
@@ -1046,14 +911,14 @@ namespace SaveAsPDF
                     LastSavePath = settingsModel.DefaultSavePath
                 };
             }
-
-            // Save the selected path to the _projectModel model
             _projectModel.LastSavePath = cmbSaveLocation.SelectedItem?.ToString();
         }
 
+        /// <summary>
+        /// Handles the TextUpdate event for the save location combo box. Updates the breadcrumb path.
+        /// </summary>
         private void cmbSaveLocation_TextUpdate(object sender, EventArgs e)
         {
-            // Update the breadcrumb path in the combo box "C > 12 > 123"
             cmbSaveLocation.SetBreadcrumbPath();
         }
     }

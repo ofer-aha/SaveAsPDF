@@ -4,65 +4,71 @@ using SaveAsPDF.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows.Forms;
 using System.Xml.Serialization;
 
+/// <summary>
+/// Provides helper methods for serializing and deserializing project and employee models to and from XML files.
+/// </summary>
 namespace SaveAsPDF.Helpers
 {
     public static class XmlFileHelper
     {
         /// <summary>
-        /// Converts the ProjectModel to an XML file and saves it to the specified file path.
+        /// Serializes a <see cref="ProjectModel"/> to an XML file at the specified file path.
         /// </summary>
-        /// <param name="filePath">The full path to the XML file where the ProjectModel will be saved.</param>
-        /// <param name="projectModel">The ProjectModel object to be serialized and saved.</param>
+        /// <param name="filePath">The full path to the XML file where the <see cref="ProjectModel"/> will be saved.</param>
+        /// <param name="projectModel">The <see cref="ProjectModel"/> object to serialize and save.</param>
         public static void ProjectModelToXmlFile(this string filePath, ProjectModel projectModel)
         {
             try
             {
-                // Ensure the directory exists
                 string directoryPath = Path.GetDirectoryName(filePath);
                 if (!string.IsNullOrEmpty(directoryPath) && !Directory.Exists(directoryPath))
                 {
                     Directory.CreateDirectory(directoryPath);
                 }
 
-                // Serialize the ProjectModel to XML and save it to the file
                 XmlSerializer serializer = new XmlSerializer(typeof(ProjectModel));
-                using (StreamWriter writer = new StreamWriter(filePath, false)) // Ensure file is overwritten if it exists
+                using (StreamWriter writer = new StreamWriter(filePath, false))
                 {
                     serializer.Serialize(writer, projectModel);
                 }
             }
             catch (UnauthorizedAccessException ex)
             {
-                MessageBox.Show($"Access to the path is denied: {ex.Message}",
-                                "SaveAsPDF:ProjectModelToXmlFile",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                XMessageBox.Show(
+                    $"הגישה לנתיב נדחתה: {ex.Message}",
+                    "SaveAsPDF:ProjectModelToXmlFile",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred while saving the project model to XML: {ex.Message}",
-                                "SaveAsPDF:ProjectModelToXmlFile",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                XMessageBox.Show(
+                    $"אירעה שגיאה בשמירת מודל הפרויקט ל-XML: {ex.Message}",
+                    "SaveAsPDF:ProjectModelToXmlFile",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
         }
 
         /// <summary>
-        /// Converts Employee model to XML file
+        /// Serializes a list of <see cref="EmployeeModel"/> objects to an XML file at the specified path.
         /// </summary>
-        /// <param name="employees">Employee Model</param>
-        /// <param name="path">File Name as string</param>
+        /// <param name="path">The full path to the XML file where the employee list will be saved.</param>
+        /// <param name="employees">The list of <see cref="EmployeeModel"/> objects to serialize and save.</param>
         public static void EmployeesModelToXmlFile(this string path, List<EmployeeModel> employees)
         {
             try
             {
-                // Ensure the directory exists
                 FileFoldersHelper.CreateHiddenDirectory(Path.GetDirectoryName(path));
 
-                // Serialize the EmployeeModel list to XML
                 XmlSerializer serializer = new XmlSerializer(typeof(List<EmployeeModel>));
                 using (StreamWriter writer = new StreamWriter(path))
                 {
@@ -71,26 +77,33 @@ namespace SaveAsPDF.Helpers
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "SaveAsPDF:EmployeesModelToXmlFile");
+                XMessageBox.Show(
+                    $"אירעה שגיאה בשמירת רשימת העובדים: {ex.Message}",
+                    "SaveAsPDF:EmployeesModelToXmlFile",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
         }
 
         /// <summary>
-        /// Extension method to import the XML file into a ProjectModel.
+        /// Deserializes a <see cref="ProjectModel"/> from an XML file at the specified path.
         /// </summary>
-        /// <param name="xmlFile">Full path to the XML file.</param>
-        /// <returns><see cref="ProjectModel"/> containing the project data.</returns>
+        /// <param name="xmlFile">The full path to the XML file to load.</param>
+        /// <returns>
+        /// The deserialized <see cref="ProjectModel"/> if successful; otherwise, <c>null</c> if an error occurs.
+        /// </returns>
         public static ProjectModel XmlProjectFileToModel(this string xmlFile)
         {
             try
             {
-                // Check if the file exists
                 if (!File.Exists(xmlFile))
                 {
-                    throw new FileNotFoundException($"The file '{xmlFile}' does not exist.");
+                    throw new FileNotFoundException($"הקובץ '{xmlFile}' לא קיים.");
                 }
 
-                // Load the XML file and parse it into a ProjectModel
                 var xmlDoc = new System.Xml.XmlDocument();
                 xmlDoc.Load(xmlFile);
 
@@ -106,34 +119,34 @@ namespace SaveAsPDF.Helpers
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred while loading the project: {ex.Message}", "SaveAsPDF:XmlProjectFileToModel", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                XMessageBox.Show(
+                    $"אירעה שגיאה בטעינת הפרויקט: {ex.Message}",
+                    "SaveAsPDF:XmlProjectFileToModel",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
                 return null;
             }
         }
 
-
-
-
-
-
-
         /// <summary>
-        /// Extension method to import the XML file into a list of EmployeeModel.
+        /// Deserializes a list of <see cref="EmployeeModel"/> objects from an XML file at the specified path.
         /// </summary>
-        /// <param name="xmlFile">Full path to the XML file.</param>
-        /// <returns><see cref="List{EmployeeModel}"/> containing the employees.</returns>
-
+        /// <param name="xmlFile">The full path to the XML file to load.</param>
+        /// <returns>
+        /// The deserialized list of <see cref="EmployeeModel"/> objects if successful; otherwise, <c>null</c> if an error occurs.
+        /// </returns>
         public static List<EmployeeModel> XmlEmployeesFileToModel(this string xmlFile)
         {
             try
             {
-                // Check if the file exists
                 if (!File.Exists(xmlFile))
                 {
-                    throw new FileNotFoundException($"The file '{xmlFile}' does not exist.");
+                    throw new FileNotFoundException($"הקובץ '{xmlFile}' לא קיים.");
                 }
 
-                // Deserialize the XML file into a list of EmployeeModel
                 XmlSerializer serializer = new XmlSerializer(typeof(List<EmployeeModel>));
                 using (FileStream fileStream = new FileStream(xmlFile, FileMode.Open))
                 {
@@ -142,28 +155,37 @@ namespace SaveAsPDF.Helpers
             }
             catch (InvalidOperationException ex)
             {
-                MessageBox.Show($"An error occurred while deserializing the XML file: {ex.InnerException?.Message ?? ex.Message}",
-                                "SaveAsPDF:XmlEmployeesFileToModel",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                XMessageBox.Show(
+                    $"אירעה שגיאה בעת המרת קובץ ה-XML: {ex.InnerException?.Message ?? ex.Message}",
+                    "SaveAsPDF:XmlEmployeesFileToModel",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
                 return null;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred while loading employees: {ex.Message}",
-                                "SaveAsPDF:XmlEmployeesFileToModel",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                XMessageBox.Show(
+                    $"אירעה שגיאה בטעינת העובדים: {ex.Message}",
+                    "SaveAsPDF:XmlEmployeesFileToModel",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
                 return null;
             }
         }
 
-
         /// <summary>
-        /// Serialize the list to a string 
+        /// Serializes a list of <see cref="SettingsModel"/> objects to an XML string.
         /// </summary>
-        /// <param name="list"></param>
-        /// <returns></returns>
+        /// <param name="list">The list of <see cref="SettingsModel"/> objects to serialize.</param>
+        /// <returns>
+        /// A string containing the XML representation of the list.
+        /// </returns>
         public static string SerializeList(List<SettingsModel> list)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(List<SettingsModel>));
@@ -175,10 +197,12 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// De-serialize the string back to a list
+        /// Deserializes a list of <see cref="SettingsModel"/> objects from an XML string.
         /// </summary>
-        /// <param name="serializedList"></param>
-        /// <returns><see cref="SettingsModel"/> Object</returns>
+        /// <param name="serializedList">The XML string representing the list of <see cref="SettingsModel"/> objects.</param>
+        /// <returns>
+        /// The deserialized list of <see cref="SettingsModel"/> objects.
+        /// </returns>
         public static List<SettingsModel> DeserializeList(string serializedList)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(List<SettingsModel>));
@@ -187,9 +211,5 @@ namespace SaveAsPDF.Helpers
                 return (List<SettingsModel>)serializer.Deserialize(reader);
             }
         }
-
-
-
-
     }
 }
