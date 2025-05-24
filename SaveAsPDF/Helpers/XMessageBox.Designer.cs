@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
@@ -7,286 +6,187 @@ using System.Windows.Forms;
 namespace SaveAsPDF
 {
     /// <summary>
-    /// Represents the buttons available in the custom message box.
-    /// </summary>
-    public enum XMessageBoxButtons { OK, OKCancel, YesNo, YesNoCancel, RetryCancel }
-
-    /// <summary>
-    /// Represents the icons available in the custom message box.
-    /// </summary>
-    public enum XMessageBoxIcon { None, Information, Warning, Error, Question }
-
-    /// <summary>
-    /// Represents the alignment options for the message text in the custom message box.
-    /// </summary>
-    public enum XMessageAlignment { Left, Center, Right }
-
-    /// <summary>
-    /// Represents the language options for the custom message box.
-    /// </summary>
-    public enum XMessageLanguage { Hebrew, English }
-
-    /// <summary>
-    /// A custom message box form that provides advanced configuration options.
+    /// Custom message box form that supports right-to-left layouts and multilingual buttons.
     /// </summary>
     public class XMessageBoxForm : Form
     {
         private Label messageLabel;
-        private TextBox messageTextBox;
         private PictureBox iconBox;
         private FlowLayoutPanel buttonPanel;
         private XMessageLanguage language;
-        private Timer autoCloseTimer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XMessageBoxForm"/> class.
         /// </summary>
-        /// <param name="text">The message text to display in the message box.</param>
-        /// <param name="caption">The caption text for the message box title bar.</param>
+        /// <param name="text">The message text to display.</param>
+        /// <param name="caption">The caption for the message box.</param>
         /// <param name="buttons">The buttons to display in the message box.</param>
         /// <param name="icon">The icon to display in the message box.</param>
-        /// <param name="alignment">The alignment of the message text.</param>
-        /// <param name="language">The language of the message box buttons.</param>
-        /// <param name="useTextBox">Indicates whether to display the message in a multi-line text box.</param>
-        /// <param name="isDarkTheme">Indicates whether to use a dark theme for the message box.</param>
-        /// <param name="customFont">A custom font to use for the message text.</param>
-        /// <param name="backColorOverride">An optional background color override for the message box.</param>
-        /// <param name="autoCloseMilliseconds">The time in milliseconds after which the message box will automatically close.</param>
-        /// <param name="customIcon">An optional custom icon to display in the message box.</param>
-        /// <param name="centerToActiveWindow">Indicates whether to center the message box to the active window.</param>
-        public XMessageBoxForm(
-            string text,
-            string caption,
-            XMessageBoxButtons buttons,
-            XMessageBoxIcon icon,
-            XMessageAlignment alignment = XMessageAlignment.Left,
-            XMessageLanguage language = XMessageLanguage.English,
-            bool useTextBox = false,
-            bool isDarkTheme = false,
-            Font customFont = null,
-            Color? backColorOverride = null,
-            int autoCloseMilliseconds = 0,
-            Image customIcon = null,
-            bool centerToActiveWindow = true)
+        /// <param name="alignment">The text alignment (default: Left).</param>
+        /// <param name="language">The language for button text (default: English).</param>
+        public XMessageBoxForm(string text, string caption, XMessageBoxButtons buttons, XMessageBoxIcon icon,
+                XMessageAlignment alignment = XMessageAlignment.Left,
+                XMessageLanguage language = XMessageLanguage.English)
         {
             this.language = language;
             this.Text = caption;
-
             this.RightToLeftLayout = alignment == XMessageAlignment.Right;
             this.RightToLeft = alignment == XMessageAlignment.Right ? RightToLeft.Yes : RightToLeft.No;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.MinimizeBox = false;
             this.MaximizeBox = false;
-            this.AutoSize = true;
-            this.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            this.BackColor = backColorOverride ?? (isDarkTheme ? Color.FromArgb(40, 40, 40) : System.Drawing.SystemColors.Control);
+            this.Size = new Size(420, 200);
 
-            TableLayoutPanel table = new TableLayoutPanel
+            var table = new TableLayoutPanel();
+            table.Dock = DockStyle.Fill;
+            table.ColumnCount = 2;
+            table.RowCount = 2;
+            table.RowStyles.Add(new RowStyle(SizeType.Percent, 70));
+            table.RowStyles.Add(new RowStyle(SizeType.Percent, 30));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 64));
+
+            iconBox = new PictureBox();
+            iconBox.Size = new Size(48, 48);
+            iconBox.Margin = new Padding(12);
+            iconBox.SizeMode = PictureBoxSizeMode.StretchImage;
+            iconBox.Image = GetIconImage(icon);
+
+            messageLabel = new Label();
+            messageLabel.Text = text;
+            messageLabel.Dock = DockStyle.Fill;
+            messageLabel.Padding = new Padding(8);
+            messageLabel.TextAlign = alignment == XMessageAlignment.Right ? ContentAlignment.MiddleRight :
+                                     alignment == XMessageAlignment.Center ? ContentAlignment.MiddleCenter :
+                                     ContentAlignment.MiddleLeft;
+            messageLabel.RightToLeft = alignment == XMessageAlignment.Right ? RightToLeft.Yes : RightToLeft.No;
+            messageLabel.AutoSize = false;
+
+            Panel messagePanel = new Panel();
+            messagePanel.Dock = DockStyle.Fill;
+            messagePanel.Padding = new Padding(8);
+            messagePanel.Margin = new Padding(4);
+            messagePanel.Controls.Add(messageLabel);
+            messageLabel.Dock = DockStyle.Fill;
+
+            buttonPanel = new FlowLayoutPanel();
+            buttonPanel.Dock = DockStyle.Fill;
+            buttonPanel.AutoSize = true;
+            buttonPanel.FlowDirection = alignment == XMessageAlignment.Right ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+
+            AddButtons(buttons, alignment);
+
+            if (alignment == XMessageAlignment.Right)
             {
-                Dock = DockStyle.Fill,
-                ColumnCount = 2,
-                RowCount = 2,
-                AutoSize = true
-            };
-
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-
-            iconBox = new PictureBox
-            {
-                Size = new System.Drawing.Size(48, 48),
-                Margin = new Padding(12),
-                SizeMode = PictureBoxSizeMode.StretchImage,
-                Image = customIcon ?? GetIconImage(icon),
-                AccessibleName = "Icon"
-            };
-
-            if (useTextBox)
-            {
-                messageTextBox = new TextBox
-                {
-                    Multiline = true,
-                    ReadOnly = true,
-                    BorderStyle = BorderStyle.None,
-                    Text = text,
-                    BackColor = this.BackColor,
-                    Font = customFont ?? new Font("Segoe UI", 10),
-                    MaximumSize = new System.Drawing.Size(400, 300),
-                    Dock = DockStyle.Fill,
-                    ScrollBars = ScrollBars.Vertical
-                };
+                table.Controls.Add(iconBox, 1, 0);
+                table.SetRowSpan(iconBox, 2);
+                table.Controls.Add(messagePanel, 0, 0);
+                table.Controls.Add(buttonPanel, 0, 1);
             }
             else
             {
-                messageLabel = new Label
-                {
-                    Text = text,
-                    AutoSize = true,
-                    Padding = new Padding(8),
-                    TextAlign = GetContentAlignment(alignment),
-                    RightToLeft = alignment == XMessageAlignment.Right ? RightToLeft.Yes : RightToLeft.No,
-                    MaximumSize = new System.Drawing.Size(400, 0),
-                    AutoEllipsis = true,
-                    AccessibleName = "Message",
-                    AccessibleDescription = "Message displayed in the custom message box",
-                    Font = customFont ?? new Font("Segoe UI", 10),
-                    ForeColor = isDarkTheme ? Color.White : System.Drawing.SystemColors.ControlText
-                };
+                table.Controls.Add(iconBox, 0, 0);
+                table.SetRowSpan(iconBox, 2);
+                table.Controls.Add(messagePanel, 1, 0);
+                table.Controls.Add(buttonPanel, 1, 1);
             }
-
-            // --- Button panel fix: always horizontal, bottom-aligned ---
-            buttonPanel = new FlowLayoutPanel
-            {
-                Dock = DockStyle.None,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft, // Disambiguate with full namespace
-                Padding = new Padding(0, 10, 0, 0),
-                WrapContents = false,
-                Anchor = AnchorStyles.Right | AnchorStyles.Bottom
-            };
-
-            AddButtons(buttons);
-
-            // Layout
-            table.Controls.Add(iconBox, 0, 0);
-            if (useTextBox)
-                table.Controls.Add(messageTextBox, 1, 0);
-            else
-                table.Controls.Add(messageLabel, 1, 0);
-
-            table.SetRowSpan(iconBox, 2);
-
-            // Place buttonPanel in a separate row, spanning both columns, and align to bottom center
-            table.Controls.Add(buttonPanel, 0, 1);
-            table.SetColumnSpan(buttonPanel, 2);
 
             Controls.Add(table);
-
-            // Auto-close
-            if (autoCloseMilliseconds > 0)
-            {
-                autoCloseTimer = new Timer();
-                autoCloseTimer.Interval = autoCloseMilliseconds;
-                autoCloseTimer.Tick += (s, e) =>
-                {
-                    autoCloseTimer.Stop();
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
-                };
-                autoCloseTimer.Start();
-            }
-
-            // Center to active window
-            if (centerToActiveWindow)
-            {
-                var active = Form.ActiveForm;
-                if (active != null)
-                {
-                    this.StartPosition = FormStartPosition.Manual;
-                    this.Location = new System.Drawing.Point(
-                        active.Location.X + (active.Width - this.Width) / 2,
-                        active.Location.Y + (active.Height - this.Height) / 2
-                    );
-                }
-                else
-                {
-                    this.StartPosition = FormStartPosition.CenterScreen;
-                }
-            }
         }
 
         /// <summary>
-        /// Gets the content alignment based on the specified <see cref="XMessageAlignment"/>.
+        /// Gets the appropriate ContentAlignment based on the XMessageAlignment.
         /// </summary>
-        /// <param name="alignment">The alignment option.</param>
-        /// <returns>The corresponding <see cref="ContentAlignment"/>.</returns>
-        private ContentAlignment GetContentAlignment(XMessageAlignment alignment)
+        /// <param name="alignment">The custom alignment.</param>
+        /// <returns>The corresponding ContentAlignment.</returns>
+        private ContentAlignment GetAlignment(XMessageAlignment alignment)
         {
             switch (alignment)
             {
-                case XMessageAlignment.Right: return ContentAlignment.MiddleRight;
-                case XMessageAlignment.Center: return ContentAlignment.MiddleCenter;
-                default: return ContentAlignment.MiddleLeft;
+                case XMessageAlignment.Right: return ContentAlignment.TopRight;
+                case XMessageAlignment.Center: return ContentAlignment.TopCenter;
+                default: return ContentAlignment.TopLeft;
             }
         }
 
         /// <summary>
-        /// Adds buttons to the message box based on the specified <see cref="XMessageBoxButtons"/>.
+        /// Adds buttons to the message box based on the specified button configuration.
         /// </summary>
-        /// <param name="buttons">The button configuration.</param>
-        private void AddButtons(XMessageBoxButtons buttons)
+        /// <param name="buttons">The button configuration to use.</param>
+        /// <param name="alignment">The alignment of the buttons.</param>
+        private void AddButtons(XMessageBoxButtons buttons, XMessageAlignment alignment)
         {
-            Dictionary<string, string> localizedTexts = (language == XMessageLanguage.English)
-                ? new Dictionary<string, string>
-                {
-                    ["OK"] = "OK",
-                    ["Cancel"] = "Cancel",
-                    ["Yes"] = "Yes",
-                    ["No"] = "No",
-                    ["Retry"] = "Retry"
-                }
-                : new Dictionary<string, string>
-                {
-                    ["OK"] = "אישור",
-                    ["Cancel"] = "ביטול",
-                    ["Yes"] = "כן",
-                    ["No"] = "לא",
-                    ["Retry"] = "נסה שוב"
-                };
-
-            Action<string, DialogResult> AddButton = (key, result) =>
+            // Function to get the localized text for button labels
+            Func<string, string> L = delegate (string key)
             {
-                Button btn = new Button
+                if (language == XMessageLanguage.English)
                 {
-                    Text = localizedTexts[key],
-                    DialogResult = result,
-                    AutoSize = true,
-                    AccessibleName = key,
-                    TabIndex = buttonPanel.Controls.Count
-                };
-                btn.Click += (s, e) => { this.DialogResult = result; this.Close(); };
-                buttonPanel.Controls.Add(btn);
-
-                if (result == DialogResult.OK || result == DialogResult.Yes)
-                    this.AcceptButton = btn;
-                if (result == DialogResult.Cancel)
-                    this.CancelButton = btn;
+                    switch (key)
+                    {
+                        case "OK": return "OK";
+                        case "Cancel": return "Cancel";
+                        case "Yes": return "Yes";
+                        case "No": return "No";
+                        case "Retry": return "Retry";
+                    }
+                }
+                else
+                {
+                    switch (key)
+                    {
+                        case "OK": return "אישור";
+                        case "Cancel": return "ביטול";
+                        case "Yes": return "כן";
+                        case "No": return "לא";
+                        case "Retry": return "נסה שוב";
+                    }
+                }
+                return key;
             };
 
+            // Function to create and add a button
+            Action<string, DialogResult> Add = delegate (string text, DialogResult result)
+            {
+                var btn = new Button();
+                btn.Text = text;
+                btn.DialogResult = result;
+                btn.AutoSize = true;
+                btn.Click += delegate { this.DialogResult = result; this.Close(); };
+                buttonPanel.Controls.Add(btn);
+            };
+
+            // Add buttons based on the button configuration
             switch (buttons)
             {
                 case XMessageBoxButtons.OK:
-                    AddButton("OK", DialogResult.OK);
+                    Add(L("OK"), DialogResult.OK);
                     break;
                 case XMessageBoxButtons.OKCancel:
-                    AddButton("Cancel", DialogResult.Cancel);
-                    AddButton("OK", DialogResult.OK);
+                    Add(L("Cancel"), DialogResult.Cancel);
+                    Add(L("OK"), DialogResult.OK);
                     break;
                 case XMessageBoxButtons.YesNo:
-                    AddButton("No", DialogResult.No);
-                    AddButton("Yes", DialogResult.Yes);
+                    Add(L("No"), DialogResult.No);
+                    Add(L("Yes"), DialogResult.Yes);
                     break;
                 case XMessageBoxButtons.YesNoCancel:
-                    AddButton("Cancel", DialogResult.Cancel);
-                    AddButton("No", DialogResult.No);
-                    AddButton("Yes", DialogResult.Yes);
+                    Add(L("Cancel"), DialogResult.Cancel);
+                    Add(L("No"), DialogResult.No);
+                    Add(L("Yes"), DialogResult.Yes);
                     break;
                 case XMessageBoxButtons.RetryCancel:
-                    AddButton("Cancel", DialogResult.Cancel);
-                    AddButton("Retry", DialogResult.Retry);
+                    Add(L("Cancel"), DialogResult.Cancel);
+                    Add(L("Retry"), DialogResult.Retry);
                     break;
             }
         }
 
         /// <summary>
-        /// Gets the icon image based on the specified <see cref="XMessageBoxIcon"/>.
+        /// Gets the appropriate system icon image based on the specified icon type.
         /// </summary>
-        /// <param name="icon">The icon type.</param>
-        /// <returns>The corresponding <see cref="Image"/>.</returns>
+        /// <param name="icon">The type of icon to retrieve.</param>
+        /// <returns>The system icon as an image.</returns>
         private Image GetIconImage(XMessageBoxIcon icon)
         {
             switch (icon)
