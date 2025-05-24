@@ -57,10 +57,6 @@ namespace SaveAsPDF
             this.groupBoxEmployee = new System.Windows.Forms.GroupBox();
             this.RemoveEmployee = new System.Windows.Forms.Button();
             this.dgvEmployees = new System.Windows.Forms.DataGridView();
-            this.iD = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.firstName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.lastName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.emailAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnPhoneBook = new System.Windows.Forms.Button();
             this.chkbSendNote = new System.Windows.Forms.CheckBox();
             this.tabFilesFolders = new System.Windows.Forms.TabControl();
@@ -261,40 +257,11 @@ namespace SaveAsPDF
             this.dgvEmployees.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvEmployees.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dgvEmployees.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvEmployees.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.iD,
-            this.firstName,
-            this.lastName,
-            this.emailAddress});
             resources.ApplyResources(this.dgvEmployees, "dgvEmployees");
             this.dgvEmployees.Name = "dgvEmployees";
             this.dgvEmployees.ReadOnly = true;
             this.dgvEmployees.RowHeadersVisible = false;
             this.dgvEmployees.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            // 
-            // iD
-            // 
-            resources.ApplyResources(this.iD, "iD");
-            this.iD.Name = "iD";
-            this.iD.ReadOnly = true;
-            // 
-            // firstName
-            // 
-            resources.ApplyResources(this.firstName, "firstName");
-            this.firstName.Name = "firstName";
-            this.firstName.ReadOnly = true;
-            // 
-            // lastName
-            // 
-            resources.ApplyResources(this.lastName, "lastName");
-            this.lastName.Name = "lastName";
-            this.lastName.ReadOnly = true;
-            // 
-            // emailAddress
-            // 
-            resources.ApplyResources(this.emailAddress, "emailAddress");
-            this.emailAddress.Name = "emailAddress";
-            this.emailAddress.ReadOnly = true;
             // 
             // btnPhoneBook
             // 
@@ -502,10 +469,6 @@ namespace SaveAsPDF
         private System.Windows.Forms.CheckBox chkbSelectAllAttachments;
         private System.Windows.Forms.DataGridView dgvAttachments;
         private System.Windows.Forms.Label lblSaveLocation;
-        private System.Windows.Forms.DataGridViewTextBoxColumn iD;
-        private System.Windows.Forms.DataGridViewTextBoxColumn firstName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn lastName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn emailAddress;
         private System.Windows.Forms.CheckBox chbOpenPDF;
         private System.Windows.Forms.ErrorProvider errorProviderMain;
         private System.Windows.Forms.ComboBox cmbSaveLocation;

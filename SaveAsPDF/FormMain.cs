@@ -6,6 +6,7 @@ using SaveAsPDF.Properties;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel; // For BindingList
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -75,12 +76,20 @@ namespace SaveAsPDF
         public static object SettingModel { get; internal set; }
 
         /// <summary>
+        /// The binding list of employees for data binding.
+        /// </summary>
+        private BindingList<EmployeeModel> _employeesBindingList = new BindingList<EmployeeModel>();
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FormMain"/> class.
         /// </summary>
         public FormMain()
         {
             InitializeComponent();
             Load += FormMain_Load;
+            dgvEmployees.AutoGenerateColumns = false;
+            dgvEmployees.CellValueChanged += dgvEmployees_CellValueChanged;
+            dgvEmployees.CurrentCellDirtyStateChanged += dgvEmployees_CurrentCellDirtyStateChanged;
         }
 
         /// <summary>
@@ -95,10 +104,51 @@ namespace SaveAsPDF
         private void FormMain_Load(object sender, EventArgs e)
         {
             // Employees dataGridView columns headers
-            dgvEmployees.Columns[0].Visible = false;
-            dgvEmployees.Columns[1].HeaderText = "שם פרטי";
-            dgvEmployees.Columns[2].HeaderText = "שם משפחה";
-            dgvEmployees.Columns[3].HeaderText = "אימייל";
+            dgvEmployees.Columns.Clear();
+
+            // Add columns programmatically
+            var colId = new DataGridViewTextBoxColumn
+            {
+                Name = "Id",
+                DataPropertyName = "Id",
+                Visible = false
+            };
+            var colFirstName = new DataGridViewTextBoxColumn
+            {
+                Name = "FirstName",
+                DataPropertyName = "FirstName",
+                HeaderText = "שם פרטי"
+            };
+            var colLastName = new DataGridViewTextBoxColumn
+            {
+                Name = "LastName",
+                DataPropertyName = "LastName",
+                HeaderText = "שם משפחה"
+            };
+            var colEmail = new DataGridViewTextBoxColumn
+            {
+                Name = "EmailAddress",
+                DataPropertyName = "EmailAddress",
+                HeaderText = "אימייל"
+            };
+            var colIsLeader = new DataGridViewCheckBoxColumn
+            {
+                Name = "IsLeader",
+                DataPropertyName = "IsLeader",
+                HeaderText = "ראש פרויקט",
+                ReadOnly = false // Ensure editable
+            };
+
+            dgvEmployees.Columns.AddRange(colId, colFirstName, colLastName, colEmail, colIsLeader);
+
+            // Bind the DataGridView to the BindingList
+            dgvEmployees.DataSource = _employeesBindingList;
+
+            // Make all columns read-only by default
+            dgvEmployees.ReadOnly = true;
+
+            // Allow editing only in the "IsLeader" column
+            dgvEmployees.Columns["IsLeader"].ReadOnly = false;
 
             // Context menus
             rtxtNotes.EnableContextMenu();
@@ -142,14 +192,28 @@ namespace SaveAsPDF
         /// <param name="text">The text to add to the auto-complete source.</param>
         private void UpdateAutoCompleteSource(string text)
         {
-            if (!searchHistory.Contains(text))
-            {
-                searchHistory.Add(text);
-                if (Settings.Default.LastProjects == null)
-                    Settings.Default.LastProjects = new StringCollection();
-                Settings.Default.LastProjects.AddRange(searchHistory.ToArray());
-                Settings.Default.Save();
-            }
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            // Remove if already exists to avoid duplicates and keep most recent at the top
+            searchHistory.Remove(text);
+            searchHistory.Insert(0, text);
+
+            // Limit history to 10 items (or any desired max)
+            int maxCount = 10;
+            if (searchHistory.Count > maxCount)
+                searchHistory = searchHistory.Take(maxCount).ToList();
+
+            // Update settings
+            if (Settings.Default.LastProjects == null)
+                Settings.Default.LastProjects = new StringCollection();
+            Settings.Default.LastProjects.Clear();
+            Settings.Default.LastProjects.AddRange(searchHistory.ToArray());
+            Settings.Default.Save();
+
+            // Update the textbox's auto-complete source immediately
+            txtProjectID.AutoCompleteCustomSource.Clear();
+            txtProjectID.AutoCompleteCustomSource.AddRange(searchHistory.ToArray());
         }
 
         /// <summary>
@@ -328,14 +392,14 @@ namespace SaveAsPDF
         /// </summary>
         private void LoadEmployeeData()
         {
-            dgvEmployees.Rows.Clear();
+            _employeesBindingList.Clear();
             if (File.Exists(settingsModel.XmlProjectFile))
             {
-                _employeesModel = settingsModel.XmlEmployeesFile.XmlEmployeesFileToModel();
-                if (_employeesModel != null)
+                var loaded = settingsModel.XmlEmployeesFile.XmlEmployeesFileToModel();
+                if (loaded != null)
                 {
-                    foreach (var em in _employeesModel)
-                        dgvEmployees.Rows.Add(em.Id, em.FirstName, em.LastName, em.EmailAddress);
+                    foreach (var em in loaded)
+                        _employeesBindingList.Add(em);
                 }
             }
         }
@@ -608,12 +672,37 @@ namespace SaveAsPDF
         /// <param name="model">The employee model to add.</param>
         public void EmployeeComplete(EmployeeModel model)
         {
-            bool found = dgvEmployees.Rows.Cast<DataGridViewRow>()
-                .Any(row => row.Cells[3].Value.ToString() == model.EmailAddress);
-            if (!found)
+            if (!_employeesBindingList.Any(e => e.EmailAddress == model.EmailAddress))
             {
-                _employeesModel.Add(model);
-                dgvEmployees.Rows.Add(model.Id.ToString(), model.FirstName, model.LastName, model.EmailAddress);
+                _employeesBindingList.Add(model);
+                SaveEmployeesToXml();
+            }
+        }
+
+        // This event ensures checkbox changes are committed immediately
+        private void dgvEmployees_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dgvEmployees.IsCurrentCellDirty && dgvEmployees.CurrentCell is DataGridViewCheckBoxCell)
+            {
+                dgvEmployees.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
+        // This event updates the EmployeeModel and XML when IsLeader is changed
+        private void dgvEmployees_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && dgvEmployees.Columns[e.ColumnIndex].Name == "IsLeader")
+            {
+                SaveEmployeesToXml();
+            }
+        }
+
+        // Fix for CS1501: Adjusting the method call to match the correct signature based on the provided type signatures.
+        private void SaveEmployeesToXml()
+        {
+            if (!string.IsNullOrEmpty(settingsModel.XmlEmployeesFile))
+            {
+                XmlFileHelper.EmployeesModelToXmlFile(settingsModel.XmlEmployeesFile, _employeesModel);
             }
         }
 
@@ -806,14 +895,35 @@ namespace SaveAsPDF
         {
             errorProviderMain.SetError(txtProjectID, string.Empty);
             tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
-            ProcessProjectID(txtProjectID.Text);
+
+            string projectID = txtProjectID.Text;
+            if (!string.IsNullOrWhiteSpace(projectID))
+            {
+                // Save the valid project ID to auto-complete history
+                UpdateAutoCompleteSource(projectID);
+            }
+
+            // Check if the project folder exists before proceeding
+            var projectRootFolder = projectID.ProjectFullPath(settingsModel.RootDrive);
+            if (!Directory.Exists(projectRootFolder.FullName))
+            {
+                XMessageBox.Show(
+                    "הפרויקט לא קיים",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
+                return;
+            }
+
+            ProcessProjectID(projectID);
             if (string.IsNullOrEmpty(settingsModel.RootDrive))
                 HandleFirstRun();
             if (_mailItem is MailItem mailItem)
                 ProcessMailItem(_mailItem);
             else
                 ShowInvalidMailItemError();
-            _dataLoaded = true;
         }
 
         /// <summary>

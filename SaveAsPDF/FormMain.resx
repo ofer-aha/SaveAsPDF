@@ -218,7 +218,7 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAAB0
-        DwAAAk1TRnQBSQFMAgEBCAEAAZgBAQGYAQEBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
+        DwAAAk1TRnQBSQFMAgEBCAEAAaABAQGgAQEBEAEAARABAAT/AQkBAAj/AUIBTQE2AQQGAAE2AQQCAAEo
         AwABQAMAATADAAEBAQABCAYAAQwYAAGAAgABgAMAAoABAAGAAwABgAEAAYABAAKAAgADwAEAAcAB3AHA
         AQAB8AHKAaYBAAEzBQABMwEAATMBAAEzAQACMwIAAxYBAAMcAQADIgEAAykBAANVAQADTQEAA0IBAAM5
         AQABgAF8Af8BAAJQAf8BAAGTAQAB1gEAAf8B7AHMAQABxgHWAe8BAAHWAucBAAGQAakBrQIAAf8BMwMA
@@ -827,78 +827,6 @@
   <data name="&gt;&gt;rtxtNotes.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="&gt;&gt;RemoveEmployee.Name" xml:space="preserve">
-    <value>RemoveEmployee</value>
-  </data>
-  <data name="&gt;&gt;RemoveEmployee.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;RemoveEmployee.Parent" xml:space="preserve">
-    <value>groupBoxEmployee</value>
-  </data>
-  <data name="&gt;&gt;RemoveEmployee.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.Name" xml:space="preserve">
-    <value>dgvEmployees</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DataGridView, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.Parent" xml:space="preserve">
-    <value>groupBoxEmployee</value>
-  </data>
-  <data name="&gt;&gt;dgvEmployees.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;btnPhoneBook.Name" xml:space="preserve">
-    <value>btnPhoneBook</value>
-  </data>
-  <data name="&gt;&gt;btnPhoneBook.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btnPhoneBook.Parent" xml:space="preserve">
-    <value>groupBoxEmployee</value>
-  </data>
-  <data name="&gt;&gt;btnPhoneBook.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;chkbSendNote.Name" xml:space="preserve">
-    <value>chkbSendNote</value>
-  </data>
-  <data name="&gt;&gt;chkbSendNote.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;chkbSendNote.Parent" xml:space="preserve">
-    <value>groupBoxEmployee</value>
-  </data>
-  <data name="&gt;&gt;chkbSendNote.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="groupBoxEmployee.Location" type="System.Drawing.Point, System.Drawing">
-    <value>395, 31</value>
-  </data>
-  <data name="groupBoxEmployee.Size" type="System.Drawing.Size, System.Drawing">
-    <value>371, 172</value>
-  </data>
-  <data name="groupBoxEmployee.TabIndex" type="System.Int32, mscorlib">
-    <value>39</value>
-  </data>
-  <data name="groupBoxEmployee.Text" xml:space="preserve">
-    <value>מתכנן אחראי</value>
-  </data>
-  <data name="&gt;&gt;groupBoxEmployee.Name" xml:space="preserve">
-    <value>groupBoxEmployee</value>
-  </data>
-  <data name="&gt;&gt;groupBoxEmployee.Type" xml:space="preserve">
-    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;groupBoxEmployee.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;groupBoxEmployee.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
   <data name="RemoveEmployee.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
@@ -926,18 +854,6 @@
   <data name="&gt;&gt;RemoveEmployee.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <metadata name="iD.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="firstName.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="lastName.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="emailAddress.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
   <data name="dgvEmployees.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 19</value>
   </data>
@@ -961,45 +877,6 @@
   </data>
   <data name="&gt;&gt;dgvEmployees.ZOrder" xml:space="preserve">
     <value>1</value>
-  </data>
-  <metadata name="iD.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <data name="iD.HeaderText" xml:space="preserve">
-    <value>ID</value>
-  </data>
-  <data name="iD.Visible" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="iD.Width" type="System.Int32, mscorlib">
-    <value>24</value>
-  </data>
-  <metadata name="firstName.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <data name="firstName.HeaderText" xml:space="preserve">
-    <value>שם פרטי</value>
-  </data>
-  <data name="firstName.Width" type="System.Int32, mscorlib">
-    <value>76</value>
-  </data>
-  <metadata name="lastName.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <data name="lastName.HeaderText" xml:space="preserve">
-    <value>שם משפחה</value>
-  </data>
-  <data name="lastName.Width" type="System.Int32, mscorlib">
-    <value>88</value>
-  </data>
-  <metadata name="emailAddress.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <data name="emailAddress.HeaderText" xml:space="preserve">
-    <value>אימייל</value>
-  </data>
-  <data name="emailAddress.Width" type="System.Int32, mscorlib">
-    <value>69</value>
   </data>
   <data name="btnPhoneBook.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -1063,6 +940,30 @@
   </data>
   <data name="&gt;&gt;chkbSendNote.ZOrder" xml:space="preserve">
     <value>3</value>
+  </data>
+  <data name="groupBoxEmployee.Location" type="System.Drawing.Point, System.Drawing">
+    <value>395, 31</value>
+  </data>
+  <data name="groupBoxEmployee.Size" type="System.Drawing.Size, System.Drawing">
+    <value>371, 172</value>
+  </data>
+  <data name="groupBoxEmployee.TabIndex" type="System.Int32, mscorlib">
+    <value>39</value>
+  </data>
+  <data name="groupBoxEmployee.Text" xml:space="preserve">
+    <value>מתכנן אחראי</value>
+  </data>
+  <data name="&gt;&gt;groupBoxEmployee.Name" xml:space="preserve">
+    <value>groupBoxEmployee</value>
+  </data>
+  <data name="&gt;&gt;groupBoxEmployee.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;groupBoxEmployee.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;groupBoxEmployee.ZOrder" xml:space="preserve">
+    <value>4</value>
   </data>
   <data name="&gt;&gt;tabFolsers.Name" xml:space="preserve">
     <value>tabFolsers</value>
@@ -1326,7 +1227,7 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabAtachments.Size" type="System.Drawing.Size, System.Drawing">
-    <value>339, 231</value>
+    <value>339, 227</value>
   </data>
   <data name="tabAtachments.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -3253,30 +3154,6 @@
   </data>
   <data name="&gt;&gt;dlgFolders.Type" xml:space="preserve">
     <value>System.Windows.Forms.FolderBrowserDialog, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;iD.Name" xml:space="preserve">
-    <value>iD</value>
-  </data>
-  <data name="&gt;&gt;iD.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;firstName.Name" xml:space="preserve">
-    <value>firstName</value>
-  </data>
-  <data name="&gt;&gt;firstName.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;lastName.Name" xml:space="preserve">
-    <value>lastName</value>
-  </data>
-  <data name="&gt;&gt;lastName.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;emailAddress.Name" xml:space="preserve">
-    <value>emailAddress</value>
-  </data>
-  <data name="&gt;&gt;emailAddress.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DataGridViewTextBoxColumn, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;errorProviderMain.Name" xml:space="preserve">
     <value>errorProviderMain</value>

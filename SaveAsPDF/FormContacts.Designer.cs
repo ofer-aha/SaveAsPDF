@@ -33,11 +33,11 @@ namespace SaveAsPDF
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.lblLoading = new System.Windows.Forms.Label();
             this.dgvContacs = new System.Windows.Forms.DataGridView();
+            this.btnCancel = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.txtFilter = new System.Windows.Forms.TextBox();
             this.btnOK = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -77,9 +77,9 @@ namespace SaveAsPDF
             this.lblLoading.Location = new System.Drawing.Point(138, 130);
             this.lblLoading.Name = "lblLoading";
             this.lblLoading.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.lblLoading.Size = new System.Drawing.Size(109, 22);
+            this.lblLoading.Size = new System.Drawing.Size(134, 22);
             this.lblLoading.TabIndex = 1;
-            this.lblLoading.Text = "Loading.......";
+            this.lblLoading.Text = ".......טוען נתונים";
             // 
             // dgvContacs
             // 
@@ -98,6 +98,17 @@ namespace SaveAsPDF
             this.dgvContacs.Size = new System.Drawing.Size(458, 313);
             this.dgvContacs.TabIndex = 0;
             this.dgvContacs.DoubleClick += new System.EventHandler(this.dgvContacs_DoubleClick);
+            // 
+            // btnCancel
+            // 
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.Location = new System.Drawing.Point(252, 20);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(94, 24);
+            this.btnCancel.TabIndex = 4;
+            this.btnCancel.Text = "&ביטול";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // label2
             // 
@@ -139,25 +150,14 @@ namespace SaveAsPDF
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
-            // btnCancel
-            // 
-            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(252, 20);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(94, 24);
-            this.btnCancel.TabIndex = 4;
-            this.btnCancel.Text = "&ביטול";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
-            // 
-            // frmContacts
+            // FormContacts
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(458, 378);
             this.Controls.Add(this.splitContainer);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "frmContacts";
+            this.Name = "FormContacts";
             this.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "בחר אנשי קשר";

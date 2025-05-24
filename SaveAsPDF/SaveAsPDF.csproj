@@ -309,6 +309,7 @@
     <Compile Include="Helpers\XMessageBox.Designer.cs">
       <DependentUpon>XMessageBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\XMessageBoxForm.cs" />
     <Compile Include="IEmployeeRequester.cs" />
     <Compile Include="INewProjectRequester.cs" />
     <Compile Include="ISettingsRequester.cs" />

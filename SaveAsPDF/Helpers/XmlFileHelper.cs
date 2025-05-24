@@ -132,11 +132,11 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// Deserializes a list of <see cref="EmployeeModel"/> objects from an XML file at the specified path.
+        /// De-serializes a list of <see cref="EmployeeModel"/> objects from an XML file at the specified path.
         /// </summary>
         /// <param name="xmlFile">The full path to the XML file to load.</param>
         /// <returns>
-        /// The deserialized list of <see cref="EmployeeModel"/> objects if successful; otherwise, <c>null</c> if an error occurs.
+        /// The deserialize list of <see cref="EmployeeModel"/> objects if successful; otherwise, <c>null</c> if an error occurs.
         /// </returns>
         public static List<EmployeeModel> XmlEmployeesFileToModel(this string xmlFile)
         {

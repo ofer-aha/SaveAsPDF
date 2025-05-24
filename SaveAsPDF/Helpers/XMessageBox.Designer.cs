@@ -137,11 +137,16 @@ namespace SaveAsPDF
                 };
             }
 
+            // --- Button panel fix: always horizontal, bottom-aligned ---
             buttonPanel = new FlowLayoutPanel
             {
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.None,
                 AutoSize = true,
-                FlowDirection = (System.Windows.Forms.FlowDirection)(alignment == XMessageAlignment.Right ? System.Windows.FlowDirection.RightToLeft : System.Windows.FlowDirection.LeftToRight)
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft, // Disambiguate with full namespace
+                Padding = new Padding(0, 10, 0, 0),
+                WrapContents = false,
+                Anchor = AnchorStyles.Right | AnchorStyles.Bottom
             };
 
             AddButtons(buttons);
@@ -154,7 +159,10 @@ namespace SaveAsPDF
                 table.Controls.Add(messageLabel, 1, 0);
 
             table.SetRowSpan(iconBox, 2);
-            table.Controls.Add(buttonPanel, 1, 1);
+
+            // Place buttonPanel in a separate row, spanning both columns, and align to bottom center
+            table.Controls.Add(buttonPanel, 0, 1);
+            table.SetColumnSpan(buttonPanel, 2);
 
             Controls.Add(table);
 
