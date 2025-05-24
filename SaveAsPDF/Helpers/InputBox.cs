@@ -51,7 +51,7 @@ namespace SaveAsPDF.Helpers
             labelPrompt = new Label();
             errorProviderText = new ErrorProvider(components);
 
-            ((ISupportInitialize)(errorProviderText)).BeginInit();
+            ((ISupportInitialize)errorProviderText).BeginInit();
             SuspendLayout();
 
             // buttonOK
@@ -80,8 +80,8 @@ namespace SaveAsPDF.Helpers
             textBoxText.Name = "textBoxText";
             textBoxText.Size = new System.Drawing.Size(416, 20);
             textBoxText.TabIndex = 1;
-            textBoxText.TextChanged += textBoxText_TextChanged;
-            textBoxText.Validating += textBoxText_Validating;
+            textBoxText.TextChanged += TextBoxText_TextChanged;
+            textBoxText.Validating += TextBoxText_Validating;
 
             // labelPrompt
             labelPrompt.AutoSize = true;
@@ -111,7 +111,7 @@ namespace SaveAsPDF.Helpers
             RightToLeftLayout = true;
             Text = "Title";
 
-            ((ISupportInitialize)(errorProviderText)).EndInit();
+            ((ISupportInitialize)errorProviderText).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -174,7 +174,7 @@ namespace SaveAsPDF.Helpers
         /// <summary>
         /// Resets the error provider when the text in the input box changes.
         /// </summary>
-        private void textBoxText_TextChanged(object sender, EventArgs e)
+        private void TextBoxText_TextChanged(object sender, EventArgs e)
         {
             errorProviderText.SetError(textBoxText, "");
         }
@@ -182,7 +182,7 @@ namespace SaveAsPDF.Helpers
         /// <summary>
         /// Validates the input text using the provided validator.
         /// </summary>
-        private void textBoxText_Validating(object sender, CancelEventArgs e)
+        private void TextBoxText_Validating(object sender, CancelEventArgs e)
         {
             if (Validator != null)
             {
@@ -253,5 +253,4 @@ namespace SaveAsPDF.Helpers
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="InputBoxValidatingArgs"/> containing the event data.</param>
     public delegate void InputBoxValidatingHandler(object sender, InputBoxValidatingArgs e);
-
 }

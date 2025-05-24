@@ -4,25 +4,23 @@ using SaveAsPDF.Properties;
 using System;
 using System.IO;
 using System.Windows.Forms;
-using System.Xml;
 
 namespace SaveAsPDF
 {
     public partial class FormSettings : Form
     {
-        private ISettingsRequester _callingForm;
-        private SettingsModel _settingsModel = new SettingsModel();
-        private TreeNode mySelectedNode;
-        private bool _isDirty = false;
+        private readonly ISettingsRequester _callingForm;
+        private readonly SettingsModel _settingsModel = new SettingsModel();
+        private TreeNode _mySelectedNode;
+        private bool _isDirty;
 
         public FormSettings(ISettingsRequester caller)
         {
             InitializeComponent();
-            _callingForm = caller;
+            _callingForm = caller ?? throw new ArgumentNullException(nameof(caller));
 
             _callingForm.SettingsComplete(_settingsModel);
 
-            //tvProjectSubFolders.Nodes.Add(_settingsModel.ProjectRootTag);
             tvProjectSubFolders.HideSelection = false;
             tvProjectSubFolders.PathSeparator = @"\";
 
@@ -39,9 +37,20 @@ namespace SaveAsPDF
             txtMinAttSize.Text = _settingsModel.MinAttachmentSize.ToString();
             txtTreePath.Text = _settingsModel.DefaultTreeFile;
 
+            LoadTreeFromFile(_settingsModel.DefaultTreeFile);
+
+            cmbDefaultFolder.Items.Clear();
+            PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
+            cmbDefaultFolder.SelectedIndex = (_settingsModel.DefaultFolderID >= 0 && _settingsModel.DefaultFolderID < cmbDefaultFolder.Items.Count)
+                ? _settingsModel.DefaultFolderID
+                : 0;
+        }
+
+        private void LoadTreeFromFile(string filePath)
+        {
             try
             {
-                string[] lines = File.ReadAllLines(_settingsModel.DefaultTreeFile);
+                string[] lines = File.ReadAllLines(filePath);
                 LoadTreeViewFromList(tvProjectSubFolders, lines);
                 tvProjectSubFolders.ExpandAll();
                 if (tvProjectSubFolders.Nodes.Count > 0)
@@ -58,22 +67,6 @@ namespace SaveAsPDF
                     XMessageLanguage.Hebrew
                 );
             }
-
-            cmbDefaultFolder.Items.Clear();
-            PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
-            if (_settingsModel != null && _settingsModel.DefaultFolderID >= 0 && _settingsModel.DefaultFolderID < cmbDefaultFolder.Items.Count)
-            {
-                cmbDefaultFolder.SelectedIndex = _settingsModel.DefaultFolderID;
-            }
-            else
-            {
-                cmbDefaultFolder.SelectedIndex = 0;
-            }
-        }
-
-        private void FormSettings_Activated(object sender, EventArgs e)
-        {
-            //refresh data if dirty? 
         }
 
         private void FormSettings_Load(object sender, EventArgs e)
@@ -85,7 +78,7 @@ namespace SaveAsPDF
             txtDateTag.Text = _settingsModel.DateTag;
 
             lsbLastProjects.Items.Clear();
-            foreach (var item in Settings.Default.LastProjects)
+            foreach (string item in Settings.Default.LastProjects)
             {
                 if (!lsbLastProjects.Items.Contains(item))
                 {
@@ -97,60 +90,39 @@ namespace SaveAsPDF
             _isDirty = false;
         }
 
-        private void bntCancel_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+        private void bntCancel_Click(object sender, EventArgs e) => Close();
 
         private void tvProjectSubFolders_MouseDown(object sender, MouseEventArgs e)
         {
-            mySelectedNode = tvProjectSubFolders.GetNodeAt(e.X, e.Y);
+            _mySelectedNode = tvProjectSubFolders.GetNodeAt(e.X, e.Y);
         }
 
         private void tvProjectSubFolders_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            if (e.Label != null)
+            if (e.Label == null || string.IsNullOrEmpty(e.Label) || e.Label.IndexOfAny(new char[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) != -1)
             {
-                _isDirty = true;
-                if (e.Label.Length > 0)
-                {
-                    if (e.Label.IndexOfAny(new char[] { '\\', '/', ':', '*', '?', '<', '>', '|', '"' }) == -1)
-                    {
-                        e.Node.EndEdit(false);
-                    }
-                    else
-                    {
-                        e.CancelEdit = true;
-                        XMessageBox.Show(
-                            "שם לא חוקי.\nאין להשתמש בתווים הבאים '\\', '/', ':', '*', '?', '<', '>', '|', '\"' ",
-                            "עריכת שם",
-                            XMessageBoxButtons.OK,
-                            XMessageBoxIcon.Warning,
-                            XMessageAlignment.Right,
-                            XMessageLanguage.Hebrew
-                        );
-                        e.Node.BeginEdit();
-                    }
-                }
-                else
-                {
-                    e.CancelEdit = true;
-                    XMessageBox.Show(
-                        "שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות",
-                        "עריכת שם",
-                        XMessageBoxButtons.OK,
-                        XMessageBoxIcon.Warning,
-                        XMessageAlignment.Right,
-                        XMessageLanguage.Hebrew
-                    );
-                    e.Node.BeginEdit();
-                }
+                e.CancelEdit = true;
+                XMessageBox.Show(
+                    e.Label == null || string.IsNullOrEmpty(e.Label)
+                        ? "שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות"
+                        : "שם לא חוקי.\nאין להשתמש בתווים הבאים '\\', '/', ':', '*', '?', '<', '>', '|', '\"' ",
+                    "עריכת שם",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Warning,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
+                e.Node?.BeginEdit();
+                return;
             }
+
+            _isDirty = true;
+            e.Node.EndEdit(false);
         }
 
         private void MenueAdd_Click(object sender, EventArgs e)
         {
-            TreeHelpers.AddNode(tvProjectSubFolders, mySelectedNode);
+            TreeHelpers.AddNode(tvProjectSubFolders, _mySelectedNode);
             _isDirty = true;
         }
 
@@ -162,7 +134,7 @@ namespace SaveAsPDF
 
         private void MenuRename_Click(object sender, EventArgs e)
         {
-            TreeHelpers.RenameNode(tvProjectSubFolders, mySelectedNode);
+            TreeHelpers.RenameNode(tvProjectSubFolders, _mySelectedNode);
             _isDirty = true;
         }
 
@@ -170,7 +142,7 @@ namespace SaveAsPDF
         {
             if (_isDirty)
             {
-                var result = XMessageBox.Show(
+                DialogResult result = XMessageBox.Show(
                     "שמור שינויים?",
                     "SaveAsPDF",
                     XMessageBoxButtons.YesNo,
@@ -196,15 +168,13 @@ namespace SaveAsPDF
 
         private void btnFolders_Click(object sender, EventArgs e)
         {
-            var Dialog = new FolderPicker();
-            Dialog.InputPath = _settingsModel.RootDrive;
-            if (Dialog.ShowDialog(Handle) == true)
+            var dialog = new FolderPicker { InputPath = _settingsModel.RootDrive };
+            if (dialog.ShowDialog(Handle) == true)
             {
                 _isDirty = true;
-                txtRootFolder.Text = Dialog.ResultPath;
+                txtRootFolder.Text = dialog.ResultPath;
             }
         }
-
         private void btnLoadTreeFile_Click(object sender, EventArgs e)
         {
             openFileDialog.Title = "פתח קובץ תיקיות";
@@ -212,9 +182,7 @@ namespace SaveAsPDF
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                string[] lines = File.ReadAllLines(openFileDialog.FileName);
-                LoadTreeViewFromList(tvProjectSubFolders, lines);
-                tvProjectSubFolders.ExpandAll();
+                LoadTreeFromFile(openFileDialog.FileName);
                 txtTreePath.Text = openFileDialog.FileName;
                 _settingsModel.DefaultTreeFile = openFileDialog.FileName;
                 cmbDefaultFolder.Items.Clear();
@@ -256,11 +224,10 @@ namespace SaveAsPDF
             }
         }
 
-        // Helper: Load tree from string array
         private void LoadTreeViewFromList(TreeView treeView, string[] lines)
         {
             treeView.Nodes.Clear();
-            foreach (var line in lines)
+            foreach (string line in lines)
             {
                 if (!string.IsNullOrWhiteSpace(line))
                 {
@@ -269,7 +236,6 @@ namespace SaveAsPDF
             }
         }
 
-        // Helper: Save tree to file
         private void SaveTreeViewToFile(TreeView treeView, string fileName)
         {
             using (var writer = new StreamWriter(fileName, false))
@@ -290,7 +256,6 @@ namespace SaveAsPDF
             }
         }
 
-        // Helper: Populate ComboBox from TreeView
         private void PopulateComboBoxFromTree(TreeView treeView, ComboBox comboBox)
         {
             comboBox.Items.Clear();
@@ -309,19 +274,8 @@ namespace SaveAsPDF
             }
         }
 
-        private XmlNode GetXmlNode(System.Windows.Controls.TreeViewItem tnode, XmlDocument d)
-        {
-            XmlNode n = d.CreateNode(XmlNodeType.Element, tnode.Name, "");
-            foreach (System.Windows.Controls.TreeViewItem t in tnode.Items)
-            {
-                n.AppendChild(GetXmlNode(t, d));
-            }
-            return n;
-        }
-
         private void btnLoadDefaultTree_Click(object sender, EventArgs e)
         {
-            // If you have a default list, load it here. Otherwise, clear and add a root node.
             tvProjectSubFolders.Nodes.Clear();
             tvProjectSubFolders.Nodes.Add(_settingsModel.ProjectRootTag);
             cmbDefaultFolder.Items.Clear();
@@ -336,15 +290,15 @@ namespace SaveAsPDF
 
         private void MenuAddDate_Click(object sender, EventArgs e)
         {
-            TreeHelpers.AddNode(tvProjectSubFolders, mySelectedNode, _settingsModel.DateTag);
+            TreeHelpers.AddNode(tvProjectSubFolders, _mySelectedNode, _settingsModel.DateTag);
             _isDirty = true;
         }
 
         private void MenuAppendDate_Click(object sender, EventArgs e)
         {
-            if (mySelectedNode != null)
+            if (_mySelectedNode != null)
             {
-                mySelectedNode.Text += _settingsModel.DateTag;
+                _mySelectedNode.Text += _settingsModel.DateTag;
                 _isDirty = true;
             }
         }
@@ -400,61 +354,47 @@ namespace SaveAsPDF
 
         private void txtMaxProjectCount_Validated(object sender, EventArgs e)
         {
-            int.TryParse(txtMaxProjectCount.Text, out int count);
-            Settings.Default.MaxProjectCount = count;
-            Settings.Default.Save();
-            errorProviderSettings.Clear();
-            toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMaxProjectCount);
-            _isDirty = true;
+            if (int.TryParse(txtMaxProjectCount.Text, out int count))
+            {
+                Settings.Default.MaxProjectCount = count;
+                Settings.Default.Save();
+                errorProviderSettings.Clear();
+                toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMaxProjectCount);
+                _isDirty = true;
+            }
         }
 
         private void txtMaxProjectCount_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (int.TryParse(txtMaxProjectCount.Text, out int count))
-            {
-                if (count < 0 || count > 99)
-                {
-                    e.Cancel = true;
-                    errorProviderSettings.SetError(txtMaxProjectCount, "ניתן להזין ערכים בין 0 ל- 99. ערך מומלץ 10");
-                    txtMaxProjectCount.Select(0, txtMaxProjectCount.Text.Length);
-                    toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMaxProjectCount);
-                }
-            }
-            else
+            if (!int.TryParse(txtMaxProjectCount.Text, out int count) || count < 0 || count > 99)
             {
                 e.Cancel = true;
-                errorProviderSettings.SetError(txtMaxProjectCount, "יש להזין ספרות בלבד");
+                errorProviderSettings.SetError(txtMaxProjectCount, "ניתן להזין ערכים בין 0 ל- 99. ערך מומלץ 10");
                 txtMaxProjectCount.Select(0, txtMaxProjectCount.Text.Length);
                 toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMaxProjectCount);
             }
         }
 
-        private void txtMinAttSize_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        private void txtMinAttSize_Validated(object sender, EventArgs e)
         {
             if (int.TryParse(txtMinAttSize.Text, out int count))
             {
-                if (count < 0 || count > 9999)
-                {
-                    e.Cancel = true;
-                    errorProviderSettings.SetError(txtMinAttSize, "ניתן להזין ערכים בין 0 ל- 9999. ערך מומלץ 8192");
-                    txtMinAttSize.Select(0, txtMinAttSize.Text.Length);
-                    toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMinAttSize);
-                }
-            }
-            else
-            {
-                e.Cancel = true;
-                errorProviderSettings.SetError(txtMinAttSize, "יש להזין ספרות בלבד");
-                txtMinAttSize.Select(0, txtMinAttSize.Text.Length);
+                _settingsModel.MinAttachmentSize = count;
+                errorProviderSettings.Clear();
                 toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMinAttSize);
+                _isDirty = true;
             }
         }
 
-        private void txtMinAttSize_Validated(object sender, EventArgs e)
+        private void txtMinAttSize_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            errorProviderSettings.Clear();
-            toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMinAttSize);
-            _isDirty = true;
+            if (!int.TryParse(txtMinAttSize.Text, out int count) || count < 0 || count > 9999)
+            {
+                e.Cancel = true;
+                errorProviderSettings.SetError(txtMinAttSize, "ניתן להזין ערכים בין 0 ל- 9999. ערך מומלץ 8192");
+                txtMinAttSize.Select(0, txtMinAttSize.Text.Length);
+                toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMinAttSize);
+            }
         }
     }
 }
