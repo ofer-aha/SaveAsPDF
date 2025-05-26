@@ -34,7 +34,7 @@ namespace SaveAsPDF.Tests
                     "Test",
                     XMessageBoxButtons.OKCancel,
                     XMessageBoxIcon.Warning,
-                    autoCloseMilliseconds: 500);
+                    autoCloseMilliseconds: 15000);
             });
 
             Assert.AreEqual(DialogResult.Cancel, result); // Auto-close defaults to Cancel
@@ -50,7 +50,7 @@ namespace SaveAsPDF.Tests
                     "Test",
                     XMessageBoxButtons.YesNo,
                     XMessageBoxIcon.Question,
-                    autoCloseMilliseconds: 500);
+                    autoCloseMilliseconds: 15000);
             });
 
             Assert.AreEqual(DialogResult.No, result); // Auto-close defaults to No
@@ -66,7 +66,7 @@ namespace SaveAsPDF.Tests
                     "Icon Test",
                     XMessageBoxButtons.OK,
                     customIcon: SystemIcons.Shield.ToBitmap(),
-                    autoCloseMilliseconds: 500);
+                    autoCloseMilliseconds: 15000);
             });
 
             Assert.AreEqual(DialogResult.OK, result);
@@ -83,14 +83,14 @@ namespace SaveAsPDF.Tests
                     XMessageBoxButtons.OK,
                     XMessageBoxIcon.Information,
                     XMessageAlignment.Center,
-                    autoCloseMilliseconds: 500);
+                    autoCloseMilliseconds: 15000);
             });
 
             Assert.AreEqual(DialogResult.OK, result);
         }
 
         [TestMethod]
-        public void Show_HebrewLanguage()
+        public void Show_HebrewLanguage_OK()
         {
             RunOnUIThread(() =>
             {
@@ -101,10 +101,82 @@ namespace SaveAsPDF.Tests
                     XMessageBoxIcon.Information,
                     XMessageAlignment.Right,
                     XMessageLanguage.Hebrew,
-                    autoCloseMilliseconds: 500);
+                    autoCloseMilliseconds: 15000);
             });
 
             Assert.AreEqual(DialogResult.OK, result);
+        }
+
+        [TestMethod]
+        public void Show_HebrewLanguage_OKCancel()
+        {
+            RunOnUIThread(() =>
+            {
+                result = XMessageBox.Show(
+                    "בדיקת אישור וביטול בעברית",
+                    "כותרת",
+                    XMessageBoxButtons.OKCancel,
+                    XMessageBoxIcon.Warning,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew,
+                    autoCloseMilliseconds: 15000);
+            });
+
+            Assert.AreEqual(DialogResult.Cancel, result);
+        }
+
+        [TestMethod]
+        public void Show_HebrewLanguage_YesNo()
+        {
+            RunOnUIThread(() =>
+            {
+                result = XMessageBox.Show(
+                    "בדיקת כן ולא בעברית",
+                    "כותרת",
+                    XMessageBoxButtons.YesNo,
+                    XMessageBoxIcon.Question,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew,
+                    autoCloseMilliseconds: 15000);
+            });
+
+            Assert.AreEqual(DialogResult.No, result);
+        }
+
+        [TestMethod]
+        public void Show_HebrewLanguage_YesNoCancel()
+        {
+            RunOnUIThread(() =>
+            {
+                result = XMessageBox.Show(
+                    "בדיקת כן, לא וביטול בעברית",
+                    "כותרת",
+                    XMessageBoxButtons.YesNoCancel,
+                    XMessageBoxIcon.Question,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew,
+                    autoCloseMilliseconds: 15000);
+            });
+
+            Assert.AreEqual(DialogResult.Cancel, result);
+        }
+
+        [TestMethod]
+        public void Show_HebrewLanguage_RetryCancel()
+        {
+            RunOnUIThread(() =>
+            {
+                result = XMessageBox.Show(
+                    "בדיקת נסה שוב וביטול בעברית",
+                    "כותרת",
+                    XMessageBoxButtons.RetryCancel,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew,
+                    autoCloseMilliseconds: 15000);
+            });
+
+            Assert.AreEqual(DialogResult.Cancel, result);
         }
 
         [TestMethod]
@@ -119,7 +191,7 @@ namespace SaveAsPDF.Tests
                     XMessageBoxIcon.Warning,
                     customFont: new Font("Arial", 12, FontStyle.Italic),
                     backColorOverride: Color.LightBlue,
-                    autoCloseMilliseconds: 500);
+                    autoCloseMilliseconds: 15000);
             });
 
             Assert.AreEqual(DialogResult.OK, result);
@@ -135,7 +207,7 @@ namespace SaveAsPDF.Tests
                     "AutoClose",
                     XMessageBoxButtons.OK,
                     XMessageBoxIcon.Information,
-                    autoCloseMilliseconds: 500);
+                    autoCloseMilliseconds: 15000);
             });
 
             Assert.AreEqual(DialogResult.OK, result);
@@ -156,7 +228,7 @@ namespace SaveAsPDF.Tests
                         loggedCaption = caption;
                         loggedMessage = message;
                     },
-                    autoCloseMilliseconds: 500);
+                    autoCloseMilliseconds: 15000);
             });
 
             Assert.AreEqual("Log Caption", loggedCaption);
@@ -174,7 +246,7 @@ namespace SaveAsPDF.Tests
                     XMessageBoxButtons.OK,
                     XMessageBoxIcon.Information,
                     centerToActiveWindow: false,
-                    autoCloseMilliseconds: 500);
+                    autoCloseMilliseconds: 15000);
             });
 
             Assert.AreEqual(DialogResult.OK, result);

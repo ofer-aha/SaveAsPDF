@@ -52,8 +52,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomMessageBox-test.cs" />
+    <Compile Include="CustomMessageBoxInput-test.cs" />
     <Compile Include="HtmlHelperTests.cs" />
-    <Compile Include="InputBoxTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
