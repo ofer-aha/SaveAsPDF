@@ -1,12 +1,11 @@
-﻿using Outlook = Microsoft.Office.Interop.Outlook;
+﻿using System;
+using Outlook = Microsoft.Office.Interop.Outlook;
+using SaveAsPDF.Helpers;
 
 namespace SaveAsPDF
 {
-
-
     public partial class ThisAddIn
     {
-
         public static Outlook.MailItem TypeOfMailitem(Outlook.MailItem mailItem)
         {
             mailItem = null;
@@ -15,7 +14,10 @@ namespace SaveAsPDF
             {
                 // frmMain Explorer
                 Outlook.Explorer explorer = windowType as Outlook.Explorer;
-                mailItem = explorer.Selection[1] as Outlook.MailItem;
+                if (explorer.Selection.Count > 0)
+                {
+                    mailItem = explorer.Selection[1] as Outlook.MailItem;
+                }
             }
             else if (windowType is Outlook.Inspector)
             {
@@ -27,72 +29,39 @@ namespace SaveAsPDF
             return mailItem;
         }
 
-
-        //public static void AccessContacts(string findLastName)
-        //{
-        //    Outlook.MAPIFolder folderContacts = Application.ActiveExplorer().Session.GetDefaultFolder
-        //                                    (Outlook.OlDefaultFolders.olFolderInbox);
-        //    Outlook.Items searchFolder = folderContacts.Items;
-        //    int counter = 0;
-        //    foreach (Outlook.ContactItem foundContact in searchFolder)
-        //    {
-        //        if (foundContact.LastName.Contains(findLastName))
-        //        {
-        //            foundContact.Display(false);
-        //            counter = counter + 1;
-        //        }
-        //    }
-        //    MessageBox.Show("You have " + counter +
-        //        " contacts with last names that contain "
-        //        + findLastName + ".");
-        //}
-
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-
-            //this.Application.NewMail += new Microsoft.Office.Interop.Outlook.
-            //                              ApplicationEvents_11_NewMailEventHandler(ThisAddIn_NewMail);
-
-            //OutlookProcessor.FindContactEmailByName("טלי");
+            // Initialize the add-in
         }
-
-
-        private void ThisAddIn_NewMail()
-        {
-            //Outlook.MAPIFolder inBox = (Outlook.MAPIFolder)this.Application.
-            //    ActiveExplorer().Session.GetDefaultFolder
-            //    (Outlook.OlDefaultFolders.olFolderInbox);
-            //Outlook.Items items = (Outlook.Items)inBox.Items;
-            //Outlook.MailItem moveMail = null;
-            //items.Restrict("[UnRead] = true");
-            //Outlook.MAPIFolder destFolder = inBox.Folders["Test"];
-            //foreach (object eMail in items)
-            //{
-            //    try
-            //    {
-            //        moveMail = eMail as Outlook.MailItem;
-            //        if (moveMail != null)
-            //        {
-            //            string titleSubject = (string)moveMail.Subject;
-            //            if (titleSubject.IndexOf("Test") > 0)
-            //            {
-            //                moveMail.Move(destFolder);
-            //            }
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        MessageBox.Show(ex.Message);
-            //    }
-            //}
-        }
-
-
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
-            // Note: Outlook no longer raises this event. If you have code that
-            //    must run when Outlook shuts down, see https://go.microsoft.com/fwlink/?LinkId=506785
+            // Clean up resources before shutdown
+            CleanupResources();
+        }
+
+        /// <summary>
+        /// Performs application cleanup to release resources
+        /// </summary>
+        private void CleanupResources()
+        {
+            try
+            {
+                // Release Office COM resources
+                OfficeHelpers.ReleaseWordInstance();
+                
+                // Clear caches
+                ComboBoxExtensions.ClearDirectoryCache();
+                
+                // Collect garbage to help release COM objects
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }
+            catch
+            {
+                // Silently catch errors during cleanup
+            }
         }
 
         #region VSTO generated code
@@ -103,11 +72,10 @@ namespace SaveAsPDF
         /// </summary>
         private void InternalStartup()
         {
-            Startup += new System.EventHandler(ThisAddIn_Startup);
-            Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
+            this.Startup += new System.EventHandler(ThisAddIn_Startup);
+            this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
         }
-
-        #endregion VSTO generated code
-
+        
+        #endregion
     }
 }

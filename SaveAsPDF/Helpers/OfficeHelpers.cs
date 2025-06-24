@@ -1,15 +1,11 @@
-﻿
-
-
-// Ignore Spelling: Dgv
-
-using Microsoft.Office.Interop.Outlook;
+﻿using Microsoft.Office.Interop.Outlook;
 using Microsoft.Office.Interop.Word;
 using SaveAsPDF.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using word = Microsoft.Office.Interop.Word;
@@ -18,6 +14,74 @@ namespace SaveAsPDF.Helpers
 {
     public static class OfficeHelpers
     {
+        // Cache for Word application to avoid creating multiple instances
+        private static word.Application _wordAppInstance;
+        private static readonly object _wordLock = new object();
+        private static DateTime _lastWordUse = DateTime.MinValue;
+        private static readonly TimeSpan _wordTimeout = TimeSpan.FromMinutes(5); // Release Word after 5 minutes of inactivity
+
+        /// <summary>
+        /// Gets or creates a Word application instance for document conversion.
+        /// </summary>
+        /// <returns>A Word application instance.</returns>
+        private static word.Application GetWordInstance()
+        {
+            lock (_wordLock)
+            {
+                // Check if we need to release the existing instance
+                if (_wordAppInstance != null && (DateTime.Now - _lastWordUse) > _wordTimeout)
+                {
+                    try
+                    {
+                        _wordAppInstance.Quit();
+                        Marshal.ReleaseComObject(_wordAppInstance);
+                    }
+                    catch { /* Ignore release errors */ }
+                    finally
+                    {
+                        _wordAppInstance = null;
+                    }
+                }
+
+                // Create a new instance if needed
+                if (_wordAppInstance == null)
+                {
+                    _wordAppInstance = new word.Application
+                    {
+                        Visible = false,
+                        DisplayAlerts = WdAlertLevel.wdAlertsNone
+                    };
+                }
+
+                _lastWordUse = DateTime.Now;
+                return _wordAppInstance;
+            }
+        }
+
+        /// <summary>
+        /// Releases Word application resources to free memory.
+        /// Should be called when the application is closing.
+        /// </summary>
+        public static void ReleaseWordInstance()
+        {
+            lock (_wordLock)
+            {
+                if (_wordAppInstance != null)
+                {
+                    try
+                    {
+                        _wordAppInstance.Quit();
+                        Marshal.ReleaseComObject(_wordAppInstance);
+                    }
+                    catch { /* Ignore release errors */ }
+                    finally
+                    {
+                        _wordAppInstance = null;
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Converts the DataGridView to a list of EmployeeModel objects.
         /// </summary>
@@ -69,33 +133,68 @@ namespace SaveAsPDF.Helpers
         public static void SaveToPDF(this Outlook.MailItem mailItem, string outputPath)
         {
             string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss") + "_";
-            // Create a temporary MHT file
             string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mht");
-            mailItem.SaveAs(tempFilePath, Outlook.OlSaveAsType.olMHTML);
-
+            word.Document doc = null;
+            
             try
             {
+                // Save the email as MHT
+                mailItem.SaveAs(tempFilePath, Outlook.OlSaveAsType.olMHTML);
+                
+                // Get or create Word application instance
+                var wordApp = GetWordInstance();
+                
                 // Open the MHT file in Word
-                var wordApp = new word.Application();
-                var doc = wordApp.Documents.Open(tempFilePath, ReadOnly: false);
+                doc = wordApp.Documents.Open(tempFilePath, ReadOnly: false);
 
-                // Convert to PDF
+                // Create PDF filename with timestamp for uniqueness
                 string pdfFileName = $"{Path.GetFileNameWithoutExtension(timeStamp + mailItem.Subject.SafeFolderName())}.pdf";
                 string pdfPath = Path.Combine(outputPath, pdfFileName);
-                doc.ExportAsFixedFormat(pdfPath, WdExportFormat.wdExportFormatPDF);
 
-                // Clean up
-                doc.Close(SaveChanges: false);
-                wordApp.Quit();
+                // Export to PDF with simplified parameter passing
+                doc.ExportAsFixedFormat(
+                    pdfPath, 
+                    word.WdExportFormat.wdExportFormatPDF,
+                    false, 
+                    word.WdExportOptimizeFor.wdExportOptimizeForPrint,
+                    word.WdExportRange.wdExportAllDocument,
+                    0, 
+                    0, 
+                    word.WdExportItem.wdExportDocumentContent,
+                    true,
+                    true,
+                    word.WdExportCreateBookmarks.wdExportCreateNoBookmarks,
+                    true,
+                    true,
+                    false);
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"Error converting email to PDF: {ex.Message}");
+                XMessageBox.Show(
+                    $"שגיאה בהמרת דוא\"ל ל-PDF: {ex.Message}",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
             finally
             {
+                // Clean up document without quitting Word application
+                if (doc != null)
+                {
+                    doc.Close(SaveChanges: false);
+                    Marshal.ReleaseComObject(doc);
+                }
+                
                 // Delete the temporary MHT file
-                File.Delete(tempFilePath);
+                try 
+                { 
+                    if (File.Exists(tempFilePath)) 
+                        File.Delete(tempFilePath); 
+                }
+                catch { /* Ignore cleanup errors */ }
             }
         }
 
@@ -234,8 +333,14 @@ namespace SaveAsPDF.Helpers
             }
             catch (System.Exception ex)
             {
-                // Handle exceptions (e.g., log, display a message, etc.)
-                MessageBox.Show($"Error while processing attachments: {ex.Message}", "OfficeHelpers:GetAttachmentsFromEmail");
+                XMessageBox.Show(
+                    $"שגיאה בעיבוד קבצים מצורפים: {ex.Message}",
+                    "OfficeHelpers:GetAttachmentsFromEmail",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
 
             return attachments;
@@ -303,7 +408,14 @@ namespace SaveAsPDF.Helpers
                 }
                 catch (System.Exception ex)
                 {
-                    // Handle exceptions (e.g., invalid filenames, permissions, etc.)
+                    XMessageBox.Show(
+                        $"שגיאה בשמירת קובץ מצורף: {attachment.FileName} ({ex.Message})",
+                        "שגיאה",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Error,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew
+                    );
                     output.Add($"Error saving attachment: {attachment.FileName} ({ex.Message})");
                 }
             }

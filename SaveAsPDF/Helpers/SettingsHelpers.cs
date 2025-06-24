@@ -2,34 +2,77 @@
 using SaveAsPDF.Properties;
 using System;
 using System.IO;
-using System.Windows;
 
 namespace SaveAsPDF.Helpers
 {
+    /// <summary>
+    /// Provides helper methods for loading, saving, and resetting application settings.
+    /// </summary>
     [Serializable]
     public static class SettingsHelpers
     {
-        // Readonly default settings
+        /// <summary>
+        /// The default root drive for projects.
+        /// </summary>
         static public readonly string rootDrive = @"C:\Projects\";
+        /// <summary>
+        /// The default folder name for SaveAsPDF XML files.
+        /// </summary>
         static public readonly string xmlSaveAsPDFFolder = @".SaveAsPDF\";
+        /// <summary>
+        /// The default file name for the project data XML file.
+        /// </summary>
         static public readonly string xmlProjectFile = @".SaveAsPDF_Project.xml";
+        /// <summary>
+        /// The default file name for the employees XML file.
+        /// </summary>
         static public readonly string xmlEmployeesFile = @".SaveAsPDF_Emploeeys.xml";
+        /// <summary>
+        /// The default file name for the tree file.
+        /// </summary>
         static public readonly string defaultTreeFile = @"C:\Projects\tree.fld";
+        /// <summary>
+        /// The minimum attachment size in bytes (default: 8192).
+        /// </summary>
         static public readonly int minAttachmentSize = 8192;
+        /// <summary>
+        /// The tag used to mark the current date in folder names.
+        /// </summary>
         static public readonly string dateTag = "_תאריך_";
+        /// <summary>
+        /// The default folder ID.
+        /// </summary>
         static public readonly int defaultFolderID = 1;
+        /// <summary>
+        /// The tag used to mark the project root in folder names.
+        /// </summary>
         static public readonly string projectRootTag = "_מספר_פרויקט_";
+        /// <summary>
+        /// Indicates whether to open the PDF after saving.
+        /// </summary>
         static public readonly bool openPDF = false;
+        /// <summary>
+        /// The default last projects string.
+        /// </summary>
         static public readonly string lastProjects = "1000;";
+        /// <summary>
+        /// The default number of last projects to keep.
+        /// </summary>
         static public readonly int lastProjectsCount = 10;
+        /// <summary>
+        /// The default project root folders path.
+        /// </summary>
         static public readonly string sProjectRootFolders = $@"{rootDrive}10\1000\";
+        /// <summary>
+        /// The default save path for files.
+        /// </summary>
         static public readonly string defaultSavePath = $@"{rootDrive}{sProjectRootFolders}Inbox\";
 
         /// <summary>
-        /// Load the settings.settings to the _settingsModel 
+        /// Loads the application settings from <see cref="Settings.Default"/> into the provided <see cref="SettingsModel"/>.
         /// </summary>
-        /// <param name="settingsModel"><see cref="SettingsModel"/> object</param>
-        /// <returns><see cref="SettingsModel"/> object</returns>
+        /// <param name="settingsModel">The <see cref="SettingsModel"/> to populate with settings.</param>
+        /// <returns>The populated <see cref="SettingsModel"/>.</returns>
         public static SettingsModel LoadSettingsToModel(SettingsModel settingsModel)
         {
             try
@@ -60,16 +103,23 @@ namespace SaveAsPDF.Helpers
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message, "SettingsHelpers:LoadSettingsToModel");
+                XMessageBox.Show(
+                    e.Message,
+                    "שגיאה בטעינת הגדרות",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
 
             return settingsModel;
         }
 
         /// <summary>
-        /// Save the _settingsModel to Settings.Settings 
+        /// Saves the provided <see cref="SettingsModel"/> to <see cref="Settings.Default"/>.
         /// </summary>
-        /// <param name="settingsModel"><see cref="SettingsModel"/> object</param>
+        /// <param name="settingsModel">The <see cref="SettingsModel"/> to save.</param>
         public static void SaveModelToSettings(SettingsModel settingsModel)
         {
             try
@@ -90,12 +140,19 @@ namespace SaveAsPDF.Helpers
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message, "SettingsHelpers:SaveModelToSettings");
+                XMessageBox.Show(
+                    e.Message,
+                    "שגיאה בשמירת הגדרות",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
         }
 
         /// <summary>
-        /// Load default settings for first run or reset
+        /// Loads the default settings into <see cref="Settings.Default"/> for first run or reset.
         /// </summary>
         public static void LoadDefaultSettings()
         {
@@ -117,34 +174,37 @@ namespace SaveAsPDF.Helpers
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message, "SettingsHelpers:LoadDefaultSettings");
+                XMessageBox.Show(
+                    e.Message,
+                    "שגיאה בטעינת הגדרות ברירת מחדל",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
         }
 
         /// <summary>
-        /// Load the settingsModel from Settings.Settings. Parameterless overload.  
+        /// Loads the settings model from <see cref="Settings.Default"/>. Parameterless overload.
         /// </summary>
-        /// <returns><see cref="SettingsModel"/> object </returns>
+        /// <returns>The loaded <see cref="SettingsModel"/>.</returns>
         public static SettingsModel LoadProjectSettings()
         {
             return LoadProjectSettings(string.Empty);
         }
 
         /// <summary>
-        /// Load the settingsModel from Settings.Settings 
+        /// Loads the settings model from <see cref="Settings.Default"/> for a specific project ID.
         /// </summary>
-        /// <param name="projectID"><see cref="string"/> projectID</param>
-        /// <returns><see cref="SettingsModel"/> object </returns>
+        /// <param name="projectID">The project ID to use for loading project-specific settings.</param>
+        /// <returns>The loaded <see cref="SettingsModel"/>.</returns>
         public static SettingsModel LoadProjectSettings(this string projectID)
         {
-            //SettingsModel settingsModel = new SettingsModel();
-
             try
             {
-
                 // Load the root drive
                 FormMain.settingsModel.RootDrive = Settings.Default.RootDrive ?? rootDrive;
-
 
                 // Folder tags
                 FormMain.settingsModel.DateTag = Settings.Default.DateTag ?? dateTag;
@@ -178,7 +238,14 @@ namespace SaveAsPDF.Helpers
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading project settings for project ID {projectID}:\n{ex.Message}", "SettingsHelpers:LoadProjectSettings");
+                XMessageBox.Show(
+                    $"שגיאה בטעינת הגדרות פרויקט עבור מזהה {projectID}:\n{ex.Message}",
+                    "שגיאה בטעינת הגדרות פרויקט",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
 
             return FormMain.settingsModel;

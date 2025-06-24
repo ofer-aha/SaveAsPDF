@@ -86,10 +86,72 @@ namespace SaveAsPDF
         public FormMain()
         {
             InitializeComponent();
+            
+            // Use event handler for efficient loading
             Load += FormMain_Load;
+            FormClosing += FormMain_FormClosing;
+            
+            // Setup DataGridView
+            ConfigureEmployeeDataGrid();
+            
+            // Set up key handlers
+            KeyDown += FormMain_KeyDown;
+        }
+
+        /// <summary>
+        /// Configure the employees DataGridView
+        /// </summary>
+        private void ConfigureEmployeeDataGrid()
+        {
             dgvEmployees.AutoGenerateColumns = false;
             dgvEmployees.CellValueChanged += dgvEmployees_CellValueChanged;
             dgvEmployees.CurrentCellDirtyStateChanged += dgvEmployees_CurrentCellDirtyStateChanged;
+            
+            // Add columns programmatically
+            dgvEmployees.Columns.Clear();
+            
+            dgvEmployees.Columns.AddRange(new DataGridViewColumn[] {
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "Id",
+                    DataPropertyName = "Id",
+                    Visible = false
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "FirstName",
+                    DataPropertyName = "FirstName",
+                    HeaderText = "שם פרטי"
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "LastName",
+                    DataPropertyName = "LastName",
+                    HeaderText = "שם משפחה"
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "EmailAddress",
+                    DataPropertyName = "EmailAddress",
+                    HeaderText = "אימייל"
+                },
+                new DataGridViewCheckBoxColumn
+                {
+                    Name = "IsLeader",
+                    DataPropertyName = "IsLeader",
+                    HeaderText = "ראש פרויקט",
+                    ReadOnly = false // Ensure editable
+                }
+            });
+            
+            // Bind the DataGridView to the BindingList
+            dgvEmployees.DataSource = _employeesBindingList;
+
+            // Make all columns read-only by default
+            dgvEmployees.ReadOnly = true;
+
+            // Allow editing only in the "IsLeader" column
+            dgvEmployees.Columns["IsLeader"].ReadOnly = false;
         }
 
         /// <summary>
@@ -103,86 +165,82 @@ namespace SaveAsPDF
         /// </summary>
         private void FormMain_Load(object sender, EventArgs e)
         {
-            // Employees dataGridView columns headers
-            dgvEmployees.Columns.Clear();
+            // Apply context menus to improve UX
+            SetupContextMenus();
+            
+            // Set up attachment selection UI
+            chkbSelectAllAttachments.Checked = true;
+            chkbSelectAllAttachments.Text = "הסר הכל";
 
-            // Add columns programmatically
-            var colId = new DataGridViewTextBoxColumn
-            {
-                Name = "Id",
-                DataPropertyName = "Id",
-                Visible = false
-            };
-            var colFirstName = new DataGridViewTextBoxColumn
-            {
-                Name = "FirstName",
-                DataPropertyName = "FirstName",
-                HeaderText = "שם פרטי"
-            };
-            var colLastName = new DataGridViewTextBoxColumn
-            {
-                Name = "LastName",
-                DataPropertyName = "LastName",
-                HeaderText = "שם משפחה"
-            };
-            var colEmail = new DataGridViewTextBoxColumn
-            {
-                Name = "EmailAddress",
-                DataPropertyName = "EmailAddress",
-                HeaderText = "אימייל"
-            };
-            var colIsLeader = new DataGridViewCheckBoxColumn
-            {
-                Name = "IsLeader",
-                DataPropertyName = "IsLeader",
-                HeaderText = "ראש פרויקט",
-                ReadOnly = false // Ensure editable
-            };
+            // Set up project ID auto-complete
+            ConfigureProjectIdAutoComplete();
+            
+            // Load initial data
+            txtSubject.Text = LoadEmailSubject();
+            LoadSearchHistory();
+            settingsModel = SettingsHelpers.LoadProjectSettings();
 
-            dgvEmployees.Columns.AddRange(colId, colFirstName, colLastName, colEmail, colIsLeader);
-
-            // Bind the DataGridView to the BindingList
-            dgvEmployees.DataSource = _employeesBindingList;
-
-            // Make all columns read-only by default
-            dgvEmployees.ReadOnly = true;
-
-            // Allow editing only in the "IsLeader" column
-            dgvEmployees.Columns["IsLeader"].ReadOnly = false;
-
-            // Context menus
+            // Initialize folder tree view with logical drives
+            PopulateDriveNodes();
+        }
+        
+        /// <summary>
+        /// Configures context menus for various controls
+        /// </summary>
+        private void SetupContextMenus()
+        {
+            // Context menus for rich text and text controls
             rtxtNotes.EnableContextMenu();
             rtxtProjectNotes.EnableContextMenu();
             txtFullPath.EnableContextMenu();
             txtProjectID.EnableContextMenu();
             txtProjectName.EnableContextMenu();
             tvFolders.EnableContextMenu();
-
-            chkbSelectAllAttachments.Checked = true;
-            chkbSelectAllAttachments.Text = "הסר הכל";
-
+        }
+        
+        /// <summary>
+        /// Configure Project ID AutoComplete functionality
+        /// </summary>
+        private void ConfigureProjectIdAutoComplete()
+        {
             txtProjectID.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             txtProjectID.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            txtSubject.Text = LoadEmailSubject();
-            LoadSearchHistory();
-            settingsModel = SettingsHelpers.LoadProjectSettings();
-
-            // Drives for folders tree (C# 7.3 compatible)
+        }
+        
+        /// <summary>
+        /// Populates the folder tree with logical drives
+        /// </summary>
+        private void PopulateDriveNodes()
+        {
+            tvFolders.Nodes.Clear();
+            
             foreach (string drive in Environment.GetLogicalDrives())
             {
-                var di = new DriveInfo(drive);
-                int driveImage = 2;
-                if (di.DriveType == DriveType.CDRom)
-                    driveImage = 3;
-                else if (di.DriveType == DriveType.Network)
-                    driveImage = 6;
-                else if (di.DriveType == DriveType.NoRootDirectory || di.DriveType == DriveType.Unknown)
-                    driveImage = 8;
+                try
+                {
+                    var di = new DriveInfo(drive);
+                    int driveImage = 2;
+                    
+                    // Set appropriate icon based on drive type
+                    if (di.DriveType == DriveType.CDRom)
+                        driveImage = 3;
+                    else if (di.DriveType == DriveType.Network)
+                        driveImage = 6;
+                    else if (di.DriveType == DriveType.NoRootDirectory || di.DriveType == DriveType.Unknown)
+                        driveImage = 8;
 
-                var node = new TreeNode(drive.Substring(0, 1), driveImage, driveImage) { Tag = drive };
-                if (di.IsReady) node.Nodes.Add("...");
-                tvFolders.Nodes.Add(node);
-                KeyDown += FormMain_KeyDown;
+                    var node = new TreeNode(drive.Substring(0, 1), driveImage, driveImage) { Tag = drive };
+                    
+                    // Add placeholder node for expandable drives
+                    if (di.IsReady) 
+                        node.Nodes.Add("...");
+                        
+                    tvFolders.Nodes.Add(node);
+                }
+                catch
+                {
+                    // Skip drives that throw exceptions
+                }
             }
         }
 
@@ -297,7 +355,26 @@ namespace SaveAsPDF
                 LoadProjectData();
                 LoadEmployeeData();
                 UpdateUI();
-                cmbSaveLocation.Text = settingsModel.DefaultSavePath;
+                
+                // Check for duplicate project IDs in the path and fix if needed
+                if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
+                {
+                    string projectPath = settingsModel.ProjectRootFolder.FullName;
+                    string folderStructure = $"\\{projectID}\\{projectID}\\";
+                    
+                    if (projectPath.Contains(folderStructure))
+                    {
+                        // Fix the path to avoid duplicate project IDs
+                        projectPath = projectPath.Replace(folderStructure, $"\\{projectID}\\");
+                    }
+                    
+                    cmbSaveLocation.Text = projectPath;
+                }
+                else
+                {
+                    cmbSaveLocation.Text = settingsModel.DefaultSavePath;
+                }
+                
                 _dataLoaded = true;
             }
             catch (FileNotFoundException ex)
@@ -411,12 +488,63 @@ namespace SaveAsPDF
         {
             try
             {
+                // Clear and populate the save location combo box
                 cmbSaveLocation.Items.Clear();
-                cmbSaveLocation.LoadComboBoxWithPaths(settingsModel.DefaultTreeFile, txtProjectID.Text);
+                
+                // First add the project root folder path directly
+                if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
+                {
+                    // Check for duplicate project IDs in the path
+                    string projectID = txtProjectID.Text;
+                    string projectPath = settingsModel.ProjectRootFolder.FullName;
+                    
+                    // Make sure projectID isn't duplicated (e.g. "C:\10\1000\1000\")
+                    string folderStructure = $"\\{projectID}\\{projectID}\\";
+                    if (projectPath.Contains(folderStructure))
+                    {
+                        projectPath = projectPath.Replace(folderStructure, $"\\{projectID}\\");
+                    }
+                    
+                    cmbSaveLocation.Items.Add(projectPath);
+                }
+                
+                // Now load any additional paths from the tree file
+                if (File.Exists(settingsModel.DefaultTreeFile))
+                {
+                    cmbSaveLocation.LoadComboBoxWithPaths(settingsModel.DefaultTreeFile, txtProjectID.Text);
+                }
+                
                 cmbSaveLocation.CustomizeComboBox();
+                
                 if (cmbSaveLocation.Items.Count > 0)
-                    cmbSaveLocation.SelectedIndex = 0;
+                {
+                    // Try to select the default save path
+                    if (!string.IsNullOrEmpty(settingsModel.DefaultSavePath))
+                    {
+                        // Try to find and select the default save path
+                        for (int i = 0; i < cmbSaveLocation.Items.Count; i++)
+                        {
+                            if (string.Equals(cmbSaveLocation.Items[i].ToString(), settingsModel.DefaultSavePath, StringComparison.OrdinalIgnoreCase))
+                            {
+                                cmbSaveLocation.SelectedIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        // If we couldn't find it, set it as the text anyway
+                        if (cmbSaveLocation.SelectedIndex < 0)
+                        {
+                            cmbSaveLocation.Text = settingsModel.DefaultSavePath;
+                        }
+                    }
+                    else
+                    {
+                        // Default to first item (which should be the project root folder)
+                        cmbSaveLocation.SelectedIndex = 0;
+                    }
+                }
 
+                // Update the tree view
                 tvFolders.Nodes.Clear();
                 if (settingsModel.ProjectRootFolder.Exists)
                 {
@@ -920,6 +1048,22 @@ namespace SaveAsPDF
             ProcessProjectID(projectID);
             if (string.IsNullOrEmpty(settingsModel.RootDrive))
                 HandleFirstRun();
+            
+            // Ensure the project root path is displayed in the ComboBox without duplicate project IDs
+            if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
+            {
+                string projectPath = settingsModel.ProjectRootFolder.FullName;
+                string folderStructure = $"\\{projectID}\\{projectID}\\";
+                
+                if (projectPath.Contains(folderStructure))
+                {
+                    // Fix the path to avoid duplicate project IDs
+                    projectPath = projectPath.Replace(folderStructure, $"\\{projectID}\\");
+                }
+                
+                cmbSaveLocation.Text = projectPath;
+            }
+            
             if (_mailItem is MailItem mailItem)
                 ProcessMailItem(_mailItem);
             else

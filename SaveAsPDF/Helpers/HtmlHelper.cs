@@ -49,7 +49,7 @@ namespace SaveAsPDF.Helpers
             </head>
             <body>";
 
-            // Project metadata table
+            // Project meta data table
             string pdfFileName = $"{sanitizedProjectName}.pdf";
             string pdfFullPath = Path.Combine(sPath, pdfFileName);
             string projectData = $@"

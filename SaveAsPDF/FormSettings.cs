@@ -2,7 +2,9 @@
 using SaveAsPDF.Models;
 using SaveAsPDF.Properties;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace SaveAsPDF
@@ -41,9 +43,71 @@ namespace SaveAsPDF
 
             cmbDefaultFolder.Items.Clear();
             PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
-            cmbDefaultFolder.SelectedIndex = (_settingsModel.DefaultFolderID >= 0 && _settingsModel.DefaultFolderID < cmbDefaultFolder.Items.Count)
-                ? _settingsModel.DefaultFolderID
-                : 0;
+            
+            // Find and select DefaultSavePath or use the saved DefaultFolderID
+            
+            // Case 1: If we have a DefaultSavePath, try to find a matching item
+            if (!string.IsNullOrEmpty(_settingsModel.DefaultSavePath))
+            {
+                string pathToFind = _settingsModel.DefaultSavePath;
+                bool found = false;
+                
+                // Try exact match first
+                for (int i = 0; i < cmbDefaultFolder.Items.Count; i++)
+                {
+                    string itemText = cmbDefaultFolder.Items[i].ToString();
+                    if (string.Equals(itemText, pathToFind, StringComparison.OrdinalIgnoreCase))
+                    {
+                        cmbDefaultFolder.SelectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // If not found, try matching the last part of the path
+                // This helps when DefaultSavePath contains project-specific parts
+                if (!found && pathToFind.Contains("\\"))
+                {
+                    string[] pathParts = pathToFind.Split('\\');
+                    string lastPart = pathParts.Length > 0 ? pathParts[pathParts.Length - 1] : string.Empty;
+                    
+                    if (!string.IsNullOrEmpty(lastPart))
+                    {
+                        for (int i = 0; i < cmbDefaultFolder.Items.Count; i++)
+                        {
+                            string itemText = cmbDefaultFolder.Items[i].ToString();
+                            if (itemText.EndsWith("\\" + lastPart) || itemText == lastPart)
+                            {
+                                cmbDefaultFolder.SelectedIndex = i;
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // If still not found and DefaultFolderID is valid, use it
+                if (!found && cmbDefaultFolder.Items.Count > 0)
+                {
+                    if (_settingsModel.DefaultFolderID >= 0 && 
+                        _settingsModel.DefaultFolderID < cmbDefaultFolder.Items.Count)
+                    {
+                        cmbDefaultFolder.SelectedIndex = _settingsModel.DefaultFolderID;
+                    }
+                    else
+                    {
+                        cmbDefaultFolder.SelectedIndex = 0;
+                    }
+                }
+            }
+            // Case 2: No DefaultSavePath, but we have a valid DefaultFolderID
+            else if (cmbDefaultFolder.Items.Count > 0)
+            {
+                cmbDefaultFolder.SelectedIndex = (_settingsModel.DefaultFolderID >= 0 && 
+                    _settingsModel.DefaultFolderID < cmbDefaultFolder.Items.Count)
+                    ? _settingsModel.DefaultFolderID
+                    : 0;
+            }
         }
 
         private void LoadTreeFromFile(string filePath)
@@ -124,18 +188,30 @@ namespace SaveAsPDF
         {
             TreeHelpers.AddNode(tvProjectSubFolders, _mySelectedNode);
             _isDirty = true;
+            
+            // Refresh comboBox after adding a node
+            cmbDefaultFolder.Items.Clear();
+            PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
         }
 
         private void MenuDel_Click(object sender, EventArgs e)
         {
             TreeHelpers.DeleteNode(tvProjectSubFolders);
             _isDirty = true;
+            
+            // Refresh comboBox after deleting a node
+            cmbDefaultFolder.Items.Clear();
+            PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
         }
 
         private void MenuRename_Click(object sender, EventArgs e)
         {
             TreeHelpers.RenameNode(tvProjectSubFolders, _mySelectedNode);
             _isDirty = true;
+            
+            // Refresh comboBox after renaming a node
+            cmbDefaultFolder.Items.Clear();
+            PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -152,6 +228,28 @@ namespace SaveAsPDF
                 );
                 if (result == DialogResult.Yes)
                 {
+                    // Make sure to update DefaultSavePath before saving
+                    if (cmbDefaultFolder.SelectedItem != null)
+                    {
+                        string selectedPath = cmbDefaultFolder.SelectedItem.ToString();
+                        
+                        // Check if the path contains the project root tag
+                        if (_settingsModel.ProjectRootTag != null && 
+                            selectedPath.Contains(_settingsModel.ProjectRootTag))
+                        {
+                            // This is a path with a project tag placeholder - store as is
+                            _settingsModel.DefaultSavePath = selectedPath;
+                        }
+                        else
+                        {
+                            // Regular path - store as is since it will be combined with
+                            // the project folder later in FormMain
+                            _settingsModel.DefaultSavePath = selectedPath;
+                        }
+                        
+                        _settingsModel.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
+                    }
+                    
                     SettingsHelpers.SaveModelToSettings(_settingsModel);
                 }
             }
@@ -162,6 +260,27 @@ namespace SaveAsPDF
 
         private void btnSaveSettings_Click(object sender, EventArgs e)
         {
+            // Make sure to update DefaultSavePath before saving
+            if (cmbDefaultFolder.SelectedItem != null)
+            {
+                string selectedPath = cmbDefaultFolder.SelectedItem.ToString();
+                
+                // Check if the path contains the project root tag
+                if (_settingsModel.ProjectRootTag != null && 
+                    selectedPath.Contains(_settingsModel.ProjectRootTag))
+                {
+                    // This is a path with a project tag placeholder - store as is
+                    _settingsModel.DefaultSavePath = selectedPath;
+                }
+                else
+                {
+                    // Regular path - store as is
+                    _settingsModel.DefaultSavePath = selectedPath;
+                }
+                
+                _settingsModel.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
+            }
+            
             SettingsHelpers.SaveModelToSettings(_settingsModel);
             _isDirty = false;
         }
@@ -175,6 +294,7 @@ namespace SaveAsPDF
                 txtRootFolder.Text = dialog.ResultPath;
             }
         }
+        
         private void btnLoadTreeFile_Click(object sender, EventArgs e)
         {
             openFileDialog.Title = "פתח קובץ תיקיות";
@@ -227,11 +347,59 @@ namespace SaveAsPDF
         private void LoadTreeViewFromList(TreeView treeView, string[] lines)
         {
             treeView.Nodes.Clear();
+            Dictionary<int, TreeNode> indentToNodeDict = new Dictionary<int, TreeNode>();
+            
             foreach (string line in lines)
             {
-                if (!string.IsNullOrWhiteSpace(line))
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                
+                // Determine indentation level (number of spaces at start)
+                int indentLevel = 0;
+                for (int i = 0; i < line.Length; i++)
                 {
-                    treeView.Nodes.Add(line.Trim());
+                    if (line[i] == ' ')
+                        indentLevel++;
+                    else
+                        break;
+                }
+                
+                // Get the node text without leading spaces
+                string nodeText = line.Trim();
+                
+                // Create the node
+                TreeNode newNode = new TreeNode(nodeText);
+                
+                if (indentLevel == 0)
+                {
+                    // Root node
+                    treeView.Nodes.Add(newNode);
+                    indentToNodeDict[indentLevel] = newNode;
+                }
+                else
+                {
+                    // Find the parent node based on indentation
+                    int parentIndentLevel = -1;
+                    for (int i = indentLevel - 1; i >= 0; i--)
+                    {
+                        if (indentToNodeDict.ContainsKey(i))
+                        {
+                            parentIndentLevel = i;
+                            break;
+                        }
+                    }
+                    
+                    if (parentIndentLevel >= 0)
+                    {
+                        indentToNodeDict[parentIndentLevel].Nodes.Add(newNode);
+                        indentToNodeDict[indentLevel] = newNode;
+                    }
+                    else
+                    {
+                        // If we can't find a parent, add as a root node
+                        treeView.Nodes.Add(newNode);
+                        indentToNodeDict[indentLevel] = newNode;
+                    }
                 }
             }
         }
@@ -267,7 +435,20 @@ namespace SaveAsPDF
 
         private void AddNodePathsToComboBox(TreeNode node, ComboBox comboBox)
         {
-            comboBox.Items.Add(node.FullPath);
+            // Only add the node path, not the combined project path
+            // This ensures we're storing just the logical structure,
+            // not a physical path that could cause duplication later
+            string nodePath = node.FullPath;
+            
+            // Don't include any project ID placeholder in the path
+            // This prevents duplicating the project ID in the final path
+            if (!string.IsNullOrEmpty(nodePath) && 
+                !comboBox.Items.Contains(nodePath))
+            {
+                comboBox.Items.Add(nodePath);
+            }
+            
+            // Process child nodes
             foreach (TreeNode child in node.Nodes)
             {
                 AddNodePathsToComboBox(child, comboBox);
@@ -292,6 +473,10 @@ namespace SaveAsPDF
         {
             TreeHelpers.AddNode(tvProjectSubFolders, _mySelectedNode, _settingsModel.DateTag);
             _isDirty = true;
+            
+            // Refresh comboBox after adding a date node
+            cmbDefaultFolder.Items.Clear();
+            PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
         }
 
         private void MenuAppendDate_Click(object sender, EventArgs e)
@@ -300,48 +485,102 @@ namespace SaveAsPDF
             {
                 _mySelectedNode.Text += _settingsModel.DateTag;
                 _isDirty = true;
+                
+                // Refresh comboBox after modifying a node
+                cmbDefaultFolder.Items.Clear();
+                PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
             }
         }
 
         private void cmbDefaultFolder_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _settingsModel.DefaultSavePath = cmbDefaultFolder.Text;
-            _isDirty = true;
+            if (cmbDefaultFolder.SelectedItem != null)
+            {
+                // Store the relative path without any project ID information
+                // This prevents duplicate project IDs in paths when used later
+                string selectedPath = cmbDefaultFolder.SelectedItem.ToString();
+                
+                // Check if the path contains the project root tag and clean it
+                if (_settingsModel.ProjectRootTag != null && 
+                    selectedPath.Contains(_settingsModel.ProjectRootTag))
+                {
+                    // The path contains a project tag marker - this is good
+                    // Leave it as is, since it will be replaced with the actual project ID
+                    _settingsModel.DefaultSavePath = selectedPath;
+                }
+                else
+                {
+                    // Regular path - store as is
+                    _settingsModel.DefaultSavePath = selectedPath;
+                }
+                
+                // Keep track of the selected index for later use
+                _settingsModel.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
+                _isDirty = true;
+            }
         }
 
         private void txtRootFolder_TextChanged(object sender, EventArgs e)
         {
-            _isDirty = true;
+            if (!string.IsNullOrEmpty(txtRootFolder.Text))
+            {
+                _settingsModel.RootDrive = txtRootFolder.Text;
+                _isDirty = true;
+            }
         }
 
         private void txtSaveAsPDFFolder_TextChanged(object sender, EventArgs e)
         {
-            _isDirty = true;
+            if (!string.IsNullOrEmpty(txtSaveAsPDFFolder.Text))
+            {
+                _settingsModel.XmlSaveAsPDFFolder = txtSaveAsPDFFolder.Text;
+                _isDirty = true;
+            }
         }
 
         private void txtXmlProjectFile_TextChanged(object sender, EventArgs e)
         {
-            _isDirty = true;
+            if (!string.IsNullOrEmpty(txtXmlProjectFile.Text))
+            {
+                _settingsModel.XmlProjectFile = txtXmlProjectFile.Text;
+                _isDirty = true;
+            }
         }
 
         private void txtXmlEmployeesFile_TextChanged(object sender, EventArgs e)
         {
-            _isDirty = true;
+            if (!string.IsNullOrEmpty(txtXmlEmployeesFile.Text))
+            {
+                _settingsModel.XmlEmployeesFile = txtXmlEmployeesFile.Text;
+                _isDirty = true;
+            }
         }
 
         private void txtProjectRootTag_TextChanged(object sender, EventArgs e)
         {
-            _isDirty = true;
+            if (!string.IsNullOrEmpty(txtProjectRootTag.Text))
+            {
+                _settingsModel.ProjectRootTag = txtProjectRootTag.Text;
+                _isDirty = true;
+            }
         }
 
         private void txtDateTag_TextChanged(object sender, EventArgs e)
         {
-            _isDirty = true;
+            if (!string.IsNullOrEmpty(txtDateTag.Text))
+            {
+                _settingsModel.DateTag = txtDateTag.Text;
+                _isDirty = true;
+            }
         }
 
         private void txtTreePath_TextChanged(object sender, EventArgs e)
         {
-            _isDirty = true;
+            if (!string.IsNullOrEmpty(txtTreePath.Text))
+            {
+                _settingsModel.DefaultTreeFile = txtTreePath.Text;
+                _isDirty = true;
+            }
         }
 
         private void FormSettings_FormClosing(object sender, FormClosingEventArgs e)

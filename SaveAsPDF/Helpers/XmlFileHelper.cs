@@ -4,6 +4,7 @@ using SaveAsPDF.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using System.Xml.Serialization;
 
 /// <summary>
@@ -13,6 +14,21 @@ namespace SaveAsPDF.Helpers
 {
     public static class XmlFileHelper
     {
+        // Cache serializers for better performance
+        private static readonly XmlSerializer ProjectSerializer = new XmlSerializer(typeof(ProjectModel));
+        private static readonly XmlSerializer EmployeeListSerializer = new XmlSerializer(typeof(List<EmployeeModel>));
+        
+        // XML serializer settings
+        private static readonly XmlWriterSettings WriterSettings = new XmlWriterSettings
+        {
+            Indent = true,
+            IndentChars = "  ",
+            NewLineChars = "\r\n",
+            NewLineHandling = NewLineHandling.Replace,
+            OmitXmlDeclaration = false,
+            Encoding = System.Text.Encoding.UTF8
+        };
+        
         /// <summary>
         /// Serializes a <see cref="ProjectModel"/> to an XML file at the specified file path.
         /// </summary>
@@ -20,18 +36,32 @@ namespace SaveAsPDF.Helpers
         /// <param name="projectModel">The <see cref="ProjectModel"/> object to serialize and save.</param>
         public static void ProjectModelToXmlFile(this string filePath, ProjectModel projectModel)
         {
+            if (projectModel == null)
+            {
+                XMessageBox.Show(
+                    "מודל הפרויקט אינו יכול להיות ריק.",
+                    "SaveAsPDF:ProjectModelToXmlFile",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
+                return;
+            }
+            
             try
             {
+                // Create directory if it doesn't exist
                 string directoryPath = Path.GetDirectoryName(filePath);
                 if (!string.IsNullOrEmpty(directoryPath) && !Directory.Exists(directoryPath))
                 {
                     Directory.CreateDirectory(directoryPath);
                 }
 
-                XmlSerializer serializer = new XmlSerializer(typeof(ProjectModel));
-                using (StreamWriter writer = new StreamWriter(filePath, false))
+                // Use XmlWriter with optimal settings for better performance
+                using (XmlWriter writer = XmlWriter.Create(filePath, WriterSettings))
                 {
-                    serializer.Serialize(writer, projectModel);
+                    ProjectSerializer.Serialize(writer, projectModel);
                 }
             }
             catch (UnauthorizedAccessException ex)
@@ -65,20 +95,44 @@ namespace SaveAsPDF.Helpers
         /// <param name="employees">The list of <see cref="EmployeeModel"/> objects to serialize and save.</param>
         public static void EmployeesModelToXmlFile(this string path, List<EmployeeModel> employees)
         {
+            if (employees == null)
+            {
+                XMessageBox.Show(
+                    "רשימת העובדים אינה יכולה להיות ריקה.",
+                    "SaveAsPDF:EmployeesModelToXmlFile",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
+                return;
+            }
+            
             try
             {
                 FileFoldersHelper.CreateHiddenDirectory(Path.GetDirectoryName(path));
 
-                XmlSerializer serializer = new XmlSerializer(typeof(List<EmployeeModel>));
-                using (StreamWriter writer = new StreamWriter(path))
+                // Use XmlWriter with optimal settings
+                using (XmlWriter writer = XmlWriter.Create(path, WriterSettings))
                 {
-                    serializer.Serialize(writer, employees);
+                    EmployeeListSerializer.Serialize(writer, employees);
                 }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                XMessageBox.Show(
+                    $"הגישה לנתיב נדחתה: {ex.Message}",
+                    "SaveAsPDF:EmployeesModelToXmlFile",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
             }
             catch (Exception ex)
             {
                 XMessageBox.Show(
-                    $"אירעה שגיאה בשמירת רשימת העובדים: {ex.Message}",
+                    $"אירעה שגיאה בשמירת רשימת העובדים ל-XML: {ex.Message}",
                     "SaveAsPDF:EmployeesModelToXmlFile",
                     XMessageBoxButtons.OK,
                     XMessageBoxIcon.Error,
@@ -91,36 +145,35 @@ namespace SaveAsPDF.Helpers
         /// <summary>
         /// Deserializes a <see cref="ProjectModel"/> from an XML file at the specified path.
         /// </summary>
-        /// <param name="xmlFile">The full path to the XML file to load.</param>
-        /// <returns>
-        /// The deserialized <see cref="ProjectModel"/> if successful; otherwise, <c>null</c> if an error occurs.
-        /// </returns>
-        public static ProjectModel XmlProjectFileToModel(this string xmlFile)
+        /// <param name="filePath">The full path to the XML file to deserialize.</param>
+        /// <returns>The deserialized <see cref="ProjectModel"/> object, or null if deserialization fails.</returns>
+        public static ProjectModel XmlProjectFileToModel(string filePath)
         {
+            if (!File.Exists(filePath))
+            {
+                XMessageBox.Show(
+                    $"הקובץ {filePath} אינו קיים.",
+                    "SaveAsPDF:XmlProjectFileToModel",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
+                return null;
+            }
+
             try
             {
-                if (!File.Exists(xmlFile))
+                // Use XmlReader for more efficient reading
+                using (XmlReader reader = XmlReader.Create(filePath))
                 {
-                    throw new FileNotFoundException($"הקובץ '{xmlFile}' לא קיים.");
+                    return (ProjectModel)ProjectSerializer.Deserialize(reader);
                 }
-
-                var xmlDoc = new System.Xml.XmlDocument();
-                xmlDoc.Load(xmlFile);
-
-                var project = new ProjectModel
-                {
-                    ProjectNumber = xmlDoc.SelectSingleNode("//ProjectModel/ProjectNumber")?.InnerText,
-                    ProjectName = xmlDoc.SelectSingleNode("//ProjectModel/ProjectName")?.InnerText,
-                    NoteToProjectLeader = bool.Parse(xmlDoc.SelectSingleNode("//ProjectModel/NoteToProjectLeader")?.InnerText ?? "false"),
-                    ProjectNotes = xmlDoc.SelectSingleNode("//ProjectModel/ProjectNotes")?.InnerText
-                };
-
-                return project;
             }
             catch (Exception ex)
             {
                 XMessageBox.Show(
-                    $"אירעה שגיאה בטעינת הפרויקט: {ex.Message}",
+                    $"שגיאה בטעינת מודל הפרויקט מה-XML: {ex.Message}",
                     "SaveAsPDF:XmlProjectFileToModel",
                     XMessageBoxButtons.OK,
                     XMessageBoxIcon.Error,
@@ -132,50 +185,36 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// De-serializes a list of <see cref="EmployeeModel"/> objects from an XML file at the specified path.
+        /// Deserializes a list of <see cref="EmployeeModel"/> objects from an XML file at the specified path.
         /// </summary>
-        /// <param name="xmlFile">The full path to the XML file to load.</param>
-        /// <returns>
-        /// The deserialize list of <see cref="EmployeeModel"/> objects if successful; otherwise, <c>null</c> if an error occurs.
-        /// </returns>
-        public static List<EmployeeModel> XmlEmployeesFileToModel(this string xmlFile)
+        /// <param name="filePath">The full path to the XML file to deserialize.</param>
+        /// <returns>The deserialized list of <see cref="EmployeeModel"/> objects, or an empty list if deserialization fails.</returns>
+        public static List<EmployeeModel> XmlEmployeesFileToModel(this string filePath)
         {
+            if (!File.Exists(filePath))
+            {
+                return new List<EmployeeModel>();
+            }
+
             try
             {
-                if (!File.Exists(xmlFile))
+                // Use XmlReader for more efficient reading
+                using (XmlReader reader = XmlReader.Create(filePath))
                 {
-                    throw new FileNotFoundException($"הקובץ '{xmlFile}' לא קיים.");
+                    return (List<EmployeeModel>)EmployeeListSerializer.Deserialize(reader);
                 }
-
-                XmlSerializer serializer = new XmlSerializer(typeof(List<EmployeeModel>));
-                using (FileStream fileStream = new FileStream(xmlFile, FileMode.Open))
-                {
-                    return (List<EmployeeModel>)serializer.Deserialize(fileStream);
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                XMessageBox.Show(
-                    $"אירעה שגיאה בעת המרת קובץ ה-XML: {ex.InnerException?.Message ?? ex.Message}",
-                    "SaveAsPDF:XmlEmployeesFileToModel",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew
-                );
-                return null;
             }
             catch (Exception ex)
             {
                 XMessageBox.Show(
-                    $"אירעה שגיאה בטעינת העובדים: {ex.Message}",
+                    $"שגיאה בטעינת רשימת העובדים מה-XML: {ex.Message}",
                     "SaveAsPDF:XmlEmployeesFileToModel",
                     XMessageBoxButtons.OK,
                     XMessageBoxIcon.Error,
                     XMessageAlignment.Right,
                     XMessageLanguage.Hebrew
                 );
-                return null;
+                return new List<EmployeeModel>();
             }
         }
 
