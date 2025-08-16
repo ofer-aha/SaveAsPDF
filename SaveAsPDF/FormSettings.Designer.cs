@@ -1,5 +1,4 @@
-﻿
-namespace SaveAsPDF
+﻿namespace SaveAsPDF
 {
     partial class FormSettings
     {
@@ -104,7 +103,7 @@ namespace SaveAsPDF
             this.bntCancel.Name = "bntCancel";
             this.bntCancel.Size = new System.Drawing.Size(75, 23);
             this.bntCancel.TabIndex = 2;
-            this.bntCancel.Text = "ביטול";
+            this.bntCancel.Text = "بיטול";
             this.bntCancel.UseVisualStyleBackColor = true;
             this.bntCancel.Click += new System.EventHandler(this.bntCancel_Click);
             // 
@@ -199,7 +198,7 @@ namespace SaveAsPDF
             this.lblRootFolder.Name = "lblRootFolder";
             this.lblRootFolder.Size = new System.Drawing.Size(134, 13);
             this.lblRootFolder.TabIndex = 5;
-            this.lblRootFolder.Text = "תיקיית שורש לפרויקטים";
+            this.lblRootFolder.Text = "تיקיית שורש לפרויקטים";
             // 
             // btnSaveSettings
             // 
@@ -555,7 +554,7 @@ namespace SaveAsPDF
             this.lblMaxProjectCount.Name = "lblMaxProjectCount";
             this.lblMaxProjectCount.Size = new System.Drawing.Size(121, 13);
             this.lblMaxProjectCount.TabIndex = 2;
-            this.lblMaxProjectCount.Text = "מס\' פרויקטים אחרונים";
+            this.lblMaxProjectCount.Text = "מס' פרויקטים אחרונים";
             // 
             // txtMaxProjectCount
             // 
@@ -632,7 +631,6 @@ namespace SaveAsPDF
 
         #endregion
 
-        
         private System.Windows.Forms.Button bntCancel;
         private System.Windows.Forms.ContextMenuStrip menuTree;
         private System.Windows.Forms.ToolStripMenuItem menueAdd;

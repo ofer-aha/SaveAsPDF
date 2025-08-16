@@ -80,6 +80,102 @@ namespace SaveAsPDF
         /// </summary>
         private BindingList<EmployeeModel> _employeesBindingList = new BindingList<EmployeeModel>();
 
+        // Status strip hover helpers
+        private void Control_MouseEnterStatus(object sender, EventArgs e)
+        {
+            var ctl = sender as Control;
+            if (ctl != null)
+                tsslStatus.Text = ctl.Tag as string ?? string.Empty;
+        }
+
+        private void Control_MouseLeaveStatus(object sender, EventArgs e)
+        {
+            tsslStatus.Text = string.Empty;
+        }
+
+        private void WireStatusHelp()
+        {
+            // Buttons
+            btnOK.Tag = "שמור ל-PDF";
+            btnOK.MouseEnter += Control_MouseEnterStatus; btnOK.MouseLeave += Control_MouseLeaveStatus;
+
+            btnCancel.Tag = "בטל וסגור";
+            btnCancel.MouseEnter += Control_MouseEnterStatus; btnCancel.MouseLeave += Control_MouseLeaveStatus;
+
+            btnSettings.Tag = "הגדרות";
+            btnSettings.MouseEnter += Control_MouseEnterStatus; btnSettings.MouseLeave += Control_MouseLeaveStatus;
+
+            btnNewProject.Tag = "פרויקט חדש";
+            btnNewProject.MouseEnter += Control_MouseEnterStatus; btnNewProject.MouseLeave += Control_MouseLeaveStatus;
+
+            btnFolders.Tag = "בחר תיקיית שורש";
+            btnFolders.MouseEnter += Control_MouseEnterStatus; btnFolders.MouseLeave += Control_MouseLeaveStatus;
+
+            btnCopyNotesToMail.Tag = "העתק הערות לפרויקט אל המייל";
+            btnCopyNotesToMail.MouseEnter += Control_MouseEnterStatus; btnCopyNotesToMail.MouseLeave += Control_MouseLeaveStatus;
+
+            btnCopyNotesToProject.Tag = "העתק הערות מהמייל אל הפרויקט";
+            btnCopyNotesToProject.MouseEnter += Control_MouseEnterStatus; btnCopyNotesToProject.MouseLeave += Control_MouseLeaveStatus;
+
+            btnStyle.Tag = "בחר גופן להערות";
+            btnStyle.MouseEnter += Control_MouseEnterStatus; btnStyle.MouseLeave += Control_MouseLeaveStatus;
+
+            RemoveEmployee.Tag = "הסר עובד מהרשימה";
+            RemoveEmployee.MouseEnter += Control_MouseEnterStatus; RemoveEmployee.MouseLeave += Control_MouseLeaveStatus;
+
+            btnPhoneBook.Tag = "בחר עובד מספר טלפונים";
+            btnPhoneBook.MouseEnter += Control_MouseEnterStatus; btnPhoneBook.MouseLeave += Control_MouseLeaveStatus;
+
+            // Inputs
+            txtProjectID.Tag = "הכנס מספר פרויקט";
+            txtProjectID.MouseEnter += Control_MouseEnterStatus; txtProjectID.MouseLeave += Control_MouseLeaveStatus;
+
+            txtProjectName.Tag = "שם הפרויקט";
+            txtProjectName.MouseEnter += Control_MouseEnterStatus; txtProjectName.MouseLeave += Control_MouseLeaveStatus;
+
+            txtSubject.Tag = "נושא ההודעה";
+            txtSubject.MouseEnter += Control_MouseEnterStatus; txtSubject.MouseLeave += Control_MouseLeaveStatus;
+
+            txtFullPath.Tag = "נתיב מלא";
+            txtFullPath.MouseEnter += Control_MouseEnterStatus; txtFullPath.MouseLeave += Control_MouseLeaveStatus;
+
+            cmbSaveLocation.Tag = "בחר מיקום שמירה";
+            cmbSaveLocation.MouseEnter += Control_MouseEnterStatus; cmbSaveLocation.MouseLeave += Control_MouseLeaveStatus;
+
+            rtxtNotes.Tag = "הערות למייל";
+            rtxtNotes.MouseEnter += Control_MouseEnterStatus; rtxtNotes.MouseLeave += Control_MouseLeaveStatus;
+
+            rtxtProjectNotes.Tag = "הערות לפרויקט";
+            rtxtProjectNotes.MouseEnter += Control_MouseEnterStatus; rtxtProjectNotes.MouseLeave += Control_MouseLeaveStatus;
+
+            // Checkboxes
+            chkbSendNote.Tag = "שלח הערה לראש הפרויקט";
+            chkbSendNote.MouseEnter += Control_MouseEnterStatus; chkbSendNote.MouseLeave += Control_MouseLeaveStatus;
+
+            chkbSelectAllAttachments.Tag = "בחר/הסר כל הקבצים";
+            chkbSelectAllAttachments.MouseEnter += Control_MouseEnterStatus; chkbSelectAllAttachments.MouseLeave += Control_MouseLeaveStatus;
+
+            chbOpenPDF.Tag = "פתח PDF לאחר שמירה";
+            chbOpenPDF.MouseEnter += Control_MouseEnterStatus; chbOpenPDF.MouseLeave += Control_MouseLeaveStatus;
+
+            // Lists / Trees / Grids
+            tvFolders.Tag = "עץ תיקיות פרויקט";
+            tvFolders.MouseEnter += Control_MouseEnterStatus; tvFolders.MouseLeave += Control_MouseLeaveStatus;
+
+            dgvAttachments.Tag = "קבצים מצורפים";
+            dgvAttachments.MouseEnter += Control_MouseEnterStatus; dgvAttachments.MouseLeave += Control_MouseLeaveStatus;
+
+            dgvEmployees.Tag = "עובדי פרויקט";
+            dgvEmployees.MouseEnter += Control_MouseEnterStatus; dgvEmployees.MouseLeave += Control_MouseLeaveStatus;
+
+            // Tabs (optional, hover over tab control area)
+            tabNotes.Tag = "כרטיסיות הערות";
+            tabNotes.MouseEnter += Control_MouseEnterStatus; tabNotes.MouseLeave += Control_MouseLeaveStatus;
+
+            tabFilesFolders.Tag = "קבצים ותיקיות";
+            tabFilesFolders.MouseEnter += Control_MouseEnterStatus; tabFilesFolders.MouseLeave += Control_MouseLeaveStatus;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="FormMain"/> class.
         /// </summary>
@@ -182,6 +278,9 @@ namespace SaveAsPDF
 
             // Initialize folder tree view with logical drives
             PopulateDriveNodes();
+
+            // NEW: wire status help
+            WireStatusHelp();
         }
         
         /// <summary>
@@ -361,7 +460,7 @@ namespace SaveAsPDF
                 {
                     string projectPath = settingsModel.ProjectRootFolder.FullName;
                     string folderStructure = $"\\{projectID}\\{projectID}\\";
-                    
+
                     if (projectPath.Contains(folderStructure))
                     {
                         // Fix the path to avoid duplicate project IDs
@@ -1054,13 +1153,13 @@ namespace SaveAsPDF
             {
                 string projectPath = settingsModel.ProjectRootFolder.FullName;
                 string folderStructure = $"\\{projectID}\\{projectID}\\";
-                
+
                 if (projectPath.Contains(folderStructure))
                 {
                     // Fix the path to avoid duplicate project IDs
                     projectPath = projectPath.Replace(folderStructure, $"\\{projectID}\\");
                 }
-                
+
                 cmbSaveLocation.Text = projectPath;
             }
             

@@ -1,5 +1,4 @@
-﻿
-namespace SaveAsPDF
+﻿namespace SaveAsPDF
 {
     partial class FormMain
     {
@@ -193,7 +192,7 @@ namespace SaveAsPDF
             // 
             // rtxtProjectNotes
             // 
-            resources.ApplyResources(this.rtxtProjectNotes, "rtxtProjectNotes");
+            resources.ApplyResources(this.rtxtProjectNotes, "rtxProjectNotes");
             this.rtxtProjectNotes.Name = "rtxtProjectNotes";
             // 
             // btnCopyNotesToMail
@@ -229,7 +228,7 @@ namespace SaveAsPDF
             // rtxtNotes
             // 
             this.rtxtNotes.EnableAutoDragDrop = true;
-            resources.ApplyResources(this.rtxtNotes, "rtxtNotes");
+            resources.ApplyResources(this.rtxtNotes, "rtxNotes");
             this.rtxtNotes.Name = "rtxtNotes";
             // 
             // groupBoxEmployee
@@ -275,7 +274,6 @@ namespace SaveAsPDF
             resources.ApplyResources(this.chkbSendNote, "chkbSendNote");
             this.chkbSendNote.Name = "chkbSendNote";
             this.chkbSendNote.UseVisualStyleBackColor = true;
-            this.chkbSendNote.CheckedChanged += new System.EventHandler(this.chkbSendNote_CheckedChanged);
             // 
             // tabFilesFolders
             // 
@@ -319,6 +317,7 @@ namespace SaveAsPDF
             resources.ApplyResources(this.tvFolders, "tvFolders");
             this.tvFolders.ImageList = this.imageList;
             this.tvFolders.Name = "tvFolders";
+            this.tvFolders.LabelEdit = true;
             this.tvFolders.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.tvFolders_AfterLabelEdit);
             this.tvFolders.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvFolders_BeforeCollapse);
             this.tvFolders.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvFolders_BeforeExpand);
@@ -331,6 +330,8 @@ namespace SaveAsPDF
             // 
             this.tabAtachments.Controls.Add(this.chkbSelectAllAttachments);
             this.tabAtachments.Controls.Add(this.dgvAttachments);
+            this.tabAtachments.Controls.Add(this.lblSaveLocation);
+            this.tabAtachments.Controls.Add(this.chbOpenPDF);
             resources.ApplyResources(this.tabAtachments, "tabAtachments");
             this.tabAtachments.Name = "tabAtachments";
             this.tabAtachments.UseVisualStyleBackColor = true;
@@ -406,6 +407,7 @@ namespace SaveAsPDF
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.HelpButton = true;
             this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "FormMain";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);

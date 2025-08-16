@@ -16,6 +16,84 @@ namespace SaveAsPDF
         private TreeNode _mySelectedNode;
         private bool _isDirty;
 
+        // Generic handlers to show short help text in the status strip
+        private void Control_MouseEnterStatus(object sender, EventArgs e)
+        {
+            var ctl = sender as Control;
+            toolStripStatusLabel.Text = ctl?.Tag as string ?? string.Empty;
+        }
+
+        private void Control_MouseLeaveStatus(object sender, EventArgs e)
+        {
+            toolStripStatusLabel.Text = string.Empty;
+        }
+
+        // Central wiring for hover help
+        private void WireStatusHelp()
+        {
+            // Buttons
+            btnOK.Tag = "אישור";
+            btnOK.MouseEnter += Control_MouseEnterStatus; btnOK.MouseLeave += Control_MouseLeaveStatus;
+
+            btnSaveSettings.Tag = "שמור שינויים";
+            btnSaveSettings.MouseEnter += Control_MouseEnterStatus; btnSaveSettings.MouseLeave += Control_MouseLeaveStatus;
+
+            bntCancel.Tag = "בטל וסגור";
+            bntCancel.MouseEnter += Control_MouseEnterStatus; bntCancel.MouseLeave += Control_MouseLeaveStatus;
+
+            btnFolders.Tag = "בחירת תיקיית שורש";
+            btnFolders.MouseEnter += Control_MouseEnterStatus; btnFolders.MouseLeave += Control_MouseLeaveStatus;
+
+            btnLoadTreeFile.Tag = "פתח קובץ מבנה";
+            btnLoadTreeFile.MouseEnter += Control_MouseEnterStatus; btnLoadTreeFile.MouseLeave += Control_MouseLeaveStatus;
+
+            btnSaveTreeFile.Tag = "שמור קובץ מבנה";
+            btnSaveTreeFile.MouseEnter += Control_MouseEnterStatus; btnSaveTreeFile.MouseLeave += Control_MouseLeaveStatus;
+
+            btnLoadDefaultTree.Tag = "טען מבנה ברירת מחדל";
+            btnLoadDefaultTree.MouseEnter += Control_MouseEnterStatus; btnLoadDefaultTree.MouseLeave += Control_MouseLeaveStatus;
+
+            btnClearList.Tag = "נקה רשימה";
+            btnClearList.MouseEnter += Control_MouseEnterStatus; btnClearList.MouseLeave += Control_MouseLeaveStatus;
+
+            // Inputs/labels
+            txtRootFolder.Tag = "תיקיית שורש לפרויקטים";
+            txtRootFolder.MouseEnter += Control_MouseEnterStatus; txtRootFolder.MouseLeave += Control_MouseLeaveStatus;
+
+            cmbDefaultFolder.Tag = "בחר תיקיית ברירת מחדל";
+            cmbDefaultFolder.MouseEnter += Control_MouseEnterStatus; cmbDefaultFolder.MouseLeave += Control_MouseLeaveStatus;
+
+            txtMinAttSize.Tag = "סף גודל קובץ מצורף";
+            txtMinAttSize.MouseEnter += Control_MouseEnterStatus; txtMinAttSize.MouseLeave += Control_MouseLeaveStatus;
+
+            txtTreePath.Tag = "נתיב קובץ מבנה תיקיות";
+            txtTreePath.MouseEnter += Control_MouseEnterStatus; txtTreePath.MouseLeave += Control_MouseLeaveStatus;
+
+            tvProjectSubFolders.Tag = "עץ תיקיות";
+            tvProjectSubFolders.MouseEnter += Control_MouseEnterStatus; tvProjectSubFolders.MouseLeave += Control_MouseLeaveStatus;
+
+            txtSaveAsPDFFolder.Tag = "תיקיית SaveAsPDF";
+            txtSaveAsPDFFolder.MouseEnter += Control_MouseEnterStatus; txtSaveAsPDFFolder.MouseLeave += Control_MouseLeaveStatus;
+
+            txtXmlProjectFile.Tag = "קובץ XML פרויקט";
+            txtXmlProjectFile.MouseEnter += Control_MouseEnterStatus; txtXmlProjectFile.MouseLeave += Control_MouseLeaveStatus;
+
+            txtXmlEmployeesFile.Tag = "קובץ XML עובדים";
+            txtXmlEmployeesFile.MouseEnter += Control_MouseEnterStatus; txtXmlEmployeesFile.MouseLeave += Control_MouseLeaveStatus;
+
+            txtProjectRootTag.Tag = "תגית שורש פרויקט";
+            txtProjectRootTag.MouseEnter += Control_MouseEnterStatus; txtProjectRootTag.MouseLeave += Control_MouseLeaveStatus;
+
+            txtDateTag.Tag = "תגית תאריך";
+            txtDateTag.MouseEnter += Control_MouseEnterStatus; txtDateTag.MouseLeave += Control_MouseLeaveStatus;
+
+            lsbLastProjects.Tag = "פרויקטים אחרונים";
+            lsbLastProjects.MouseEnter += Control_MouseEnterStatus; lsbLastProjects.MouseLeave += Control_MouseLeaveStatus;
+
+            txtMaxProjectCount.Tag = "מס׳ פרויקטים אחרונים";
+            txtMaxProjectCount.MouseEnter += Control_MouseEnterStatus; txtMaxProjectCount.MouseLeave += Control_MouseLeaveStatus;
+        }
+
         public FormSettings(ISettingsRequester caller)
         {
             InitializeComponent();
@@ -152,6 +230,9 @@ namespace SaveAsPDF
 
             txtMaxProjectCount.Text = Settings.Default.MaxProjectCount.ToString();
             _isDirty = false;
+
+            // Wire status help hover
+            WireStatusHelp();
         }
 
         private void bntCancel_Click(object sender, EventArgs e) => Close();

@@ -1,5 +1,4 @@
-﻿// Ignore Spelling: Deserialize
-
+﻿
 using SaveAsPDF.Models;
 using System;
 using System.Collections.Generic;
@@ -111,7 +110,7 @@ namespace SaveAsPDF.Helpers
             try
             {
                 FileFoldersHelper.CreateHiddenDirectory(Path.GetDirectoryName(path));
-
+                
                 // Use XmlWriter with optimal settings
                 using (XmlWriter writer = XmlWriter.Create(path, WriterSettings))
                 {
