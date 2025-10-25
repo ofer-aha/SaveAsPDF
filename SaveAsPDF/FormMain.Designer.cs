@@ -71,6 +71,9 @@
             this.chbOpenPDF = new System.Windows.Forms.CheckBox();
             this.errorProviderMain = new System.Windows.Forms.ErrorProvider(this.components);
             this.cmbSaveLocation = new System.Windows.Forms.ComboBox();
+            this.lblProjectLeader = new System.Windows.Forms.Label();
+            this.txtProjectLeader = new System.Windows.Forms.TextBox();
+            this.btnProjectLeader = new System.Windows.Forms.Button();
             this.stsStrip.SuspendLayout();
             this.tabNotes.SuspendLayout();
             this.tabProjectNote.SuspendLayout();
@@ -192,7 +195,7 @@
             // 
             // rtxtProjectNotes
             // 
-            resources.ApplyResources(this.rtxtProjectNotes, "rtxProjectNotes");
+            resources.ApplyResources(this.rtxtProjectNotes, "rtxtProjectNotes");
             this.rtxtProjectNotes.Name = "rtxtProjectNotes";
             // 
             // btnCopyNotesToMail
@@ -228,11 +231,14 @@
             // rtxtNotes
             // 
             this.rtxtNotes.EnableAutoDragDrop = true;
-            resources.ApplyResources(this.rtxtNotes, "rtxNotes");
+            resources.ApplyResources(this.rtxtNotes, "rtxtNotes");
             this.rtxtNotes.Name = "rtxtNotes";
             // 
             // groupBoxEmployee
             // 
+            this.groupBoxEmployee.Controls.Add(this.btnProjectLeader);
+            this.groupBoxEmployee.Controls.Add(this.txtProjectLeader);
+            this.groupBoxEmployee.Controls.Add(this.lblProjectLeader);
             this.groupBoxEmployee.Controls.Add(this.RemoveEmployee);
             this.groupBoxEmployee.Controls.Add(this.dgvEmployees);
             this.groupBoxEmployee.Controls.Add(this.btnPhoneBook);
@@ -316,8 +322,8 @@
             // 
             resources.ApplyResources(this.tvFolders, "tvFolders");
             this.tvFolders.ImageList = this.imageList;
-            this.tvFolders.Name = "tvFolders";
             this.tvFolders.LabelEdit = true;
+            this.tvFolders.Name = "tvFolders";
             this.tvFolders.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.tvFolders_AfterLabelEdit);
             this.tvFolders.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvFolders_BeforeCollapse);
             this.tvFolders.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvFolders_BeforeExpand);
@@ -330,8 +336,6 @@
             // 
             this.tabAtachments.Controls.Add(this.chkbSelectAllAttachments);
             this.tabAtachments.Controls.Add(this.dgvAttachments);
-            this.tabAtachments.Controls.Add(this.lblSaveLocation);
-            this.tabAtachments.Controls.Add(this.chbOpenPDF);
             resources.ApplyResources(this.tabAtachments, "tabAtachments");
             this.tabAtachments.Name = "tabAtachments";
             this.tabAtachments.UseVisualStyleBackColor = true;
@@ -381,6 +385,22 @@
             this.cmbSaveLocation.Name = "cmbSaveLocation";
             this.cmbSaveLocation.TextUpdate += new System.EventHandler(this.cmbSaveLocation_TextUpdate);
             this.cmbSaveLocation.SelectedValueChanged += new System.EventHandler(this.cmbSaveLocation_SelectedValueChanged);
+            // 
+            // lblProjectLeader
+            // 
+            resources.ApplyResources(this.lblProjectLeader, "lblProjectLeader");
+            this.lblProjectLeader.Name = "lblProjectLeader";
+            // 
+            // txtProjectLeader
+            // 
+            resources.ApplyResources(this.txtProjectLeader, "txtProjectLeader");
+            this.txtProjectLeader.Name = "txtProjectLeader";
+            // 
+            // btnProjectLeader
+            // 
+            resources.ApplyResources(this.btnProjectLeader, "btnProjectLeader");
+            this.btnProjectLeader.Name = "btnProjectLeader";
+            this.btnProjectLeader.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
@@ -475,5 +495,8 @@
         private System.Windows.Forms.ErrorProvider errorProviderMain;
         private System.Windows.Forms.ComboBox cmbSaveLocation;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblProjectLeader;
+        private System.Windows.Forms.TextBox txtProjectLeader;
+        private System.Windows.Forms.Button btnProjectLeader;
     }
 }

@@ -430,6 +430,235 @@ namespace SaveAsPDF
                 return result;
             }
         }
+
+        /// <summary>
+        /// Displays a custom message box with the specified parameters and an explicit owner window.
+        /// This ensures the dialog is modal to the owner and appears on top of it.
+        /// </summary>
+        public static DialogResult Show(
+            IWin32Window owner,
+            string text,
+            string caption = "",
+            XMessageBoxButtons buttons = XMessageBoxButtons.OK,
+            XMessageBoxIcon icon = XMessageBoxIcon.Information,
+            XMessageAlignment alignment = XMessageAlignment.Left,
+            XMessageLanguage language = XMessageLanguage.English,
+            bool useTextBox = false,
+            bool isDarkTheme = false,
+            Font customFont = null,
+            Color? backColorOverride = null,
+            int autoCloseMilliseconds = 0,
+            Image customIcon = null,
+            Action<string, string> logCallback = null,
+            bool centerToOwner = true)
+        {
+            logCallback?.Invoke(caption, text);
+
+            using (Form form = new Form())
+            {
+                bool isHebrew = language == XMessageLanguage.Hebrew;
+                form.FormBorderStyle = FormBorderStyle.FixedDialog;
+                form.MaximizeBox = false;
+                form.MinimizeBox = false;
+                form.StartPosition = centerToOwner ? FormStartPosition.CenterParent : FormStartPosition.CenterScreen;
+                form.ClientSize = new Size(400, useTextBox ? 200 : 140);
+                form.ShowInTaskbar = false;
+                form.RightToLeft = isHebrew ? RightToLeft.Yes : RightToLeft.No;
+                form.RightToLeftLayout = isHebrew;
+
+                if (isDarkTheme)
+                {
+                    form.BackColor = Color.FromArgb(40, 40, 40);
+                    form.ForeColor = Color.White;
+                }
+                if (backColorOverride.HasValue)
+                {
+                    form.BackColor = backColorOverride.Value;
+                }
+
+                // Icon
+                PictureBox iconBox = null;
+                if (icon != XMessageBoxIcon.None || customIcon != null)
+                {
+                    iconBox = new PictureBox
+                    {
+                        Size = new Size(48, 48),
+                        Location = new Point(15, 20),
+                        SizeMode = PictureBoxSizeMode.StretchImage
+                    };
+                    if (customIcon != null)
+                    {
+                        iconBox.Image = customIcon;
+                    }
+                    else
+                    {
+                        switch (icon)
+                        {
+                            case XMessageBoxIcon.Information:
+                                iconBox.Image = SystemIcons.Information.ToBitmap();
+                                break;
+                            case XMessageBoxIcon.Warning:
+                                iconBox.Image = SystemIcons.Warning.ToBitmap();
+                                break;
+                            case XMessageBoxIcon.Error:
+                                iconBox.Image = SystemIcons.Error.ToBitmap();
+                                break;
+                            case XMessageBoxIcon.Question:
+                                iconBox.Image = SystemIcons.Question.ToBitmap();
+                                break;
+                            default:
+                                iconBox.Image = null;
+                                break;
+                        }
+                    }
+                }
+
+                // Message
+                Control messageControl;
+                int messageLeft = iconBox != null ? 75 : 15;
+                int messageWidth = form.ClientSize.Width - (iconBox != null ? 90 : 30);
+
+                if (useTextBox)
+                {
+                    var textBox = new TextBox
+                    {
+                        Multiline = true,
+                        ReadOnly = true,
+                        BorderStyle = BorderStyle.None,
+                        Location = new Point(messageLeft, 20),
+                        Size = new Size(messageWidth, 80),
+                        Text = text,
+                        BackColor = form.BackColor,
+                        ForeColor = form.ForeColor,
+                        TabStop = false,
+                        TextAlign = isHebrew ? HorizontalAlignment.Right :
+                            alignment == XMessageAlignment.Center ? HorizontalAlignment.Center :
+                            alignment == XMessageAlignment.Right ? HorizontalAlignment.Right : HorizontalAlignment.Left,
+                        RightToLeft = isHebrew ? RightToLeft.Yes : RightToLeft.No
+                    };
+                    if (customFont != null)
+                        textBox.Font = customFont;
+                    messageControl = textBox;
+                }
+                else
+                {
+                    var label = new Label
+                    {
+                        AutoSize = false,
+                        Location = new Point(messageLeft, 20),
+                        Size = new Size(messageWidth, 80),
+                        Text = text,
+                        BackColor = Color.Transparent,
+                        ForeColor = form.ForeColor,
+                        TextAlign = isHebrew ? ContentAlignment.MiddleRight :
+                            alignment == XMessageAlignment.Center ? ContentAlignment.MiddleCenter :
+                            alignment == XMessageAlignment.Right ? ContentAlignment.MiddleRight : ContentAlignment.MiddleLeft,
+                        RightToLeft = isHebrew ? RightToLeft.Yes : (alignment == XMessageAlignment.Right ? RightToLeft.Yes : RightToLeft.No)
+                    };
+                    if (customFont != null)
+                        label.Font = customFont;
+                    messageControl = label;
+                }
+
+                // Buttons
+                string[] buttonTexts;
+                DialogResult[] buttonResults;
+                int defaultButtonIndex = 0;
+
+                switch (buttons)
+                {
+                    case XMessageBoxButtons.OKCancel:
+                        buttonTexts = isHebrew ? new[] { "ביטול", "אישור" } : new[] { "OK", "Cancel" };
+                        buttonResults = isHebrew ? new[] { DialogResult.Cancel, DialogResult.OK } : new[] { DialogResult.OK, DialogResult.Cancel };
+                        defaultButtonIndex = isHebrew ? 1 : 0;
+                        break;
+                    case XMessageBoxButtons.YesNo:
+                        buttonTexts = isHebrew ? new[] { "לא", "כן" } : new[] { "Yes", "No" };
+                        buttonResults = isHebrew ? new[] { DialogResult.No, DialogResult.Yes } : new[] { DialogResult.Yes, DialogResult.No };
+                        defaultButtonIndex = isHebrew ? 1 : 0;
+                        break;
+                    case XMessageBoxButtons.YesNoCancel:
+                        buttonTexts = isHebrew ? new[] { "ביטול", "לא", "כן" } : new[] { "Yes", "No", "Cancel" };
+                        buttonResults = isHebrew ? new[] { DialogResult.Cancel, DialogResult.No, DialogResult.Yes } : new[] { DialogResult.Yes, DialogResult.No, DialogResult.Cancel };
+                        defaultButtonIndex = isHebrew ? 2 : 0;
+                        break;
+                    case XMessageBoxButtons.RetryCancel:
+                        buttonTexts = isHebrew ? new[] { "ביטול", "נסה שוב" } : new[] { "Retry", "Cancel" };
+                        buttonResults = isHebrew ? new[] { DialogResult.Cancel, DialogResult.Retry } : new[] { DialogResult.Retry, DialogResult.Cancel };
+                        defaultButtonIndex = isHebrew ? 1 : 0;
+                        break;
+                    default:
+                        buttonTexts = isHebrew ? new[] { "אישור" } : new[] { "OK" };
+                        buttonResults = new[] { DialogResult.OK };
+                        defaultButtonIndex = 0;
+                        break;
+                }
+
+                int buttonWidth = 90;
+                int buttonHeight = 30;
+                int buttonSpacing = 15;
+                int totalButtonsWidth = buttonTexts.Length * buttonWidth + (buttonTexts.Length - 1) * buttonSpacing;
+                int buttonY = form.ClientSize.Height - buttonHeight - 20;
+                int buttonX = (form.ClientSize.Width - totalButtonsWidth) / 2;
+
+                var buttonsArr = new Button[buttonTexts.Length];
+                for (int i = 0; i < buttonTexts.Length; i++)
+                {
+                    var btn = new Button
+                    {
+                        Text = buttonTexts[i],
+                        Size = new Size(buttonWidth, buttonHeight),
+                        Location = new Point(buttonX + i * (buttonWidth + buttonSpacing), buttonY),
+                        DialogResult = buttonResults[i],
+                        TextAlign = ContentAlignment.MiddleCenter,
+                        RightToLeft = isHebrew ? RightToLeft.Yes : RightToLeft.No
+                    };
+                    if (isDarkTheme)
+                    {
+                        btn.BackColor = Color.FromArgb(60, 60, 60);
+                        btn.ForeColor = Color.White;
+                    }
+                    form.Controls.Add(btn);
+                    buttonsArr[i] = btn;
+                }
+                form.AcceptButton = buttonsArr[defaultButtonIndex];
+                form.CancelButton = isHebrew ? buttonsArr[0] : buttonsArr[buttonsArr.Length - 1];
+
+                if (iconBox != null)
+                    form.Controls.Add(iconBox);
+                form.Controls.Add(messageControl);
+
+                // Auto-close timer: update title with countdown
+                Timer timer = null;
+                int remainingSeconds = 0;
+                string baseTitle = caption ?? string.Empty;
+                if (autoCloseMilliseconds > 0)
+                {
+                    remainingSeconds = (int)Math.Ceiling(autoCloseMilliseconds / 1000.0);
+                    UpdateTitleWithTimer(form, baseTitle, language, remainingSeconds);
+                    timer = new Timer { Interval = 1000 };
+                    timer.Tick += (s, e) =>
+                    {
+                        remainingSeconds--;
+                        UpdateTitleWithTimer(form, baseTitle, language, remainingSeconds);
+                        if (remainingSeconds <= 0)
+                        {
+                            timer.Stop();
+                            buttonsArr[defaultButtonIndex].PerformClick();
+                        }
+                    };
+                    timer.Start();
+                }
+                else
+                {
+                    form.Text = baseTitle;
+                }
+
+                var result = owner != null ? form.ShowDialog(owner) : form.ShowDialog();
+                timer?.Dispose();
+                return result;
+            }
+        }
     }
 }
 

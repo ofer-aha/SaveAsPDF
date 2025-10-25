@@ -61,7 +61,7 @@ namespace SaveAsPDF
         private bool _isDoubleClick = false;
 
         /// <summary>
-        /// The search history for project IDs.
+        /// The search history for project ID's.
         /// </summary>
         private List<string> searchHistory = new List<string>();
 
@@ -79,6 +79,9 @@ namespace SaveAsPDF
         /// The binding list of employees for data binding.
         /// </summary>
         private BindingList<EmployeeModel> _employeesBindingList = new BindingList<EmployeeModel>();
+
+        // Indicates that we are currently selecting the project leader via the contacts form
+        private bool _selectingLeader = false;
 
         // Status strip hover helpers
         private void Control_MouseEnterStatus(object sender, EventArgs e)
@@ -114,7 +117,7 @@ namespace SaveAsPDF
             btnCopyNotesToMail.Tag = "העתק הערות לפרויקט אל המייל";
             btnCopyNotesToMail.MouseEnter += Control_MouseEnterStatus; btnCopyNotesToMail.MouseLeave += Control_MouseLeaveStatus;
 
-            btnCopyNotesToProject.Tag = "העתק הערות מהמייל אל הפרויקט";
+            btnCopyNotesToProject.Tag = "העתק ערות מהמייל אל הפרויקט";
             btnCopyNotesToProject.MouseEnter += Control_MouseEnterStatus; btnCopyNotesToProject.MouseLeave += Control_MouseLeaveStatus;
 
             btnStyle.Tag = "בחר גופן להערות";
@@ -126,7 +129,15 @@ namespace SaveAsPDF
             btnPhoneBook.Tag = "בחר עובד מספר טלפונים";
             btnPhoneBook.MouseEnter += Control_MouseEnterStatus; btnPhoneBook.MouseLeave += Control_MouseLeaveStatus;
 
+
+            btnProjectLeader.Tag = "בחר מתכנן מוביל בפרויקט";
+            btnProjectLeader.MouseEnter += Control_MouseEnterStatus; btnProjectLeader.MouseLeave += Control_MouseLeaveStatus;
+
             // Inputs
+
+            txtProjectLeader.Tag = "מתכנן מוביל בפרויקט";
+            txtProjectLeader.MouseEnter += Control_MouseEnterStatus; txtProjectLeader.MouseLeave += Control_MouseLeaveStatus;
+
             txtProjectID.Tag = "הכנס מספר פרויקט";
             txtProjectID.MouseEnter += Control_MouseEnterStatus; txtProjectID.MouseLeave += Control_MouseLeaveStatus;
 
@@ -145,10 +156,10 @@ namespace SaveAsPDF
             rtxtNotes.Tag = "הערות למייל";
             rtxtNotes.MouseEnter += Control_MouseEnterStatus; rtxtNotes.MouseLeave += Control_MouseLeaveStatus;
 
-            rtxtProjectNotes.Tag = "הערות לפרויקט";
+            rtxtProjectNotes.Tag = "הערות בפרויקט";
             rtxtProjectNotes.MouseEnter += Control_MouseEnterStatus; rtxtProjectNotes.MouseLeave += Control_MouseLeaveStatus;
 
-            // Checkboxes
+            // Check boxes
             chkbSendNote.Tag = "שלח הערה לראש הפרויקט";
             chkbSendNote.MouseEnter += Control_MouseEnterStatus; chkbSendNote.MouseLeave += Control_MouseLeaveStatus;
 
@@ -165,7 +176,7 @@ namespace SaveAsPDF
             dgvAttachments.Tag = "קבצים מצורפים";
             dgvAttachments.MouseEnter += Control_MouseEnterStatus; dgvAttachments.MouseLeave += Control_MouseLeaveStatus;
 
-            dgvEmployees.Tag = "עובדי פרויקט";
+            dgvEmployees.Tag = "עובדים בפרויקט";
             dgvEmployees.MouseEnter += Control_MouseEnterStatus; dgvEmployees.MouseLeave += Control_MouseLeaveStatus;
 
             // Tabs (optional, hover over tab control area)
@@ -182,16 +193,33 @@ namespace SaveAsPDF
         public FormMain()
         {
             InitializeComponent();
-            
+
             // Use event handler for efficient loading
             Load += FormMain_Load;
             FormClosing += FormMain_FormClosing;
-            
+
             // Setup DataGridView
             ConfigureEmployeeDataGrid();
-            
+
             // Set up key handlers
             KeyDown += FormMain_KeyDown;
+
+            // Wire project leader picker
+            btnProjectLeader.Click += btnProjectLeader_Click;
+        }
+
+        /// <summary>
+        /// Opens the contacts form to select a project leader and assigns it to txtProjectLeader.
+        /// </summary>
+        private void btnProjectLeader_Click(object sender, EventArgs e)
+        {
+            _selectingLeader = true;
+            using (var frmContacts = new FormContacts(this))
+            {
+                frmContacts.ShowDialog(this);
+            }
+            // Reset in case no selection was made
+            _selectingLeader = false;
         }
 
         /// <summary>
@@ -202,44 +230,44 @@ namespace SaveAsPDF
             dgvEmployees.AutoGenerateColumns = false;
             dgvEmployees.CellValueChanged += dgvEmployees_CellValueChanged;
             dgvEmployees.CurrentCellDirtyStateChanged += dgvEmployees_CurrentCellDirtyStateChanged;
-            
+
             // Add columns programmatically
             dgvEmployees.Columns.Clear();
-            
+
             dgvEmployees.Columns.AddRange(new DataGridViewColumn[] {
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "Id",
-                    DataPropertyName = "Id",
-                    Visible = false
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "FirstName",
-                    DataPropertyName = "FirstName",
-                    HeaderText = "שם פרטי"
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "LastName",
-                    DataPropertyName = "LastName",
-                    HeaderText = "שם משפחה"
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "EmailAddress",
-                    DataPropertyName = "EmailAddress",
-                    HeaderText = "אימייל"
-                },
-                new DataGridViewCheckBoxColumn
-                {
-                    Name = "IsLeader",
-                    DataPropertyName = "IsLeader",
-                    HeaderText = "ראש פרויקט",
-                    ReadOnly = false // Ensure editable
-                }
-            });
-            
+ new DataGridViewTextBoxColumn
+ {
+ Name = "Id",
+ DataPropertyName = "Id",
+ Visible = false
+ },
+ new DataGridViewTextBoxColumn
+ {
+ Name = "FirstName",
+ DataPropertyName = "FirstName",
+ HeaderText = "שם פרטי"
+ },
+ new DataGridViewTextBoxColumn
+ {
+ Name = "LastName",
+ DataPropertyName = "LastName",
+ HeaderText = "שם משפחה"
+ },
+ new DataGridViewTextBoxColumn
+ {
+ Name = "EmailAddress",
+ DataPropertyName = "EmailAddress",
+ HeaderText = "אימייל"
+ },
+ new DataGridViewCheckBoxColumn
+ {
+ Name = "IsLeader",
+ DataPropertyName = "IsLeader",
+ HeaderText = "ראש פרויקט",
+ ReadOnly = false // Ensure editable
+ }
+ });
+
             // Bind the DataGridView to the BindingList
             dgvEmployees.DataSource = _employeesBindingList;
 
@@ -263,14 +291,14 @@ namespace SaveAsPDF
         {
             // Apply context menus to improve UX
             SetupContextMenus();
-            
+
             // Set up attachment selection UI
             chkbSelectAllAttachments.Checked = true;
             chkbSelectAllAttachments.Text = "הסר הכל";
 
             // Set up project ID auto-complete
             ConfigureProjectIdAutoComplete();
-            
+
             // Load initial data
             txtSubject.Text = LoadEmailSubject();
             LoadSearchHistory();
@@ -282,7 +310,7 @@ namespace SaveAsPDF
             // NEW: wire status help
             WireStatusHelp();
         }
-        
+
         /// <summary>
         /// Configures context menus for various controls
         /// </summary>
@@ -296,7 +324,7 @@ namespace SaveAsPDF
             txtProjectName.EnableContextMenu();
             tvFolders.EnableContextMenu();
         }
-        
+
         /// <summary>
         /// Configure Project ID AutoComplete functionality
         /// </summary>
@@ -305,21 +333,21 @@ namespace SaveAsPDF
             txtProjectID.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             txtProjectID.AutoCompleteSource = AutoCompleteSource.CustomSource;
         }
-        
+
         /// <summary>
         /// Populates the folder tree with logical drives
         /// </summary>
         private void PopulateDriveNodes()
         {
             tvFolders.Nodes.Clear();
-            
+
             foreach (string drive in Environment.GetLogicalDrives())
             {
                 try
                 {
                     var di = new DriveInfo(drive);
                     int driveImage = 2;
-                    
+
                     // Set appropriate icon based on drive type
                     if (di.DriveType == DriveType.CDRom)
                         driveImage = 3;
@@ -329,11 +357,11 @@ namespace SaveAsPDF
                         driveImage = 8;
 
                     var node = new TreeNode(drive.Substring(0, 1), driveImage, driveImage) { Tag = drive };
-                    
+
                     // Add placeholder node for expandable drives
-                    if (di.IsReady) 
+                    if (di.IsReady)
                         node.Nodes.Add("...");
-                        
+
                     tvFolders.Nodes.Add(node);
                 }
                 catch
@@ -356,7 +384,7 @@ namespace SaveAsPDF
             searchHistory.Remove(text);
             searchHistory.Insert(0, text);
 
-            // Limit history to 10 items (or any desired max)
+            // Limit history to10 items (or any desired max)
             int maxCount = 10;
             if (searchHistory.Count > maxCount)
                 searchHistory = searchHistory.Take(maxCount).ToList();
@@ -420,12 +448,12 @@ namespace SaveAsPDF
         private void HandleFirstRun()
         {
             XMessageBox.Show(
-                "זהו השימוש הראשון בתוכנה",
-                "SaveAsPDF",
-                XMessageBoxButtons.OK,
-                XMessageBoxIcon.Information,
-                XMessageAlignment.Right,
-                XMessageLanguage.Hebrew);
+            "זהו השימוש הראשון בתוכנה",
+            "SaveAsPDF",
+            XMessageBoxButtons.OK,
+            XMessageBoxIcon.Information,
+            XMessageAlignment.Right,
+            XMessageLanguage.Hebrew);
             var dialog = new FolderPicker { InputPath = settingsModel.RootDrive };
             if (dialog.ShowDialog(Handle) == true)
                 settingsModel.RootDrive = dialog.InputPath;
@@ -440,12 +468,12 @@ namespace SaveAsPDF
             if (!projectID.SafeProjectID())
             {
                 XMessageBox.Show(
-                    Resources.InvalidProjectIDMessage ?? "מספר פרויקט לא חוקי",
-                    Resources.ErrorTitle ?? "שגיאה",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew);
+                Resources.InvalidProjectIDMessage ?? "מספר פרויקט לא חוקי",
+                Resources.ErrorTitle ?? "שגיאה",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
                 return;
             }
             try
@@ -454,7 +482,7 @@ namespace SaveAsPDF
                 LoadProjectData();
                 LoadEmployeeData();
                 UpdateUI();
-                
+
                 // Check for duplicate project IDs in the path and fix if needed
                 if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
                 {
@@ -465,46 +493,52 @@ namespace SaveAsPDF
                     {
                         // Fix the path to avoid duplicate project IDs
                         projectPath = projectPath.Replace(folderStructure, $"\\{projectID}\\");
+
+                        // Update the combo box text if it was showing the old duplicated path
+                        if (cmbSaveLocation.Text.Contains(folderStructure))
+                        {
+                            cmbSaveLocation.Text = projectPath;
+                        }
                     }
-                    
+
                     cmbSaveLocation.Text = projectPath;
                 }
                 else
                 {
                     cmbSaveLocation.Text = settingsModel.DefaultSavePath;
                 }
-                
+
                 _dataLoaded = true;
             }
             catch (FileNotFoundException ex)
             {
                 XMessageBox.Show(
-                    $"קובץ נדרש לא נמצא: {ex.Message}",
-                    "קובץ לא נמצא",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Warning,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew);
+                $"קובץ נדרש לא נמצא: {ex.Message}",
+                "קובץ לא נמצא",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Warning,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
             }
             catch (UnauthorizedAccessException ex)
             {
                 XMessageBox.Show(
-                    $"הגישה לקובץ או לתיקייה נדחתה: {ex.Message}",
-                    "גישה נדחתה",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew);
+                $"הגישה לקובץ או לתיקייה נדחתה: {ex.Message}",
+                "גישה נדחתה",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
             }
             catch (Exception ex)
             {
                 XMessageBox.Show(
-                    $"אירעה שגיאה בלתי צפויה בעת עיבוד מספר הפרויקט: {ex.Message}",
-                    "שגיאה",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew);
+                $"אירעה שגיאה בלתי צפויה בעת עיבוד מספר הפרויקט: {ex.Message}",
+                "שגיאה",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
             }
         }
 
@@ -528,12 +562,12 @@ namespace SaveAsPDF
                 catch (Exception ex)
                 {
                     XMessageBox.Show(
-                        $"שגיאה בטעינת נתוני הפרויקט: {ex.Message}\nהקובץ יוחלף בערכים ברירת מחדל.",
-                        "SaveAsPDF:LoadProjectData",
-                        XMessageBoxButtons.OK,
-                        XMessageBoxIcon.Warning,
-                        XMessageAlignment.Right,
-                        XMessageLanguage.Hebrew);
+                    $"שגיאה בטעינת נתוני הפרויקט: {ex.Message}\nהקובץ יוחלף בערכים ברירת מחדל.",
+                    "SaveAsPDF:LoadProjectData",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Warning,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
                     SetDefaultProjectModel();
                 }
             }
@@ -589,58 +623,53 @@ namespace SaveAsPDF
             {
                 // Clear and populate the save location combo box
                 cmbSaveLocation.Items.Clear();
-                
+
                 // First add the project root folder path directly
                 if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
                 {
-                    // Check for duplicate project IDs in the path
                     string projectID = txtProjectID.Text;
                     string projectPath = settingsModel.ProjectRootFolder.FullName;
-                    
-                    // Make sure projectID isn't duplicated (e.g. "C:\10\1000\1000\")
-                    string folderStructure = $"\\{projectID}\\{projectID}\\";
-                    if (projectPath.Contains(folderStructure))
+                    string folderStructure = $"\\{projectID}\\{projectID}\\",
+                    savePath = settingsModel.DefaultSavePath;
+
+                    if (!string.IsNullOrEmpty(projectID) && projectPath.Contains(folderStructure))
                     {
                         projectPath = projectPath.Replace(folderStructure, $"\\{projectID}\\");
+
                     }
-                    
                     cmbSaveLocation.Items.Add(projectPath);
                 }
-                
-                // Now load any additional paths from the tree file
+
+                // Load additional paths
                 if (File.Exists(settingsModel.DefaultTreeFile))
                 {
                     cmbSaveLocation.LoadComboBoxWithPaths(settingsModel.DefaultTreeFile, txtProjectID.Text);
                 }
-                
+
                 cmbSaveLocation.CustomizeComboBox();
-                
-                if (cmbSaveLocation.Items.Count > 0)
+
+                // Prefer showing DefaultSavePath if available
+                if (!string.IsNullOrEmpty(settingsModel.DefaultSavePath))
                 {
-                    // Try to select the default save path
-                    if (!string.IsNullOrEmpty(settingsModel.DefaultSavePath))
+                    bool matchedItem = false;
+                    for (int i = 0; i < cmbSaveLocation.Items.Count; i++)
                     {
-                        // Try to find and select the default save path
-                        for (int i = 0; i < cmbSaveLocation.Items.Count; i++)
+                        if (string.Equals(cmbSaveLocation.Items[i].ToString(), settingsModel.DefaultSavePath, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (string.Equals(cmbSaveLocation.Items[i].ToString(), settingsModel.DefaultSavePath, StringComparison.OrdinalIgnoreCase))
-                            {
-                                cmbSaveLocation.SelectedIndex = i;
-                                break;
-                            }
-                        }
-                        
-                        // If we couldn't find it, set it as the text anyway
-                        if (cmbSaveLocation.SelectedIndex < 0)
-                        {
-                            cmbSaveLocation.Text = settingsModel.DefaultSavePath;
+                            cmbSaveLocation.SelectedIndex = i;
+                            matchedItem = true;
+                            break;
                         }
                     }
-                    else
+                    if (!matchedItem)
                     {
-                        // Default to first item (which should be the project root folder)
-                        cmbSaveLocation.SelectedIndex = 0;
+                        // if it’s not one of the combo items, show it as text
+                        cmbSaveLocation.Text = settingsModel.DefaultSavePath;
                     }
+                }
+                else if (cmbSaveLocation.Items.Count > 0)
+                {
+                    cmbSaveLocation.SelectedIndex = 0;
                 }
 
                 // Update the tree view
@@ -654,12 +683,12 @@ namespace SaveAsPDF
                 else
                 {
                     XMessageBox.Show(
-                        "תיקיית השורש של הפרויקט אינה קיימת.",
-                        "שגיאה",
-                        XMessageBoxButtons.OK,
-                        XMessageBoxIcon.Warning,
-                        XMessageAlignment.Right,
-                        XMessageLanguage.Hebrew);
+                    "תיקיית השורש של הפרויקט אינה קיימת.",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Warning,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
                 }
                 txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
                 btnOK.Focus();
@@ -667,12 +696,12 @@ namespace SaveAsPDF
             catch (Exception ex)
             {
                 XMessageBox.Show(
-                    $"אירעה שגיאה בעת עדכון הממשק: {ex.Message}",
-                    "שגיאה",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew);
+                $"אירעה שגיאה בעת עדכון הממשק: {ex.Message}",
+                "שגיאה",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
             }
         }
 
@@ -715,12 +744,12 @@ namespace SaveAsPDF
         private void ShowInvalidMailItemError()
         {
             XMessageBox.Show(
-                "יש לבחור הודעות דואר אלקטרוני בלבד",
-                "SaveAsPDF",
-                XMessageBoxButtons.OK,
-                XMessageBoxIcon.Error,
-                XMessageAlignment.Right,
-                XMessageLanguage.Hebrew);
+            "יש לבחור הודעות דואר אלקטרוני בלבד",
+            "SaveAsPDF",
+            XMessageBoxButtons.OK,
+            XMessageBoxIcon.Error,
+            XMessageAlignment.Right,
+            XMessageLanguage.Hebrew);
             Close();
         }
 
@@ -760,23 +789,23 @@ namespace SaveAsPDF
             else
             {
                 XMessageBox.Show(
-                    "יש לבחור או לציין מיקום שמירה תקין.",
-                    "שגיאה",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew);
+                "יש לבחור או לציין מיקום שמירה תקין.",
+                "שגיאה",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
                 return;
             }
 
             string htmlContent = HtmlHelper.GenerateHtmlContent(
-                sPath,
-                _employeesModel,
-                attachmentsModels,
-                txtProjectName.Text,
-                txtProjectID.Text,
-                rtxtNotes.Text,
-                Environment.UserName
+            sPath,
+            _employeesModel,
+            attachmentsModels,
+            txtProjectName.Text,
+            txtProjectID.Text,
+            rtxtNotes.Text,
+            Environment.UserName
             );
 
             _mailItem.HTMLBody = htmlContent + _mailItem.HTMLBody;
@@ -794,12 +823,12 @@ namespace SaveAsPDF
                 else
                 {
                     XMessageBox.Show(
-                        "קובץ ה-PDF לא נמצא.",
-                        "שגיאה",
-                        XMessageBoxButtons.OK,
-                        XMessageBoxIcon.Error,
-                        XMessageAlignment.Right,
-                        XMessageLanguage.Hebrew);
+                    "קובץ ה-PDF לא נמצא.",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
                 }
             }
         }
@@ -821,12 +850,12 @@ namespace SaveAsPDF
         private void dgvAttachments_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             XMessageBox.Show(
-                dgvAttachments.CurrentCell.Value.ToString(),
-                "פרטי קובץ",
-                XMessageBoxButtons.OK,
-                XMessageBoxIcon.Information,
-                XMessageAlignment.Right,
-                XMessageLanguage.Hebrew);
+            dgvAttachments.CurrentCell.Value.ToString(),
+            "פרטי קובץ",
+            XMessageBoxButtons.OK,
+            XMessageBoxIcon.Information,
+            XMessageAlignment.Right,
+            XMessageLanguage.Hebrew);
         }
 
         /// <summary>
@@ -863,13 +892,13 @@ namespace SaveAsPDF
         /// </summary>
         /// <param name="EmailAddress">The email address of the employee.</param>
         private void SendEmailToEmployee(string EmailAddress) =>
-            XMessageBox.Show(
-                $"Send email to {EmailAddress}",
-                "SaveAsPDF",
-                XMessageBoxButtons.OK,
-                XMessageBoxIcon.Information,
-                XMessageAlignment.Right,
-                XMessageLanguage.Hebrew);
+        XMessageBox.Show(
+        $"Send email to {EmailAddress}",
+        "SaveAsPDF",
+        XMessageBoxButtons.OK,
+        XMessageBoxIcon.Information,
+        XMessageAlignment.Right,
+        XMessageLanguage.Hebrew);
 
         /// <summary>
         /// Handles the select all attachments checkbox change event. Updates the selection state of all attachments.
@@ -899,6 +928,22 @@ namespace SaveAsPDF
         /// <param name="model">The employee model to add.</param>
         public void EmployeeComplete(EmployeeModel model)
         {
+            if (_selectingLeader)
+            {
+                // Update the project leader text with the selected contact
+                var first = model.FirstName ?? string.Empty;
+                var last = model.LastName ?? string.Empty;
+                string fullName = ($"{first} {last}").Trim();
+                if (string.IsNullOrWhiteSpace(fullName))
+                    fullName = model.EmailAddress ?? string.Empty;
+                txtProjectLeader.Text = fullName;
+
+                // Reset the flag and do not add to employees grid
+                _selectingLeader = false;
+                return;
+            }
+
+            // Default behavior: add selected employee to the employees list if not exists
             if (!_employeesBindingList.Any(e => e.EmailAddress == model.EmailAddress))
             {
                 _employeesBindingList.Add(model);
@@ -956,12 +1001,12 @@ namespace SaveAsPDF
             else
             {
                 XMessageBox.Show(
-                    "לא נבחרו עובדים למחיקה.",
-                    "שגיאה",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Warning,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew);
+                "לא נבחרו עובדים למחיקה.",
+                "שגיאה",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Warning,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
             }
         }
 
@@ -1030,12 +1075,12 @@ namespace SaveAsPDF
             {
                 e.CancelEdit = true;
                 XMessageBox.Show(
-                    "שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות",
-                    "עריכת שם",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew);
+                "שם לא חוקי.\n לא ניתן ליצור שם ריק. חובה תו אחד לפחות",
+                "עריכת שם",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
                 return;
             }
             string nodeNewLabel = e.Label.SafeFolderName();
@@ -1043,12 +1088,12 @@ namespace SaveAsPDF
             {
                 e.CancelEdit = true;
                 XMessageBox.Show(
-                    "שם לא חוקי.\nאין להשתמש בתווים הבאים \n'\\', '/', ':', '*', '?', '<', '>', '|' '\"' ",
-                    "עריכת שם",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew);
+                "שם לא חוקי.\nאין להשתמש בתווים הבאים \n'\\', '/', ':', '*', '?', '<', '>', '|'",
+                "עריכת שם",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
                 return;
             }
             try
@@ -1063,12 +1108,12 @@ namespace SaveAsPDF
             {
                 e.CancelEdit = true;
                 XMessageBox.Show(
-                    $"שגיאה בשינוי שם התיקייה: {ex.Message}\n{Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.FullPath)}",
-                    "SaveAsPDF:tvFolders_AfterLabelEdit",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew);
+                $"שגיאה בשינוי שם התיקייה: {ex.Message}\n{Path.Combine(settingsModel.ProjectRootFolder.Parent.FullName, e.Node.FullPath)}",
+                "SaveAsPDF:tvFolders_AfterLabelEdit",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
             }
         }
 
@@ -1135,19 +1180,19 @@ namespace SaveAsPDF
             if (!Directory.Exists(projectRootFolder.FullName))
             {
                 XMessageBox.Show(
-                    "הפרויקט לא קיים",
-                    "שגיאה",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew);
+                "הפרויקט לא קיים",
+                "שגיאה",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
                 return;
             }
 
             ProcessProjectID(projectID);
             if (string.IsNullOrEmpty(settingsModel.RootDrive))
                 HandleFirstRun();
-            
+
             // Ensure the project root path is displayed in the ComboBox without duplicate project IDs
             if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
             {
@@ -1158,11 +1203,15 @@ namespace SaveAsPDF
                 {
                     // Fix the path to avoid duplicate project IDs
                     projectPath = projectPath.Replace(folderStructure, $"\\{projectID}\\");
-                }
 
-                cmbSaveLocation.Text = projectPath;
+                    // Update the combo box text if it was showing the old duplicated path
+                    if (cmbSaveLocation.Text.Contains(folderStructure))
+                    {
+                        cmbSaveLocation.Text = projectPath;
+                    }
+                }
             }
-            
+
             if (_mailItem is MailItem mailItem)
                 ProcessMailItem(_mailItem);
             else
@@ -1177,12 +1226,12 @@ namespace SaveAsPDF
             if (e.CloseReason == CloseReason.UserClosing)
             {
                 if (XMessageBox.Show(
-                        "האם לצאת מהיישום?",
-                        "SaveAsPDF",
-                        XMessageBoxButtons.YesNo,
-                        XMessageBoxIcon.Question,
-                        XMessageAlignment.Right,
-                        XMessageLanguage.Hebrew) == DialogResult.No)
+                "האם לצאת מהיישום?",
+                "SaveAsPDF",
+                XMessageBoxButtons.YesNo,
+                XMessageBoxIcon.Question,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew) == DialogResult.No)
                 {
                     e.Cancel = true;
                 }
@@ -1226,12 +1275,12 @@ namespace SaveAsPDF
                 catch (Exception ex)
                 {
                     XMessageBox.Show(
-                        $"אירעה שגיאה בעת מחיקת התיקייה: {ex.Message}",
-                        "שגיאה",
-                        XMessageBoxButtons.OK,
-                        XMessageBoxIcon.Error,
-                        XMessageAlignment.Right,
-                        XMessageLanguage.Hebrew);
+                    $"אירעה שגיאה בעת מחיקת התיקייה: {ex.Message}",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
                 }
             }
             else if (e.KeyCode == Keys.F5)

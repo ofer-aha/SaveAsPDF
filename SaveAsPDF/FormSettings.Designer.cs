@@ -103,7 +103,7 @@
             this.bntCancel.Name = "bntCancel";
             this.bntCancel.Size = new System.Drawing.Size(75, 23);
             this.bntCancel.TabIndex = 2;
-            this.bntCancel.Text = "بיטול";
+            this.bntCancel.Text = "&ביטול";
             this.bntCancel.UseVisualStyleBackColor = true;
             this.bntCancel.Click += new System.EventHandler(this.bntCancel_Click);
             // 
@@ -177,7 +177,7 @@
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 0;
-            this.btnOK.Text = "אישור";
+            this.btnOK.Text = "&אישור";
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
@@ -198,7 +198,7 @@
             this.lblRootFolder.Name = "lblRootFolder";
             this.lblRootFolder.Size = new System.Drawing.Size(134, 13);
             this.lblRootFolder.TabIndex = 5;
-            this.lblRootFolder.Text = "تיקיית שורש לפרויקטים";
+            this.lblRootFolder.Text = "תיקיית שורש לפרויקטים";
             // 
             // btnSaveSettings
             // 
@@ -207,7 +207,7 @@
             this.btnSaveSettings.Name = "btnSaveSettings";
             this.btnSaveSettings.Size = new System.Drawing.Size(97, 23);
             this.btnSaveSettings.TabIndex = 1;
-            this.btnSaveSettings.Text = "שמור שינויים";
+            this.btnSaveSettings.Text = "&שמור שינויים";
             this.btnSaveSettings.UseVisualStyleBackColor = true;
             this.btnSaveSettings.Click += new System.EventHandler(this.btnSaveSettings_Click);
             // 
@@ -554,7 +554,7 @@
             this.lblMaxProjectCount.Name = "lblMaxProjectCount";
             this.lblMaxProjectCount.Size = new System.Drawing.Size(121, 13);
             this.lblMaxProjectCount.TabIndex = 2;
-            this.lblMaxProjectCount.Text = "מס' פרויקטים אחרונים";
+            this.lblMaxProjectCount.Text = "מס\' פרויקטים אחרונים";
             // 
             // txtMaxProjectCount
             // 

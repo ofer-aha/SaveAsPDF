@@ -300,6 +300,7 @@ namespace SaveAsPDF
             if (_isDirty)
             {
                 DialogResult result = XMessageBox.Show(
+                    this,
                     "שמור שינויים?",
                     "SaveAsPDF",
                     XMessageBoxButtons.YesNo,
@@ -313,24 +314,19 @@ namespace SaveAsPDF
                     if (cmbDefaultFolder.SelectedItem != null)
                     {
                         string selectedPath = cmbDefaultFolder.SelectedItem.ToString();
-                        
-                        // Check if the path contains the project root tag
-                        if (_settingsModel.ProjectRootTag != null && 
-                            selectedPath.Contains(_settingsModel.ProjectRootTag))
+
+                        if (_settingsModel.ProjectRootTag != null && selectedPath.Contains(_settingsModel.ProjectRootTag))
                         {
-                            // This is a path with a project tag placeholder - store as is
                             _settingsModel.DefaultSavePath = selectedPath;
                         }
                         else
                         {
-                            // Regular path - store as is since it will be combined with
-                            // the project folder later in FormMain
                             _settingsModel.DefaultSavePath = selectedPath;
                         }
-                        
+
                         _settingsModel.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
                     }
-                    
+
                     SettingsHelpers.SaveModelToSettings(_settingsModel);
                 }
             }
@@ -578,26 +574,26 @@ namespace SaveAsPDF
             if (cmbDefaultFolder.SelectedItem != null)
             {
                 // Store the relative path without any project ID information
-                // This prevents duplicate project IDs in paths when used later
                 string selectedPath = cmbDefaultFolder.SelectedItem.ToString();
-                
-                // Check if the path contains the project root tag and clean it
-                if (_settingsModel.ProjectRootTag != null && 
-                    selectedPath.Contains(_settingsModel.ProjectRootTag))
+
+                // If contains project tag, keep as-is; otherwise store as-is
+                if (_settingsModel.ProjectRootTag != null && selectedPath.Contains(_settingsModel.ProjectRootTag))
                 {
-                    // The path contains a project tag marker - this is good
-                    // Leave it as is, since it will be replaced with the actual project ID
                     _settingsModel.DefaultSavePath = selectedPath;
                 }
                 else
                 {
-                    // Regular path - store as is
                     _settingsModel.DefaultSavePath = selectedPath;
                 }
-                
-                // Keep track of the selected index for later use
+
                 _settingsModel.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
                 _isDirty = true;
+
+                // Persist immediately so FormMain can pick it up on next project selection
+                SettingsHelpers.SaveModelToSettings(_settingsModel);
+
+                // Optionally notify caller about updated settings
+                _callingForm?.SettingsComplete(_settingsModel);
             }
         }
 
