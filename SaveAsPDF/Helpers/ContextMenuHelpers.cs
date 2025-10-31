@@ -52,11 +52,11 @@ namespace SaveAsPDF.Helpers
             {
                 tsmiUndo.Enabled = !rtxt.ReadOnly && rtxt.CanUndo;
                 tsmiRedo.Enabled = !rtxt.ReadOnly && rtxt.CanRedo;
-                tsmiCut.Enabled = !rtxt.ReadOnly && rtxt.SelectionLength > 0;
-                tsmiCopy.Enabled = rtxt.SelectionLength > 0;
+                tsmiCut.Enabled = !rtxt.ReadOnly && rtxt.SelectionLength >0;
+                tsmiCopy.Enabled = rtxt.SelectionLength >0;
                 tsmiPaste.Enabled = !rtxt.ReadOnly && Clipboard.ContainsText();
-                tsmiDelete.Enabled = !rtxt.ReadOnly && rtxt.SelectionLength > 0;
-                tsmiSelectAll.Enabled = rtxt.TextLength > 0 && rtxt.SelectionLength < rtxt.TextLength;
+                tsmiDelete.Enabled = !rtxt.ReadOnly && rtxt.SelectionLength >0;
+                tsmiSelectAll.Enabled = rtxt.TextLength >0 && rtxt.SelectionLength < rtxt.TextLength;
             };
 
             rtxt.ContextMenuStrip = cms;
@@ -90,11 +90,11 @@ namespace SaveAsPDF.Helpers
             cms.Opening += (sender, e) =>
             {
                 tsmiUndo.Enabled = !txt.ReadOnly && txt.CanUndo;
-                tsmiCut.Enabled = !txt.ReadOnly && txt.SelectionLength > 0;
-                tsmiCopy.Enabled = txt.SelectionLength > 0;
+                tsmiCut.Enabled = !txt.ReadOnly && txt.SelectionLength >0;
+                tsmiCopy.Enabled = txt.SelectionLength >0;
                 tsmiPaste.Enabled = !txt.ReadOnly && Clipboard.ContainsText();
-                tsmiDelete.Enabled = !txt.ReadOnly && txt.SelectionLength > 0;
-                tsmiSelectAll.Enabled = txt.TextLength > 0 && txt.SelectionLength < txt.TextLength;
+                tsmiDelete.Enabled = !txt.ReadOnly && txt.SelectionLength >0;
+                tsmiSelectAll.Enabled = txt.TextLength >0 && txt.SelectionLength < txt.TextLength;
             };
 
             txt.ContextMenuStrip = cms;
@@ -116,8 +116,22 @@ namespace SaveAsPDF.Helpers
             {
                 try
                 {
-                    string[] tf = FileFoldersHelper.CreateDirectory($@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{FormMain.mySelectedNode.FullPath}\New Folder").Split('\\');
-                    tv.AddNode(FormMain.mySelectedNode, tf[tf.Length - 1]);
+                    if (tv.SelectedNode == null)
+                    {
+                        XMessageBox.Show(
+                            "יש לבחור תיקיה בעץ לפני יצירת תיקיה חדשה.",
+                            "SaveAsPDF:EnableContextMenu",
+                            XMessageBoxButtons.OK,
+                            XMessageBoxIcon.Warning,
+                            XMessageAlignment.Right,
+                            XMessageLanguage.Hebrew
+                        );
+                        return;
+                    }
+
+                    string basePath = Path.Combine(FormMain.settingsModel.ProjectRootFolder.Parent.FullName, tv.SelectedNode.FullPath, "New Folder");
+                    string[] tf = FileFoldersHelper.CreateDirectory(basePath).Split('\\');
+                    tv.AddNode(tv.SelectedNode, tf[tf.Length -1]);
                 }
                 catch (Exception ex)
                 {
@@ -140,8 +154,22 @@ namespace SaveAsPDF.Helpers
             {
                 try
                 {
-                    string[] tf = FileFoldersHelper.CreateDirectory($@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{FormMain.mySelectedNode.FullPath}\{date:dd.MM.yyyy}").Split('\\');
-                    tv.AddNode(FormMain.mySelectedNode, tf[tf.Length - 1]);
+                    if (tv.SelectedNode == null)
+                    {
+                        XMessageBox.Show(
+                            "יש לבחור תיקיה בעץ לפני יצירת תיקיה חדשה.",
+                            "SaveAsPDF:EnableContextMenu",
+                            XMessageBoxButtons.OK,
+                            XMessageBoxIcon.Warning,
+                            XMessageAlignment.Right,
+                            XMessageLanguage.Hebrew
+                        );
+                        return;
+                    }
+
+                    string basePath = Path.Combine(FormMain.settingsModel.ProjectRootFolder.Parent.FullName, tv.SelectedNode.FullPath, date.ToString("dd.MM.yyyy"));
+                    string[] tf = FileFoldersHelper.CreateDirectory(basePath).Split('\\');
+                    tv.AddNode(tv.SelectedNode, tf[tf.Length -1]);
                 }
                 catch (Exception ex)
                 {
@@ -163,7 +191,20 @@ namespace SaveAsPDF.Helpers
             var tsmiOpen = new ToolStripMenuItem(menuNameOpen);
             tsmiOpen.Click += (sender, e) =>
             {
-                Process.Start($@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{FormMain.mySelectedNode.FullPath}");
+                if (tv.SelectedNode == null)
+                {
+                    XMessageBox.Show(
+                        "יש לבחור תיקיה בעץ כדי לפתוח אותה.",
+                        "SaveAsPDF:EnableContextMenu",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Warning,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew
+                    );
+                    return;
+                }
+                string path = Path.Combine(FormMain.settingsModel.ProjectRootFolder.Parent.FullName, tv.SelectedNode.FullPath);
+                Process.Start(path);
             };
             cms.Items.Add(tsmiOpen);
 
@@ -171,11 +212,12 @@ namespace SaveAsPDF.Helpers
             var tsmiDelete = new ToolStripMenuItem(menuNameDelete);
             tsmiDelete.Click += (sender, e) =>
             {
-                if (FormMain.mySelectedNode.Parent != null)
+                if (tv.SelectedNode?.Parent != null)
                 {
+                    string fullPath = Path.Combine(FormMain.settingsModel.ProjectRootFolder.Parent.FullName, tv.SelectedNode.FullPath);
                     var result = XMessageBox.Show(
                         "האם למחוק תיקייה ואת כל הקבצים והתיקיות שהיא מכילה?\n" +
-                        $@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{FormMain.mySelectedNode.FullPath}",
+                        fullPath,
                         "SaveAsPDF",
                         XMessageBoxButtons.YesNo,
                         XMessageBoxIcon.Warning,
@@ -184,7 +226,7 @@ namespace SaveAsPDF.Helpers
                     );
                     if (result == DialogResult.Yes)
                     {
-                        FileFoldersHelper.DeleteDirectory($@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{FormMain.mySelectedNode.FullPath}");
+                        FileFoldersHelper.DeleteDirectory(fullPath);
                         TreeHelpers.DeleteNode(tv);
                     }
                 }
@@ -206,10 +248,19 @@ namespace SaveAsPDF.Helpers
             var tsmiRename = new ToolStripMenuItem(menuNameRename);
             tsmiRename.Click += (sender, e) =>
             {
-                string oldName = $@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\frmMain.{FormMain.mySelectedNode.FullPath}";
-                DirectoryInfo directoryInfo = new DirectoryInfo(oldName.SafeFolderName());
-                tv.RenameNode(FormMain.mySelectedNode);
-                FormMain.mySelectedNode = tv.SelectedNode;
+                if (tv.SelectedNode == null)
+                {
+                    XMessageBox.Show(
+                        "יש לבחור תיקיה בעץ כדי לשנות את שמה.",
+                        "SaveAsPDF",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Warning,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew
+                    );
+                    return;
+                }
+                tv.RenameNode(tv.SelectedNode);
             };
             cms.Items.Add(tsmiRename);
 

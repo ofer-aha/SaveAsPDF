@@ -235,7 +235,13 @@ namespace SaveAsPDF
             WireStatusHelp();
         }
 
-        private void bntCancel_Click(object sender, EventArgs e) => Close();
+        private void bntCancel_Click(object sender, EventArgs e)
+        {
+            // Treat explicit cancel as discard: avoid save prompt on FormClosing
+            _isDirty = false;
+            DialogResult = DialogResult.Cancel;
+            Close();
+        }
 
         private void tvProjectSubFolders_MouseDown(object sender, MouseEventArgs e)
         {

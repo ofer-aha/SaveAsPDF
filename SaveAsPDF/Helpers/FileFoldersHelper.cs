@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Text;
+using System.Collections.Concurrent;
 
 namespace SaveAsPDF.Helpers
 {
@@ -10,6 +13,9 @@ namespace SaveAsPDF.Helpers
     /// </summary>
     public static class FileFoldersHelper
     {
+        // Cache for sanitized folder names to avoid repeated work
+        private static readonly ConcurrentDictionary<string, string> _safeNameCache = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
         /// Constructs the full project path based on the project number.
         /// For example, project number 1234 => j:\12\1234.
@@ -100,31 +106,56 @@ namespace SaveAsPDF.Helpers
 
         /// <summary>
         /// Sanitizes a folder name to make it safe for use in the file system.
+        /// Optimized to avoid Regex and uses a cache to reduce repeated work.
         /// </summary>
         public static string SafeFolderName(this string folderName)
         {
             if (string.IsNullOrWhiteSpace(folderName))
                 return string.Empty;
 
+            // Handle rooted paths by sanitizing each segment and rejoining
             if (Path.IsPathRooted(folderName))
             {
                 string root = Path.GetPathRoot(folderName);
-                string[] parts = folderName.Substring(root.Length).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                var parts = folderName.Substring(root.Length)
+                    .Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
 
                 for (int i = 0; i < parts.Length; i++)
+                {
                     parts[i] = parts[i].SafeFolderName();
+                }
 
                 return Path.Combine(root, Path.Combine(parts));
             }
 
-            string invalidCharsPattern = @"[\\/:*?""<>|]";
-            string cleanFolderName = Regex.Replace(folderName, invalidCharsPattern, "_");
+            // Use cache to avoid recomputing
+            if (_safeNameCache.TryGetValue(folderName, out var cached))
+                return cached;
 
+            var invalid = Path.GetInvalidFileNameChars();
+            var invalidSet = new HashSet<char>(invalid);
+            var sb = new StringBuilder(folderName.Length);
+
+            foreach (char c in folderName)
+            {
+                sb.Append(invalidSet.Contains(c) ? '_' : c);
+            }
+
+            string clean = sb.ToString();
+
+            // Avoid reserved names
             string[] reservedNames = { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "LPT1", "LPT2", "LPT3" };
-            if (Array.Exists(reservedNames, name => string.Equals(cleanFolderName, name, StringComparison.OrdinalIgnoreCase)))
-                cleanFolderName += "_";
+            foreach (var rn in reservedNames)
+            {
+                if (string.Equals(clean, rn, StringComparison.OrdinalIgnoreCase))
+                {
+                    clean += "_";
+                    break;
+                }
+            }
 
-            return cleanFolderName;
+            _safeNameCache[folderName] = clean;
+            return clean;
         }
 
         /// <summary>

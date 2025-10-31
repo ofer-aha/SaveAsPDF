@@ -54,6 +54,9 @@
             this.btnStyle = new System.Windows.Forms.Button();
             this.rtxtNotes = new System.Windows.Forms.RichTextBox();
             this.groupBoxEmployee = new System.Windows.Forms.GroupBox();
+            this.btnProjectLeader = new System.Windows.Forms.Button();
+            this.txtProjectLeader = new System.Windows.Forms.TextBox();
+            this.lblProjectLeader = new System.Windows.Forms.Label();
             this.RemoveEmployee = new System.Windows.Forms.Button();
             this.dgvEmployees = new System.Windows.Forms.DataGridView();
             this.btnPhoneBook = new System.Windows.Forms.Button();
@@ -71,9 +74,6 @@
             this.chbOpenPDF = new System.Windows.Forms.CheckBox();
             this.errorProviderMain = new System.Windows.Forms.ErrorProvider(this.components);
             this.cmbSaveLocation = new System.Windows.Forms.ComboBox();
-            this.lblProjectLeader = new System.Windows.Forms.Label();
-            this.txtProjectLeader = new System.Windows.Forms.TextBox();
-            this.btnProjectLeader = new System.Windows.Forms.Button();
             this.stsStrip.SuspendLayout();
             this.tabNotes.SuspendLayout();
             this.tabProjectNote.SuspendLayout();
@@ -247,6 +247,22 @@
             this.groupBoxEmployee.Name = "groupBoxEmployee";
             this.groupBoxEmployee.TabStop = false;
             // 
+            // btnProjectLeader
+            // 
+            resources.ApplyResources(this.btnProjectLeader, "btnProjectLeader");
+            this.btnProjectLeader.Name = "btnProjectLeader";
+            this.btnProjectLeader.UseVisualStyleBackColor = true;
+            // 
+            // txtProjectLeader
+            // 
+            resources.ApplyResources(this.txtProjectLeader, "txtProjectLeader");
+            this.txtProjectLeader.Name = "txtProjectLeader";
+            // 
+            // lblProjectLeader
+            // 
+            resources.ApplyResources(this.lblProjectLeader, "lblProjectLeader");
+            this.lblProjectLeader.Name = "lblProjectLeader";
+            // 
             // RemoveEmployee
             // 
             resources.ApplyResources(this.RemoveEmployee, "RemoveEmployee");
@@ -385,22 +401,6 @@
             this.cmbSaveLocation.Name = "cmbSaveLocation";
             this.cmbSaveLocation.TextUpdate += new System.EventHandler(this.cmbSaveLocation_TextUpdate);
             this.cmbSaveLocation.SelectedValueChanged += new System.EventHandler(this.cmbSaveLocation_SelectedValueChanged);
-            // 
-            // lblProjectLeader
-            // 
-            resources.ApplyResources(this.lblProjectLeader, "lblProjectLeader");
-            this.lblProjectLeader.Name = "lblProjectLeader";
-            // 
-            // txtProjectLeader
-            // 
-            resources.ApplyResources(this.txtProjectLeader, "txtProjectLeader");
-            this.txtProjectLeader.Name = "txtProjectLeader";
-            // 
-            // btnProjectLeader
-            // 
-            resources.ApplyResources(this.btnProjectLeader, "btnProjectLeader");
-            this.btnProjectLeader.Name = "btnProjectLeader";
-            this.btnProjectLeader.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
