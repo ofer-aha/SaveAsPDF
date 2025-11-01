@@ -50,69 +50,6 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// Retrieves a list of TreeNodes representing the subdirectories of a given directory.
-        /// </summary>
-        /// <param name="dir">The directory to list.</param>
-        /// <param name="expanded">If true, expands the tree nodes.</param>
-        /// <returns>A list of <see cref="TreeNode"/> objects representing the subdirectories.</returns>
-        public static List<TreeNode> GetFolderNodes(string dir, bool expanded)
-        {
-            var nodes = new List<TreeNode>();
-
-            try
-            {
-                foreach (var subDir in Directory.GetDirectories(dir))
-                {
-                    if (!subDir.IsHidden())
-                    {
-                        var directoryInfo = new DirectoryInfo(subDir);
-                        var treeNode = new TreeNode(directoryInfo.Name)
-                        {
-                            Tag = directoryInfo,
-                            ToolTipText = subDir
-                        };
-
-                        if (Directory.GetDirectories(subDir).Any())
-                        {
-                            treeNode.Nodes.Add("...");
-                        }
-
-                        if (expanded)
-                        {
-                            treeNode.Expand();
-                        }
-
-                        nodes.Add(treeNode);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                XMessageBox.Show(
-                    $"שגיאה בקבלת צמתים של תיקיות: {ex.Message}",
-                    "SaveAsPDF:GetFolderNodes",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew
-                );
-            }
-
-            return nodes;
-        }
-
-        /// <summary>
-        /// Determines whether a directory is hidden.
-        /// </summary>
-        /// <param name="sDir">The directory path to check.</param>
-        /// <returns>True if the directory is hidden; otherwise, false.</returns>
-        private static bool IsHidden(this string sDir)
-        {
-            var dir = new DirectoryInfo(sDir);
-            return dir.Attributes.HasFlag(FileAttributes.Hidden);
-        }
-
-        /// <summary>
         /// Traverses a directory and creates a TreeNode representing its structure.
         /// </summary>
         /// <param name="path">The path to traverse.</param>
@@ -264,9 +201,72 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
+        /// Gets the folder nodes for the specified directory.
+        /// </summary>
+        /// <param name="dir">The directory to get the nodes for.</param>
+        /// <param name="expanded">Whether the nodes should be expanded.</param>
+        /// <returns>A list of TreeNode representing the folder nodes.</returns>
+        public static List<TreeNode> GetFolderNodes(string dir, bool expanded)
+        {
+            var nodes = new List<TreeNode>();
+
+            try
+            {
+                foreach (var subDir in Directory.GetDirectories(dir))
+                {
+                    if (!subDir.IsHidden())
+                    {
+                        var directoryInfo = new DirectoryInfo(subDir);
+                        var treeNode = new TreeNode(directoryInfo.Name)
+                        {
+                            Tag = directoryInfo,
+                            ToolTipText = subDir
+                        };
+
+                        if (Directory.GetDirectories(subDir).Any())
+                        {
+                            treeNode.Nodes.Add("...");
+                        }
+
+                        if (expanded)
+                        {
+                            treeNode.Expand();
+                        }
+
+                        nodes.Add(treeNode);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                XMessageBox.Show(
+                    $"שגיאה בקבלת צמתים של תיקיות: {ex.Message}",
+                    "SaveAsPDF:GetFolderNodes",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
+            }
+
+            return nodes;
+        }
+
+        /// <summary>
+        /// Determines whether a directory is hidden.
+        /// </summary>
+        /// <param name="sDir">The directory to check.</param>
+        /// <returns>True if the directory is hidden; otherwise, false.</returns>
+        private static bool IsHidden(this string sDir)
+        {
+            var dir = new DirectoryInfo(sDir);
+            return dir.Attributes.HasFlag(FileAttributes.Hidden);
+        }
+
+        /// <summary>
         /// Retrieves the full paths of all nodes in a TreeView.
         /// </summary>
-        /// <param name="parentNode">The parent TreeNode to start from.</param>
+        /// <param name="parentNode">The parent TreeNode.</param>
         /// <returns>A list of full paths for all nodes.</returns>
         public static List<string> ListNodesPath(TreeNode parentNode)
         {
@@ -283,21 +283,6 @@ namespace SaveAsPDF.Helpers
             }
 
             return paths;
-        }
-
-        /// <summary>
-        /// Populates a ComboBox with the full paths of all nodes in a TreeView.
-        /// </summary>
-        /// <param name="comboBox">The ComboBox to populate.</param>
-        /// <param="node">The root TreeNode to start from.</param>
-        public static void PopulateComboBoxFromTree(ComboBox comboBox, TreeNode node)
-        {
-            comboBox.Items.Add(node.FullPath);
-
-            foreach (TreeNode childNode in node.Nodes)
-            {
-                PopulateComboBoxFromTree(comboBox, childNode);
-            }
         }
     }
 }

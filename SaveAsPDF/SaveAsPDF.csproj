@@ -285,6 +285,7 @@
   -->
   <ItemGroup>
     <Compile Include="Helpers\HtmlHelper.cs" />
+    <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Helpers\XMessageBox.cs" />
     <Compile Include="FormContacts.cs">
       <SubType>Form</SubType>

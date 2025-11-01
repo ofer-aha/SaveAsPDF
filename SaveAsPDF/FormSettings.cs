@@ -4,26 +4,26 @@ using SaveAsPDF.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace SaveAsPDF
 {
     public partial class FormSettings : Form
     {
         private readonly ISettingsRequester _callingForm;
-        private readonly SettingsModel _settingsModel = new SettingsModel();
+        private readonly SettingsModel _settings_model = new SettingsModel();
         private TreeNode _mySelectedNode;
         private bool _isDirty;
 
         // Generic handlers to show short help text in the status strip
-        private void Control_MouseEnterStatus(object sender, EventArgs e)
+        private void ControlMouseEnterStatus(object sender, EventArgs e)
         {
             var ctl = sender as Control;
             toolStripStatusLabel.Text = ctl?.Tag as string ?? string.Empty;
         }
 
-        private void Control_MouseLeaveStatus(object sender, EventArgs e)
+        private void ControlMouseLeaveStatus(object sender, EventArgs e)
         {
             toolStripStatusLabel.Text = string.Empty;
         }
@@ -33,65 +33,85 @@ namespace SaveAsPDF
         {
             // Buttons
             btnOK.Tag = "אישור";
-            btnOK.MouseEnter += Control_MouseEnterStatus; btnOK.MouseLeave += Control_MouseLeaveStatus;
+            btnOK.MouseEnter += ControlMouseEnterStatus;
+            btnOK.MouseLeave += ControlMouseLeaveStatus;
 
             btnSaveSettings.Tag = "שמור שינויים";
-            btnSaveSettings.MouseEnter += Control_MouseEnterStatus; btnSaveSettings.MouseLeave += Control_MouseLeaveStatus;
+            btnSaveSettings.MouseEnter += ControlMouseEnterStatus;
+            btnSaveSettings.MouseLeave += ControlMouseLeaveStatus;
 
             bntCancel.Tag = "בטל וסגור";
-            bntCancel.MouseEnter += Control_MouseEnterStatus; bntCancel.MouseLeave += Control_MouseLeaveStatus;
+            bntCancel.MouseEnter += ControlMouseEnterStatus;
+            bntCancel.MouseLeave += ControlMouseLeaveStatus;
 
             btnFolders.Tag = "בחירת תיקיית שורש";
-            btnFolders.MouseEnter += Control_MouseEnterStatus; btnFolders.MouseLeave += Control_MouseLeaveStatus;
+            btnFolders.MouseEnter += ControlMouseEnterStatus;
+            btnFolders.MouseLeave += ControlMouseLeaveStatus;
 
-            btnLoadTreeFile.Tag = "פתח קובץ מבנה";
-            btnLoadTreeFile.MouseEnter += Control_MouseEnterStatus; btnLoadTreeFile.MouseLeave += Control_MouseLeaveStatus;
+            btnLoadTreeFile.Tag = "פתח קובץ מבנה (JSON)";
+            btnLoadTreeFile.MouseEnter += ControlMouseEnterStatus;
+            btnLoadTreeFile.MouseLeave += ControlMouseLeaveStatus;
 
-            btnSaveTreeFile.Tag = "שמור קובץ מבנה";
-            btnSaveTreeFile.MouseEnter += Control_MouseEnterStatus; btnSaveTreeFile.MouseLeave += Control_MouseLeaveStatus;
+            btnSaveTreeFile.Tag = "שמור קובץ מבנה (JSON)";
+            btnSaveTreeFile.MouseEnter += ControlMouseEnterStatus;
+            btnSaveTreeFile.MouseLeave += ControlMouseLeaveStatus;
 
             btnLoadDefaultTree.Tag = "טען מבנה ברירת מחדל";
-            btnLoadDefaultTree.MouseEnter += Control_MouseEnterStatus; btnLoadDefaultTree.MouseLeave += Control_MouseLeaveStatus;
+            btnLoadDefaultTree.MouseEnter += ControlMouseEnterStatus;
+            btnLoadDefaultTree.MouseLeave += ControlMouseLeaveStatus;
 
             btnClearList.Tag = "נקה רשימה";
-            btnClearList.MouseEnter += Control_MouseEnterStatus; btnClearList.MouseLeave += Control_MouseLeaveStatus;
+            btnClearList.MouseEnter += ControlMouseEnterStatus;
+            btnClearList.MouseLeave += ControlMouseLeaveStatus;
 
             // Inputs/labels
             txtRootFolder.Tag = "תיקיית שורש לפרויקטים";
-            txtRootFolder.MouseEnter += Control_MouseEnterStatus; txtRootFolder.MouseLeave += Control_MouseLeaveStatus;
+            txtRootFolder.MouseEnter += ControlMouseEnterStatus;
+            txtRootFolder.MouseLeave += ControlMouseLeaveStatus;
 
             cmbDefaultFolder.Tag = "בחר תיקיית ברירת מחדל";
-            cmbDefaultFolder.MouseEnter += Control_MouseEnterStatus; cmbDefaultFolder.MouseLeave += Control_MouseLeaveStatus;
+            cmbDefaultFolder.MouseEnter += ControlMouseEnterStatus;
+            cmbDefaultFolder.MouseLeave += ControlMouseLeaveStatus;
 
             txtMinAttSize.Tag = "סף גודל קובץ מצורף";
-            txtMinAttSize.MouseEnter += Control_MouseEnterStatus; txtMinAttSize.MouseLeave += Control_MouseLeaveStatus;
+            txtMinAttSize.MouseEnter += ControlMouseEnterStatus;
+            txtMinAttSize.MouseLeave += ControlMouseLeaveStatus;
 
             txtTreePath.Tag = "נתיב קובץ מבנה תיקיות";
-            txtTreePath.MouseEnter += Control_MouseEnterStatus; txtTreePath.MouseLeave += Control_MouseLeaveStatus;
+            txtTreePath.MouseEnter += ControlMouseEnterStatus;
+            txtTreePath.MouseLeave += ControlMouseLeaveStatus;
 
             tvProjectSubFolders.Tag = "עץ תיקיות";
-            tvProjectSubFolders.MouseEnter += Control_MouseEnterStatus; tvProjectSubFolders.MouseLeave += Control_MouseLeaveStatus;
+            tvProjectSubFolders.MouseEnter += ControlMouseEnterStatus;
+            tvProjectSubFolders.MouseLeave += ControlMouseLeaveStatus;
 
             txtSaveAsPDFFolder.Tag = "תיקיית SaveAsPDF";
-            txtSaveAsPDFFolder.MouseEnter += Control_MouseEnterStatus; txtSaveAsPDFFolder.MouseLeave += Control_MouseLeaveStatus;
+            txtSaveAsPDFFolder.MouseEnter += ControlMouseEnterStatus;
+            txtSaveAsPDFFolder.MouseLeave += ControlMouseLeaveStatus;
 
             txtXmlProjectFile.Tag = "קובץ XML פרויקט";
-            txtXmlProjectFile.MouseEnter += Control_MouseEnterStatus; txtXmlProjectFile.MouseLeave += Control_MouseLeaveStatus;
+            txtXmlProjectFile.MouseEnter += ControlMouseEnterStatus;
+            txtXmlProjectFile.MouseLeave += ControlMouseLeaveStatus;
 
             txtXmlEmployeesFile.Tag = "קובץ XML עובדים";
-            txtXmlEmployeesFile.MouseEnter += Control_MouseEnterStatus; txtXmlEmployeesFile.MouseLeave += Control_MouseLeaveStatus;
+            txtXmlEmployeesFile.MouseEnter += ControlMouseEnterStatus;
+            txtXmlEmployeesFile.MouseLeave += ControlMouseLeaveStatus;
 
             txtProjectRootTag.Tag = "תגית שורש פרויקט";
-            txtProjectRootTag.MouseEnter += Control_MouseEnterStatus; txtProjectRootTag.MouseLeave += Control_MouseLeaveStatus;
+            txtProjectRootTag.MouseEnter += ControlMouseEnterStatus;
+            txtProjectRootTag.MouseLeave += ControlMouseLeaveStatus;
 
             txtDateTag.Tag = "תגית תאריך";
-            txtDateTag.MouseEnter += Control_MouseEnterStatus; txtDateTag.MouseLeave += Control_MouseLeaveStatus;
+            txtDateTag.MouseEnter += ControlMouseEnterStatus;
+            txtDateTag.MouseLeave += ControlMouseLeaveStatus;
 
             lsbLastProjects.Tag = "פרויקטים אחרונים";
-            lsbLastProjects.MouseEnter += Control_MouseEnterStatus; lsbLastProjects.MouseLeave += Control_MouseLeaveStatus;
+            lsbLastProjects.MouseEnter += ControlMouseEnterStatus;
+            lsbLastProjects.MouseLeave += ControlMouseLeaveStatus;
 
             txtMaxProjectCount.Tag = "מס׳ פרויקטים אחרונים";
-            txtMaxProjectCount.MouseEnter += Control_MouseEnterStatus; txtMaxProjectCount.MouseLeave += Control_MouseLeaveStatus;
+            txtMaxProjectCount.MouseEnter += ControlMouseEnterStatus;
+            txtMaxProjectCount.MouseLeave += ControlMouseLeaveStatus;
         }
 
         public FormSettings(ISettingsRequester caller)
@@ -99,10 +119,17 @@ namespace SaveAsPDF
             InitializeComponent();
             _callingForm = caller ?? throw new ArgumentNullException(nameof(caller));
 
-            _callingForm.SettingsComplete(_settingsModel);
+            _callingForm.SettingsComplete(_settings_model);
 
             tvProjectSubFolders.HideSelection = false;
-            tvProjectSubFolders.PathSeparator = @"\";
+            tvProjectSubFolders.PathSeparator = @"\\";
+
+            // Enable drag & drop to allow moving nodes between folders
+            tvProjectSubFolders.AllowDrop = true;
+            tvProjectSubFolders.ItemDrag += TvProjectSubFolders_ItemDrag;
+            tvProjectSubFolders.DragEnter += TvProjectSubFolders_DragEnter;
+            tvProjectSubFolders.DragOver += TvProjectSubFolders_DragOver;
+            tvProjectSubFolders.DragDrop += TvProjectSubFolders_DragDrop;
 
             lblSaveAsPDFFolder.Text = "תיקיית שמירת קבצי PDF";
             lblXmlProjectFile.Text = "קובץ פרויקטים";
@@ -113,23 +140,34 @@ namespace SaveAsPDF
             lblRootFolder.Text = "תיקיית ראשית";
             lblMinAttSize.Text = "גודל מינימלי לקובץ מצורף";
 
-            txtRootFolder.Text = _settingsModel.RootDrive;
-            txtMinAttSize.Text = _settingsModel.MinAttachmentSize.ToString();
-            txtTreePath.Text = _settingsModel.DefaultTreeFile;
+            txtRootFolder.Text = _settings_model.RootDrive;
+            txtMinAttSize.Text = _settings_model.MinAttachmentSize.ToString();
+            txtTreePath.Text = _settings_model.DefaultTreeFile;
 
-            LoadTreeFromFile(_settingsModel.DefaultTreeFile);
+            // Load default tree only if JSON file exists
+            if (!string.IsNullOrEmpty(_settings_model.DefaultTreeFile) && File.Exists(_settings_model.DefaultTreeFile) && _settings_model.DefaultTreeFile.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    JsonHelper.LoadTreeFromJson(_settings_model.DefaultTreeFile, tvProjectSubFolders);
+                }
+                catch
+                {
+                    // ignore load errors here; user may load manually
+                }
+            }
 
             cmbDefaultFolder.Items.Clear();
             PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
-            
+
             // Find and select DefaultSavePath or use the saved DefaultFolderID
-            
-            // Case 1: If we have a DefaultSavePath, try to find a matching item
-            if (!string.IsNullOrEmpty(_settingsModel.DefaultSavePath))
+
+            // Case1: If we have a DefaultSavePath, try to find a matching item
+            if (!string.IsNullOrEmpty(_settings_model.DefaultSavePath))
             {
-                string pathToFind = _settingsModel.DefaultSavePath;
+                string pathToFind = _settings_model.DefaultSavePath;
                 bool found = false;
-                
+
                 // Try exact match first
                 for (int i = 0; i < cmbDefaultFolder.Items.Count; i++)
                 {
@@ -141,14 +179,14 @@ namespace SaveAsPDF
                         break;
                     }
                 }
-                
+
                 // If not found, try matching the last part of the path
                 // This helps when DefaultSavePath contains project-specific parts
                 if (!found && pathToFind.Contains("\\"))
                 {
                     string[] pathParts = pathToFind.Split('\\');
                     string lastPart = pathParts.Length > 0 ? pathParts[pathParts.Length - 1] : string.Empty;
-                    
+
                     if (!string.IsNullOrEmpty(lastPart))
                     {
                         for (int i = 0; i < cmbDefaultFolder.Items.Count; i++)
@@ -163,14 +201,14 @@ namespace SaveAsPDF
                         }
                     }
                 }
-                
+
                 // If still not found and DefaultFolderID is valid, use it
                 if (!found && cmbDefaultFolder.Items.Count > 0)
                 {
-                    if (_settingsModel.DefaultFolderID >= 0 && 
-                        _settingsModel.DefaultFolderID < cmbDefaultFolder.Items.Count)
+                    if (_settings_model.DefaultFolderID >= 0 &&
+                        _settings_model.DefaultFolderID < cmbDefaultFolder.Items.Count)
                     {
-                        cmbDefaultFolder.SelectedIndex = _settingsModel.DefaultFolderID;
+                        cmbDefaultFolder.SelectedIndex = _settings_model.DefaultFolderID;
                     }
                     else
                     {
@@ -178,46 +216,23 @@ namespace SaveAsPDF
                     }
                 }
             }
-            // Case 2: No DefaultSavePath, but we have a valid DefaultFolderID
+            // Case2: No DefaultSavePath, but we have a valid DefaultFolderID
             else if (cmbDefaultFolder.Items.Count > 0)
             {
-                cmbDefaultFolder.SelectedIndex = (_settingsModel.DefaultFolderID >= 0 && 
-                    _settingsModel.DefaultFolderID < cmbDefaultFolder.Items.Count)
-                    ? _settingsModel.DefaultFolderID
+                cmbDefaultFolder.SelectedIndex = (_settings_model.DefaultFolderID >= 0 &&
+                    _settings_model.DefaultFolderID < cmbDefaultFolder.Items.Count)
+                    ? _settings_model.DefaultFolderID
                     : 0;
-            }
-        }
-
-        private void LoadTreeFromFile(string filePath)
-        {
-            try
-            {
-                string[] lines = File.ReadAllLines(filePath);
-                LoadTreeViewFromList(tvProjectSubFolders, lines);
-                tvProjectSubFolders.ExpandAll();
-                if (tvProjectSubFolders.Nodes.Count > 0)
-                    tvProjectSubFolders.SelectedNode = tvProjectSubFolders.Nodes[0];
-            }
-            catch (Exception e)
-            {
-                XMessageBox.Show(
-                    $"שגיאה בטעינת קובץ התיקיות: \n{e.Message}",
-                    "FormSettings",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew
-                );
             }
         }
 
         private void FormSettings_Load(object sender, EventArgs e)
         {
-            txtSaveAsPDFFolder.Text = _settingsModel.XmlSaveAsPDFFolder;
-            txtXmlProjectFile.Text = _settingsModel.XmlProjectFile;
-            txtXmlEmployeesFile.Text = _settingsModel.XmlEmployeesFile;
-            txtProjectRootTag.Text = _settingsModel.ProjectRootTag;
-            txtDateTag.Text = _settingsModel.DateTag;
+            txtSaveAsPDFFolder.Text = _settings_model.XmlSaveAsPDFFolder;
+            txtXmlProjectFile.Text = _settings_model.XmlProjectFile;
+            txtXmlEmployeesFile.Text = _settings_model.XmlEmployeesFile;
+            txtProjectRootTag.Text = _settings_model.ProjectRootTag;
+            txtDateTag.Text = _settings_model.DateTag;
 
             lsbLastProjects.Items.Clear();
             foreach (string item in Settings.Default.LastProjects)
@@ -228,7 +243,8 @@ namespace SaveAsPDF
                 }
             }
 
-            txtMaxProjectCount.Text = Settings.Default.MaxProjectCount.ToString();
+            // Display the current number of last-projects in the textbox
+            txtMaxProjectCount.Text = lsbLastProjects.Items.Count.ToString();
             _isDirty = false;
 
             // Wire status help hover
@@ -275,7 +291,7 @@ namespace SaveAsPDF
         {
             TreeHelpers.AddNode(tvProjectSubFolders, _mySelectedNode);
             _isDirty = true;
-            
+
             // Refresh comboBox after adding a node
             cmbDefaultFolder.Items.Clear();
             PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
@@ -285,7 +301,7 @@ namespace SaveAsPDF
         {
             TreeHelpers.DeleteNode(tvProjectSubFolders);
             _isDirty = true;
-            
+
             // Refresh comboBox after deleting a node
             cmbDefaultFolder.Items.Clear();
             PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
@@ -295,7 +311,7 @@ namespace SaveAsPDF
         {
             TreeHelpers.RenameNode(tvProjectSubFolders, _mySelectedNode);
             _isDirty = true;
-            
+
             // Refresh comboBox after renaming a node
             cmbDefaultFolder.Items.Clear();
             PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
@@ -321,22 +337,22 @@ namespace SaveAsPDF
                     {
                         string selectedPath = cmbDefaultFolder.SelectedItem.ToString();
 
-                        if (_settingsModel.ProjectRootTag != null && selectedPath.Contains(_settingsModel.ProjectRootTag))
+                        if (_settings_model.ProjectRootTag != null && selectedPath.Contains(_settings_model.ProjectRootTag))
                         {
-                            _settingsModel.DefaultSavePath = selectedPath;
+                            _settings_model.DefaultSavePath = selectedPath;
                         }
                         else
                         {
-                            _settingsModel.DefaultSavePath = selectedPath;
+                            _settings_model.DefaultSavePath = selectedPath;
                         }
 
-                        _settingsModel.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
+                        _settings_model.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
                     }
 
-                    SettingsHelpers.SaveModelToSettings(_settingsModel);
+                    SettingsHelpers.SaveModelToSettings(_settings_model);
                 }
             }
-            _callingForm.SettingsComplete(_settingsModel);
+            _callingForm.SettingsComplete(_settings_model);
             _isDirty = false;
             Close();
         }
@@ -347,50 +363,58 @@ namespace SaveAsPDF
             if (cmbDefaultFolder.SelectedItem != null)
             {
                 string selectedPath = cmbDefaultFolder.SelectedItem.ToString();
-                
+
                 // Check if the path contains the project root tag
-                if (_settingsModel.ProjectRootTag != null && 
-                    selectedPath.Contains(_settingsModel.ProjectRootTag))
+                if (_settings_model.ProjectRootTag != null &&
+                    selectedPath.Contains(_settings_model.ProjectRootTag))
                 {
                     // This is a path with a project tag placeholder - store as is
-                    _settingsModel.DefaultSavePath = selectedPath;
+                    _settings_model.DefaultSavePath = selectedPath;
                 }
                 else
                 {
                     // Regular path - store as is
-                    _settingsModel.DefaultSavePath = selectedPath;
+                    _settings_model.DefaultSavePath = selectedPath;
                 }
-                
-                _settingsModel.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
+
+                _settings_model.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
             }
-            
-            SettingsHelpers.SaveModelToSettings(_settingsModel);
+
+            SettingsHelpers.SaveModelToSettings(_settings_model);
             _isDirty = false;
         }
 
         private void btnFolders_Click(object sender, EventArgs e)
         {
-            var dialog = new FolderPicker { InputPath = _settingsModel.RootDrive };
+            var dialog = new FolderPicker { InputPath = _settings_model.RootDrive };
             if (dialog.ShowDialog(Handle) == true)
             {
                 _isDirty = true;
                 txtRootFolder.Text = dialog.ResultPath;
             }
         }
-        
+
         private void btnLoadTreeFile_Click(object sender, EventArgs e)
         {
-            openFileDialog.Title = "פתח קובץ תיקיות";
-            openFileDialog.Filter = "קובץ תיקיות (*.fld)|*.fld";
+            openFileDialog.Title = "פתח קובץ מבנה (JSON)";
+            openFileDialog.Filter = "JSON tree (*.json)|*.json";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                LoadTreeFromFile(openFileDialog.FileName);
-                txtTreePath.Text = openFileDialog.FileName;
-                _settingsModel.DefaultTreeFile = openFileDialog.FileName;
-                cmbDefaultFolder.Items.Clear();
-                PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
-                _isDirty = true;
+                var file = openFileDialog.FileName;
+                try
+                {
+                    SaveAsPDF.Helpers.JsonHelper.LoadTreeFromJson(file, tvProjectSubFolders);
+                    txtTreePath.Text = file;
+                    _settings_model.DefaultTreeFile = file;
+                    cmbDefaultFolder.Items.Clear();
+                    PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
+                    _isDirty = true;
+                }
+                catch (Exception ex)
+                {
+                    XMessageBox.Show($"שגיאה בטעינת קובץ JSON: {ex.Message}", "FormSettings", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
+                }
             }
         }
 
@@ -398,17 +422,21 @@ namespace SaveAsPDF
         {
             try
             {
-                saveFileDialog.Title = "שמור קובץ תיקיות";
-                saveFileDialog.Filter = "קובץ תיקיות (*.fld)|*.fld";
+                saveFileDialog.Title = "שמור קובץ מבנה (JSON)";
+                saveFileDialog.Filter = "JSON tree (*.json)|*.json";
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
+                    var file = saveFileDialog.FileName;
                     saveFileDialog.CheckPathExists = true;
                     saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                    SaveTreeViewToFile(tvProjectSubFolders, saveFileDialog.FileName);
+
+                    // Save as JSON using helper
+                    SaveAsPDF.Helpers.JsonHelper.SaveTreeToJson(tvProjectSubFolders, file);
+
                     tvProjectSubFolders.ExpandAll();
-                    txtTreePath.Text = saveFileDialog.FileName;
-                    _settingsModel.DefaultTreeFile = saveFileDialog.FileName;
+                    txtTreePath.Text = file;
+                    _settings_model.DefaultTreeFile = file;
                     cmbDefaultFolder.Items.Clear();
                     PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
                     _isDirty = false;
@@ -427,121 +455,51 @@ namespace SaveAsPDF
             }
         }
 
-        private void LoadTreeViewFromList(TreeView treeView, string[] lines)
-        {
-            treeView.Nodes.Clear();
-            Dictionary<int, TreeNode> indentToNodeDict = new Dictionary<int, TreeNode>();
-            
-            foreach (string line in lines)
-            {
-                if (string.IsNullOrWhiteSpace(line))
-                    continue;
-                
-                // Determine indentation level (number of spaces at start)
-                int indentLevel = 0;
-                for (int i = 0; i < line.Length; i++)
-                {
-                    if (line[i] == ' ')
-                        indentLevel++;
-                    else
-                        break;
-                }
-                
-                // Get the node text without leading spaces
-                string nodeText = line.Trim();
-                
-                // Create the node
-                TreeNode newNode = new TreeNode(nodeText);
-                
-                if (indentLevel == 0)
-                {
-                    // Root node
-                    treeView.Nodes.Add(newNode);
-                    indentToNodeDict[indentLevel] = newNode;
-                }
-                else
-                {
-                    // Find the parent node based on indentation
-                    int parentIndentLevel = -1;
-                    for (int i = indentLevel - 1; i >= 0; i--)
-                    {
-                        if (indentToNodeDict.ContainsKey(i))
-                        {
-                            parentIndentLevel = i;
-                            break;
-                        }
-                    }
-                    
-                    if (parentIndentLevel >= 0)
-                    {
-                        indentToNodeDict[parentIndentLevel].Nodes.Add(newNode);
-                        indentToNodeDict[indentLevel] = newNode;
-                    }
-                    else
-                    {
-                        // If we can't find a parent, add as a root node
-                        treeView.Nodes.Add(newNode);
-                        indentToNodeDict[indentLevel] = newNode;
-                    }
-                }
-            }
-        }
-
-        private void SaveTreeViewToFile(TreeView treeView, string fileName)
-        {
-            using (var writer = new StreamWriter(fileName, false))
-            {
-                foreach (TreeNode node in treeView.Nodes)
-                {
-                    WriteNodeRecursive(writer, node, "");
-                }
-            }
-        }
-
-        private void WriteNodeRecursive(StreamWriter writer, TreeNode node, string indent)
-        {
-            writer.WriteLine($"{indent}{node.Text}");
-            foreach (TreeNode child in node.Nodes)
-            {
-                WriteNodeRecursive(writer, child, indent + "  ");
-            }
-        }
-
         private void PopulateComboBoxFromTree(TreeView treeView, ComboBox comboBox)
         {
             comboBox.Items.Clear();
-            foreach (TreeNode node in treeView.Nodes)
-            {
-                AddNodePathsToComboBox(node, comboBox);
-            }
-        }
+            if (treeView == null) return;
 
-        private void AddNodePathsToComboBox(TreeNode node, ComboBox comboBox)
-        {
-            // Only add the node path, not the combined project path
-            // This ensures we're storing just the logical structure,
-            // not a physical path that could cause duplication later
-            string nodePath = node.FullPath;
-            
-            // Don't include any project ID placeholder in the path
-            // This prevents duplicating the project ID in the final path
-            if (!string.IsNullOrEmpty(nodePath) && 
-                !comboBox.Items.Contains(nodePath))
+            // Ensure PathSeparator is set so TreeNode.FullPath produces expected strings
+            if (string.IsNullOrEmpty(treeView.PathSeparator))
+                treeView.PathSeparator = "\\";
+
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            // Traverse all nodes iteratively to avoid deep recursion
+            var stack = new Stack<TreeNode>();
+            foreach (TreeNode root in treeView.Nodes)
             {
-                comboBox.Items.Add(nodePath);
+                stack.Push(root);
             }
-            
-            // Process child nodes
-            foreach (TreeNode child in node.Nodes)
+
+            while (stack.Count > 0)
             {
-                AddNodePathsToComboBox(child, comboBox);
+                var node = stack.Pop();
+                if (node == null) continue;
+
+                string fullPath = node.FullPath ?? string.Empty;
+                if (!string.IsNullOrEmpty(fullPath) && !seen.Contains(fullPath))
+                {
+                    comboBox.Items.Add(fullPath);
+                    seen.Add(fullPath);
+                }
+
+                // Push children so they are processed (in-order: push in reverse to preserve order)
+                if (node.Nodes != null && node.Nodes.Count > 0)
+                {
+                    for (int i = node.Nodes.Count - 1; i >= 0; i--)
+                    {
+                        stack.Push(node.Nodes[i]);
+                    }
+                }
             }
         }
 
         private void btnLoadDefaultTree_Click(object sender, EventArgs e)
         {
             tvProjectSubFolders.Nodes.Clear();
-            tvProjectSubFolders.Nodes.Add(_settingsModel.ProjectRootTag);
+            tvProjectSubFolders.Nodes.Add(_settings_model.ProjectRootTag);
             cmbDefaultFolder.Items.Clear();
             PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
             _isDirty = true;
@@ -554,9 +512,9 @@ namespace SaveAsPDF
 
         private void MenuAddDate_Click(object sender, EventArgs e)
         {
-            TreeHelpers.AddNode(tvProjectSubFolders, _mySelectedNode, _settingsModel.DateTag);
+            TreeHelpers.AddNode(tvProjectSubFolders, _mySelectedNode, _settings_model.DateTag);
             _isDirty = true;
-            
+
             // Refresh comboBox after adding a date node
             cmbDefaultFolder.Items.Clear();
             PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
@@ -566,9 +524,9 @@ namespace SaveAsPDF
         {
             if (_mySelectedNode != null)
             {
-                _mySelectedNode.Text += _settingsModel.DateTag;
+                _mySelectedNode.Text += _settings_model.DateTag;
                 _isDirty = true;
-                
+
                 // Refresh comboBox after modifying a node
                 cmbDefaultFolder.Items.Clear();
                 PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
@@ -583,23 +541,23 @@ namespace SaveAsPDF
                 string selectedPath = cmbDefaultFolder.SelectedItem.ToString();
 
                 // If contains project tag, keep as-is; otherwise store as-is
-                if (_settingsModel.ProjectRootTag != null && selectedPath.Contains(_settingsModel.ProjectRootTag))
+                if (_settings_model.ProjectRootTag != null && selectedPath.Contains(_settings_model.ProjectRootTag))
                 {
-                    _settingsModel.DefaultSavePath = selectedPath;
+                    _settings_model.DefaultSavePath = selectedPath;
                 }
                 else
                 {
-                    _settingsModel.DefaultSavePath = selectedPath;
+                    _settings_model.DefaultSavePath = selectedPath;
                 }
 
-                _settingsModel.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
+                _settings_model.DefaultFolderID = cmbDefaultFolder.SelectedIndex;
                 _isDirty = true;
 
                 // Persist immediately so FormMain can pick it up on next project selection
-                SettingsHelpers.SaveModelToSettings(_settingsModel);
+                SettingsHelpers.SaveModelToSettings(_settings_model);
 
                 // Optionally notify caller about updated settings
-                _callingForm?.SettingsComplete(_settingsModel);
+                _callingForm?.SettingsComplete(_settings_model);
             }
         }
 
@@ -607,7 +565,7 @@ namespace SaveAsPDF
         {
             if (!string.IsNullOrEmpty(txtRootFolder.Text))
             {
-                _settingsModel.RootDrive = txtRootFolder.Text;
+                _settings_model.RootDrive = txtRootFolder.Text;
                 _isDirty = true;
             }
         }
@@ -616,7 +574,7 @@ namespace SaveAsPDF
         {
             if (!string.IsNullOrEmpty(txtSaveAsPDFFolder.Text))
             {
-                _settingsModel.XmlSaveAsPDFFolder = txtSaveAsPDFFolder.Text;
+                _settings_model.XmlSaveAsPDFFolder = txtSaveAsPDFFolder.Text;
                 _isDirty = true;
             }
         }
@@ -625,7 +583,7 @@ namespace SaveAsPDF
         {
             if (!string.IsNullOrEmpty(txtXmlProjectFile.Text))
             {
-                _settingsModel.XmlProjectFile = txtXmlProjectFile.Text;
+                _settings_model.XmlProjectFile = txtXmlProjectFile.Text;
                 _isDirty = true;
             }
         }
@@ -634,7 +592,7 @@ namespace SaveAsPDF
         {
             if (!string.IsNullOrEmpty(txtXmlEmployeesFile.Text))
             {
-                _settingsModel.XmlEmployeesFile = txtXmlEmployeesFile.Text;
+                _settings_model.XmlEmployeesFile = txtXmlEmployeesFile.Text;
                 _isDirty = true;
             }
         }
@@ -643,7 +601,7 @@ namespace SaveAsPDF
         {
             if (!string.IsNullOrEmpty(txtProjectRootTag.Text))
             {
-                _settingsModel.ProjectRootTag = txtProjectRootTag.Text;
+                _settings_model.ProjectRootTag = txtProjectRootTag.Text;
                 _isDirty = true;
             }
         }
@@ -652,7 +610,7 @@ namespace SaveAsPDF
         {
             if (!string.IsNullOrEmpty(txtDateTag.Text))
             {
-                _settingsModel.DateTag = txtDateTag.Text;
+                _settings_model.DateTag = txtDateTag.Text;
                 _isDirty = true;
             }
         }
@@ -661,7 +619,7 @@ namespace SaveAsPDF
         {
             if (!string.IsNullOrEmpty(txtTreePath.Text))
             {
-                _settingsModel.DefaultTreeFile = txtTreePath.Text;
+                _settings_model.DefaultTreeFile = txtTreePath.Text;
                 _isDirty = true;
             }
         }
@@ -701,7 +659,7 @@ namespace SaveAsPDF
         {
             if (int.TryParse(txtMinAttSize.Text, out int count))
             {
-                _settingsModel.MinAttachmentSize = count;
+                _settings_model.MinAttachmentSize = count;
                 errorProviderSettings.Clear();
                 toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMinAttSize);
                 _isDirty = true;
@@ -716,6 +674,96 @@ namespace SaveAsPDF
                 errorProviderSettings.SetError(txtMinAttSize, "ניתן להזין ערכים בין 0 ל- 9999. ערך מומלץ 8192");
                 txtMinAttSize.Select(0, txtMinAttSize.Text.Length);
                 toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMinAttSize);
+            }
+        }
+
+        // Drag & Drop handlers for moving TreeNodes
+        private void TvProjectSubFolders_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            if (e.Item is TreeNode node)
+            {
+                DoDragDrop(node, DragDropEffects.Move);
+            }
+        }
+
+        private void TvProjectSubFolders_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(TreeNode)))
+                e.Effect = DragDropEffects.Move;
+            else
+                e.Effect = DragDropEffects.None;
+        }
+
+        private void TvProjectSubFolders_DragOver(object sender, DragEventArgs e)
+        {
+            var tv = sender as TreeView;
+            if (tv == null) return;
+
+            if (!e.Data.GetDataPresent(typeof(TreeNode)))
+            {
+                e.Effect = DragDropEffects.None;
+                return;
+            }
+
+            Point clientPoint = tv.PointToClient(new Point(e.X, e.Y));
+            TreeNode targetNode = tv.GetNodeAt(clientPoint);
+
+            // Highlight the node under cursor
+            tv.SelectedNode = targetNode;
+            e.Effect = DragDropEffects.Move;
+        }
+
+        private void TvProjectSubFolders_DragDrop(object sender, DragEventArgs e)
+        {
+            var tv = sender as TreeView;
+            if (tv == null) return;
+
+            if (!e.Data.GetDataPresent(typeof(TreeNode))) return;
+
+            TreeNode draggedNode = e.Data.GetData(typeof(TreeNode)) as TreeNode;
+            if (draggedNode == null) return;
+
+            Point clientPoint = tv.PointToClient(new Point(e.X, e.Y));
+            TreeNode targetNode = tv.GetNodeAt(clientPoint);
+
+            // Prevent dropping a node onto itself or its descendant
+            if (targetNode != null)
+            {
+                TreeNode cur = targetNode;
+                while (cur != null)
+                {
+                    if (cur == draggedNode) return; // invalid
+                    cur = cur.Parent;
+                }
+            }
+
+            tv.BeginUpdate();
+            try
+            {
+                // Remove from original location
+                if (draggedNode.Parent != null)
+                    draggedNode.Parent.Nodes.Remove(draggedNode);
+                else
+                    tv.Nodes.Remove(draggedNode);
+
+                // Add to new location
+                if (targetNode == null)
+                    tv.Nodes.Add(draggedNode);
+                else
+                    targetNode.Nodes.Add(draggedNode);
+
+                // Expand and select moved node
+                draggedNode.EnsureVisible();
+                tv.SelectedNode = draggedNode;
+
+                // Mark dirty and refresh combo box
+                _isDirty = true;
+                cmbDefaultFolder.Items.Clear();
+                PopulateComboBoxFromTree(tvProjectSubFolders, cmbDefaultFolder);
+            }
+            finally
+            {
+                tv.EndUpdate();
             }
         }
     }
