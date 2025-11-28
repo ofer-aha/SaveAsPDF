@@ -39,6 +39,8 @@ namespace SaveAsPDF
         /// Indicates whether the last mouse click was a double-click.
         /// </summary>
         private bool _isDoubleClick = false;
+        // Guard to avoid showing the close confirmation twice
+        private bool _isClosingPromptShown = false;
 
         /// <summary>
         /// The search history for project ID's.
@@ -181,6 +183,11 @@ namespace SaveAsPDF
 
             // Wire project leader picker
             btnProjectLeader.Click += btnProjectLeader_Click;
+
+            // Allow Settings button to bypass validation so focus can move from txtProjectID
+            btnSettings.CausesValidation = false;
+            // Allow Cancel button to bypass validation as well
+            btnCancel.CausesValidation = false;
         }
 
         /// <summary>
@@ -383,7 +390,11 @@ namespace SaveAsPDF
         /// <summary>
         /// Handles the Cancel button click event. Closes the form.
         /// </summary>
-        private void btnCancel_Click(object sender, EventArgs e) => Close();
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            // DialogResult is already set to Cancel on the button (designer),
+            // so the form will close automatically without calling Close() explicitly.
+        }
 
         /// <summary>
         /// Handles the Folders button click event. Opens a folder picker and updates the folder tree view.
@@ -1430,15 +1441,22 @@ catch (Exception ex)
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
+                // Show confirmation only once per close attempt
+                if (_isClosingPromptShown)
+                    return;
+
+                _isClosingPromptShown = true;
                 if (XMessageBox.Show(
-                "האם לצאת מהיישום?",
-                "SaveAsPDF",
-                XMessageBoxButtons.YesNo,
-                XMessageBoxIcon.Question,
-                XMessageAlignment.Right,
-                XMessageLanguage.Hebrew) == DialogResult.No)
+                    "האם לצאת מהיישום?",
+                    "SaveAsPDF",
+                    XMessageBoxButtons.YesNo,
+                    XMessageBoxIcon.Question,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew) == DialogResult.No)
                 {
                     e.Cancel = true;
+                    // Reset the flag so next attempt will prompt again
+                    _isClosingPromptShown = false;
                 }
             }
         }

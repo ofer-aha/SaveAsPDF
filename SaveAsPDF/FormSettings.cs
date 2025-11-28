@@ -122,7 +122,7 @@ namespace SaveAsPDF
             _callingForm.SettingsComplete(_settings_model);
 
             tvProjectSubFolders.HideSelection = false;
-            tvProjectSubFolders.PathSeparator = @"\\";
+            tvProjectSubFolders.PathSeparator = "\\";
 
             // Enable drag & drop to allow moving nodes between folders
             tvProjectSubFolders.AllowDrop = true;
@@ -464,13 +464,12 @@ namespace SaveAsPDF
             if (string.IsNullOrEmpty(treeView.PathSeparator))
                 treeView.PathSeparator = "\\";
 
-            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
             // Traverse all nodes iteratively to avoid deep recursion
             var stack = new Stack<TreeNode>();
-            foreach (TreeNode root in treeView.Nodes)
+            // Push roots in reverse so processing order matches the visual order
+            for (int r = treeView.Nodes.Count - 1; r >= 0; r--)
             {
-                stack.Push(root);
+                stack.Push(treeView.Nodes[r]);
             }
 
             while (stack.Count > 0)
@@ -479,10 +478,9 @@ namespace SaveAsPDF
                 if (node == null) continue;
 
                 string fullPath = node.FullPath ?? string.Empty;
-                if (!string.IsNullOrEmpty(fullPath) && !seen.Contains(fullPath))
+                if (!string.IsNullOrEmpty(fullPath))
                 {
                     comboBox.Items.Add(fullPath);
-                    seen.Add(fullPath);
                 }
 
                 // Push children so they are processed (in-order: push in reverse to preserve order)
