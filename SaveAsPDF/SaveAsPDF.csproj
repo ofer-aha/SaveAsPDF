@@ -310,6 +310,9 @@
     <Compile Include="IEmployeeRequester.cs" />
     <Compile Include="INewProjectRequester.cs" />
     <Compile Include="ISettingsRequester.cs" />
+    <Compile Include="MainFormTaskPaneControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Models\AttachmentsModel.cs" />
     <Compile Include="Models\DocumentModel.cs" />
     <Compile Include="Models\EmployeeModel.cs" />
@@ -389,6 +392,9 @@
       <DependentUpon>SaveAsPDFRibbon.cs</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="SettingsTaskPaneControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>
     </Compile>

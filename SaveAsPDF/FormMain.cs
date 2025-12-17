@@ -952,10 +952,8 @@ catch (Exception ex)
         /// </summary>
         private void BtnSettings_Click(object sender, EventArgs e)
         {
-            using (var frm = new FormSettings(this))
-            {
-                frm.ShowDialog();
-            }
+            // Toggle the VSTO custom task pane that hosts SettingsTaskPaneControl
+            Globals.ThisAddIn.ToggleSettingsPane();
         }
 
         /// <summary>
