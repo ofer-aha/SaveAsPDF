@@ -55,7 +55,7 @@ namespace SaveAsPDF
         private readonly Button btnRemoveEmployee = new Button();
         private readonly Button btnPhoneBook = new Button();
         private readonly Button btnProjectLeader = new Button();
-        private readonly TabControl tabNotes = new TabControl();
+        private TabControl tabNotes = new TabControl();
         private readonly TabControl tabFilesFolders = new TabControl();
         private readonly StatusStrip statusStrip = new StatusStrip();
         private readonly ToolStripStatusLabel tsslStatus = new ToolStripStatusLabel();
@@ -69,8 +69,12 @@ namespace SaveAsPDF
 
             RightToLeft = RightToLeft.Yes;
 
+            // Apply theme-aware colors
+            ApplySystemColors();
+
             BuildLayout();
             ConfigureEmployeeDataGrid();
+            ConfigureAttachmentsDataGrid();
 
             KeyDown += MainFormTaskPaneControl_KeyDown;
 
@@ -79,6 +83,13 @@ namespace SaveAsPDF
             btnCancel.CausesValidation = false;
 
             Load += MainFormTaskPaneControl_Load;
+        }
+
+        private void ApplySystemColors()
+        {
+            // Set base control colors to match system theme
+            BackColor = SystemColors.Control;
+            ForeColor = SystemColors.ControlText;
         }
 
         // Called by ThisAddIn when selection changes
@@ -216,21 +227,182 @@ namespace SaveAsPDF
             // Load settings and basic project model for this id
             settingsModel = SettingsHelpers.LoadProjectSettings(projectID);
 
-            // Basic UI update from settings/model
+            // Load project data from XML
+            LoadProjectData();
+            
+            // Load employee data from XML
+            LoadEmployeeData();
+            
+            // Update the UI with loaded data
+            UpdateUI();
+        }
+
+        private void LoadProjectData()
+        {
+            if (File.Exists(settingsModel.XmlProjectFile))
+            {
+                try
+                {
+                    _projectModel = XmlFileHelper.XmlProjectFileToModel(settingsModel.XmlProjectFile);
+                    if (_projectModel != null)
+                    {
+                        txtProjectName.Text = _projectModel.ProjectName;
+                        rtxtProjectNotes.Text = _projectModel.ProjectNotes;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    XMessageBox.Show(
+                        $"שגיאה בטעינת נתוני הפרויקט: {ex.Message}",
+                        "SaveAsPDF:LoadProjectData",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Warning,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew);
+                    SetDefaultProjectModel();
+                }
+            }
+            else
+            {
+                SetDefaultProjectModel();
+            }
+        }
+
+        private void SetDefaultProjectModel()
+        {
+            _projectModel = new ProjectModel
+            {
+                ProjectName = "פרויקט ברירת מחדל",
+                ProjectNumber = txtProjectID.Text,
+                NoteToProjectLeader = false,
+                DefaultSaveFolder = settingsModel.DefaultSavePath,
+                ProjectNotes = "הערות ברירת מחדל",
+                LastSavePath = settingsModel.DefaultSavePath
+            };
+            
+            if (!string.IsNullOrEmpty(settingsModel.XmlProjectFile))
+            {
+                settingsModel.XmlProjectFile.ProjectModelToXmlFile(_projectModel);
+            }
+            
             txtProjectName.Text = _projectModel.ProjectName;
             rtxtProjectNotes.Text = _projectModel.ProjectNotes;
+        }
 
-            // Update folder tree root to project root if available
-            if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
+        private void LoadEmployeeData()
+        {
+            _employeesBindingList.Clear();
+            
+            if (File.Exists(settingsModel.XmlEmployeesFile))
             {
-                tvFolders.Nodes.Clear();
-                var root = new TreeNode(settingsModel.ProjectRootFolder.Name)
+                var loaded = settingsModel.XmlEmployeesFile.XmlEmployeesFileToModel();
+                if (loaded != null)
                 {
-                    Tag = settingsModel.ProjectRootFolder.FullName
-                };
-                root.Nodes.Add("...");
-                tvFolders.Nodes.Add(root);
-                txtFullPath.Text = settingsModel.ProjectRootFolder.FullName;
+                    foreach (var em in loaded)
+                    {
+                        _employeesBindingList.Add(em);
+                    }
+                }
+
+                // Update project leader textbox from the first employee marked as leader
+                var leader = _employeesBindingList.FirstOrDefault(e => e.IsLeader);
+                if (leader != null)
+                {
+                    var first = leader.FirstName ?? string.Empty;
+                    var last = leader.LastName ?? string.Empty;
+                    string fullName = ($"{first} {last}").Trim();
+                    if (string.IsNullOrWhiteSpace(fullName))
+                    {
+                        fullName = leader.EmailAddress ?? string.Empty;
+                    }
+                    txtProjectLeader.Text = fullName;
+                }
+                else
+                {
+                    txtProjectLeader.Clear();
+                }
+            }
+        }
+
+        private void UpdateUI()
+        {
+            try
+            {
+                // Clear and populate the save location combo box
+                cmbSaveLocation.Items.Clear();
+
+                // First add the project root folder path directly
+                if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
+                {
+                    string projectID = txtProjectID.Text;
+                    string projectPath = settingsModel.ProjectRootFolder.FullName;
+                    cmbSaveLocation.Items.Add(projectPath);
+                }
+
+                // Load additional paths from tree file
+                if (File.Exists(settingsModel.DefaultTreeFile))
+                {
+                    cmbSaveLocation.LoadComboBoxWithPaths(settingsModel.DefaultTreeFile, txtProjectID.Text);
+                }
+
+                cmbSaveLocation.CustomizeComboBox();
+
+                // Set default save path
+                if (!string.IsNullOrEmpty(settingsModel.DefaultSavePath))
+                {
+                    bool matchedItem = false;
+                    for (int i = 0; i < cmbSaveLocation.Items.Count; i++)
+                    {
+                        if (string.Equals(cmbSaveLocation.Items[i].ToString(), settingsModel.DefaultSavePath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            cmbSaveLocation.SelectedIndex = i;
+                            matchedItem = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!matchedItem)
+                    {
+                        cmbSaveLocation.Text = settingsModel.DefaultSavePath;
+                    }
+                }
+                else if (cmbSaveLocation.Items.Count > 0)
+                {
+                    cmbSaveLocation.SelectedIndex = 0;
+                }
+
+                // Update the tree view with the project root
+                tvFolders.Nodes.Clear();
+                if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
+                {
+                    var rootDir = settingsModel.ProjectRootFolder;
+                    var rootNode = new TreeNode(rootDir.Name) { Tag = rootDir.FullName };
+                    rootNode.Nodes.Add("...");
+                    tvFolders.Nodes.Add(rootNode);
+                    tvFolders.SelectedNode = tvFolders.Nodes[0];
+                    
+                    txtFullPath.Text = rootDir.FullName;
+                }
+                else
+                {
+                    XMessageBox.Show(
+                        "תיקיית השורש של הפרויקט אינה קיימת.",
+                        "שגיאה",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Warning,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew);
+                }
+            }
+            catch (Exception ex)
+            {
+                XMessageBox.Show(
+                    $"אירעה שגיאה בעת עדכון הממשק: {ex.Message}",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
             }
         }
 
@@ -256,7 +428,9 @@ namespace SaveAsPDF
                 Dock = DockStyle.Top,
                 AutoSize = true,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                RightToLeft = RightToLeft.Yes
+                RightToLeft = RightToLeft.Yes,
+                BackColor = SystemColors.Control,
+                ForeColor = SystemColors.ControlText
             };
 
             var topTable = new TableLayoutPanel
@@ -265,7 +439,8 @@ namespace SaveAsPDF
                 ColumnCount = 2,
                 AutoSize = true,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                RightToLeft = RightToLeft.Yes
+                RightToLeft = RightToLeft.Yes,
+                BackColor = SystemColors.Control
             };
             topTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30));
             topTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70));
@@ -276,9 +451,13 @@ namespace SaveAsPDF
                 Text = "מספר פרויקט",
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = SystemColors.Control,
+                ForeColor = SystemColors.ControlText
             };
             txtProjectID.Dock = DockStyle.Fill;
+            txtProjectID.BackColor = SystemColors.Window;
+            txtProjectID.ForeColor = SystemColors.WindowText;
             txtProjectID.KeyDown += txtProjectID_KeyDown;
             txtProjectID.Validating += txtProjectID_Validating;
             txtProjectID.Validated += txtProjectID_Validated;
@@ -291,9 +470,13 @@ namespace SaveAsPDF
                 Text = "שם הפרויקט",
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = SystemColors.Control,
+                ForeColor = SystemColors.ControlText
             };
             txtProjectName.Dock = DockStyle.Fill;
+            txtProjectName.BackColor = SystemColors.Window;
+            txtProjectName.ForeColor = SystemColors.WindowText;
             topTable.Controls.Add(lblProjectName, 0, 1);
             topTable.Controls.Add(txtProjectName, 1, 1);
 
@@ -303,17 +486,25 @@ namespace SaveAsPDF
                 Text = "מתכנן מוביל",
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = SystemColors.Control,
+                ForeColor = SystemColors.ControlText
             };
             var pnlLeader = new FlowLayoutPanel
             {
                 FlowDirection = FlowDirection.LeftToRight,
                 Dock = DockStyle.Fill,
-                AutoSize = true
+                AutoSize = true,
+                BackColor = SystemColors.Control
             };
             txtProjectLeader.Width = 160;
+            txtProjectLeader.BackColor = SystemColors.Window;
+            txtProjectLeader.ForeColor = SystemColors.WindowText;
             btnProjectLeader.Text = "...";
             btnProjectLeader.Width = 30;
+            btnProjectLeader.BackColor = SystemColors.Control;
+            btnProjectLeader.ForeColor = SystemColors.ControlText;
+            btnProjectLeader.UseVisualStyleBackColor = true;
             pnlLeader.Controls.Add(txtProjectLeader);
             pnlLeader.Controls.Add(btnProjectLeader);
             topTable.Controls.Add(lblLeader, 0, 2);
@@ -325,9 +516,13 @@ namespace SaveAsPDF
                 Text = "נושא ההודעה",
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = SystemColors.Control,
+                ForeColor = SystemColors.ControlText
             };
             txtSubject.Dock = DockStyle.Fill;
+            txtSubject.BackColor = SystemColors.Window;
+            txtSubject.ForeColor = SystemColors.WindowText;
             topTable.Controls.Add(lblSubject, 0, 3);
             topTable.Controls.Add(txtSubject, 1, 3);
 
@@ -337,10 +532,14 @@ namespace SaveAsPDF
                 Text = "נתיב מלא",
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = SystemColors.Control,
+                ForeColor = SystemColors.ControlText
             };
             txtFullPath.Dock = DockStyle.Fill;
             txtFullPath.ReadOnly = true;
+            txtFullPath.BackColor = SystemColors.Control;
+            txtFullPath.ForeColor = SystemColors.ControlText;
             topTable.Controls.Add(lblFullPath, 0, 4);
             topTable.Controls.Add(txtFullPath, 1, 4);
 
@@ -350,18 +549,26 @@ namespace SaveAsPDF
                 Text = "מיקום שמירה",
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = SystemColors.Control,
+                ForeColor = SystemColors.ControlText
             };
             var pnlSaveLocation = new FlowLayoutPanel
             {
                 FlowDirection = FlowDirection.LeftToRight,
                 Dock = DockStyle.Fill,
-                AutoSize = true
+                AutoSize = true,
+                BackColor = SystemColors.Control
             };
             cmbSaveLocation.Width = 220;
+            cmbSaveLocation.BackColor = SystemColors.Window;
+            cmbSaveLocation.ForeColor = SystemColors.WindowText;
             cmbSaveLocation.SelectedValueChanged += cmbSaveLocation_SelectedValueChanged;
             cmbSaveLocation.TextUpdate += cmbSaveLocation_TextUpdate;
             btnFolders.Text = "בחר תיקייה";
+            btnFolders.BackColor = SystemColors.Control;
+            btnFolders.ForeColor = SystemColors.ControlText;
+            btnFolders.UseVisualStyleBackColor = true;
             btnFolders.Click += btnFolders_Click;
             pnlSaveLocation.Controls.Add(cmbSaveLocation);
             pnlSaveLocation.Controls.Add(btnFolders);
@@ -370,163 +577,197 @@ namespace SaveAsPDF
 
             topGroup.Controls.Add(topTable);
 
-            // --- Middle: notes, attachments, employees, folders ---
-            var middleSplit = new TableLayoutPanel
+            // --- Middle: Single unified TabControl ---
+            var mainTabControl = new TabControl
             {
                 Dock = DockStyle.Fill,
-                ColumnCount = 2,
-                RowCount = 1,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                RightToLeft = RightToLeft.Yes
+                RightToLeft = RightToLeft.Yes,
+                Alignment = TabAlignment.Right
             };
-            middleSplit.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-            middleSplit.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
 
-            // Left: notes tabs
-            tabNotes.Dock = DockStyle.Fill;
-            var tabMailNotes = new TabPage("הערות למייל") { RightToLeft = RightToLeft.Yes };
-            var tabProjectNotes = new TabPage("הערות בפרויקט") { RightToLeft = RightToLeft.Yes };
+            // Notes Tab with Sub-TabControl
+            var tabNotes = new TabPage("הערות") 
+            { 
+                RightToLeft = RightToLeft.Yes,
+                BackColor = SystemColors.Control,
+                UseVisualStyleBackColor = true
+            };
+            var subTabNotes = new TabControl
+            {
+                Dock = DockStyle.Fill,
+                RightToLeft = RightToLeft.Yes,
+                Alignment = TabAlignment.Right
+            };
+            
+            // Mail Notes Sub-Tab
+            var tabMailNotes = new TabPage("הערות למייל") 
+            { 
+                RightToLeft = RightToLeft.Yes,
+                BackColor = SystemColors.Control,
+                UseVisualStyleBackColor = true
+            };
             rtxtNotes.Dock = DockStyle.Fill;
-            rtxtProjectNotes.Dock = DockStyle.Fill;
+            rtxtNotes.BackColor = SystemColors.Window;
+            rtxtNotes.ForeColor = SystemColors.WindowText;
             tabMailNotes.Controls.Add(rtxtNotes);
+            
+            // Project Notes Sub-Tab
+            var tabProjectNotes = new TabPage("הערות בפרויקט") 
+            { 
+                RightToLeft = RightToLeft.Yes,
+                BackColor = SystemColors.Control,
+                UseVisualStyleBackColor = true
+            };
+            rtxtProjectNotes.Dock = DockStyle.Fill;
+            rtxtProjectNotes.BackColor = SystemColors.Window;
+            rtxtProjectNotes.ForeColor = SystemColors.WindowText;
             tabProjectNotes.Controls.Add(rtxtProjectNotes);
-            tabNotes.TabPages.Add(tabMailNotes);
-            tabNotes.TabPages.Add(tabProjectNotes);
+            
+            // Add sub-tabs to sub-TabControl
+            subTabNotes.TabPages.Add(tabMailNotes);
+            subTabNotes.TabPages.Add(tabProjectNotes);
+            
+            tabNotes.Controls.Add(subTabNotes);
 
-            var pnlNotesWithButtons = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                RowCount = 2,
-                ColumnCount = 1,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink
-            };
-            pnlNotesWithButtons.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-            pnlNotesWithButtons.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-
-            var pnlNotesButtons = new FlowLayoutPanel
-            {
-                FlowDirection = FlowDirection.RightToLeft,
-                Dock = DockStyle.Fill,
-                AutoSize = true
-            };
-            btnCopyNotesToMail.Text = "העתק לפרויקט ← מייל";
-            btnCopyNotesToMail.Click += btnCopyNotesToMail_Click;
-            btnCopyNotesToProject.Text = "העתק ממייל → פרויקט";
-            btnCopyNotesToProject.Click += btnCopyNotesToProject_Click;
-            btnStyle.Text = "גופן";
-            btnStyle.Click += btnStyle_Click;
-            pnlNotesButtons.Controls.Add(btnCopyNotesToMail);
-            pnlNotesButtons.Controls.Add(btnCopyNotesToProject);
-            pnlNotesButtons.Controls.Add(btnStyle);
-
-            pnlNotesWithButtons.Controls.Add(tabNotes, 0, 0);
-            pnlNotesWithButtons.Controls.Add(pnlNotesButtons, 0, 1);
-
-            // Right: attachments + employees + folders
-            var rightSplit = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                ColumnCount = 1,
-                RowCount = 3,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink
-            };
-            rightSplit.RowStyles.Add(new RowStyle(SizeType.Percent, 40));
-            rightSplit.RowStyles.Add(new RowStyle(SizeType.Percent, 30));
-            rightSplit.RowStyles.Add(new RowStyle(SizeType.Percent, 30));
-
-            // Attachments
-            var attachmentsGroup = new GroupBox
-            {
-                Text = "קבצים מצורפים",
-                Dock = DockStyle.Fill,
-                RightToLeft = RightToLeft.Yes
+            // Attachments Tab
+            var tabAttachments = new TabPage("קבצים מצורפים") 
+            { 
+                RightToLeft = RightToLeft.Yes,
+                BackColor = SystemColors.Control,
+                UseVisualStyleBackColor = true
             };
             var attachmentsTable = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 RowCount = 2,
-                ColumnCount = 1
+                ColumnCount = 1,
+                BackColor = SystemColors.Control
             };
             attachmentsTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             attachmentsTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             chkbSelectAllAttachments.Text = "הסר הכל";
             chkbSelectAllAttachments.Checked = true;
+            chkbSelectAllAttachments.BackColor = SystemColors.Control;
+            chkbSelectAllAttachments.ForeColor = SystemColors.ControlText;
             chkbSelectAllAttachments.CheckedChanged += chkbSelectAllAttachments_CheckedChanged;
             attachmentsTable.Controls.Add(chkbSelectAllAttachments, 0, 0);
-
             dgvAttachments.Dock = DockStyle.Fill;
             dgvAttachments.CellDoubleClick += dgvAttachments_CellDoubleClick;
             attachmentsTable.Controls.Add(dgvAttachments, 0, 1);
-            attachmentsGroup.Controls.Add(attachmentsTable);
+            tabAttachments.Controls.Add(attachmentsTable);
 
-            // Employees
-            var employeesGroup = new GroupBox
-            {
-                Text = "עובדים בפרויקט",
-                Dock = DockStyle.Fill,
-                RightToLeft = RightToLeft.Yes
+            // Employees Tab
+            var tabEmployees = new TabPage("עובדים בפרויקט") 
+            { 
+                RightToLeft = RightToLeft.Yes,
+                BackColor = SystemColors.Control,
+                UseVisualStyleBackColor = true
             };
             var employeesTable = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 RowCount = 2,
-                ColumnCount = 2
+                ColumnCount = 1,
+                BackColor = SystemColors.Control
             };
             employeesTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             employeesTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-            employeesTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-            employeesTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-
-            btnPhoneBook.Text = "ספר טלפונים";
-            btnPhoneBook.Click += btnPhoneBook_Click;
-            btnRemoveEmployee.Text = "הסר עובד";
-            btnRemoveEmployee.Click += btnRemoveEmployee_Click;
-
+            
             var pnlEmpButtons = new FlowLayoutPanel
             {
                 FlowDirection = FlowDirection.RightToLeft,
                 Dock = DockStyle.Fill,
-                AutoSize = true
+                AutoSize = true,
+                BackColor = SystemColors.Control
             };
+            btnPhoneBook.Text = "ספר טלפונים";
+            btnPhoneBook.BackColor = SystemColors.Control;
+            btnPhoneBook.ForeColor = SystemColors.ControlText;
+            btnPhoneBook.UseVisualStyleBackColor = true;
+            btnPhoneBook.Click += btnPhoneBook_Click;
+            btnRemoveEmployee.Text = "הסר עובד";
+            btnRemoveEmployee.BackColor = SystemColors.Control;
+            btnRemoveEmployee.ForeColor = SystemColors.ControlText;
+            btnRemoveEmployee.UseVisualStyleBackColor = true;
+            btnRemoveEmployee.Click += btnRemoveEmployee_Click;
             pnlEmpButtons.Controls.Add(btnPhoneBook);
             pnlEmpButtons.Controls.Add(btnRemoveEmployee);
-
+            
             employeesTable.Controls.Add(pnlEmpButtons, 0, 0);
-            employeesTable.SetColumnSpan(pnlEmpButtons, 2);
-
             dgvEmployees.Dock = DockStyle.Fill;
             dgvEmployees.CurrentCellDirtyStateChanged += dgvEmployees_CurrentCellDirtyStateChanged;
             dgvEmployees.CellValueChanged += dgvEmployees_CellValueChanged;
             employeesTable.Controls.Add(dgvEmployees, 0, 1);
-            employeesTable.SetColumnSpan(dgvEmployees, 2);
+            tabEmployees.Controls.Add(employeesTable);
 
-            employeesGroup.Controls.Add(employeesTable);
-
-            // Folders
-            var foldersGroup = new GroupBox
-            {
-                Text = "עץ תיקיות פרויקט",
-                Dock = DockStyle.Fill,
-                RightToLeft = RightToLeft.Yes
+            // Folders Tab
+            var tabFolders = new TabPage("עץ תיקיות פרויקט") 
+            { 
+                RightToLeft = RightToLeft.Yes,
+                BackColor = SystemColors.Control,
+                UseVisualStyleBackColor = true
             };
             tvFolders.Dock = DockStyle.Fill;
+            tvFolders.BackColor = SystemColors.Window;
+            tvFolders.ForeColor = SystemColors.WindowText;
             tvFolders.PathSeparator = "\\";
             tvFolders.BeforeExpand += tvFolders_BeforeExpand;
             tvFolders.BeforeCollapse += tvFolders_BeforeCollapse;
             tvFolders.MouseDown += tvFolders_MouseDown;
             tvFolders.NodeMouseClick += tvFolders_NodeMouseClick;
             tvFolders.NodeMouseDoubleClick += tvFolders_NodeMouseDoubleClick;
-            foldersGroup.Controls.Add(tvFolders);
+            tabFolders.Controls.Add(tvFolders);
 
-            rightSplit.Controls.Add(attachmentsGroup, 0, 0);
-            rightSplit.Controls.Add(employeesGroup, 0, 1);
-            rightSplit.Controls.Add(foldersGroup, 0, 2);
+            // Add all tabs to main TabControl
+            mainTabControl.TabPages.Add(tabAttachments);
+            mainTabControl.TabPages.Add(tabEmployees);
+            mainTabControl.TabPages.Add(tabFolders);
+            mainTabControl.TabPages.Add(tabNotes);
 
-            middleSplit.Controls.Add(pnlNotesWithButtons, 0, 0);
-            middleSplit.Controls.Add(rightSplit, 1, 0);
+            // Wrapper with buttons for notes tabs
+            var middlePanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                RowCount = 2,
+                ColumnCount = 1,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                BackColor = SystemColors.Control
+            };
+            middlePanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            middlePanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+            var pnlNotesButtons = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.RightToLeft,
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                BackColor = SystemColors.Control
+            };
+            btnCopyNotesToMail.Text = "העתק לפרויקט ← מייל";
+            btnCopyNotesToMail.BackColor = SystemColors.Control;
+            btnCopyNotesToMail.ForeColor = SystemColors.ControlText;
+            btnCopyNotesToMail.UseVisualStyleBackColor = true;
+            btnCopyNotesToMail.Click += btnCopyNotesToMail_Click;
+            btnCopyNotesToProject.Text = "העתק ממייל → פרויקט";
+            btnCopyNotesToProject.BackColor = SystemColors.Control;
+            btnCopyNotesToProject.ForeColor = SystemColors.ControlText;
+            btnCopyNotesToProject.UseVisualStyleBackColor = true;
+            btnCopyNotesToProject.Click += btnCopyNotesToProject_Click;
+            btnStyle.Text = "גופן";
+            btnStyle.BackColor = SystemColors.Control;
+            btnStyle.ForeColor = SystemColors.ControlText;
+            btnStyle.UseVisualStyleBackColor = true;
+            btnStyle.Click += btnStyle_Click;
+            pnlNotesButtons.Controls.Add(btnCopyNotesToMail);
+            pnlNotesButtons.Controls.Add(btnCopyNotesToProject);
+            pnlNotesButtons.Controls.Add(btnStyle);
+
+            middlePanel.Controls.Add(mainTabControl, 0, 0);
+            middlePanel.Controls.Add(pnlNotesButtons, 0, 1);
+
+            // Store reference to main tab control
+            this.tabNotes = mainTabControl;
 
             // --- Bottom buttons + status ---
             var bottomPanel = new TableLayoutPanel
@@ -534,7 +775,8 @@ namespace SaveAsPDF
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
                 RowCount = 2,
-                AutoSize = true
+                AutoSize = true,
+                BackColor = SystemColors.Control
             };
             bottomPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             bottomPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -543,17 +785,32 @@ namespace SaveAsPDF
             {
                 FlowDirection = FlowDirection.RightToLeft,
                 Dock = DockStyle.Fill,
-                AutoSize = true
+                AutoSize = true,
+                BackColor = SystemColors.Control
             };
             btnOK.Text = "שמור ל-PDF";
+            btnOK.BackColor = SystemColors.Control;
+            btnOK.ForeColor = SystemColors.ControlText;
+            btnOK.UseVisualStyleBackColor = true;
             btnOK.Click += btnOK_Click;
             btnCancel.Text = "בטל";
+            btnCancel.BackColor = SystemColors.Control;
+            btnCancel.ForeColor = SystemColors.ControlText;
+            btnCancel.UseVisualStyleBackColor = true;
             btnCancel.Click += btnCancel_Click;
             btnSettings.Text = "הגדרות";
+            btnSettings.BackColor = SystemColors.Control;
+            btnSettings.ForeColor = SystemColors.ControlText;
+            btnSettings.UseVisualStyleBackColor = true;
             btnSettings.Click += BtnSettings_Click;
             btnNewProject.Text = "פרויקט חדש";
+            btnNewProject.BackColor = SystemColors.Control;
+            btnNewProject.ForeColor = SystemColors.ControlText;
+            btnNewProject.UseVisualStyleBackColor = true;
             btnNewProject.Click += btnNewProject_Click;
             chbOpenPDF.Text = "פתח PDF לאחר שמירה";
+            chbOpenPDF.BackColor = SystemColors.Control;
+            chbOpenPDF.ForeColor = SystemColors.ControlText;
             chbOpenPDF.CheckedChanged += chbOpenPDF_CheckedChanged;
 
             pnlButtons.Controls.Add(btnOK);
@@ -564,12 +821,14 @@ namespace SaveAsPDF
 
             statusStrip.Items.Add(tsslStatus);
             statusStrip.RightToLeft = RightToLeft.Yes;
+            statusStrip.BackColor = SystemColors.Control;
+            statusStrip.ForeColor = SystemColors.ControlText;
 
             bottomPanel.Controls.Add(pnlButtons, 0, 0);
             bottomPanel.Controls.Add(statusStrip, 0, 1);
 
             main.Controls.Add(topGroup, 0, 0);
-            main.Controls.Add(middleSplit, 0, 1);
+            main.Controls.Add(middlePanel, 0, 1);
             main.Controls.Add(bottomPanel, 0, 2);
 
             Controls.Add(main);
@@ -709,6 +968,12 @@ namespace SaveAsPDF
             if (!string.IsNullOrWhiteSpace(projectID))
             {
                 ValidateAndLoadProjectById(projectID);
+                
+                // Process mail item attachments if available
+                if (_mailItem != null)
+                {
+                    ProcessMailItem(_mailItem);
+                }
             }
         }
 
@@ -719,7 +984,10 @@ namespace SaveAsPDF
 
         private void BtnSettings_Click(object sender, EventArgs e)
         {
-            Globals.ThisAddIn.ToggleSettingsPane();
+            using (var frm = new FormSettings(this))
+            {
+                frm.ShowDialog();
+            }
         }
 
         private void btnNewProject_Click(object sender, EventArgs e)
@@ -778,6 +1046,76 @@ namespace SaveAsPDF
 
             dgvEmployees.DataSource = _employeesBindingList;
             dgvEmployees.ReadOnly = true;
+            
+            // Set colors for better contrast
+            dgvEmployees.BackgroundColor = SystemColors.Window;
+            dgvEmployees.ForeColor = SystemColors.WindowText;
+            dgvEmployees.DefaultCellStyle.BackColor = SystemColors.Window;
+            dgvEmployees.DefaultCellStyle.ForeColor = SystemColors.WindowText;
+            dgvEmployees.DefaultCellStyle.SelectionBackColor = SystemColors.Highlight;
+            dgvEmployees.DefaultCellStyle.SelectionForeColor = SystemColors.HighlightText;
+            dgvEmployees.AlternatingRowsDefaultCellStyle.BackColor = SystemColors.Control;
+            dgvEmployees.AlternatingRowsDefaultCellStyle.ForeColor = SystemColors.ControlText;
+            dgvEmployees.ColumnHeadersDefaultCellStyle.BackColor = SystemColors.Control;
+            dgvEmployees.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
+            dgvEmployees.EnableHeadersVisualStyles = false;
+        }
+
+        private void ConfigureAttachmentsDataGrid()
+        {
+            dgvAttachments.AutoGenerateColumns = false;
+            dgvAttachments.Columns.Clear();
+
+            dgvAttachments.Columns.AddRange(new DataGridViewColumn[]
+            {
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "attachmentId",
+                    DataPropertyName = "attachmentId",
+                    Visible = false
+                },
+                new DataGridViewCheckBoxColumn
+                {
+                    Name = "isChecked",
+                    DataPropertyName = "isChecked",
+                    HeaderText = "V",
+                    TrueValue = true,
+                    FalseValue = false,
+                    ThreeState = false
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "fileName",
+                    DataPropertyName = "fileName",
+                    HeaderText = "שם קובץ"
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "fileSize",
+                    DataPropertyName = "fileSize",
+                    HeaderText = "גודל"
+                }
+            });
+
+            // Don't set DataSource here - it will be set when mail item is loaded
+            dgvAttachments.ReadOnly = true;
+            
+            // Set colors for better contrast
+            dgvAttachments.BackgroundColor = SystemColors.Window;
+            dgvAttachments.ForeColor = SystemColors.WindowText;
+            dgvAttachments.DefaultCellStyle.BackColor = SystemColors.Window;
+            dgvAttachments.DefaultCellStyle.ForeColor = SystemColors.WindowText;
+            dgvAttachments.DefaultCellStyle.SelectionBackColor = SystemColors.Highlight;
+            dgvAttachments.DefaultCellStyle.SelectionForeColor = SystemColors.HighlightText;
+            dgvAttachments.AlternatingRowsDefaultCellStyle.BackColor = SystemColors.Control;
+            dgvAttachments.AlternatingRowsDefaultCellStyle.ForeColor = SystemColors.ControlText;
+            dgvAttachments.ColumnHeadersDefaultCellStyle.BackColor = SystemColors.Control;
+            dgvAttachments.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
+            dgvAttachments.EnableHeadersVisualStyles = false;
+            dgvAttachments.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            
+            // Prevent the error by allowing the grid to handle empty data
+            dgvAttachments.AllowUserToAddRows = false;
         }
 
         public void SettingsComplete(SettingsModel settings)
@@ -813,7 +1151,57 @@ namespace SaveAsPDF
 
         private void ProcessMailItem(MailItem mailItem)
         {
+            if (mailItem == null)
+                return;
+
             txtSubject.Text = mailItem.Subject;
+            
+            // Get attachments from email
+            var attachments = mailItem.GetAttachmentsFromEmail();
+            int i = 0;
+            attachmentsModels.Clear();
+            
+            foreach (var attachment in attachments)
+            {
+                if (attachment != null)
+                {
+                    attachmentsModels.Add(new AttachmentsModel
+                    {
+                        attachmentId = i++,
+                        isChecked = true,
+                        fileName = attachment.FileName,
+                        fileSize = attachment.Size.BytesToString()
+                    });
+                }
+            }
+            
+            // Bind attachments to DataGridView
+            dgvAttachments.DataSource = null;
+            dgvAttachments.DataSource = attachmentsModels;
+            
+            // Configure DataGridView columns
+            if (dgvAttachments.Columns.Count > 0)
+            {
+                dgvAttachments.Columns[0].Visible = false; // ID column
+                
+                if (dgvAttachments.Columns.Count > 1)
+                {
+                    dgvAttachments.Columns[1].HeaderText = "V";
+                    dgvAttachments.Columns[1].ReadOnly = false;
+                }
+                
+                if (dgvAttachments.Columns.Count > 2)
+                {
+                    dgvAttachments.Columns[2].HeaderText = "שם קובץ";
+                    dgvAttachments.Columns[2].ReadOnly = true;
+                }
+                
+                if (dgvAttachments.Columns.Count > 3)
+                {
+                    dgvAttachments.Columns[3].HeaderText = "גודל";
+                    dgvAttachments.Columns[3].ReadOnly = true;
+                }
+            }
         }
 
         // Status strip hover helpers adapted from FormMain
