@@ -488,7 +488,7 @@ namespace SaveAsPDF
                     if (cmbSaveLocation.Text != projectPath)
                     {
                         cmbSaveLocation.Text = projectPath;
-                      }
+                    }
                 }
                 else
                 {
@@ -793,95 +793,95 @@ namespace SaveAsPDF
                 return;
             }
 
-// Save selected attachments to the chosen folder so HTML links point to real files
-List<AttachmentsModel> savedAttachmentsModels = new List<AttachmentsModel>();
-try
-{
- var saved = _mailItem.SaveAttachments(dgvAttachments, sPath, overWrite: false);
- int idx =0;
- foreach (var entry in saved)
- {
- // entry format: "filename|size"
- var parts = entry.Split(new[] {'|' },2);
- var fname = parts.Length >0 ? parts[0] : string.Empty;
- var fsize = parts.Length >1 ? parts[1] : string.Empty;
- savedAttachmentsModels.Add(new AttachmentsModel
- {
- attachmentId = idx++,
- isChecked = true,
- fileName = fname,
- fileSize = fsize
- });
- }
-}
-catch (Exception ex)
-{
- XMessageBox.Show(
- $"שגיאה בשמירת קבצים מצורפים: {ex.Message}",
- "SaveAsPDF",
- XMessageBoxButtons.OK,
- XMessageBoxIcon.Warning,
- XMessageAlignment.Right,
- XMessageLanguage.Hebrew
- );
-}
+            // Save selected attachments to the chosen folder so HTML links point to real files
+            List<AttachmentsModel> savedAttachmentsModels = new List<AttachmentsModel>();
+            try
+            {
+                var saved = _mailItem.SaveAttachments(dgvAttachments, sPath, overWrite: false);
+                int idx = 0;
+                foreach (var entry in saved)
+                {
+                    // entry format: "filename|size"
+                    var parts = entry.Split(new[] { '|' }, 2);
+                    var fname = parts.Length > 0 ? parts[0] : string.Empty;
+                    var fsize = parts.Length > 1 ? parts[1] : string.Empty;
+                    savedAttachmentsModels.Add(new AttachmentsModel
+                    {
+                        attachmentId = idx++,
+                        isChecked = true,
+                        fileName = fname,
+                        fileSize = fsize
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                XMessageBox.Show(
+                    $"שגיאה בשמירת קבצים מצורפים: {ex.Message}",
+                    "SaveAsPDF",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Warning,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
+            }
 
-// Generate HTML to file to avoid large in-memory allocations
-string sanitizedProjectName = txtProjectName.Text.SafeFolderName();
-string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-string htmlFileName = $"{sanitizedProjectName}_{timeStamp}.html";
-string htmlFilePath = Path.Combine(sPath, htmlFileName);
+            // Generate HTML to file to avoid large in-memory allocations
+            string sanitizedProjectName = txtProjectName.Text.SafeFolderName();
+            string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+            string htmlFileName = $"{sanitizedProjectName}_{timeStamp}.html";
+            string htmlFilePath = Path.Combine(sPath, htmlFileName);
 
-try
-{
- HtmlHelper.GenerateHtmlToFile(
- htmlFilePath,
- sPath,
- _employeesBindingList.ToList(),
- // Use saved attachments if available, otherwise fall back to original attachmentsModels
- (savedAttachmentsModels.Count >0) ? savedAttachmentsModels : attachmentsModels,
- txtProjectName.Text,
- txtProjectID.Text,
- rtxtNotes.Text,
- Environment.UserName,
- // pass mail subject to be used as PDF filename when available
- (_mailItem != null && !string.IsNullOrWhiteSpace(_mailItem.Subject)) ? _mailItem.Subject : txtSubject.Text
- );
+            try
+            {
+                HtmlHelper.GenerateHtmlToFile(
+                htmlFilePath,
+                sPath,
+                _employeesBindingList.ToList(),
+                // Use saved attachments if available, otherwise fall back to original attachmentsModels
+                (savedAttachmentsModels.Count > 0) ? savedAttachmentsModels : attachmentsModels,
+                txtProjectName.Text,
+                txtProjectID.Text,
+                rtxtNotes.Text,
+                Environment.UserName,
+                // pass mail subject to be used as PDF filename when available
+                (_mailItem != null && !string.IsNullOrWhiteSpace(_mailItem.Subject)) ? _mailItem.Subject : txtSubject.Text
+                );
 
- // Prepend generated HTML into the mail body
- try
- {
- string htmlContent = File.ReadAllText(htmlFilePath);
- _mailItem.HTMLBody = htmlContent + _mailItem.HTMLBody;
- }
- catch (Exception ex)
- {
- XMessageBox.Show(
- $"שגיאה בטעינת קובץ HTML שנוצר: {ex.Message}",
- "SaveAsPDF",
- XMessageBoxButtons.OK,
- XMessageBoxIcon.Warning,
- XMessageAlignment.Right,
- XMessageLanguage.Hebrew
- );
- }
- finally
- {
- try { if (File.Exists(htmlFilePath)) File.Delete(htmlFilePath); } catch { }
- }
-}
-catch (Exception ex)
-{
- XMessageBox.Show(
- $"שגיאה ביצירת קובץ ה-HTML: {ex.Message}",
- "SaveAsPDF",
- XMessageBoxButtons.OK,
- XMessageBoxIcon.Error,
- XMessageAlignment.Right,
- XMessageLanguage.Hebrew
- );
- return;
-}
+                // Prepend generated HTML into the mail body
+                try
+                {
+                    string htmlContent = File.ReadAllText(htmlFilePath);
+                    _mailItem.HTMLBody = htmlContent + _mailItem.HTMLBody;
+                }
+                catch (Exception ex)
+                {
+                    XMessageBox.Show(
+                    $"שגיאה בטעינת קובץ HTML שנוצר: {ex.Message}",
+                    "SaveAsPDF",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Warning,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                    );
+                }
+                finally
+                {
+                    try { if (File.Exists(htmlFilePath)) File.Delete(htmlFilePath); } catch { }
+                }
+            }
+            catch (Exception ex)
+            {
+                XMessageBox.Show(
+                $"שגיאה ביצירת קובץ ה-HTML: {ex.Message}",
+                "SaveAsPDF",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew
+                );
+                return;
+            }
 
             _mailItem.SaveToPDF(sPath);
             _mailItem.Save();
@@ -1108,7 +1108,7 @@ catch (Exception ex)
         private void dgvEmployees_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             // Only handle changes for the 'IsLeader' column if it exists (backward compatible)
-            if (e.RowIndex >=0 && e.ColumnIndex >=0 && dgvEmployees.Columns.Count > e.ColumnIndex)
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && dgvEmployees.Columns.Count > e.ColumnIndex)
             {
                 var column = dgvEmployees.Columns[e.ColumnIndex];
                 if (column != null && string.Equals(column.Name, "IsLeader", StringComparison.Ordinal))

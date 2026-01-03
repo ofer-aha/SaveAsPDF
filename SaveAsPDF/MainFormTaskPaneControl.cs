@@ -7,10 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using System.Drawing;
 using Exception = System.Exception;
 
 namespace SaveAsPDF
@@ -35,7 +35,7 @@ namespace SaveAsPDF
         private readonly TextBox txtProjectLeader = new TextBox();
         private readonly TextBox txtSubject = new TextBox();
         private readonly TextBox txtFullPath = new TextBox();
-        private readonly ComboBox cmbSaveLocation = new ComboBox();
+        private readonly ExplorerAddressBar cmbSaveLocation = new ExplorerAddressBar();
         private readonly RichTextBox rtxtNotes = new RichTextBox();
         private readonly RichTextBox rtxtProjectNotes = new RichTextBox();
         private readonly DataGridView dgvAttachments = new DataGridView();
@@ -187,8 +187,7 @@ namespace SaveAsPDF
         {
             txtProjectName.Clear();
             txtFullPath.Clear();
-            cmbSaveLocation.Items.Clear();
-            cmbSaveLocation.Text = string.Empty;
+            cmbSaveLocation.Path = string.Empty;
             rtxtProjectNotes.Clear();
             tvFolders.Nodes.Clear();
         }
@@ -229,10 +228,10 @@ namespace SaveAsPDF
 
             // Load project data from XML
             LoadProjectData();
-            
+
             // Load employee data from XML
             LoadEmployeeData();
-            
+
             // Update the UI with loaded data
             UpdateUI();
         }
@@ -279,12 +278,12 @@ namespace SaveAsPDF
                 ProjectNotes = "הערות ברירת מחדל",
                 LastSavePath = settingsModel.DefaultSavePath
             };
-            
+
             if (!string.IsNullOrEmpty(settingsModel.XmlProjectFile))
             {
                 settingsModel.XmlProjectFile.ProjectModelToXmlFile(_projectModel);
             }
-            
+
             txtProjectName.Text = _projectModel.ProjectName;
             rtxtProjectNotes.Text = _projectModel.ProjectNotes;
         }
@@ -292,7 +291,7 @@ namespace SaveAsPDF
         private void LoadEmployeeData()
         {
             _employeesBindingList.Clear();
-            
+
             if (File.Exists(settingsModel.XmlEmployeesFile))
             {
                 var loaded = settingsModel.XmlEmployeesFile.XmlEmployeesFileToModel();
@@ -328,47 +327,16 @@ namespace SaveAsPDF
         {
             try
             {
-                // Clear and populate the save location combo box
-                cmbSaveLocation.Items.Clear();
-
-                // First add the project root folder path directly
-                if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
+                string targetPath = settingsModel.DefaultSavePath;
+                if (string.IsNullOrEmpty(targetPath) && settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
                 {
-                    string projectID = txtProjectID.Text;
-                    string projectPath = settingsModel.ProjectRootFolder.FullName;
-                    cmbSaveLocation.Items.Add(projectPath);
+                    targetPath = settingsModel.ProjectRootFolder.FullName;
                 }
 
-                // Load additional paths from tree file
-                if (File.Exists(settingsModel.DefaultTreeFile))
+                if (!string.IsNullOrEmpty(targetPath))
                 {
-                    cmbSaveLocation.LoadComboBoxWithPaths(settingsModel.DefaultTreeFile, txtProjectID.Text);
-                }
-
-                cmbSaveLocation.CustomizeComboBox();
-
-                // Set default save path
-                if (!string.IsNullOrEmpty(settingsModel.DefaultSavePath))
-                {
-                    bool matchedItem = false;
-                    for (int i = 0; i < cmbSaveLocation.Items.Count; i++)
-                    {
-                        if (string.Equals(cmbSaveLocation.Items[i].ToString(), settingsModel.DefaultSavePath, StringComparison.OrdinalIgnoreCase))
-                        {
-                            cmbSaveLocation.SelectedIndex = i;
-                            matchedItem = true;
-                            break;
-                        }
-                    }
-                    
-                    if (!matchedItem)
-                    {
-                        cmbSaveLocation.Text = settingsModel.DefaultSavePath;
-                    }
-                }
-                else if (cmbSaveLocation.Items.Count > 0)
-                {
-                    cmbSaveLocation.SelectedIndex = 0;
+                    cmbSaveLocation.Path = targetPath;
+                    txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(targetPath);
                 }
 
                 // Update the tree view with the project root
@@ -380,8 +348,8 @@ namespace SaveAsPDF
                     rootNode.Nodes.Add("...");
                     tvFolders.Nodes.Add(rootNode);
                     tvFolders.SelectedNode = tvFolders.Nodes[0];
-                    
-                    txtFullPath.Text = rootDir.FullName;
+
+                    txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(rootDir.FullName);
                 }
                 else
                 {
@@ -397,7 +365,7 @@ namespace SaveAsPDF
             catch (Exception ex)
             {
                 XMessageBox.Show(
-                    $"אירעה שגיאה בעת עדכון הממשק: {ex.Message}",
+                    $"אירעה שגיאהבעת עדכון הממשק: {ex.Message}",
                     "שגיאה",
                     XMessageBoxButtons.OK,
                     XMessageBoxIcon.Error,
@@ -538,8 +506,12 @@ namespace SaveAsPDF
             };
             txtFullPath.Dock = DockStyle.Fill;
             txtFullPath.ReadOnly = true;
-            txtFullPath.BackColor = SystemColors.Control;
-            txtFullPath.ForeColor = SystemColors.ControlText;
+            txtFullPath.BackColor = SystemColors.Window; // Change from Control to Window to look like address bar
+            txtFullPath.ForeColor = SystemColors.WindowText;
+            txtFullPath.BorderStyle = BorderStyle.FixedSingle; // Add border like an address bar
+            txtFullPath.Cursor = Cursors.Arrow; // Change cursor since it's read-only
+            txtFullPath.RightToLeft = RightToLeft.No; // Align content to the left
+            txtFullPath.TextAlign = HorizontalAlignment.Left;
             topTable.Controls.Add(lblFullPath, 0, 4);
             topTable.Controls.Add(txtFullPath, 1, 4);
 
@@ -558,13 +530,14 @@ namespace SaveAsPDF
                 FlowDirection = FlowDirection.LeftToRight,
                 Dock = DockStyle.Fill,
                 AutoSize = true,
-                BackColor = SystemColors.Control
+                BackColor = SystemColors.Control,
+                RightToLeft = RightToLeft.No
             };
-            cmbSaveLocation.Width = 220;
+            cmbSaveLocation.Width = 280;
             cmbSaveLocation.BackColor = SystemColors.Window;
             cmbSaveLocation.ForeColor = SystemColors.WindowText;
-            cmbSaveLocation.SelectedValueChanged += cmbSaveLocation_SelectedValueChanged;
-            cmbSaveLocation.TextUpdate += cmbSaveLocation_TextUpdate;
+            cmbSaveLocation.RightToLeft = RightToLeft.No;
+            cmbSaveLocation.PathConfirmed += CmbSaveLocation_PathConfirmed;
             btnFolders.Text = "בחר תיקייה";
             btnFolders.BackColor = SystemColors.Control;
             btnFolders.ForeColor = SystemColors.ControlText;
@@ -586,8 +559,8 @@ namespace SaveAsPDF
             };
 
             // Notes Tab with Sub-TabControl
-            var tabNotes = new TabPage("הערות") 
-            { 
+            var tabNotes = new TabPage("הערות")
+            {
                 RightToLeft = RightToLeft.Yes,
                 BackColor = SystemColors.Control,
                 UseVisualStyleBackColor = true
@@ -598,10 +571,10 @@ namespace SaveAsPDF
                 RightToLeft = RightToLeft.Yes,
                 Alignment = TabAlignment.Right
             };
-            
+
             // Mail Notes Sub-Tab
-            var tabMailNotes = new TabPage("הערות למייל") 
-            { 
+            var tabMailNotes = new TabPage("הערות למייל")
+            {
                 RightToLeft = RightToLeft.Yes,
                 BackColor = SystemColors.Control,
                 UseVisualStyleBackColor = true
@@ -610,10 +583,10 @@ namespace SaveAsPDF
             rtxtNotes.BackColor = SystemColors.Window;
             rtxtNotes.ForeColor = SystemColors.WindowText;
             tabMailNotes.Controls.Add(rtxtNotes);
-            
+
             // Project Notes Sub-Tab
-            var tabProjectNotes = new TabPage("הערות בפרויקט") 
-            { 
+            var tabProjectNotes = new TabPage("הערות בפרויקט")
+            {
                 RightToLeft = RightToLeft.Yes,
                 BackColor = SystemColors.Control,
                 UseVisualStyleBackColor = true
@@ -622,16 +595,16 @@ namespace SaveAsPDF
             rtxtProjectNotes.BackColor = SystemColors.Window;
             rtxtProjectNotes.ForeColor = SystemColors.WindowText;
             tabProjectNotes.Controls.Add(rtxtProjectNotes);
-            
+
             // Add sub-tabs to sub-TabControl
             subTabNotes.TabPages.Add(tabMailNotes);
             subTabNotes.TabPages.Add(tabProjectNotes);
-            
+
             tabNotes.Controls.Add(subTabNotes);
 
             // Attachments Tab
-            var tabAttachments = new TabPage("קבצים מצורפים") 
-            { 
+            var tabAttachments = new TabPage("קבצים מצורפים")
+            {
                 RightToLeft = RightToLeft.Yes,
                 BackColor = SystemColors.Control,
                 UseVisualStyleBackColor = true
@@ -657,8 +630,8 @@ namespace SaveAsPDF
             tabAttachments.Controls.Add(attachmentsTable);
 
             // Employees Tab
-            var tabEmployees = new TabPage("עובדים בפרויקט") 
-            { 
+            var tabEmployees = new TabPage("עובדים בפרויקט")
+            {
                 RightToLeft = RightToLeft.Yes,
                 BackColor = SystemColors.Control,
                 UseVisualStyleBackColor = true
@@ -672,7 +645,7 @@ namespace SaveAsPDF
             };
             employeesTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             employeesTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-            
+
             var pnlEmpButtons = new FlowLayoutPanel
             {
                 FlowDirection = FlowDirection.RightToLeft,
@@ -692,7 +665,7 @@ namespace SaveAsPDF
             btnRemoveEmployee.Click += btnRemoveEmployee_Click;
             pnlEmpButtons.Controls.Add(btnPhoneBook);
             pnlEmpButtons.Controls.Add(btnRemoveEmployee);
-            
+
             employeesTable.Controls.Add(pnlEmpButtons, 0, 0);
             dgvEmployees.Dock = DockStyle.Fill;
             dgvEmployees.CurrentCellDirtyStateChanged += dgvEmployees_CurrentCellDirtyStateChanged;
@@ -701,8 +674,8 @@ namespace SaveAsPDF
             tabEmployees.Controls.Add(employeesTable);
 
             // Folders Tab
-            var tabFolders = new TabPage("עץ תיקיות פרויקט") 
-            { 
+            var tabFolders = new TabPage("עץ תיקיות פרויקט")
+            {
                 RightToLeft = RightToLeft.Yes,
                 BackColor = SystemColors.Control,
                 UseVisualStyleBackColor = true
@@ -793,7 +766,7 @@ namespace SaveAsPDF
             btnOK.ForeColor = SystemColors.ControlText;
             btnOK.UseVisualStyleBackColor = true;
             btnOK.Click += btnOK_Click;
-            btnCancel.Text = "בטל";
+            btnCancel.Text = "בטل";
             btnCancel.BackColor = SystemColors.Control;
             btnCancel.ForeColor = SystemColors.ControlText;
             btnCancel.UseVisualStyleBackColor = true;
@@ -939,6 +912,10 @@ namespace SaveAsPDF
                 var root = new TreeNode(new DirectoryInfo(dialog.ResultPath).Name) { Tag = dialog.ResultPath };
                 root.Nodes.Add("...");
                 tvFolders.Nodes.Add(root);
+
+                // Update both save location and full path with breadcrumb format
+                cmbSaveLocation.Path = dialog.ResultPath;
+                txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(dialog.ResultPath);
             }
         }
 
@@ -968,7 +945,7 @@ namespace SaveAsPDF
             if (!string.IsNullOrWhiteSpace(projectID))
             {
                 ValidateAndLoadProjectById(projectID);
-                
+
                 // Process mail item attachments if available
                 if (_mailItem != null)
                 {
@@ -979,143 +956,223 @@ namespace SaveAsPDF
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            XMessageBox.Show("MainFormTaskPaneControl OK clicked (stub)", "SaveAsPDF");
-        }
+            // Get actual path from address bar
+            string sPath = cmbSaveLocation.Path;
 
-        private void BtnSettings_Click(object sender, EventArgs e)
-        {
-            using (var frm = new FormSettings(this))
+            if (string.IsNullOrEmpty(sPath))
             {
-                frm.ShowDialog();
-            }
-        }
-
-        private void btnNewProject_Click(object sender, EventArgs e)
-        {
-            using (var frm = new FormNewProject(this))
-            {
-                frm.ShowDialog();
-            }
-        }
-
-        private void chbOpenPDF_CheckedChanged(object sender, EventArgs e)
-        {
-            settingsModel.OpenPDF = chbOpenPDF.Checked;
-        }
-
-        private void MainFormTaskPaneControl_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Escape)
-            {
-                txtProjectID.Clear();
-            }
-        }
-
-        private void ConfigureEmployeeDataGrid()
-        {
-            dgvEmployees.AutoGenerateColumns = false;
-            dgvEmployees.Columns.Clear();
-
-            dgvEmployees.Columns.AddRange(new DataGridViewColumn[]
-            {
-                new DataGridViewTextBoxColumn
+                var dialog = new FolderPicker { InputPath = settingsModel.RootDrive };
+                if (dialog.ShowDialog(Handle) == true)
                 {
-                    Name = "Id",
-                    DataPropertyName = "Id",
-                    Visible = false
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "FirstName",
-                    DataPropertyName = "FirstName",
-                    HeaderText = "שם פרטי"
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "LastName",
-                    DataPropertyName = "LastName",
-                    HeaderText = "שם משפחה"
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "EmailAddress",
-                    DataPropertyName = "EmailAddress",
-                    HeaderText = "אימייל"
+                    sPath = dialog.ResultPath;
+                    cmbSaveLocation.Path = sPath;
                 }
-            });
+            }
 
-            dgvEmployees.DataSource = _employeesBindingList;
-            dgvEmployees.ReadOnly = true;
-            
-            // Set colors for better contrast
-            dgvEmployees.BackgroundColor = SystemColors.Window;
-            dgvEmployees.ForeColor = SystemColors.WindowText;
-            dgvEmployees.DefaultCellStyle.BackColor = SystemColors.Window;
-            dgvEmployees.DefaultCellStyle.ForeColor = SystemColors.WindowText;
-            dgvEmployees.DefaultCellStyle.SelectionBackColor = SystemColors.Highlight;
-            dgvEmployees.DefaultCellStyle.SelectionForeColor = SystemColors.HighlightText;
-            dgvEmployees.AlternatingRowsDefaultCellStyle.BackColor = SystemColors.Control;
-            dgvEmployees.AlternatingRowsDefaultCellStyle.ForeColor = SystemColors.ControlText;
-            dgvEmployees.ColumnHeadersDefaultCellStyle.BackColor = SystemColors.Control;
-            dgvEmployees.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
-            dgvEmployees.EnableHeadersVisualStyles = false;
+            if (!string.IsNullOrEmpty(sPath))
+            {
+                // Validate path for illegal characters
+                try
+                {
+                    // This will throw if path contains illegal characters
+                    Path.GetFullPath(sPath);
+                }
+                catch (ArgumentException)
+                {
+                    XMessageBox.Show(
+                    "הנתיב מכיל תווים לא חוקיים. אנא בחר נתיב תקין.",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    XMessageBox.Show(
+                    $"נתיב לא תקין: {ex.Message}",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
+                    return;
+                }
+
+                var directory = new DirectoryInfo(sPath);
+                if (!directory.Exists)
+                    FileFoldersHelper.CreateDirectory(directory.FullName);
+            }
+            else
+            {
+                XMessageBox.Show(
+                "יש לבחור או לציין מיקום שמירה תקין.",
+                "שגיאה",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew);
+                return;
+            }
+
+            // Save selected attachments to the chosen folder
+            List<AttachmentsModel> savedAttachmentsModels = new List<AttachmentsModel>();
+            try
+            {
+                var saved = _mailItem.SaveAttachments(dgvAttachments, sPath, overWrite: false);
+                int idx = 0;
+                foreach (var entry in saved)
+                {
+                    var parts = entry.Split(new[] { '|' }, 2);
+                    var fname = parts.Length > 0 ? parts[0] : string.Empty;
+                    var fsize = parts.Length > 1 ? parts[1] : string.Empty;
+                    savedAttachmentsModels.Add(new AttachmentsModel
+                    {
+                        attachmentId = idx++,
+                        isChecked = true,
+                        fileName = fname,
+                        fileSize = fsize
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                XMessageBox.Show(
+                    $"שגיאה בשמירת קבצים מצורפים: {ex.Message}",
+                    "SaveAsPDF",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Warning,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                );
+            }
+
+            // Generate HTML to file
+            string sanitizedProjectName = txtProjectName.Text.SafeFolderName();
+            string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+            string htmlFileName = $"{sanitizedProjectName}_{timeStamp}.html";
+            string htmlFilePath = Path.Combine(sPath, htmlFileName);
+
+            try
+            {
+                HtmlHelper.GenerateHtmlToFile(
+                htmlFilePath,
+                sPath,
+                _employeesBindingList.ToList(),
+                (savedAttachmentsModels.Count > 0) ? savedAttachmentsModels : attachmentsModels,
+                txtProjectName.Text,
+                txtProjectID.Text,
+                rtxtNotes.Text,
+                Environment.UserName,
+                (_mailItem != null && !string.IsNullOrWhiteSpace(_mailItem.Subject)) ? _mailItem.Subject : txtSubject.Text
+                );
+
+                try
+                {
+                    string htmlContent = File.ReadAllText(htmlFilePath);
+                    _mailItem.HTMLBody = htmlContent + _mailItem.HTMLBody;
+                }
+                catch (Exception ex)
+                {
+                    XMessageBox.Show(
+                    $"שגיאה בטעינת קובץ HTML שנוצר: {ex.Message}",
+                    "SaveAsPDF",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Warning,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
+                }
+                finally
+                {
+                    try { if (File.Exists(htmlFilePath)) File.Delete(htmlFilePath); } catch { }
+                }
+            }
+            catch (Exception ex)
+            {
+                XMessageBox.Show(
+                $"שגיאה ביצירת קובץ ה-HTML: {ex.Message}",
+                "SaveAsPDF",
+                XMessageBoxButtons.OK,
+                XMessageBoxIcon.Error,
+                XMessageAlignment.Right,
+                XMessageLanguage.Hebrew
+                );
+                return;
+            }
+
+            _mailItem.SaveToPDF(sPath);
+            _mailItem.Save();
+
+            // If requested, forward the current email to the project leader
+            if (chkbSendNote.Checked)
+            {
+                try
+                {
+                    var leader = _employeesBindingList.FirstOrDefault(emp => emp.IsLeader && !string.IsNullOrWhiteSpace(emp.EmailAddress));
+                    var leaderEmail = leader?.EmailAddress;
+                    if (!string.IsNullOrWhiteSpace(leaderEmail))
+                    {
+                        var fwd = _mailItem.Forward();
+                        fwd.To = leaderEmail;
+                    }
+                    else
+                    {
+                        XMessageBox.Show(
+                        "לא encontrado אימייל של ראש הפרויקט. יש לבחור ראש פרויקט או לעדכן את כתובת האימייל שלו.",
+                        "SaveAsPDF",
+                        XMessageBoxButtons.OK,
+                        XMessageBoxIcon.Warning,
+                        XMessageAlignment.Right,
+                        XMessageLanguage.Hebrew
+                        );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    XMessageBox.Show(
+                    $"שגיאה בשליחת הודעת העברה לראש הפרויקט: {ex.Message}",
+                    "SaveAsPDF",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew
+                    );
+                }
+            }
+
+            // Clear mail item (task pane doesn't close like form)
+            if (_mailItem != null)
+            {
+                _mailItem = null;
+                ClearMailRelatedUi();
+            }
+
+            if (chbOpenPDF.Checked)
+            {
+                // Sanitize subject text for use in filename
+                string sanitizedSubject = txtSubject.Text.SafeFolderName();
+                string pdfFilePath = Path.Combine(sPath, $"{sanitizedSubject}.pdf");
+                if (File.Exists(pdfFilePath))
+                {
+                    System.Diagnostics.Process.Start(pdfFilePath);
+                }
+                else
+                {
+                    XMessageBox.Show(
+                    "קובץ ה-PDF לא נמצא.",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
+                }
+            }
         }
 
-        private void ConfigureAttachmentsDataGrid()
+        private void btnRemoveEmployee_Click(object sender, EventArgs e)
         {
-            dgvAttachments.AutoGenerateColumns = false;
-            dgvAttachments.Columns.Clear();
-
-            dgvAttachments.Columns.AddRange(new DataGridViewColumn[]
-            {
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "attachmentId",
-                    DataPropertyName = "attachmentId",
-                    Visible = false
-                },
-                new DataGridViewCheckBoxColumn
-                {
-                    Name = "isChecked",
-                    DataPropertyName = "isChecked",
-                    HeaderText = "V",
-                    TrueValue = true,
-                    FalseValue = false,
-                    ThreeState = false
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "fileName",
-                    DataPropertyName = "fileName",
-                    HeaderText = "שם קובץ"
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    Name = "fileSize",
-                    DataPropertyName = "fileSize",
-                    HeaderText = "גודל"
-                }
-            });
-
-            // Don't set DataSource here - it will be set when mail item is loaded
-            dgvAttachments.ReadOnly = true;
-            
-            // Set colors for better contrast
-            dgvAttachments.BackgroundColor = SystemColors.Window;
-            dgvAttachments.ForeColor = SystemColors.WindowText;
-            dgvAttachments.DefaultCellStyle.BackColor = SystemColors.Window;
-            dgvAttachments.DefaultCellStyle.ForeColor = SystemColors.WindowText;
-            dgvAttachments.DefaultCellStyle.SelectionBackColor = SystemColors.Highlight;
-            dgvAttachments.DefaultCellStyle.SelectionForeColor = SystemColors.HighlightText;
-            dgvAttachments.AlternatingRowsDefaultCellStyle.BackColor = SystemColors.Control;
-            dgvAttachments.AlternatingRowsDefaultCellStyle.ForeColor = SystemColors.ControlText;
-            dgvAttachments.ColumnHeadersDefaultCellStyle.BackColor = SystemColors.Control;
-            dgvAttachments.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
-            dgvAttachments.EnableHeadersVisualStyles = false;
-            dgvAttachments.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            
-            // Prevent the error by allowing the grid to handle empty data
-            dgvAttachments.AllowUserToAddRows = false;
+            // Stub handler
         }
 
         public void SettingsComplete(SettingsModel settings)
@@ -1155,12 +1212,11 @@ namespace SaveAsPDF
                 return;
 
             txtSubject.Text = mailItem.Subject;
-            
-            // Get attachments from email
+
             var attachments = mailItem.GetAttachmentsFromEmail();
             int i = 0;
             attachmentsModels.Clear();
-            
+
             foreach (var attachment in attachments)
             {
                 if (attachment != null)
@@ -1174,28 +1230,26 @@ namespace SaveAsPDF
                     });
                 }
             }
-            
-            // Bind attachments to DataGridView
+
             dgvAttachments.DataSource = null;
             dgvAttachments.DataSource = attachmentsModels;
-            
-            // Configure DataGridView columns
+
             if (dgvAttachments.Columns.Count > 0)
             {
-                dgvAttachments.Columns[0].Visible = false; // ID column
-                
+                dgvAttachments.Columns[0].Visible = false;
+
                 if (dgvAttachments.Columns.Count > 1)
                 {
                     dgvAttachments.Columns[1].HeaderText = "V";
                     dgvAttachments.Columns[1].ReadOnly = false;
                 }
-                
+
                 if (dgvAttachments.Columns.Count > 2)
                 {
                     dgvAttachments.Columns[2].HeaderText = "שם קובץ";
                     dgvAttachments.Columns[2].ReadOnly = true;
                 }
-                
+
                 if (dgvAttachments.Columns.Count > 3)
                 {
                     dgvAttachments.Columns[3].HeaderText = "גודל";
@@ -1204,7 +1258,6 @@ namespace SaveAsPDF
             }
         }
 
-        // Status strip hover helpers adapted from FormMain
         private void MouseEnterStatus(object sender, EventArgs e)
         {
             var ctl = sender as Control;
@@ -1408,9 +1461,8 @@ namespace SaveAsPDF
         {
             if (e.Node.Tag is string basePath)
             {
-                cmbSaveLocation.Select();
-                cmbSaveLocation.SelectedItem = null;
-                cmbSaveLocation.SelectedText = basePath;
+                cmbSaveLocation.Path = basePath;
+                txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(basePath);
             }
         }
 
@@ -1419,7 +1471,8 @@ namespace SaveAsPDF
             if (e.Node.Tag is string basePath)
             {
                 System.Diagnostics.Process.Start("explorer.exe", basePath);
-                cmbSaveLocation.SelectedText = basePath;
+                cmbSaveLocation.Path = basePath;
+                txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(basePath);
             }
         }
 
@@ -1436,19 +1489,144 @@ namespace SaveAsPDF
             // Kept minimal: you can extend with leader logic if needed
         }
 
-        private void cmbSaveLocation_SelectedValueChanged(object sender, EventArgs e)
+        private void MainFormTaskPaneControl_KeyDown(object sender, KeyEventArgs e)
         {
-            // Stub handler
+            if (e.KeyCode == Keys.Escape)
+            {
+                txtProjectID.Clear();
+            }
         }
 
-        private void cmbSaveLocation_TextUpdate(object sender, EventArgs e)
+        private void ConfigureEmployeeDataGrid()
         {
-            // Stub handler
+            dgvEmployees.AutoGenerateColumns = false;
+            dgvEmployees.Columns.Clear();
+
+            dgvEmployees.Columns.AddRange(new DataGridViewColumn[]
+            {
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "Id",
+                    DataPropertyName = "Id",
+                    Visible = false
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "FirstName",
+                    DataPropertyName = "FirstName",
+                    HeaderText = "שם פרטי"
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "LastName",
+                    DataPropertyName = "LastName",
+                    HeaderText = "שם משפחה"
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "EmailAddress",
+                    DataPropertyName = "EmailAddress",
+                    HeaderText = "אימייל"
+                }
+            });
+
+            dgvEmployees.DataSource = _employeesBindingList;
+            dgvEmployees.ReadOnly = true;
+
+            dgvEmployees.BackgroundColor = SystemColors.Window;
+            dgvEmployees.ForeColor = SystemColors.WindowText;
+            dgvEmployees.DefaultCellStyle.BackColor = SystemColors.Window;
+            dgvEmployees.DefaultCellStyle.ForeColor = SystemColors.WindowText;
+            dgvEmployees.DefaultCellStyle.SelectionBackColor = SystemColors.Highlight;
+            dgvEmployees.DefaultCellStyle.SelectionForeColor = SystemColors.HighlightText;
+            dgvEmployees.AlternatingRowsDefaultCellStyle.BackColor = SystemColors.Control;
+            dgvEmployees.AlternatingRowsDefaultCellStyle.ForeColor = SystemColors.ControlText;
+            dgvEmployees.ColumnHeadersDefaultCellStyle.BackColor = SystemColors.Control;
+            dgvEmployees.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
+            dgvEmployees.EnableHeadersVisualStyles = false;
         }
 
-        private void btnRemoveEmployee_Click(object sender, EventArgs e)
+        private void ConfigureAttachmentsDataGrid()
         {
-            // Stub handler
+            dgvAttachments.AutoGenerateColumns = false;
+            dgvAttachments.Columns.Clear();
+
+            dgvAttachments.Columns.AddRange(new DataGridViewColumn[]
+            {
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "attachmentId",
+                    DataPropertyName = "attachmentId",
+                    Visible = false
+                },
+                new DataGridViewCheckBoxColumn
+                {
+                    Name = "isChecked",
+                    DataPropertyName = "isChecked",
+                    HeaderText = "V",
+                    TrueValue = true,
+                    FalseValue = false,
+                    ThreeState = false
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "fileName",
+                    DataPropertyName = "fileName",
+                    HeaderText = "שם קובץ"
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    Name = "fileSize",
+                    DataPropertyName = "fileSize",
+                    HeaderText = "גודל"
+                }
+            });
+
+            dgvAttachments.ReadOnly = true;
+
+            dgvAttachments.BackgroundColor = SystemColors.Window;
+            dgvAttachments.ForeColor = SystemColors.WindowText;
+            dgvAttachments.DefaultCellStyle.BackColor = SystemColors.Window;
+            dgvAttachments.DefaultCellStyle.ForeColor = SystemColors.WindowText;
+            dgvAttachments.DefaultCellStyle.SelectionBackColor = SystemColors.Highlight;
+            dgvAttachments.DefaultCellStyle.SelectionForeColor = SystemColors.HighlightText;
+            dgvAttachments.AlternatingRowsDefaultCellStyle.BackColor = SystemColors.Control;
+            dgvAttachments.AlternatingRowsDefaultCellStyle.ForeColor = SystemColors.ControlText;
+            dgvAttachments.ColumnHeadersDefaultCellStyle.BackColor = SystemColors.Control;
+            dgvAttachments.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
+            dgvAttachments.EnableHeadersVisualStyles = false;
+            dgvAttachments.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            dgvAttachments.AllowUserToAddRows = false;
+        }
+
+        private void BtnSettings_Click(object sender, EventArgs e)
+        {
+            using (var frm = new FormSettings(this))
+            {
+                frm.ShowDialog();
+            }
+        }
+
+        private void btnNewProject_Click(object sender, EventArgs e)
+        {
+            using (var frm = new FormNewProject(this))
+            {
+                frm.ShowDialog();
+            }
+        }
+
+        private void chbOpenPDF_CheckedChanged(object sender, EventArgs e)
+        {
+            settingsModel.OpenPDF = chbOpenPDF.Checked;
+        }
+
+        private void CmbSaveLocation_PathConfirmed(object sender, PathConfirmedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(e.Path))
+            {
+                txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(e.Path);
+            }
         }
     }
 }
