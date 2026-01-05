@@ -284,7 +284,15 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="Helpers\ExplorerAddressBar.cs" />
+    <Compile Include="GUI\MainFormTaskPaneControl.GUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GUI_Logic\MainFormTaskPaneControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Helpers\ExplorerAddressBar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Helpers\HtmlHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
     <Compile Include="Helpers\PathBreadcrumbHelper.cs" />
@@ -312,9 +320,6 @@
     <Compile Include="IEmployeeRequester.cs" />
     <Compile Include="INewProjectRequester.cs" />
     <Compile Include="ISettingsRequester.cs" />
-    <Compile Include="MainFormTaskPaneControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="Models\AttachmentsModel.cs" />
     <Compile Include="Models\DocumentModel.cs" />
     <Compile Include="Models\EmployeeModel.cs" />
