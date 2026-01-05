@@ -313,7 +313,7 @@ For issues, questions, or suggestions:
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for version history and release notes.
+See [CHANGELOG.md](https://github.com/ofer-aha/SaveAsPDF/blob/master/SaveAsPDF/CHANGELOG.md) for version history and release notes.
 
 ## Credits
 
