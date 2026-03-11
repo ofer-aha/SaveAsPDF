@@ -61,7 +61,6 @@ namespace SaveAsPDF
         private readonly ErrorProvider errorProviderMain = new ErrorProvider();
         private readonly FontDialog dlgFont = new FontDialog();
 
-        // Logic methods (previously in single file)
         public void LoadMailItem(MailItem mailItem)
         {
             if (ReferenceEquals(_mailItem, mailItem)) return;
@@ -72,17 +71,24 @@ namespace SaveAsPDF
                 return;
             }
             _mailItem = mailItem;
-            string subject = _mailItem.Subject ?? string.Empty;
-            string projectIdFromSubject = ExtractProjectIdFromSubject(subject);
-            if (!string.Equals(_currentProjectId, projectIdFromSubject, StringComparison.Ordinal))
+            
+            bool loadedFromProperties = LoadCustomPropertiesFromEmail(_mailItem);
+            
+            if (!loadedFromProperties)
             {
-                _currentProjectId = projectIdFromSubject;
-                txtProjectID.Text = _currentProjectId;
-                if (!string.IsNullOrWhiteSpace(_currentProjectId) && _currentProjectId.SafeProjectID())
-                    ValidateAndLoadProjectById(_currentProjectId);
-                else
-                    ClearProjectRelatedUi();
+                string subject = _mailItem.Subject ?? string.Empty;
+                string projectIdFromSubject = ExtractProjectIdFromSubject(subject);
+                if (!string.Equals(_currentProjectId, projectIdFromSubject, StringComparison.Ordinal))
+                {
+                    _currentProjectId = projectIdFromSubject;
+                    txtProjectID.Text = _currentProjectId;
+                    if (!string.IsNullOrWhiteSpace(_currentProjectId) && _currentProjectId.SafeProjectID())
+                        ValidateAndLoadProjectById(_currentProjectId, showErrorDialogs: false);
+                    else
+                        ClearProjectRelatedUi();
+                }
             }
+            
             txtSubject.Text = LoadEmailSubject();
             ProcessMailItem(_mailItem);
         }
@@ -123,7 +129,7 @@ namespace SaveAsPDF
             tvFolders.Nodes.Clear();
         }
 
-        private void ValidateAndLoadProjectById(string projectID)
+        private void ValidateAndLoadProjectById(string projectID, bool showErrorDialogs = true)
         {
             if (!projectID.SafeProjectID())
             {
@@ -137,9 +143,40 @@ namespace SaveAsPDF
             var projectRootFolder = projectID.ProjectFullPath(settingsModel.RootDrive);
             if (!Directory.Exists(projectRootFolder.FullName))
             {
-                XMessageBox.Show("הפרויקט לא קיים", "שגיאה", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
-                ClearProjectRelatedUi();
-                return;
+                if (showErrorDialogs)
+                {
+                    var createResult = MessageBox.Show(
+                        "הפרויקט לא קיים. האם ליצור תיקיית פרויקט חדשה?",
+                        "SaveAsPDF",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question,
+                        MessageBoxDefaultButton.Button2,
+                        MessageBoxOptions.RtlReading | MessageBoxOptions.RightAlign);
+
+                    if (createResult == DialogResult.Yes)
+                    {
+                        try
+                        {
+                            Directory.CreateDirectory(projectRootFolder.FullName);
+                        }
+                        catch (Exception ex)
+                        {
+                            XMessageBox.Show($"שגיאה ביצירת תיקיית פרויקט: {ex.Message}", "שגיאה", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
+                            ClearProjectRelatedUi();
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        ClearProjectRelatedUi();
+                        return;
+                    }
+                }
+                else
+                {
+                    ClearProjectRelatedUi();
+                    return;
+                }
             }
             settingsModel = SettingsHelpers.LoadProjectSettings(projectID);
             LoadProjectData();
@@ -428,6 +465,9 @@ namespace SaveAsPDF
                 return;
             }
             _mailItem.SaveToPDF(sPath);
+            
+            SaveCustomPropertiesToEmail(_mailItem, txtProjectID.Text, txtProjectName.Text, sPath);
+            
             _mailItem.Save();
             if (chkbSendNote.Checked)
             {
@@ -454,6 +494,96 @@ namespace SaveAsPDF
         }
 
         private void btnRemoveEmployee_Click(object sender, EventArgs e) { }
+
+        private void SaveCustomPropertiesToEmail(MailItem mailItem, string projectId, string projectName, string savePath)
+        {
+            if (mailItem == null) return;
+            
+            try
+            {
+                var userProps = mailItem.UserProperties;
+                
+                var existingProjectId = userProps.Find("X-SaveAsPDF-ProjectID");
+                if (existingProjectId != null) existingProjectId.Delete();
+                
+                var existingProjectName = userProps.Find("X-SaveAsPDF-ProjectName");
+                if (existingProjectName != null) existingProjectName.Delete();
+                
+                var existingSavePath = userProps.Find("X-SaveAsPDF-SavePath");
+                if (existingSavePath != null) existingSavePath.Delete();
+                
+                if (!string.IsNullOrWhiteSpace(projectId))
+                {
+                    var propId = userProps.Add("X-SaveAsPDF-ProjectID", Microsoft.Office.Interop.Outlook.OlUserPropertyType.olText);
+                    propId.Value = projectId;
+                }
+                
+                if (!string.IsNullOrWhiteSpace(projectName))
+                {
+                    var propName = userProps.Add("X-SaveAsPDF-ProjectName", Microsoft.Office.Interop.Outlook.OlUserPropertyType.olText);
+                    propName.Value = projectName;
+                }
+                
+                if (!string.IsNullOrWhiteSpace(savePath))
+                {
+                    var propPath = userProps.Add("X-SaveAsPDF-SavePath", Microsoft.Office.Interop.Outlook.OlUserPropertyType.olText);
+                    propPath.Value = savePath;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to save custom properties: {ex.Message}");
+            }
+        }
+
+        private bool LoadCustomPropertiesFromEmail(MailItem mailItem)
+        {
+            if (mailItem == null) return false;
+            
+            try
+            {
+                var userProps = mailItem.UserProperties;
+                
+                var propId = userProps.Find("X-SaveAsPDF-ProjectID");
+                var propName = userProps.Find("X-SaveAsPDF-ProjectName");
+                var propPath = userProps.Find("X-SaveAsPDF-SavePath");
+                
+                if (propId != null && !string.IsNullOrWhiteSpace(propId.Value as string))
+                {
+                    string projectId = propId.Value as string;
+                    _currentProjectId = projectId;
+                    txtProjectID.Text = projectId;
+                    
+                    if (projectId.SafeProjectID())
+                    {
+                        ValidateAndLoadProjectById(projectId, showErrorDialogs: false);
+                    }
+                    
+                    if (propName != null && !string.IsNullOrWhiteSpace(propName.Value as string))
+                    {
+                        txtProjectName.Text = propName.Value as string;
+                    }
+                    
+                    if (propPath != null && !string.IsNullOrWhiteSpace(propPath.Value as string))
+                    {
+                        string savedPath = propPath.Value as string;
+                        if (Directory.Exists(savedPath))
+                        {
+                            cmbSaveLocation.Path = savedPath;
+                            txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(savedPath);
+                        }
+                    }
+                    
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to load custom properties: {ex.Message}");
+            }
+            
+            return false;
+        }
 
         public void SettingsComplete(SettingsModel settings) => settingsModel = SettingsHelpers.LoadSettingsToModel(settings);
 
@@ -649,7 +779,10 @@ namespace SaveAsPDF
                 new DataGridViewTextBoxColumn { Name = "LastName", DataPropertyName = "LastName", HeaderText = "שם משפחה" },
                 new DataGridViewTextBoxColumn { Name = "EmailAddress", DataPropertyName = "EmailAddress", HeaderText = "אימייל" }
             });
+            dgvEmployees.DataBindingComplete -= DgvEmployees_DataBindingComplete;
+            dgvEmployees.DataBindingComplete += DgvEmployees_DataBindingComplete;
             dgvEmployees.DataSource = _employeesBindingList;
+            HideEmployeeIdColumn();
             dgvEmployees.ReadOnly = true;
             dgvEmployees.BackgroundColor = SystemColors.Window;
             dgvEmployees.ForeColor = SystemColors.WindowText;
@@ -662,6 +795,23 @@ namespace SaveAsPDF
             dgvEmployees.ColumnHeadersDefaultCellStyle.BackColor = SystemColors.Control;
             dgvEmployees.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
             dgvEmployees.EnableHeadersVisualStyles = false;
+        }
+
+        private void DgvEmployees_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            HideEmployeeIdColumn();
+        }
+
+        private void HideEmployeeIdColumn()
+        {
+            foreach (DataGridViewColumn column in dgvEmployees.Columns)
+            {
+                if (string.Equals(column.Name, "Id", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(column.DataPropertyName, "Id", StringComparison.OrdinalIgnoreCase))
+                {
+                    column.Visible = false;
+                }
+            }
         }
 
         private void ConfigureAttachmentsDataGrid()
@@ -692,7 +842,6 @@ namespace SaveAsPDF
             dgvAttachments.RowHeadersVisible = false;
             dgvAttachments.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
 
-            // Column width distribution (Fill weights): [1]=10%, [2]=70%, [3]=20%
             if (dgvAttachments.Columns.Count > 1)
             {
                 dgvAttachments.Columns[1].FillWeight = 10;

@@ -106,6 +106,8 @@ namespace SaveAsPDF
             txtProjectID.Dock = DockStyle.Fill;
             txtProjectID.BackColor = SystemColors.Window;
             txtProjectID.ForeColor = SystemColors.WindowText;
+            txtProjectID.RightToLeft = RightToLeft.No;
+            txtProjectID.TextAlign = HorizontalAlignment.Left;
             txtProjectID.KeyDown += txtProjectID_KeyDown;           // Enter key handler
             txtProjectID.Validating += txtProjectID_Validating;     // Format validation
             txtProjectID.Validated += txtProjectID_Validated;       // Load project after validation

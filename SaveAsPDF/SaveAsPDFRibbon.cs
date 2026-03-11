@@ -11,10 +11,7 @@ namespace SaveAsPDF
 
         private void buttonDemo_Click(object sender, RibbonControlEventArgs e)
         {
-            FormMain frm = new FormMain();
-            frm.ShowDialog();
+            Globals.ThisAddIn.ToggleMainPane();
         }
-
-
     }
 }

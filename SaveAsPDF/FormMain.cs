@@ -171,6 +171,9 @@ namespace SaveAsPDF
         {
             InitializeComponent();
 
+            txtProjectID.RightToLeft = RightToLeft.No;
+            txtProjectID.TextAlign = HorizontalAlignment.Left;
+
             // Use event handler for efficient loading
             Load += FormMain_Load;
             FormClosing += FormMain_FormClosing;
@@ -243,14 +246,35 @@ namespace SaveAsPDF
  }
  });
 
+            dgvEmployees.DataBindingComplete -= dgvEmployees_DataBindingComplete;
+            dgvEmployees.DataBindingComplete += dgvEmployees_DataBindingComplete;
+
             // Bind the DataGridView to the BindingList
             dgvEmployees.DataSource = _employeesBindingList;
+            HideEmployeeIdColumn();
 
             // Make all columns read-only
             dgvEmployees.ReadOnly = true;
 
             // Previously there was an 'IsLeader' checkbox column allowing inline leader selection.
             // That column has been removed per UI change; leader selection is handled via the Project Leader picker.
+        }
+
+        private void dgvEmployees_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            HideEmployeeIdColumn();
+        }
+
+        private void HideEmployeeIdColumn()
+        {
+            foreach (DataGridViewColumn column in dgvEmployees.Columns)
+            {
+                if (string.Equals(column.Name, "Id", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(column.DataPropertyName, "Id", StringComparison.OrdinalIgnoreCase))
+                {
+                    column.Visible = false;
+                }
+            }
         }
 
         /// <summary>
@@ -1402,14 +1426,32 @@ namespace SaveAsPDF
             var projectRootFolder = projectID.ProjectFullPath(settingsModel.RootDrive);
             if (!Directory.Exists(projectRootFolder.FullName))
             {
-                XMessageBox.Show(
-                "הפרויקט לא קיים",
-                "שגיאה",
-                XMessageBoxButtons.OK,
-                XMessageBoxIcon.Error,
-                XMessageAlignment.Right,
-                XMessageLanguage.Hebrew);
-                return;
+                var createResult = MessageBox.Show(
+                    "הפרויקט לא קיים. האם ליצור תיקיית פרויקט חדשה?",
+                    "SaveAsPDF",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button2,
+                    MessageBoxOptions.RtlReading | MessageBoxOptions.RightAlign);
+
+                if (createResult != DialogResult.Yes)
+                    return;
+
+                try
+                {
+                    Directory.CreateDirectory(projectRootFolder.FullName);
+                }
+                catch (Exception ex)
+                {
+                    XMessageBox.Show(
+                    $"שגיאה ביצירת תיקיית פרויקט: {ex.Message}",
+                    "שגיאה",
+                    XMessageBoxButtons.OK,
+                    XMessageBoxIcon.Error,
+                    XMessageAlignment.Right,
+                    XMessageLanguage.Hebrew);
+                    return;
+                }
             }
 
             ProcessProjectID(projectID);

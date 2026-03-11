@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace SaveAsPDF.Helpers
@@ -131,7 +132,7 @@ namespace SaveAsPDF.Helpers
             for (int i = 0; i < segments.Count; i++)
             {
                 cumulative.Add(segments[i]);
-                string pathUpToHere = string.Join("\\", cumulative);
+                string pathUpToHere = BuildPathUpToHere(_currentPath, cumulative);
 
                 if (i > 0)
                 {
@@ -168,10 +169,12 @@ namespace SaveAsPDF.Helpers
             var menu = BuildFolderMenu(path);
             if (menu.Items.Count > 0)
             {
+                menu.Closed += (s, e) => menu.Dispose();
                 menu.Show(anchor, new Point(0, anchor.Height));
             }
             else
             {
+                menu.Dispose();
                 PathConfirmed?.Invoke(this, new PathConfirmedEventArgs(path));
             }
         }
@@ -219,6 +222,23 @@ namespace SaveAsPDF.Helpers
             return menu;
         }
 
+        private static string BuildPathUpToHere(string originalPath, List<string> cumulative)
+        {
+            if (cumulative == null || cumulative.Count == 0)
+                return string.Empty;
+
+            var combined = string.Join("\\", cumulative);
+            var root = System.IO.Path.GetPathRoot(originalPath) ?? string.Empty;
+
+            if (root.StartsWith("\\\\", StringComparison.Ordinal))
+                return "\\\\" + combined;
+
+            if (root == "\\")
+                return "\\" + combined;
+
+            return combined;
+        }
+
         private static List<string> SplitPathSegments(string path)
         {
             var list = new List<string>();
@@ -237,6 +257,8 @@ namespace SaveAsPDF.Helpers
             if (string.IsNullOrWhiteSpace(path))
                 return string.Empty;
 
+            path = NormalizePathSpacing(path);
+
             // Ensure drive roots are treated as roots (avoid current-directory resolution)
             if (path.Length == 2 && path[1] == ':')
                 path = path + "\\";
@@ -249,6 +271,17 @@ namespace SaveAsPDF.Helpers
             {
                 return path.Trim();
             }
+        }
+
+        private static string NormalizePathSpacing(string path)
+        {
+            var trimmed = path.Trim();
+            if (trimmed.Length == 0)
+                return string.Empty;
+
+            // Remove spaces around separators (e.g. "J:\\11 \\1111" => "J:\\11\\1111")
+            var noSeparatorSpaces = Regex.Replace(trimmed, @"\s*([\\/])\s*", "$1");
+            return noSeparatorSpaces.Replace('/', '\\');
         }
 
         private static string NormalizeForDirectoryExists(string path)

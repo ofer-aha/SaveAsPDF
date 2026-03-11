@@ -2,6 +2,7 @@
 using SaveAsPDF.Properties;
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace SaveAsPDF.Helpers
 {
@@ -220,18 +221,24 @@ namespace SaveAsPDF.Helpers
                 {
                     // Project folder
                     FormMain.settingsModel.ProjectRootFolder = projectID.ProjectFullPath(FormMain.settingsModel.RootDrive);
+                    string projectRootPath = FormMain.settingsModel.ProjectRootFolder.FullName;
 
-                    // Default save path
-                    string sPth = $@"{FormMain.settingsModel.ProjectRootFolder.Parent.FullName}\{Settings.Default.DefaultSavePath}";
-                    sPth = sPth.Replace(FormMain.settingsModel.ProjectRootTag, projectID);
-                    sPth = sPth.Replace(FormMain.settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"));
+                    // Default save path based on the project root and settings selection
+                    string defaultSaveSetting = Settings.Default.DefaultSavePath ?? string.Empty;
+                    defaultSaveSetting = defaultSaveSetting.Replace(FormMain.settingsModel.ProjectRootTag, projectID);
+                    defaultSaveSetting = defaultSaveSetting.Replace(FormMain.settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"));
 
-                    FormMain.settingsModel.DefaultSavePath = sPth;
+                    FormMain.settingsModel.DefaultSavePath = ToAbsolutePath(projectRootPath, defaultSaveSetting, fallbackToBase: true);
 
-                    // set the SaveAsPDF files and folder paths 
-                    FormMain.settingsModel.XmlSaveAsPDFFolder = $@"{FormMain.settingsModel.ProjectRootFolder}{Settings.Default.xmlSaveAsPDFFolder}";
-                    FormMain.settingsModel.XmlEmployeesFile = $@"{FormMain.settingsModel.XmlSaveAsPDFFolder}{Settings.Default.xmlEmployeesFile}";
-                    FormMain.settingsModel.XmlProjectFile = $@"{FormMain.settingsModel.XmlSaveAsPDFFolder}{Settings.Default.xmlProjectFile}";
+                    // set the SaveAsPDF files and folder paths
+                    string xmlFolderSetting = Settings.Default.xmlSaveAsPDFFolder ?? xmlSaveAsPDFFolder;
+                    FormMain.settingsModel.XmlSaveAsPDFFolder = ToAbsolutePath(projectRootPath, xmlFolderSetting, fallbackToBase: false);
+
+                    string xmlEmployeesSetting = Settings.Default.xmlEmployeesFile ?? xmlEmployeesFile;
+                    string xmlProjectSetting = Settings.Default.xmlProjectFile ?? xmlProjectFile;
+
+                    FormMain.settingsModel.XmlEmployeesFile = ToAbsolutePath(FormMain.settingsModel.XmlSaveAsPDFFolder, xmlEmployeesSetting, fallbackToBase: false);
+                    FormMain.settingsModel.XmlProjectFile = ToAbsolutePath(FormMain.settingsModel.XmlSaveAsPDFFolder, xmlProjectSetting, fallbackToBase: false);
 
                     FileFoldersHelper.CreateHiddenDirectory(FormMain.settingsModel.XmlSaveAsPDFFolder);
                 }
@@ -249,6 +256,46 @@ namespace SaveAsPDF.Helpers
             }
 
             return FormMain.settingsModel;
+        }
+
+        private static string ToAbsolutePath(string basePath, string value, bool fallbackToBase)
+        {
+            string normalizedBase = NormalizePathToken(basePath);
+            string normalizedValue = NormalizePathToken(value);
+
+            if (string.IsNullOrWhiteSpace(normalizedValue))
+                return fallbackToBase ? normalizedBase : Path.Combine(normalizedBase, string.Empty);
+
+            try
+            {
+                if (Path.IsPathRooted(normalizedValue))
+                    return Path.GetFullPath(normalizedValue);
+
+                return Path.GetFullPath(Path.Combine(normalizedBase, normalizedValue.TrimStart('\\', '/')));
+            }
+            catch
+            {
+                if (fallbackToBase)
+                    return normalizedBase;
+
+                return Path.Combine(normalizedBase, normalizedValue.TrimStart('\\', '/'));
+            }
+        }
+
+        private static string NormalizePathToken(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
+
+            string normalized = value.Trim();
+            normalized = PathBreadcrumbHelper.ToPathFromBreadcrumb(normalized);
+            normalized = Regex.Replace(normalized, @"\s*([\\/])\s*", "$1");
+            normalized = normalized.Replace('/', '\\');
+
+            if (normalized.Length == 2 && normalized[1] == ':')
+                normalized += "\\";
+
+            return normalized;
         }
     }
 }

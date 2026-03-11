@@ -28,24 +28,104 @@ namespace SaveAsPDF.Helpers
             if (string.IsNullOrWhiteSpace(rootDrive))
                 throw new ArgumentException("כונן השורש לא יכול להיות ריק או שגוי.", nameof(rootDrive));
 
-            string output = rootDrive.TrimEnd('\\') + "\\";
-            projectNumber = projectNumber.Trim();
+            projectNumber = NormalizeProjectNumber(projectNumber);
+            string normalizedRoot = NormalizeRootPath(rootDrive);
 
             if (!projectNumber.SafeProjectID())
-                return new DirectoryInfo(output); // Return root drive if project number is invalid
+                return new DirectoryInfo(normalizedRoot);
 
             string[] split = projectNumber.Split('-');
-            output += split[0].Length == 3 ? $"0{split[0]}".Substring(0, 2) : split[0].Substring(0, 2);
+            string firstPart = split[0];
+            string level1 = GetLevel1Folder(firstPart);
 
-            if (split.Length > 1)
+            string level1Path = Path.Combine(normalizedRoot, level1);
+
+            if (split.Length == 1)
             {
-                output += !Directory.Exists($@"{output}\{split[0]}-{split[1]}\{projectNumber}\")
-                    ? $"-{split[1]}"
-                    : $@"\{split[0]}-{split[1]}";
+                return new DirectoryInfo(Path.Combine(level1Path, firstPart));
             }
 
-            output += $@"\{projectNumber}\";
-            return new DirectoryInfo(output);
+            string flatProjectPath = Path.Combine(level1Path, projectNumber);
+            string nestedBaseByFirst = Path.Combine(level1Path, firstPart);
+            string nestedProjectByFirst = Path.Combine(nestedBaseByFirst, projectNumber);
+
+            // For IDs with two hyphens, also support base folder composed of first two segments:
+            // e.g. 1000-2-1 => <root>\10\1000-2\1000-2-1
+            string nestedBaseByFirstTwo = split.Length > 2
+                ? Path.Combine(level1Path, firstPart + "-" + split[1])
+                : string.Empty;
+            string nestedProjectByFirstTwo = !string.IsNullOrEmpty(nestedBaseByFirstTwo)
+                ? Path.Combine(nestedBaseByFirstTwo, projectNumber)
+                : string.Empty;
+
+            // Prefer exact existing project folder first.
+            if (Directory.Exists(nestedProjectByFirstTwo))
+                return new DirectoryInfo(nestedProjectByFirstTwo);
+
+            if (Directory.Exists(nestedProjectByFirst))
+                return new DirectoryInfo(nestedProjectByFirst);
+
+            if (Directory.Exists(flatProjectPath))
+                return new DirectoryInfo(flatProjectPath);
+
+            // If one of the possible bases exists, default under that base.
+            if (!string.IsNullOrEmpty(nestedBaseByFirstTwo) && Directory.Exists(nestedBaseByFirstTwo))
+                return new DirectoryInfo(nestedProjectByFirstTwo);
+
+            if (Directory.Exists(nestedBaseByFirst))
+                return new DirectoryInfo(nestedProjectByFirst);
+
+            // Default for new/unknown structures: nested under first-part base folder.
+            return new DirectoryInfo(nestedProjectByFirst);
+        }
+
+        private static string NormalizeProjectNumber(string projectNumber)
+        {
+            if (string.IsNullOrWhiteSpace(projectNumber))
+                return string.Empty;
+
+            var normalized = projectNumber.Trim();
+            normalized = Regex.Replace(normalized, @"\s*-\s*", "-");
+            normalized = Regex.Replace(normalized, @"\s+", string.Empty);
+            return normalized;
+        }
+
+        private static string NormalizeRootPath(string rootDrive)
+        {
+            var root = rootDrive.Trim().Replace('/', '\\');
+            if (root.Length == 2 && root[1] == ':')
+                root += "\\";
+
+            try
+            {
+                root = Path.GetFullPath(root);
+            }
+            catch
+            {
+            }
+
+            // Keep drive roots rooted (J:\), never return J:
+            if (root.Length == 2 && root[1] == ':')
+                root += "\\";
+
+            return root;
+        }
+
+        private static string GetLevel1Folder(string firstPart)
+        {
+            if (string.IsNullOrWhiteSpace(firstPart))
+                return string.Empty;
+
+            int leadingDigits = 0;
+            while (leadingDigits < firstPart.Length && char.IsDigit(firstPart[leadingDigits]))
+                leadingDigits++;
+
+            if (leadingDigits >= 4)
+                return firstPart.Substring(0, 2);
+
+            // 3-digit style (and 3-digit+suffix like 123A) => 01, 02, ...
+            string firstThree = firstPart.Length >= 3 ? firstPart.Substring(0, 3) : firstPart;
+            return ("0" + firstThree).Substring(0, 2);
         }
 
         /// <summary>
@@ -56,8 +136,9 @@ namespace SaveAsPDF.Helpers
             if (string.IsNullOrWhiteSpace(projectID))
                 return false;
 
-            string pattern = @"^[a-zA-Z0-9]{3,5}(-[a-zA-Z0-9]{1,3})?(-[a-zA-Z0-9]{1,2})?$";
-            return Regex.IsMatch(projectID.Trim(), pattern);
+            string normalized = NormalizeProjectNumber(projectID);
+            string pattern = @"^\d{3,4}[a-zA-Z0-9]?(?:-[a-zA-Z0-9]{1,3})?(?:-[a-zA-Z0-9]{1,2})?$";
+            return Regex.IsMatch(normalized, pattern);
         }
 
         /// <summary>
@@ -114,18 +195,21 @@ namespace SaveAsPDF.Helpers
                 return string.Empty;
 
             // Handle rooted paths by sanitizing each segment and rejoining
-            if (Path.IsPathRooted(folderName))
+            if (IsPathRootedSafe(folderName))
             {
-                string root = Path.GetPathRoot(folderName);
-                var parts = folderName.Substring(root.Length)
-                    .Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
-
-                for (int i = 0; i < parts.Length; i++)
+                string root = GetPathRootSafe(folderName);
+                if (!string.IsNullOrEmpty(root) && folderName.Length >= root.Length)
                 {
-                    parts[i] = parts[i].SafeFolderName();
-                }
+                    var parts = folderName.Substring(root.Length)
+                        .Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
 
-                return Path.Combine(root, Path.Combine(parts));
+                    for (int i = 0; i < parts.Length; i++)
+                    {
+                        parts[i] = parts[i].SafeFolderName();
+                    }
+
+                    return parts.Length == 0 ? root : Path.Combine(root, Path.Combine(parts));
+                }
             }
 
             // Use cache to avoid recomputing
@@ -156,6 +240,30 @@ namespace SaveAsPDF.Helpers
 
             _safeNameCache[folderName] = clean;
             return clean;
+        }
+
+        private static bool IsPathRootedSafe(string value)
+        {
+            try
+            {
+                return Path.IsPathRooted(value);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static string GetPathRootSafe(string value)
+        {
+            try
+            {
+                return Path.GetPathRoot(value) ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
 
         /// <summary>

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 using Microsoft.Office.Tools;
 using Microsoft.Office.Interop.Outlook;
 using SaveAsPDF.Helpers;
 using SaveAsPDF.Models;
+using Exception = System.Exception;
 
 namespace SaveAsPDF
 {
@@ -76,8 +78,6 @@ namespace SaveAsPDF
             if (_activeExplorer != null)
             {
                 _activeExplorer.SelectionChange += ActiveExplorer_SelectionChange;
-                // Initial load for current selection
-                ActiveExplorer_SelectionChange();
             }
         }
 
@@ -85,7 +85,7 @@ namespace SaveAsPDF
         {
             try
             {
-                if (_mainControl == null || _mainPane == null)
+                if (!MainPaneBehavior.ShouldRefreshOnSelectionChange(_mainControl != null, _mainPane != null, _mainPane != null && _mainPane.Visible))
                     return;
 
                 var selection = _activeExplorer?.Selection;
@@ -95,20 +95,11 @@ namespace SaveAsPDF
                     mailItem = selection[1] as MailItem;
                 }
 
-                // Show the main pane when there's a valid selection
-                if (mailItem != null)
-                {
-                    _mainPane.Visible = true;
-                }
-                else
-                {
-                    _mainPane.Visible = false;
-                }
-
                 _mainControl.LoadMailItem(mailItem);
             }
-            catch
+            catch (Exception ex)
             {
+                DiagnosticsLogger.LogException("ThisAddIn.ActiveExplorer_SelectionChange", ex);
             }
         }
 
@@ -141,9 +132,9 @@ namespace SaveAsPDF
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
             }
-            catch
+            catch (Exception ex)
             {
-                // Silently catch errors during cleanup
+                DiagnosticsLogger.LogException("ThisAddIn.CleanupResources", ex);
             }
         }
 
@@ -156,9 +147,23 @@ namespace SaveAsPDF
 
         public void ToggleMainPane()
         {
-            if (_mainPane == null)
+            if (_mainPane == null || _mainControl == null)
                 return;
-            _mainPane.Visible = !_mainPane.Visible;
+
+            _mainPane.Visible = MainPaneBehavior.ToggleVisibility(_mainPane.Visible);
+
+            if (MainPaneBehavior.ShouldLoadMailItemAfterToggle(_mainPane.Visible))
+            {
+                var explorer = _activeExplorer ?? Application.ActiveExplorer();
+                var selection = explorer?.Selection;
+                MailItem mailItem = null;
+                if (selection != null && selection.Count > 0)
+                {
+                    mailItem = selection[1] as MailItem;
+                }
+
+                _mainControl.LoadMailItem(mailItem);
+            }
         }
 
         // ISettingsRequester implementation so SettingsTaskPaneControl can push changes
@@ -181,5 +186,36 @@ namespace SaveAsPDF
         }
 
         #endregion
+    }
+}
+
+namespace SaveAsPDF.Helpers
+{
+    internal static class MainPaneBehavior
+    {
+        public static bool ShouldRefreshOnSelectionChange(bool hasMainControl, bool hasMainPane, bool isMainPaneVisible)
+        {
+            return hasMainControl && hasMainPane && isMainPaneVisible;
+        }
+
+        public static bool ToggleVisibility(bool currentVisibility)
+        {
+            return !currentVisibility;
+        }
+
+        public static bool ShouldLoadMailItemAfterToggle(bool newVisibility)
+        {
+            return newVisibility;
+        }
+    }
+
+    internal static class DiagnosticsLogger
+    {
+        public static void LogException(string context, Exception ex)
+        {
+            var message = string.Format("[{0}] {1}: {2}", context ?? "Unknown", ex == null ? "Exception" : ex.GetType().FullName, ex == null ? "null" : ex.Message);
+            Trace.WriteLine(message);
+            Debug.WriteLine(message);
+        }
     }
 }
