@@ -63,7 +63,7 @@ namespace SaveAsPDF.Models
             RootDrive = @"C:\Projects\";
             XmlSaveAsPDFFolder = @".SaveAsPDF\";
             XmlProjectFile = @".SaveAsPDF_Project.xml";
-            XmlEmployeesFile = @".SaveAsPDF_Emploeeys.xml";
+            XmlEmployeesFile = @".SaveAsPDF_Employees.xml";
             DefaultTreeFile = @"C:\Projects\tree.fld";
             MinAttachmentSize = 8192;
             DateTag = "_תאריך_";

@@ -22,13 +22,28 @@ namespace SaveAsPDF
         private List<EmployeeModel> employees = new List<EmployeeModel>();
 
         /// <summary>
+        /// Indicates whether the dialog is in leader selection mode.
+        /// </summary>
+        private readonly bool _selectingLeader;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="FormContacts"/> class.
         /// </summary>
         /// <param name="caller">The form that requested the employee selection.</param>
-        public FormContacts(IEmployeeRequester caller)
+        public FormContacts(IEmployeeRequester caller) : this(caller, false) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FormContacts"/> class with leader selection mode.
+        /// </summary>
+        /// <param name="caller">The form that requested the employee selection.</param>
+        /// <param name="selectingLeader">Whether the dialog is selecting a project leader.</param>
+        public FormContacts(IEmployeeRequester caller, bool selectingLeader)
         {
             InitializeComponent();
             callingForm = caller;
+            _selectingLeader = selectingLeader;
+            if (_selectingLeader)
+                dgvContacs.CellContentClick += dgvContacs_CellContentClick;
         }
 
         /// <summary>
@@ -40,14 +55,7 @@ namespace SaveAsPDF
         {
             lblLoading.Visible = true;
             dgvContacs.DataSource = employees;
-            if (dgvContacs.Columns.Count >= 5)
-            {
-                dgvContacs.Columns[0].Visible = false;
-                dgvContacs.Columns[1].HeaderText = "שם פרטי";
-                dgvContacs.Columns[2].HeaderText = "שם משפחה";
-                dgvContacs.Columns[3].HeaderText = "אימייל";
-                dgvContacs.Columns[4].Visible = false;
-            }
+            ConfigureColumns();
         }
 
         /// <summary>
@@ -62,6 +70,7 @@ namespace SaveAsPDF
             employees = OutlookProcessor.ListContacts();
             dgvContacs.DataSource = null;
             dgvContacs.DataSource = employees;
+            ConfigureColumns();
 
             Cursor.Current = Cursors.Default;
             lblLoading.Visible = false;
@@ -82,7 +91,8 @@ namespace SaveAsPDF
             {
                 FirstName = row.Cells[1].Value as string ?? " ",
                 LastName = row.Cells[2].Value as string ?? " ",
-                EmailAddress = row.Cells[3].Value as string ?? " "
+                EmailAddress = row.Cells[3].Value as string ?? " ",
+                IsLeader = _selectingLeader
             };
 
             callingForm.EmployeeComplete(employee);
@@ -110,6 +120,7 @@ namespace SaveAsPDF
             if (string.IsNullOrEmpty(filter))
             {
                 dgvContacs.DataSource = employees;
+                ConfigureColumns();
                 return;
             }
 
@@ -125,6 +136,7 @@ namespace SaveAsPDF
                 }
             }
             dgvContacs.DataSource = result;
+            ConfigureColumns();
         }
 
         /// <summary>
@@ -135,6 +147,62 @@ namespace SaveAsPDF
         private void btnCancel_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void ConfigureColumns()
+        {
+            if (dgvContacs.Columns.Count >= 5)
+            {
+                dgvContacs.Columns[0].Visible = false;
+                dgvContacs.Columns[1].HeaderText = "שם פרטי";
+                dgvContacs.Columns[2].HeaderText = "שם משפחה";
+                dgvContacs.Columns[3].HeaderText = "אימייל";
+                dgvContacs.Columns[4].Visible = false;
+            }
+
+            foreach (DataGridViewColumn col in dgvContacs.Columns)
+            {
+                if (string.Equals(col.DataPropertyName, "FullName", StringComparison.OrdinalIgnoreCase))
+                    col.Visible = false;
+            }
+
+            foreach (DataGridViewColumn col in dgvContacs.Columns)
+            {
+                if (string.Equals(col.DataPropertyName, "IsLeader", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (_selectingLeader)
+                    {
+                        col.Visible = true;
+                        col.HeaderText = "מוביל";
+                        col.ReadOnly = false;
+                        col.DisplayIndex = 0;
+                    }
+                    else
+                    {
+                        col.Visible = false;
+                    }
+                    break;
+                }
+            }
+        }
+
+        private void dgvContacs_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (!string.Equals(dgvContacs.Columns[e.ColumnIndex].DataPropertyName, "IsLeader", StringComparison.OrdinalIgnoreCase)) return;
+
+            dgvContacs.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
+            foreach (var emp in employees)
+                emp.IsLeader = false;
+
+            var currentList = dgvContacs.DataSource as List<EmployeeModel>;
+            if (currentList != null && e.RowIndex < currentList.Count)
+                currentList[e.RowIndex].IsLeader = true;
+
+            dgvContacs.ClearSelection();
+            dgvContacs.Rows[e.RowIndex].Selected = true;
+            dgvContacs.Invalidate();
         }
     }
 }

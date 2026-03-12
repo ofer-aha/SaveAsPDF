@@ -187,7 +187,7 @@ namespace SaveAsPDF.Helpers
         }
 
         /// <summary>
-        /// Loads the settings model from <see cref="Settings.Default"/>. Parameterless overload.
+        /// Loads the settings model from <see cref="Settings.Default"/>. Parameter-less overload.
         /// </summary>
         /// <returns>The loaded <see cref="SettingsModel"/>.</returns>
         public static SettingsModel LoadProjectSettings()

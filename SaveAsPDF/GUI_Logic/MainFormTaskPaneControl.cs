@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Exception = System.Exception;
 
@@ -71,24 +72,28 @@ namespace SaveAsPDF
                 return;
             }
             _mailItem = mailItem;
-            
-            bool loadedFromProperties = LoadCustomPropertiesFromEmail(_mailItem);
-            
-            if (!loadedFromProperties)
+
+            string htmlProjectId, htmlProjectName;
+            bool loadedFromHtml = ExtractProjectFieldsFromHtmlBody(_mailItem, out htmlProjectId, out htmlProjectName);
+            if (loadedFromHtml)
             {
-                string subject = _mailItem.Subject ?? string.Empty;
-                string projectIdFromSubject = ExtractProjectIdFromSubject(subject);
-                if (!string.Equals(_currentProjectId, projectIdFromSubject, StringComparison.Ordinal))
-                {
-                    _currentProjectId = projectIdFromSubject;
-                    txtProjectID.Text = _currentProjectId;
-                    if (!string.IsNullOrWhiteSpace(_currentProjectId) && _currentProjectId.SafeProjectID())
-                        ValidateAndLoadProjectById(_currentProjectId, showErrorDialogs: false);
-                    else
-                        ClearProjectRelatedUi();
-                }
+                _currentProjectId = htmlProjectId;
+                txtProjectID.Text = htmlProjectId;
+                if (!string.IsNullOrWhiteSpace(htmlProjectName))
+                    txtProjectName.Text = htmlProjectName;
+                if (!string.IsNullOrWhiteSpace(htmlProjectId) && htmlProjectId.SafeProjectID())
+                    ValidateAndLoadProjectById(htmlProjectId, showErrorDialogs: false);
+                else
+                    ClearProjectRelatedUi();
             }
-            
+            else
+            {
+                _currentProjectId = string.Empty;
+                txtProjectID.Text = string.Empty;
+                txtProjectName.Text = string.Empty;
+                ClearProjectRelatedUi();
+            }
+
             txtSubject.Text = LoadEmailSubject();
             ProcessMailItem(_mailItem);
         }
@@ -241,6 +246,12 @@ namespace SaveAsPDF
                     txtProjectLeader.Text = fullName;
                 }
                 else txtProjectLeader.Clear();
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(settingsModel.XmlEmployeesFile))
+                    settingsModel.XmlEmployeesFile.EmployeesModelToXmlFile(new List<EmployeeModel>());
+                txtProjectLeader.Clear();
             }
         }
 
@@ -464,11 +475,20 @@ namespace SaveAsPDF
                 XMessageBox.Show($"שגיאה ביצירת קובץ ה-HTML: {ex.Message}", "SaveAsPDF", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
                 return;
             }
-            _mailItem.SaveToPDF(sPath);
-            
-            SaveCustomPropertiesToEmail(_mailItem, txtProjectID.Text, txtProjectName.Text, sPath);
-            
+            // First: all HTMLBody modifications are done
+            // (the htmlContent prepend already happened above)
+
+            // Embed project fields BEFORE SaveToPDF
+            EmbedProjectFieldsInHtmlBody(_mailItem, txtProjectID.Text, txtProjectName.Text);
+
+            // Save to commit all HTML changes before PDF export
             _mailItem.Save();
+
+            // Now export to PDF (on a cleanly saved message)
+            _mailItem.SaveToPDF(sPath);
+
+            EmbedProjectFieldsInHtmlBody(_mailItem, txtProjectID.Text, txtProjectName.Text);
+
             if (chkbSendNote.Checked)
             {
                 try
@@ -495,101 +515,85 @@ namespace SaveAsPDF
 
         private void btnRemoveEmployee_Click(object sender, EventArgs e) { }
 
-        private void SaveCustomPropertiesToEmail(MailItem mailItem, string projectId, string projectName, string savePath)
+        private void EmbedProjectFieldsInHtmlBody(MailItem mailItem, string projectId, string projectName)
         {
             if (mailItem == null) return;
-            
             try
             {
-                var userProps = mailItem.UserProperties;
-                
-                var existingProjectId = userProps.Find("X-SaveAsPDF-ProjectID");
-                if (existingProjectId != null) existingProjectId.Delete();
-                
-                var existingProjectName = userProps.Find("X-SaveAsPDF-ProjectName");
-                if (existingProjectName != null) existingProjectName.Delete();
-                
-                var existingSavePath = userProps.Find("X-SaveAsPDF-SavePath");
-                if (existingSavePath != null) existingSavePath.Delete();
-                
+                string htmlBody = mailItem.HTMLBody ?? string.Empty;
+                // Remove existing SaveAsPDF comments first to avoid duplicates
+                htmlBody = Regex.Replace(htmlBody, @"<!--\s*SaveAsPDF:ProjectID=.*?-->", string.Empty);
+                htmlBody = Regex.Replace(htmlBody, @"<!--\s*SaveAsPDF:ProjectName=.*?-->", string.Empty);
+
+                string comments = string.Empty;
                 if (!string.IsNullOrWhiteSpace(projectId))
-                {
-                    var propId = userProps.Add("X-SaveAsPDF-ProjectID", Microsoft.Office.Interop.Outlook.OlUserPropertyType.olText);
-                    propId.Value = projectId;
-                }
-                
+                    comments += "<!-- SaveAsPDF:ProjectID=" + projectId.Replace("--", "\u2014") + " -->";
                 if (!string.IsNullOrWhiteSpace(projectName))
+                    comments += "<!-- SaveAsPDF:ProjectName=" + projectName.Replace("--", "\u2014") + " -->";
+
+                if (!string.IsNullOrEmpty(comments))
                 {
-                    var propName = userProps.Add("X-SaveAsPDF-ProjectName", Microsoft.Office.Interop.Outlook.OlUserPropertyType.olText);
-                    propName.Value = projectName;
-                }
-                
-                if (!string.IsNullOrWhiteSpace(savePath))
-                {
-                    var propPath = userProps.Add("X-SaveAsPDF-SavePath", Microsoft.Office.Interop.Outlook.OlUserPropertyType.olText);
-                    propPath.Value = savePath;
+                    int bodyClose = htmlBody.LastIndexOf("</body>", StringComparison.OrdinalIgnoreCase);
+                    if (bodyClose >= 0)
+                        htmlBody = htmlBody.Insert(bodyClose, comments);
+                    else
+                        htmlBody += comments;
+                    mailItem.HTMLBody = htmlBody;
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to save custom properties: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Failed to embed project fields in HTML: {ex.Message}");
             }
         }
 
-        private bool LoadCustomPropertiesFromEmail(MailItem mailItem)
+        private bool ExtractProjectFieldsFromHtmlBody(MailItem mailItem, out string projectId, out string projectName)
         {
+            projectId = string.Empty;
+            projectName = string.Empty;
             if (mailItem == null) return false;
-            
             try
             {
-                var userProps = mailItem.UserProperties;
-                
-                var propId = userProps.Find("X-SaveAsPDF-ProjectID");
-                var propName = userProps.Find("X-SaveAsPDF-ProjectName");
-                var propPath = userProps.Find("X-SaveAsPDF-SavePath");
-                
-                if (propId != null && !string.IsNullOrWhiteSpace(propId.Value as string))
-                {
-                    string projectId = propId.Value as string;
-                    _currentProjectId = projectId;
-                    txtProjectID.Text = projectId;
-                    
-                    if (projectId.SafeProjectID())
-                    {
-                        ValidateAndLoadProjectById(projectId, showErrorDialogs: false);
-                    }
-                    
-                    if (propName != null && !string.IsNullOrWhiteSpace(propName.Value as string))
-                    {
-                        txtProjectName.Text = propName.Value as string;
-                    }
-                    
-                    if (propPath != null && !string.IsNullOrWhiteSpace(propPath.Value as string))
-                    {
-                        string savedPath = propPath.Value as string;
-                        if (Directory.Exists(savedPath))
-                        {
-                            cmbSaveLocation.Path = savedPath;
-                            txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(savedPath);
-                        }
-                    }
-                    
-                    return true;
-                }
+                string htmlBody = mailItem.HTMLBody ?? string.Empty;
+                var idMatch = Regex.Match(htmlBody, @"<!--\s*SaveAsPDF:ProjectID=(.*?)\s*-->");
+                if (idMatch.Success)
+                    projectId = idMatch.Groups[1].Value.Trim();
+                var nameMatch = Regex.Match(htmlBody, @"<!--\s*SaveAsPDF:ProjectName=(.*?)\s*-->");
+                if (nameMatch.Success)
+                    projectName = nameMatch.Groups[1].Value.Trim();
+                return !string.IsNullOrWhiteSpace(projectId);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to load custom properties: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Failed to extract project fields from HTML: {ex.Message}");
+                return false;
             }
-            
-            return false;
         }
 
         public void SettingsComplete(SettingsModel settings) => settingsModel = SettingsHelpers.LoadSettingsToModel(settings);
 
         public void EmployeeComplete(EmployeeModel model)
         {
-            if (!_employeesBindingList.Any(e => e.EmailAddress == model.EmailAddress)) _employeesBindingList.Add(model);
+            if (model.IsLeader)
+            {
+                foreach (var emp in _employeesBindingList)
+                    emp.IsLeader = false;
+
+                var existing = _employeesBindingList.FirstOrDefault(e => e.EmailAddress == model.EmailAddress);
+                if (existing != null)
+                    existing.IsLeader = true;
+                else
+                    _employeesBindingList.Add(model);
+
+                var fullName = ($"{model.FirstName} {model.LastName}").Trim();
+                if (string.IsNullOrWhiteSpace(fullName)) fullName = model.EmailAddress ?? string.Empty;
+                txtProjectLeader.Text = fullName;
+            }
+            else
+            {
+                if (!_employeesBindingList.Any(e => e.EmailAddress == model.EmailAddress))
+                    _employeesBindingList.Add(model);
+            }
         }
 
         public void NewProjectComplete(ProjectModel model)
@@ -603,7 +607,7 @@ namespace SaveAsPDF
         private void btnProjectLeader_Click(object sender, EventArgs e)
         {
             _selectingLeader = true;
-            using (var frmContacts = new FormContacts(this)) { frmContacts.ShowDialog(); }
+            using (var frmContacts = new FormContacts(this, true)) { frmContacts.ShowDialog(); }
             _selectingLeader = false;
         }
 
