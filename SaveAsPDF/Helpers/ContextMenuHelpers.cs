@@ -102,9 +102,20 @@ namespace SaveAsPDF.Helpers
 
         /// <summary>
         /// Enables a context menu for a <see cref="TreeView"/> with options for folder management.
+        /// Uses <see cref="MainFormTaskPaneControl.settingsModel"/> as the project root folder source.
         /// </summary>
         /// <param name="tv">The <see cref="TreeView"/> to enable the context menu for.</param>
         public static void EnableContextMenu(this TreeView tv)
+        {
+            tv.EnableContextMenu(() => MainFormTaskPaneControl.settingsModel.ProjectRootFolder);
+        }
+
+        /// <summary>
+        /// Enables a context menu for a <see cref="TreeView"/> with options for folder management.
+        /// </summary>
+        /// <param name="tv">The <see cref="TreeView"/> to enable the context menu for.</param>
+        /// <param name="getProjectRootFolder">A function that returns the current project root folder.</param>
+        public static void EnableContextMenu(this TreeView tv, Func<DirectoryInfo> getProjectRootFolder)
         {
             if (tv.ContextMenuStrip != null) return;
 
@@ -129,7 +140,21 @@ namespace SaveAsPDF.Helpers
                         return;
                     }
 
-                    string basePath = Path.Combine(FormMain.settingsModel.ProjectRootFolder.Parent.FullName, tv.SelectedNode.FullPath, "New Folder");
+                    var rootFolder = getProjectRootFolder();
+                    if (rootFolder == null || rootFolder.Parent == null)
+                    {
+                        XMessageBox.Show(
+                            "תיקיית השורש של הפרויקט אינה מוגדרת.",
+                            "SaveAsPDF:EnableContextMenu",
+                            XMessageBoxButtons.OK,
+                            XMessageBoxIcon.Warning,
+                            XMessageAlignment.Right,
+                            XMessageLanguage.Hebrew
+                        );
+                        return;
+                    }
+
+                    string basePath = Path.Combine(rootFolder.Parent.FullName, tv.SelectedNode.FullPath, "New Folder");
                     string[] tf = FileFoldersHelper.CreateDirectory(basePath).Split('\\');
                     tv.AddNode(tv.SelectedNode, tf[tf.Length -1]);
                 }
@@ -167,7 +192,21 @@ namespace SaveAsPDF.Helpers
                         return;
                     }
 
-                    string basePath = Path.Combine(FormMain.settingsModel.ProjectRootFolder.Parent.FullName, tv.SelectedNode.FullPath, date.ToString("dd.MM.yyyy"));
+                    var rootFolder = getProjectRootFolder();
+                    if (rootFolder == null || rootFolder.Parent == null)
+                    {
+                        XMessageBox.Show(
+                            "תיקיית השורש של הפרויקט אינה מוגדרת.",
+                            "SaveAsPDF:EnableContextMenu",
+                            XMessageBoxButtons.OK,
+                            XMessageBoxIcon.Warning,
+                            XMessageAlignment.Right,
+                            XMessageLanguage.Hebrew
+                        );
+                        return;
+                    }
+
+                    string basePath = Path.Combine(rootFolder.Parent.FullName, tv.SelectedNode.FullPath, date.ToString("dd.MM.yyyy"));
                     string[] tf = FileFoldersHelper.CreateDirectory(basePath).Split('\\');
                     tv.AddNode(tv.SelectedNode, tf[tf.Length -1]);
                 }
@@ -203,7 +242,9 @@ namespace SaveAsPDF.Helpers
                     );
                     return;
                 }
-                string path = Path.Combine(FormMain.settingsModel.ProjectRootFolder.Parent.FullName, tv.SelectedNode.FullPath);
+                var rootFolder = getProjectRootFolder();
+                if (rootFolder == null || rootFolder.Parent == null) return;
+                string path = Path.Combine(rootFolder.Parent.FullName, tv.SelectedNode.FullPath);
                 Process.Start(path);
             };
             cms.Items.Add(tsmiOpen);
@@ -214,7 +255,9 @@ namespace SaveAsPDF.Helpers
             {
                 if (tv.SelectedNode?.Parent != null)
                 {
-                    string fullPath = Path.Combine(FormMain.settingsModel.ProjectRootFolder.Parent.FullName, tv.SelectedNode.FullPath);
+                    var rootFolder = getProjectRootFolder();
+                    if (rootFolder == null || rootFolder.Parent == null) return;
+                    string fullPath = Path.Combine(rootFolder.Parent.FullName, tv.SelectedNode.FullPath);
                     var result = XMessageBox.Show(
                         "האם למחוק תיקייה ואת כל הקבצים והתיקיות שהיא מכילה?\n" +
                         fullPath,
@@ -270,8 +313,10 @@ namespace SaveAsPDF.Helpers
             var tsmiRefresh = new ToolStripMenuItem(menuNameRefresh);
             tsmiRefresh.Click += (sender, e) =>
             {
+                var rootFolder = getProjectRootFolder();
+                if (rootFolder == null) return;
                 tv.Nodes.Clear();
-                tv.Nodes.Add(TreeHelpers.CreateDirectoryNode(FormMain.settingsModel.ProjectRootFolder));
+                tv.Nodes.Add(TreeHelpers.CreateDirectoryNode(rootFolder));
                 tv.ExpandAll();
                 tv.SelectedNode = tv.Nodes[0];
             };
@@ -281,6 +326,12 @@ namespace SaveAsPDF.Helpers
 
             cms.Opening += (sender, e) =>
             {
+                var rootFolder = getProjectRootFolder();
+                bool hasRoot = rootFolder != null && rootFolder.Exists;
+                tsmiNew.Enabled = hasRoot && tv.SelectedNode != null;
+                tsmiAddDate.Enabled = hasRoot && tv.SelectedNode != null;
+                tsmiOpen.Enabled = hasRoot && tv.SelectedNode != null;
+                tsmiRefresh.Enabled = hasRoot;
                 tsmiRename.Enabled = tv.SelectedNode != null && tv.SelectedNode.Parent != null;
                 tsmiDelete.Enabled = tv.SelectedNode != null && tv.SelectedNode.Parent != null;
             };

@@ -205,42 +205,42 @@ namespace SaveAsPDF.Helpers
             try
             {
                 // Load the root drive
-                FormMain.settingsModel.RootDrive = Settings.Default.RootDrive ?? rootDrive;
+                MainFormTaskPaneControl.settingsModel.RootDrive = Settings.Default.RootDrive ?? rootDrive;
 
                 // Folder tags
-                FormMain.settingsModel.DateTag = Settings.Default.DateTag ?? dateTag;
-                FormMain.settingsModel.ProjectRootTag = Settings.Default.ProjectRootTag ?? projectRootTag;
+                MainFormTaskPaneControl.settingsModel.DateTag = Settings.Default.DateTag ?? dateTag;
+                MainFormTaskPaneControl.settingsModel.ProjectRootTag = Settings.Default.ProjectRootTag ?? projectRootTag;
 
                 // More settings
-                FormMain.settingsModel.DefaultFolderID = Settings.Default.DefaultFolderID > 0 ? Settings.Default.DefaultFolderID : defaultFolderID;
-                FormMain.settingsModel.MinAttachmentSize = Settings.Default.MinAttachmentSize > 0 ? Settings.Default.MinAttachmentSize : minAttachmentSize;
-                FormMain.settingsModel.DefaultTreeFile = Settings.Default.DefaultTreeFile ?? defaultTreeFile;
-                FormMain.settingsModel.OpenPDF = Settings.Default.OpenPDF;
+                MainFormTaskPaneControl.settingsModel.DefaultFolderID = Settings.Default.DefaultFolderID > 0 ? Settings.Default.DefaultFolderID : defaultFolderID;
+                MainFormTaskPaneControl.settingsModel.MinAttachmentSize = Settings.Default.MinAttachmentSize > 0 ? Settings.Default.MinAttachmentSize : minAttachmentSize;
+                MainFormTaskPaneControl.settingsModel.DefaultTreeFile = Settings.Default.DefaultTreeFile ?? defaultTreeFile;
+                MainFormTaskPaneControl.settingsModel.OpenPDF = Settings.Default.OpenPDF;
 
                 if (!string.IsNullOrEmpty(projectID))
                 {
                     // Project folder
-                    FormMain.settingsModel.ProjectRootFolder = projectID.ProjectFullPath(FormMain.settingsModel.RootDrive);
-                    string projectRootPath = FormMain.settingsModel.ProjectRootFolder.FullName;
+                    MainFormTaskPaneControl.settingsModel.ProjectRootFolder = projectID.ProjectFullPath(MainFormTaskPaneControl.settingsModel.RootDrive);
+                    string projectRootPath = MainFormTaskPaneControl.settingsModel.ProjectRootFolder.FullName;
 
                     // Default save path based on the project root and settings selection
                     string defaultSaveSetting = Settings.Default.DefaultSavePath ?? string.Empty;
-                    defaultSaveSetting = defaultSaveSetting.Replace(FormMain.settingsModel.ProjectRootTag, projectID);
-                    defaultSaveSetting = defaultSaveSetting.Replace(FormMain.settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"));
+                    defaultSaveSetting = defaultSaveSetting.Replace(MainFormTaskPaneControl.settingsModel.ProjectRootTag, projectID);
+                    defaultSaveSetting = defaultSaveSetting.Replace(MainFormTaskPaneControl.settingsModel.DateTag, DateTime.Now.ToString("dd.MM.yyyy"));
 
-                    FormMain.settingsModel.DefaultSavePath = ToAbsolutePath(projectRootPath, defaultSaveSetting, fallbackToBase: true);
+                    MainFormTaskPaneControl.settingsModel.DefaultSavePath = ToAbsolutePath(projectRootPath, defaultSaveSetting, fallbackToBase: true);
 
                     // set the SaveAsPDF files and folder paths
                     string xmlFolderSetting = Settings.Default.xmlSaveAsPDFFolder ?? xmlSaveAsPDFFolder;
-                    FormMain.settingsModel.XmlSaveAsPDFFolder = ToAbsolutePath(projectRootPath, xmlFolderSetting, fallbackToBase: false);
+                    MainFormTaskPaneControl.settingsModel.XmlSaveAsPDFFolder = ToAbsolutePath(projectRootPath, xmlFolderSetting, fallbackToBase: false);
 
                     string xmlEmployeesSetting = Settings.Default.xmlEmployeesFile ?? xmlEmployeesFile;
                     string xmlProjectSetting = Settings.Default.xmlProjectFile ?? xmlProjectFile;
 
-                    FormMain.settingsModel.XmlEmployeesFile = ToAbsolutePath(FormMain.settingsModel.XmlSaveAsPDFFolder, xmlEmployeesSetting, fallbackToBase: false);
-                    FormMain.settingsModel.XmlProjectFile = ToAbsolutePath(FormMain.settingsModel.XmlSaveAsPDFFolder, xmlProjectSetting, fallbackToBase: false);
+                    MainFormTaskPaneControl.settingsModel.XmlEmployeesFile = ToAbsolutePath(MainFormTaskPaneControl.settingsModel.XmlSaveAsPDFFolder, xmlEmployeesSetting, fallbackToBase: false);
+                    MainFormTaskPaneControl.settingsModel.XmlProjectFile = ToAbsolutePath(MainFormTaskPaneControl.settingsModel.XmlSaveAsPDFFolder, xmlProjectSetting, fallbackToBase: false);
 
-                    FileFoldersHelper.CreateHiddenDirectory(FormMain.settingsModel.XmlSaveAsPDFFolder);
+                    FileFoldersHelper.CreateHiddenDirectory(MainFormTaskPaneControl.settingsModel.XmlSaveAsPDFFolder);
                 }
             }
             catch (Exception ex)
@@ -255,7 +255,7 @@ namespace SaveAsPDF.Helpers
                 );
             }
 
-            return FormMain.settingsModel;
+            return MainFormTaskPaneControl.settingsModel;
         }
 
         private static string ToAbsolutePath(string basePath, string value, bool fallbackToBase)

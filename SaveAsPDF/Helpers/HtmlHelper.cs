@@ -17,7 +17,8 @@ namespace SaveAsPDF.Helpers
             string projectID,
             string notes,
             string userName,
-            string mailSubject = null) // optional: use email subject for pdf filename
+            string mailSubject = null,
+            string pdfFileName = null) // optional: pre-computed PDF filename
         {
             // Prepare and precompute
             projectName = projectName ?? string.Empty;
@@ -26,11 +27,14 @@ namespace SaveAsPDF.Helpers
             userName = userName ?? string.Empty;
             mailSubject = mailSubject ?? string.Empty;
 
-            // Prefer mail subject for PDF filename when provided, otherwise fallback to project name
-            string pdfBase = !string.IsNullOrWhiteSpace(mailSubject) ? mailSubject.SafeFolderName() : projectName.SafeFolderName();
-            string pdfFileName = pdfBase + ".pdf";
+            // Use pre-computed PDF filename if provided, otherwise build from mail subject or project name
+            if (string.IsNullOrWhiteSpace(pdfFileName))
+            {
+                string pdfBase = !string.IsNullOrWhiteSpace(mailSubject) ? mailSubject.SafeFolderName() : projectName.SafeFolderName();
+                pdfFileName = pdfBase + ".pdf";
+            }
             string pdfFullPath = Path.Combine(sPath ?? string.Empty, pdfFileName);
-            string pdfHref = "file:///" + pdfFullPath.Replace("\\", "/");
+            string pdfHref = PathToFileUri(pdfFullPath);
 
             string encProjectName = WebUtility.HtmlEncode(projectName);
             string encProjectID = WebUtility.HtmlEncode(projectID);
@@ -53,7 +57,7 @@ namespace SaveAsPDF.Helpers
 
                     // Build href using the selected save path and the original filename
                     // Escape the filename for use in a file URI
-                    string fileHref = "file:///" + Path.Combine(sPath ?? string.Empty, original).Replace("\\", "/");
+                    string fileHref = PathToFileUri(Path.Combine(sPath ?? string.Empty, original));
 
                     attachmentDisplayNames.Add(WebUtility.HtmlEncode(original));
                     attachmentSizes.Add(WebUtility.HtmlEncode(size));
@@ -81,7 +85,8 @@ namespace SaveAsPDF.Helpers
             string projectID,
             string notes,
             string userName,
-            string mailSubject = null) // optional: use email subject for pdf filename
+            string mailSubject = null,
+            string pdfFileName = null) // optional: pre-computed PDF filename
         {
             if (string.IsNullOrEmpty(outputFilePath))
                 throw new ArgumentException("outputFilePath must be provided", nameof(outputFilePath));
@@ -93,10 +98,14 @@ namespace SaveAsPDF.Helpers
             userName = userName ?? string.Empty;
             mailSubject = mailSubject ?? string.Empty;
 
-            string pdfBase = !string.IsNullOrWhiteSpace(mailSubject) ? mailSubject.SafeFolderName() : projectName.SafeFolderName();
-            string pdfFileName = pdfBase + ".pdf";
+            // Use pre-computed PDF filename if provided, otherwise build from mail subject or project name
+            if (string.IsNullOrWhiteSpace(pdfFileName))
+            {
+                string pdfBase = !string.IsNullOrWhiteSpace(mailSubject) ? mailSubject.SafeFolderName() : projectName.SafeFolderName();
+                pdfFileName = pdfBase + ".pdf";
+            }
             string pdfFullPath = Path.Combine(sPath ?? string.Empty, pdfFileName);
-            string pdfHref = "file:///" + pdfFullPath.Replace("\\", "/");
+            string pdfHref = PathToFileUri(pdfFullPath);
 
             string encProjectName = WebUtility.HtmlEncode(projectName);
             string encProjectID = WebUtility.HtmlEncode(projectID);
@@ -115,7 +124,7 @@ namespace SaveAsPDF.Helpers
                 {
                     var original = att?.fileName ?? string.Empty;
                     var size = att?.fileSize ?? string.Empty;
-                    string fileHref = "file:///" + Path.Combine(sPath ?? string.Empty, original).Replace("\\", "/");
+                    string fileHref = PathToFileUri(Path.Combine(sPath ?? string.Empty, original));
 
                     attachmentDisplayNames.Add(WebUtility.HtmlEncode(original));
                     attachmentSizes.Add(WebUtility.HtmlEncode(size));
@@ -283,6 +292,59 @@ namespace SaveAsPDF.Helpers
             footerSb.AppendLine("</html>");
 
             writer.Write(footerSb.ToString());
+        }
+
+        /// <summary>
+        /// Converts a local file path to a file:/// URI suitable for Outlook HTML bodies.
+        /// Only escapes characters that break URI parsing (space, #, ?, %).
+        /// Non-ASCII characters (e.g. Hebrew) are left as raw Unicode because Outlook's
+        /// Word rendering engine incorrectly decodes percent-encoded UTF-8 as Latin-1
+        /// when resolving mapped drives to UNC paths, producing mojibake.
+        /// Avoids <see cref="Uri"/> constructor which resolves mapped drives to UNC paths.
+        /// </summary>
+        private static string PathToFileUri(string path)
+        {
+            try
+            {
+                string normalized = path.Replace("\\", "/");
+                string[] segments = normalized.Split('/');
+                for (int i = 0; i < segments.Length; i++)
+                {
+                    if (string.IsNullOrEmpty(segments[i]))
+                        continue;
+                    // Preserve drive letter (e.g. "J:")
+                    if (i == 0 && segments[i].Length >= 2 && segments[i][1] == ':')
+                        continue;
+                    segments[i] = EscapePathSegment(segments[i]);
+                }
+                return "file:///" + string.Join("/", segments);
+            }
+            catch
+            {
+                return "file:///" + path.Replace("\\", "/");
+            }
+        }
+
+        /// <summary>
+        /// Escapes only the minimal set of characters that break URI or path resolution.
+        /// Unicode characters (Hebrew, Arabic, CJK, etc.) are left as-is so that
+        /// Outlook does not need to decode percent-encoded byte sequences.
+        /// </summary>
+        private static string EscapePathSegment(string segment)
+        {
+            var sb = new StringBuilder(segment.Length + 16);
+            foreach (char c in segment)
+            {
+                switch (c)
+                {
+                    case ' ':  sb.Append("%20"); break;
+                    case '#':  sb.Append("%23"); break;
+                    case '?':  sb.Append("%3F"); break;
+                    case '%':  sb.Append("%25"); break;
+                    default:   sb.Append(c);     break;
+                }
+            }
+            return sb.ToString();
         }
     }
 }

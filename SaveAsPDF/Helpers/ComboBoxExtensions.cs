@@ -64,7 +64,7 @@ namespace SaveAsPDF.Helpers
             }
 
             // Use provided settings or fall back to global settings
-            var settingsModel = settings ?? FormMain.settingsModel;
+            var settingsModel = settings ?? MainFormTaskPaneControl.settingsModel;
             
             // Create project folder path based on Project ID - format is RootDrive\xx\ProjectID\
             // Where xx is the first two characters of the project ID or with a leading 0 for 3-character IDs

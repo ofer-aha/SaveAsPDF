@@ -59,9 +59,10 @@ namespace SaveAsPDF.Tests
             Assert.IsTrue(result.Contains("10 KB"));
 
             // Validate the new rows
-            Assert.IsTrue(result.Contains("תאריך השמירה"));
+            Assert.IsTrue(result.Contains("תאריך שמירה"));
             Assert.IsTrue(result.Contains("ההודעה נשמרה ב"));
-            Assert.IsTrue(result.Contains(Path.Combine(sPath, $"{projectName}.html")));
+            Assert.IsTrue(result.Contains(sPath));
+            Assert.IsTrue(result.Contains(".pdf"));
 
             // Open the result in the default browser
             OpenHtmlInBrowser(result);
@@ -90,9 +91,10 @@ namespace SaveAsPDF.Tests
             Assert.IsTrue(result.Contains("EmptyUser"));
 
             // Validate the new rows
-            Assert.IsTrue(result.Contains("תאריך השמירה"));
+            Assert.IsTrue(result.Contains("תאריך שמירה"));
             Assert.IsTrue(result.Contains("ההודעה נשמרה ב"));
-            Assert.IsTrue(result.Contains(Path.Combine(sPath, $"{projectName}.html")));
+            Assert.IsTrue(result.Contains(sPath));
+            Assert.IsTrue(result.Contains(".pdf"));
 
             // Open the result in the default browser
             OpenHtmlInBrowser(result);
@@ -121,17 +123,18 @@ namespace SaveAsPDF.Tests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.Contains("Test <Project>"));
-            Assert.IsTrue(result.Contains("123&45"));
-            Assert.IsTrue(result.Contains("This is a test project with special characters: <, >, &."));
-            Assert.IsTrue(result.Contains("John & Jane"));
-            Assert.IsTrue(result.Contains("Doe <Smith>"));
-            Assert.IsTrue(result.Contains("file1&2.txt"));
+            Assert.IsTrue(result.Contains("Test &lt;Project&gt;"));
+            Assert.IsTrue(result.Contains("123&amp;45"));
+            Assert.IsTrue(result.Contains("This is a test project with special characters: &lt;, &gt;, &amp;."));
+            Assert.IsTrue(result.Contains("John &amp; Jane"));
+            Assert.IsTrue(result.Contains("Doe &lt;Smith&gt;"));
+            Assert.IsTrue(result.Contains("file1&amp;2.txt"));
 
             // Validate the new rows
-            Assert.IsTrue(result.Contains("תאריך השמירה"));
+            Assert.IsTrue(result.Contains("תאריך שמירה"));
             Assert.IsTrue(result.Contains("ההודעה נשמרה ב"));
-            Assert.IsTrue(result.Contains(Path.Combine(sPath, $"{projectName}.html")));
+            Assert.IsTrue(result.Contains(sPath));
+            Assert.IsTrue(result.Contains(".pdf"));
 
             // Open the result in the default browser
             OpenHtmlInBrowser(result);
@@ -170,9 +173,10 @@ namespace SaveAsPDF.Tests
             Assert.IsTrue(result.Contains("490 KB"));
 
             // Validate the new rows
-            Assert.IsTrue(result.Contains("תאריך השמירה"));
+            Assert.IsTrue(result.Contains("תאריך שמירה"));
             Assert.IsTrue(result.Contains("ההודעה נשמרה ב"));
-            Assert.IsTrue(result.Contains(Path.Combine(sPath, $"{projectName}.html")));
+            Assert.IsTrue(result.Contains(sPath));
+            Assert.IsTrue(result.Contains(".pdf"));
 
             // Open the result in the default browser
             OpenHtmlInBrowser(result);

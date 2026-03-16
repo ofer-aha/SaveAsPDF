@@ -164,13 +164,21 @@ namespace SaveAsPDF.Helpers
 
         private void OnSegmentClicked(string path, Control anchor)
         {
+            // Capture screen position before Path setter disposes anchor via RefreshBreadcrumbs
+            var screenLocation = anchor.PointToScreen(new Point(0, anchor.Height));
+
             Path = path;
 
             var menu = BuildFolderMenu(path);
             if (menu.Items.Count > 0)
             {
-                menu.Closed += (s, e) => menu.Dispose();
-                menu.Show(anchor, new Point(0, anchor.Height));
+                menu.Closed += (s, e) =>
+                {
+                    // Defer Dispose so WinForms can finish its internal close/click sequence
+                    // before the ContextMenuStrip handle is destroyed.
+                    BeginInvoke(new Action(() => menu.Dispose()));
+                };
+                menu.Show(screenLocation);
             }
             else
             {
@@ -196,6 +204,7 @@ namespace SaveAsPDF.Helpers
                 {
                     var dirs = Directory.GetDirectories(basePath)
                         .Select(d => new DirectoryInfo(d))
+                        .Where(d => !d.Name.StartsWith(".", StringComparison.Ordinal))
                         .OrderBy(d => d.Name)
                         .ToList();
 

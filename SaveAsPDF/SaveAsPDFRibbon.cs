@@ -1,17 +1,4 @@
-﻿using Microsoft.Office.Tools.Ribbon;
-
-namespace SaveAsPDF
-{
-    public partial class SaveAsPDFRibbon
-    {
-        private void SaveAsPDFRibbon_Load(object sender, RibbonUIEventArgs e)
-        {
-
-        }
-
-        private void buttonDemo_Click(object sender, RibbonControlEventArgs e)
-        {
-            Globals.ThisAddIn.ToggleMainPane();
-        }
-    }
-}
+﻿// The VSTO Ribbon designer classes have been replaced by Ribbon XML callbacks
+// in Connect.cs and the embedded resource Resources\customUI14.xml.
+// This file is no longer needed and can be safely removed.
+// It is kept as a placeholder to avoid project-file merge conflicts.

@@ -20,7 +20,7 @@ namespace SaveAsPDF.Helpers
             try
             {
                 // Use the existing Outlook instance from the add-in
-                nameSpace = Globals.ThisAddIn.Application.Session;
+                nameSpace = AddinGlobals.OutlookApp.Session;
                 contactsFolder = nameSpace.GetDefaultFolder(OlDefaultFolders.olFolderContacts);
 
                 // Restrict to contacts only to avoid dist lists and other items
@@ -75,7 +75,7 @@ namespace SaveAsPDF.Helpers
             Folder root = null;
             try
             {
-                root = Globals.ThisAddIn.Application.Session.DefaultStore.GetRootFolder() as Folder;
+                root = AddinGlobals.OutlookApp.Session.DefaultStore.GetRootFolder() as Folder;
                 EnumerateFolders(root);
             }
             finally
@@ -142,7 +142,7 @@ namespace SaveAsPDF.Helpers
             Items searchFolder = null;
             try
             {
-                session = Globals.ThisAddIn.Application.Session;
+                session = AddinGlobals.OutlookApp.Session;
                 folderContacts = session.GetDefaultFolder(OlDefaultFolders.olFolderContacts);
 
                 // Only contacts
@@ -207,7 +207,7 @@ namespace SaveAsPDF.Helpers
             ContactItem contact = null;
             try
             {
-                outlookNameSpace = Globals.ThisAddIn.Application.Session;
+                outlookNameSpace = AddinGlobals.OutlookApp.Session;
                 contactsFolder = outlookNameSpace.GetDefaultFolder(OlDefaultFolders.olFolderContacts);
 
                 contactItems = contactsFolder.Items.Restrict("[MessageClass] = 'IPM.Contact'");
@@ -284,3 +284,4 @@ namespace SaveAsPDF.Helpers
         }
     }
 }
+

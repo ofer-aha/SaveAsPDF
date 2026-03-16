@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace SaveAsPDF
@@ -8,6 +10,10 @@ namespace SaveAsPDF
     /// Contains all UI layout construction and visual element initialization.
     /// This file is separated from business logic to maintain clean separation of concerns.
     /// </summary>
+    [ComVisible(true)]
+    [ClassInterface(ClassInterfaceType.AutoDispatch)]
+    [Guid("7F5A3B2C-9E1D-4D6F-B8C4-1A2E3D4F5678")]
+    [ProgId("SaveAsPDF.MainFormTaskPaneControl")]
     public partial class MainFormTaskPaneControl
     {
         /// <summary>
@@ -176,28 +182,7 @@ namespace SaveAsPDF
             topTable.Controls.Add(lblSubject, 0, 3);
             topTable.Controls.Add(txtSubject, 1, 3);
 
-            // ROW 4: Full Path Display (read-only breadcrumb-style path)
-            var lblFullPath = new Label
-            {
-                Text = "נתיב מלא",  // "Full Path"
-                AutoSize = true,
-                TextAlign = ContentAlignment.MiddleLeft,
-                Dock = DockStyle.Fill,
-                BackColor = SystemColors.Control,
-                ForeColor = SystemColors.ControlText
-            };
-            txtFullPath.Dock = DockStyle.Fill;
-            txtFullPath.ReadOnly = true;
-            txtFullPath.BackColor = SystemColors.Window;
-            txtFullPath.ForeColor = SystemColors.WindowText;
-            txtFullPath.BorderStyle = BorderStyle.FixedSingle;
-            txtFullPath.Cursor = Cursors.Arrow;
-            txtFullPath.RightToLeft = RightToLeft.No;               // LTR for path display
-            txtFullPath.TextAlign = HorizontalAlignment.Left;
-            topTable.Controls.Add(lblFullPath, 0, 4);
-            topTable.Controls.Add(txtFullPath, 1, 4);
-
-            // ROW 5: Save Location (Explorer-style address bar + folder picker button)
+            // ROW 4: Save Location (Explorer-style address bar + folder picker button)
             var lblSaveLocation = new Label
             {
                 Text = "מיקום שמירה",  // "Save Location"
@@ -227,8 +212,8 @@ namespace SaveAsPDF
             btnFolders.Click += btnFolders_Click;
             pnlSaveLocation.Controls.Add(cmbSaveLocation);
             pnlSaveLocation.Controls.Add(btnFolders);
-            topTable.Controls.Add(lblSaveLocation, 0, 5);
-            topTable.Controls.Add(pnlSaveLocation, 1, 5);
+            topTable.Controls.Add(lblSaveLocation, 0, 4);
+            topTable.Controls.Add(pnlSaveLocation, 1, 4);
 
             topGroup.Controls.Add(topTable);
 

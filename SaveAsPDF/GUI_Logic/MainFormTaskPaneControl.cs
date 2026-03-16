@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Exception = System.Exception;
@@ -34,7 +35,6 @@ namespace SaveAsPDF
         private readonly TextBox txtProjectName = new TextBox();
         private readonly TextBox txtProjectLeader = new TextBox();
         private readonly TextBox txtSubject = new TextBox();
-        private readonly TextBox txtFullPath = new TextBox();
         private readonly ExplorerAddressBar cmbSaveLocation = new ExplorerAddressBar();
         private readonly RichTextBox rtxtNotes = new RichTextBox();
         private readonly RichTextBox rtxtProjectNotes = new RichTextBox();
@@ -128,7 +128,6 @@ namespace SaveAsPDF
         private void ClearProjectRelatedUi()
         {
             txtProjectName.Clear();
-            txtFullPath.Clear();
             cmbSaveLocation.Path = string.Empty;
             rtxtProjectNotes.Clear();
             tvFolders.Nodes.Clear();
@@ -265,7 +264,6 @@ namespace SaveAsPDF
                 if (!string.IsNullOrEmpty(targetPath))
                 {
                     cmbSaveLocation.Path = targetPath;
-                    txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(targetPath);
                 }
                 tvFolders.Nodes.Clear();
                 if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
@@ -275,7 +273,6 @@ namespace SaveAsPDF
                     rootNode.Nodes.Add("...");
                     tvFolders.Nodes.Add(rootNode);
                     tvFolders.SelectedNode = tvFolders.Nodes[0];
-                    txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(rootDir.FullName);
                 }
                 else
                 {
@@ -300,10 +297,9 @@ namespace SaveAsPDF
         {
             rtxtNotes.EnableContextMenu();
             rtxtProjectNotes.EnableContextMenu();
-            txtFullPath.EnableContextMenu();
             txtProjectID.EnableContextMenu();
             txtProjectName.EnableContextMenu();
-            tvFolders.EnableContextMenu();
+            tvFolders.EnableContextMenu(() => settingsModel.ProjectRootFolder);
         }
 
         private void ConfigureProjectIdAutoComplete()
@@ -367,7 +363,6 @@ namespace SaveAsPDF
                 root.Nodes.Add("...");
                 tvFolders.Nodes.Add(root);
                 cmbSaveLocation.Path = dialog.ResultPath;
-                txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(dialog.ResultPath);
             }
         }
 
@@ -456,13 +451,18 @@ namespace SaveAsPDF
                 XMessageBox.Show($"שגיאה בשמירת קבצים מצורפים: {ex.Message}", "SaveAsPDF", XMessageBoxButtons.OK, XMessageBoxIcon.Warning, XMessageAlignment.Right, XMessageLanguage.Hebrew);
             }
 
-            string sanitizedProjectName = txtProjectName.Text.SafeFolderName();
             string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+            string sanitizedProjectName = txtProjectName.Text.SafeFolderName();
             string htmlFileName = $"{sanitizedProjectName}_{timeStamp}.html";
             string htmlFilePath = Path.Combine(sPath, htmlFileName);
+
+            // Pre-compute the PDF filename so the HTML link and the actual PDF file match
+            string mailSubjectText = (_mailItem != null && !string.IsNullOrWhiteSpace(_mailItem.Subject)) ? _mailItem.Subject : txtSubject.Text;
+            string pdfFileName = $"{timeStamp}_{mailSubjectText.SafeFolderName()}.pdf";
+
             try
             {
-                HtmlHelper.GenerateHtmlToFile(htmlFilePath, sPath, _employeesBindingList.ToList(), (savedAttachmentsModels.Count > 0) ? savedAttachmentsModels : attachmentsModels, txtProjectName.Text, txtProjectID.Text, rtxtNotes.Text, Environment.UserName, (_mailItem != null && !string.IsNullOrWhiteSpace(_mailItem.Subject)) ? _mailItem.Subject : txtSubject.Text);
+                HtmlHelper.GenerateHtmlToFile(htmlFilePath, sPath, _employeesBindingList.ToList(), (savedAttachmentsModels.Count > 0) ? savedAttachmentsModels : attachmentsModels, txtProjectName.Text, txtProjectID.Text, rtxtNotes.Text, Environment.UserName, mailSubjectText, pdfFileName);
                 try { string htmlContent = File.ReadAllText(htmlFilePath); _mailItem.HTMLBody = htmlContent + _mailItem.HTMLBody; }
                 catch (Exception ex)
                 {
@@ -485,29 +485,45 @@ namespace SaveAsPDF
             _mailItem.Save();
 
             // Now export to PDF (on a cleanly saved message)
-            _mailItem.SaveToPDF(sPath);
-
-            EmbedProjectFieldsInHtmlBody(_mailItem, txtProjectID.Text, txtProjectName.Text);
+            _mailItem.SaveToPDF(sPath, pdfFileName);
 
             if (chkbSendNote.Checked)
             {
+                MailItem forwardedItem = null;
                 try
                 {
                     var leader = _employeesBindingList.FirstOrDefault(emp => emp.IsLeader && !string.IsNullOrWhiteSpace(emp.EmailAddress));
                     var leaderEmail = leader?.EmailAddress;
-                    if (!string.IsNullOrWhiteSpace(leaderEmail)) _mailItem.Forward().To = leaderEmail;
-                    else XMessageBox.Show("לא encontrado אימייל של ראש הפרויקט. יש לבחור ראש פרויקט או לעדכן את כתובת האימייל שלו.", "SaveAsPDF", XMessageBoxButtons.OK, XMessageBoxIcon.Warning, XMessageAlignment.Right, XMessageLanguage.Hebrew);
+                    if (!string.IsNullOrWhiteSpace(leaderEmail))
+                    {
+                        forwardedItem = _mailItem.Forward();
+                        forwardedItem.To = leaderEmail;
+                        forwardedItem.Send();
+                    }
+                    else XMessageBox.Show("לא נמצא אימייל של ראש הפרויקט. יש לבחור ראש פרויקט או לעדכן את כתובת האימייל שלו.", "SaveAsPDF", XMessageBoxButtons.OK, XMessageBoxIcon.Warning, XMessageAlignment.Right, XMessageLanguage.Hebrew);
                 }
                 catch (Exception ex)
                 {
                     XMessageBox.Show($"שגיאה בשליחת הודעת העברה לראש הפרויקט: {ex.Message}", "SaveAsPDF", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
                 }
+                finally
+                {
+                    if (forwardedItem != null)
+                    {
+                        Marshal.ReleaseComObject(forwardedItem);
+                        forwardedItem = null;
+                    }
+                }
             }
-            if (_mailItem != null) { _mailItem = null; ClearMailRelatedUi(); }
+            if (_mailItem != null)
+            {
+                Marshal.ReleaseComObject(_mailItem);
+                _mailItem = null;
+                ClearMailRelatedUi();
+            }
             if (chbOpenPDF.Checked)
             {
-                string sanitizedSubject = txtSubject.Text.SafeFolderName();
-                string pdfFilePath = Path.Combine(sPath, $"{sanitizedSubject}.pdf");
+                string pdfFilePath = Path.Combine(sPath, pdfFileName);
                 if (File.Exists(pdfFilePath)) System.Diagnostics.Process.Start(pdfFilePath);
                 else XMessageBox.Show("קובץ ה-PDF לא נמצא.", "שגיאה", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
             }
@@ -660,7 +676,6 @@ namespace SaveAsPDF
             txtProjectID.Tag = "הכנס מספר פרויקט"; txtProjectID.MouseEnter += MouseEnterStatus; txtProjectID.MouseLeave += MouseLeaveStatus;
             txtProjectName.Tag = "שם הפרויקט"; txtProjectName.MouseEnter += MouseEnterStatus; txtProjectName.MouseLeave += MouseLeaveStatus;
             txtSubject.Tag = "נושא ההודעה"; txtSubject.MouseEnter += MouseEnterStatus; txtSubject.MouseLeave += MouseLeaveStatus;
-            txtFullPath.Tag = "נתיב מלא"; txtFullPath.MouseEnter += MouseEnterStatus; txtFullPath.MouseLeave += MouseLeaveStatus;
             cmbSaveLocation.Tag = "בחר מיקום שמירה"; cmbSaveLocation.MouseEnter += MouseEnterStatus; cmbSaveLocation.MouseLeave += MouseLeaveStatus;
             rtxtNotes.Tag = "הערות למייל"; rtxtNotes.MouseEnter += MouseEnterStatus; rtxtNotes.MouseLeave += MouseLeaveStatus;
             rtxtProjectNotes.Tag = "הערות בפרויקט"; rtxtProjectNotes.MouseEnter += MouseEnterStatus; rtxtProjectNotes.MouseLeave += MouseLeaveStatus;
@@ -746,7 +761,6 @@ namespace SaveAsPDF
             if (e.Node.Tag is string basePath)
             {
                 cmbSaveLocation.Path = basePath;
-                txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(basePath);
             }
         }
 
@@ -756,7 +770,6 @@ namespace SaveAsPDF
             {
                 System.Diagnostics.Process.Start("explorer.exe", basePath);
                 cmbSaveLocation.Path = basePath;
-                txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(basePath);
             }
         }
 
@@ -874,7 +887,6 @@ namespace SaveAsPDF
 
         private void CmbSaveLocation_PathConfirmed(object sender, PathConfirmedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(e.Path)) txtFullPath.Text = PathBreadcrumbHelper.FormatPathAsBreadcrumb(e.Path);
         }
 
         private void MainFormTaskPaneControl_Load(object sender, EventArgs e)

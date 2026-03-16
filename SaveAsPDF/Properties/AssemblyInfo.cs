@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SaveAsPDF")]
-[assembly: AssemblyDescription("Microsoft Outlook ad-don for saving  e-mail messages to PDF")]
+[assembly: AssemblyDescription("Microsoft Outlook add-in for saving e-mail messages to PDF")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Ofer Aharon")]
 [assembly: AssemblyProduct("SaveAsPDF")]
@@ -36,4 +36,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: NeutralResourcesLanguage("en")]
-[assembly: InternalsVisibleTo("SaveAsPDF.Tests")]
+[assembly: InternalsVisibleTo("SaveAsPDF.Tests, PublicKey=" +
+    "0024000004800000940000000602000000240000525341310004000001000100894686ec9179c3" +
+    "3b40585fac8dc051feefa26f2a39f625e88def267bfe69cdcfd5b0975f7638cafb871153b3c3c6" +
+    "5bed89ebd6bf59abd5cbd24c707846ca037f999162fd8775bf6cd5f393d53565ff17ebb6ffc48a" +
+    "9fda48c5e023c2b81187e8abc069679bb1e587299c191cdb395c6debad69893ee2e3d89c085d22" +
+    "8bd2c4a9")]

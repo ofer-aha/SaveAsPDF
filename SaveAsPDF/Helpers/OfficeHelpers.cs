@@ -130,25 +130,31 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="mailItem"></param>
         /// <param name="outputPath"></param>
-        public static void SaveToPDF(this Outlook.MailItem mailItem, string outputPath)
+        public static void SaveToPDF(this Outlook.MailItem mailItem, string outputPath, string pdfFileName = null)
         {
-            string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss") + "_";
             string tempFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mht");
             word.Document doc = null;
-            
+
             try
             {
                 // Save the email as MHT
                 mailItem.SaveAs(tempFilePath, Outlook.OlSaveAsType.olMHTML);
-                
+
                 // Get or create Word application instance
                 var wordApp = GetWordInstance();
-                
+
                 // Open the MHT file in Word
                 doc = wordApp.Documents.Open(tempFilePath, ReadOnly: false);
 
-                // Create PDF filename with timestamp for uniqueness
-                string pdfFileName = $"{Path.GetFileNameWithoutExtension(timeStamp + mailItem.Subject.SafeFolderName())}.pdf";
+                // Add professional footer with credit and page numbers
+                AddPdfFooter(doc);
+
+                // Use provided PDF filename, or generate one with timestamp for uniqueness
+                if (string.IsNullOrWhiteSpace(pdfFileName))
+                {
+                    string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss") + "_";
+                    pdfFileName = $"{Path.GetFileNameWithoutExtension(timeStamp + mailItem.Subject.SafeFolderName())}.pdf";
+                }
                 string pdfPath = Path.Combine(outputPath, pdfFileName);
 
                 // Export to PDF with simplified parameter passing
@@ -196,6 +202,80 @@ namespace SaveAsPDF.Helpers
                 }
                 catch { /* Ignore cleanup errors */ }
             }
+        }
+
+        /// <summary>
+        /// Adds a professional footer to the Word document with application credit and page numbering.
+        /// Footer layout: left-aligned credit line, right-aligned "Page X of Y", separated by a thin rule.
+        /// </summary>
+        private static void AddPdfFooter(word.Document doc)
+        {
+            try
+            {
+                var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                string credit = $"SaveAsPDF \u00A9 {version.Major}.{version.Minor}.{version.Build}  \u2022  Ofer Aharon  ofer.aha@gmail.com";
+
+                foreach (word.Section section in doc.Sections)
+                {
+                    // Disable separate first-page footer so all pages share the same footer
+                    section.PageSetup.DifferentFirstPageHeaderFooter = 0;
+
+                    float contentWidth = section.PageSetup.PageWidth
+                                       - section.PageSetup.LeftMargin
+                                       - section.PageSetup.RightMargin;
+
+                    ApplyFooterContent(
+                        section.Footers[word.WdHeaderFooterIndex.wdHeaderFooterPrimary],
+                        credit,
+                        contentWidth);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to add PDF footer: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Populates a single header/footer object with credit text, a separator rule, and page numbering fields.
+        /// </summary>
+        private static void ApplyFooterContent(word.HeaderFooter footer, string credit, float contentWidth)
+        {
+            word.Range range = footer.Range;
+
+            // Right-aligned tab stop so page numbers sit flush-right
+            range.ParagraphFormat.TabStops.ClearAll();
+            range.ParagraphFormat.TabStops.Add(contentWidth, word.WdTabAlignment.wdAlignTabRight);
+
+            // Thin separator line above the footer text
+            range.ParagraphFormat.Borders[word.WdBorderType.wdBorderTop].LineStyle = word.WdLineStyle.wdLineStyleSingle;
+            range.ParagraphFormat.Borders[word.WdBorderType.wdBorderTop].LineWidth = word.WdLineWidth.wdLineWidth025pt;
+            range.ParagraphFormat.Borders[word.WdBorderType.wdBorderTop].Color = word.WdColor.wdColorGray50;
+            range.ParagraphFormat.SpaceBefore = 4f;
+
+            // Credit on the left, tab to right margin, then page label
+            range.Text = credit + "\tPage ";
+
+            // Insert PAGE field code at the end
+            range = footer.Range;
+            range.Collapse(word.WdCollapseDirection.wdCollapseEnd);
+            range.Fields.Add(range, word.WdFieldType.wdFieldPage);
+
+            // Insert " of " separator text
+            range = footer.Range;
+            range.Collapse(word.WdCollapseDirection.wdCollapseEnd);
+            range.InsertAfter(" of ");
+
+            // Insert NUMPAGES field code at the end
+            range = footer.Range;
+            range.Collapse(word.WdCollapseDirection.wdCollapseEnd);
+            range.Fields.Add(range, word.WdFieldType.wdFieldNumPages);
+
+            // Apply uniform styling across the entire footer
+            range = footer.Range;
+            range.Font.Name = "Segoe UI";
+            range.Font.Size = 7.5f;
+            range.Font.Color = word.WdColor.wdColorGray50;
         }
 
         /// <summary>
