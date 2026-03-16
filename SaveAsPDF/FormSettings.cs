@@ -121,6 +121,8 @@ namespace SaveAsPDF
 
             _callingForm.SettingsComplete(_settings_model);
 
+            Load += FormSettings_Load;
+
             tvProjectSubFolders.HideSelection = false;
             tvProjectSubFolders.PathSeparator = "\\";
 

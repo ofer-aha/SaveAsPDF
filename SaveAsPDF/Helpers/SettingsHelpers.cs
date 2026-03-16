@@ -81,6 +81,8 @@ namespace SaveAsPDF.Helpers
                 // Helper method to get a setting or its default value
                 T GetSettingOrDefault<T>(T settingValue, T defaultValue)
                 {
+                    if (settingValue is string s)
+                        return string.IsNullOrEmpty(s) ? defaultValue : settingValue;
                     return settingValue != null ? settingValue : defaultValue;
                 }
 

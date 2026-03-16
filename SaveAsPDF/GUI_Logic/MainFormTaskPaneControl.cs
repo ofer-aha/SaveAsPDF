@@ -85,6 +85,16 @@ namespace SaveAsPDF
                     ValidateAndLoadProjectById(htmlProjectId, showErrorDialogs: false);
                 else
                     ClearProjectRelatedUi();
+
+                // LoadProjectData inside ValidateAndLoadProjectById may overwrite
+                // the project name with whatever is in the XML file. Restore the
+                // HTML-embedded value so the user sees the correct name.
+                if (!string.IsNullOrWhiteSpace(htmlProjectName))
+                {
+                    txtProjectName.Text = htmlProjectName;
+                    if (_projectModel != null)
+                        _projectModel.ProjectName = htmlProjectName;
+                }
             }
             else
             {
@@ -145,7 +155,9 @@ namespace SaveAsPDF
             tsslStatus.Text = string.Empty;
             UpdateAutoCompleteSource(projectID);
             var projectRootFolder = projectID.ProjectFullPath(settingsModel.RootDrive);
-            if (!Directory.Exists(projectRootFolder.FullName))
+            // Refresh to get current state from the file system (important for network drives)
+            projectRootFolder.Refresh();
+            if (!projectRootFolder.Exists)
             {
                 if (showErrorDialogs)
                 {
@@ -165,9 +177,15 @@ namespace SaveAsPDF
                         }
                         catch (Exception ex)
                         {
-                            XMessageBox.Show($"שגיאה ביצירת תיקיית פרויקט: {ex.Message}", "שגיאה", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
-                            ClearProjectRelatedUi();
-                            return;
+                            // On network drives CreateDirectory may throw even when
+                            // the folder already exists. Re-check before giving up.
+                            projectRootFolder.Refresh();
+                            if (!projectRootFolder.Exists)
+                            {
+                                XMessageBox.Show($"שגיאה ביצירת תיקיית פרויקט: {ex.Message}", "שגיאה", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
+                                ClearProjectRelatedUi();
+                                return;
+                            }
                         }
                     }
                     else
@@ -610,6 +628,10 @@ namespace SaveAsPDF
                 if (!_employeesBindingList.Any(e => e.EmailAddress == model.EmailAddress))
                     _employeesBindingList.Add(model);
             }
+
+            // Persist the updated employee list to the XML file
+            if (!string.IsNullOrEmpty(settingsModel.XmlEmployeesFile))
+                settingsModel.XmlEmployeesFile.EmployeesModelToXmlFile(_employeesBindingList.ToList());
         }
 
         public void NewProjectComplete(ProjectModel model)

@@ -273,8 +273,13 @@ namespace SaveAsPDF.Helpers
         {
             try
             {
-                if (Path.HasExtension(folder))
+                // Only treat as a file path if it has a real file extension
+                // (not dot-prefixed folder names like ".SaveAsPDF")
+                if (Path.HasExtension(folder) && !Path.GetFileName(folder).StartsWith("."))
                     folder = Path.GetDirectoryName(folder);
+
+                if (string.IsNullOrWhiteSpace(folder))
+                    return;
 
                 if (!Directory.Exists(folder))
                 {

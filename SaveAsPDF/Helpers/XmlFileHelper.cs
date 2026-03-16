@@ -108,8 +108,10 @@ namespace SaveAsPDF.Helpers
             
             try
             {
-                FileFoldersHelper.CreateHiddenDirectory(Path.GetDirectoryName(path));
-                
+                string dir = Path.GetDirectoryName(path);
+                if (!string.IsNullOrWhiteSpace(dir))
+                    FileFoldersHelper.CreateHiddenDirectory(dir);
+
                 // Use XmlWriter with optimal settings
                 using (XmlWriter writer = XmlWriter.Create(path, WriterSettings))
                 {
