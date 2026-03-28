@@ -5,9 +5,10 @@
     COM Add-in class library for Outlook.
     Replaces the former VSTO add-in project.
   -->
-  <PropertyGroup>
+	<!-- by ofer 
+	<PropertyGroup>
     <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{51DE98BC-96A4-4C95-BAF7-CFE8D615F224}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -21,6 +22,24 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>SaveAsPDF.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  -->
+<PropertyGroup>
+	<ProjectTypeGuids>{ADFC4E64-0397-11D1-9F4E-00A0C911004F};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProjectGuid>{51DE98BC-96A4-4C95-BAF7-CFE8D615F224}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<NoStandardLibraries>false</NoStandardLibraries>
+	<RootNamespace>SaveAsPDF</RootNamespace>
+	<AssemblyName>SaveAsPDF</AssemblyName>
+	<TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+	<NuGetPackageImportStamp>
+	</NuGetPackageImportStamp>
+	<ProductName>SaveAsPDF</ProductName>
+	<SignAssembly>true</SignAssembly>
+	<AssemblyOriginatorKeyFile>SaveAsPDF.snk</AssemblyOriginatorKeyFile>
+	<OfficeApplication>Outlook</OfficeApplication>
+</PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
