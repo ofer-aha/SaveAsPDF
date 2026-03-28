@@ -69,30 +69,76 @@ namespace SaveAsPDF
 
         #region IDTExtensibility2
 
+        //public void OnConnection(object application, ext_ConnectMode connectMode, object addInInst, ref Array custom)
+        //{
+        //    _application = (Application)application;
+        //    AddinGlobals.Connect = this;
+
+        //    // For non-startup loads (e.g. enabled via COM Add-ins dialog),
+        //    // hook explorer events now; task panes will be created once
+        //    // CTPFactoryAvailable fires.
+        //    if (connectMode != ext_ConnectMode.ext_cm_Startup)
+        //    {
+        //        _startupCompleted = true;
+        //        System.Windows.Forms.Application.EnableVisualStyles();
+        //        HookExplorerEvents();
+        //    }
+        //}
+
         public void OnConnection(object application, ext_ConnectMode connectMode, object addInInst, ref Array custom)
         {
-            _application = (Application)application;
-            AddinGlobals.Connect = this;
-
-            // For non-startup loads (e.g. enabled via COM Add-ins dialog),
-            // hook explorer events now; task panes will be created once
-            // CTPFactoryAvailable fires.
-            if (connectMode != ext_ConnectMode.ext_cm_Startup)
+            try
             {
-                _startupCompleted = true;
-                System.Windows.Forms.Application.EnableVisualStyles();
-                HookExplorerEvents();
+                _application = (Application)application;
+                AddinGlobals.Connect = this;
+                if (connectMode != ext_ConnectMode.ext_cm_Startup)
+                {
+                    _startupCompleted = true;
+                    System.Windows.Forms.Application.EnableVisualStyles();
+                    HookExplorerEvents();
+                }
+            }
+            catch (Exception ex)
+            {
+                string logPath = @"C:\Temp\SaveAsPDF_error.txt";
+                System.IO.Directory.CreateDirectory(@"C:\Temp");
+                System.IO.File.WriteAllText(logPath,
+                    $"OnConnection Error: {ex.Message}\r\n\r\n" +
+                    $"Stack:\r\n{ex.StackTrace}\r\n\r\n" +
+                    $"Inner: {ex.InnerException?.Message}\r\n" +
+                    $"Inner Stack: {ex.InnerException?.StackTrace}");
+                throw;
             }
         }
 
+        //public void OnStartupComplete(ref Array custom)
+        //{
+        //    System.Windows.Forms.Application.EnableVisualStyles();
+        //    _startupCompleted = true;
+        //    CreateTaskPanes();
+        //    HookExplorerEvents();
+        //}
         public void OnStartupComplete(ref Array custom)
         {
-            System.Windows.Forms.Application.EnableVisualStyles();
-            _startupCompleted = true;
-            CreateTaskPanes();
-            HookExplorerEvents();
+            try
+            {
+                System.Windows.Forms.Application.EnableVisualStyles();
+                _startupCompleted = true;
+                CreateTaskPanes();
+                HookExplorerEvents();
+            }
+            catch (Exception ex)
+            {
+                string logPath = @"C:\Temp\SaveAsPDF_error.txt";
+                System.IO.Directory.CreateDirectory(@"C:\Temp");
+                System.IO.File.AppendAllText(logPath,
+                    $"\r\nOnStartupComplete Error: {ex.Message}\r\n" +
+                    $"Stack:\r\n{ex.StackTrace}\r\n" +
+                    $"Inner: {ex.InnerException?.Message}\r\n" +
+                    $"Inner Stack: {ex.InnerException?.StackTrace}");
+                throw;
+            }
         }
-
         public void OnDisconnection(ext_DisconnectMode removeMode, ref Array custom)
         {
             UnhookExplorerEvents();
