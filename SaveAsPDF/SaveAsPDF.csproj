@@ -220,6 +220,7 @@
     <Compile Include="INewProjectRequester.cs" />
     <Compile Include="ISettingsRequester.cs" />
     <Compile Include="Models\AttachmentsModel.cs" />
+    <Compile Include="Models\ContactFolderInfo.cs" />
     <Compile Include="Models\DocumentModel.cs" />
     <Compile Include="Models\EmployeeModel.cs" />
     <Compile Include="Models\FolderPicker.cs" />
@@ -329,15 +330,12 @@
   <Target Name="RegisterComAddin" AfterTargets="Build">
     <Exec Command="&quot;$(FrameworkDir)$(FrameworkVersion)\RegAsm.exe&quot; /codebase &quot;$(TargetPath)&quot;" IgnoreExitCode="true" />
   </Target>-->
-	<Target Name="RegisterComAddin" AfterTargets="Build">
-		
-		<!-- Register for 32-bit Outlook -->
-		<Exec Command="powershell -Command &quot;Start-Process 'C:\Windows\Microsoft.NET\Framework\v4.0.30319\RegAsm.exe' -ArgumentList '/codebase \&quot;$(TargetPath)\&quot;' -Verb RunAs -Wait&quot;" IgnoreExitCode="true" />
-		<!-- Register for 64-bit Outlook -->
-		<Exec Command="powershell -Command &quot;Start-Process 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe' -ArgumentList '/codebase \&quot;$(TargetPath)\&quot;' -Verb RunAs -Wait&quot;" IgnoreExitCode="true" />
-	</Target>
-	
-	
+  <Target Name="RegisterComAddin" AfterTargets="Build">
+    <!-- Register for 32-bit Outlook -->
+    <Exec Command="powershell -Command &quot;Start-Process 'C:\Windows\Microsoft.NET\Framework\v4.0.30319\RegAsm.exe' -ArgumentList '/codebase \&quot;$(TargetPath)\&quot;' -Verb RunAs -Wait&quot;" IgnoreExitCode="true" />
+    <!-- Register for 64-bit Outlook -->
+    <Exec Command="powershell -Command &quot;Start-Process 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe' -ArgumentList '/codebase \&quot;$(TargetPath)\&quot;' -Verb RunAs -Wait&quot;" IgnoreExitCode="true" />
+  </Target>
   <!-- NuGet package imports -->
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

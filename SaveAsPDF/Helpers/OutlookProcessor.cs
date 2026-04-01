@@ -185,6 +185,242 @@ namespace SaveAsPDF.Helpers
             }
         }
 
+        /// <summary>
+        /// Returns a tree of all Outlook contact folders across every store.
+        /// Store-level nodes have a null EntryID; folder-level nodes carry their EntryID/StoreID.
+        /// </summary>
+        public static List<ContactFolderInfo> GetContactFolderTree()
+        {
+            var result = new List<ContactFolderInfo>();
+            NameSpace nameSpace = null;
+            Stores stores = null;
+            try
+            {
+                nameSpace = AddinGlobals.OutlookApp.Session;
+                stores = nameSpace.Stores;
+                int storeCount = stores.Count;
+                for (int s = 1; s <= storeCount; s++)
+                {
+                    Store store = null;
+                    MAPIFolder rootFolder = null;
+                    try
+                    {
+                        store = stores[s];
+                        rootFolder = store.GetRootFolder();
+                        var storeNode = new ContactFolderInfo
+                        {
+                            Name = store.DisplayName,
+                            EntryID = null,
+                            StoreID = store.StoreID
+                        };
+                        CollectContactFolders(rootFolder, storeNode);
+                        if (storeNode.SubFolders.Count > 0)
+                            result.Add(storeNode);
+                    }
+                    catch (System.Runtime.InteropServices.COMException)
+                    {
+                        // Skip stores that cannot be accessed
+                    }
+                    finally
+                    {
+                        if (rootFolder != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(rootFolder);
+                        if (store != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(store);
+                    }
+                }
+            }
+            catch (System.Runtime.InteropServices.COMException)
+            {
+                // Could not enumerate stores
+            }
+            finally
+            {
+                if (stores != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(stores);
+                if (nameSpace != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(nameSpace);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Recursively collects contact-type folders from the given parent folder.
+        /// Hidden system folders and empty folders (no items and no visible sub-folders) are excluded.
+        /// </summary>
+        private static void CollectContactFolders(MAPIFolder parentFolder, ContactFolderInfo parentInfo)
+        {
+            Folders subFolders = null;
+            try
+            {
+                subFolders = parentFolder.Folders;
+                int count = subFolders.Count;
+                for (int i = 1; i <= count; i++)
+                {
+                    MAPIFolder folder = null;
+                    try
+                    {
+                        folder = subFolders[i];
+                        if (folder.DefaultItemType == OlItemType.olContactItem)
+                        {
+                            // Skip hidden system folders
+                            if (IsFolderHidden(folder))
+                                continue;
+
+                            var folderInfo = new ContactFolderInfo
+                            {
+                                Name = folder.Name,
+                                EntryID = folder.EntryID,
+                                StoreID = folder.StoreID
+                            };
+                            CollectContactFolders(folder, folderInfo);
+
+                            // Skip empty folders that also have no visible sub-folders
+                            if (IsFolderEmpty(folder) && folderInfo.SubFolders.Count == 0)
+                                continue;
+
+                            parentInfo.SubFolders.Add(folderInfo);
+                        }
+                        else
+                        {
+                            // Recurse into non-contact folders; contact folders may be nested
+                            var temp = new ContactFolderInfo();
+                            CollectContactFolders(folder, temp);
+                            parentInfo.SubFolders.AddRange(temp.SubFolders);
+                        }
+                    }
+                    catch (System.Runtime.InteropServices.COMException)
+                    {
+                        // Skip inaccessible folders
+                    }
+                    finally
+                    {
+                        if (folder != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(folder);
+                    }
+                }
+            }
+            finally
+            {
+                if (subFolders != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(subFolders);
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the folder has the MAPI PR_ATTR_HIDDEN property set.
+        /// </summary>
+        private static bool IsFolderHidden(MAPIFolder folder)
+        {
+            PropertyAccessor pa = null;
+            try
+            {
+                const string PR_ATTR_HIDDEN = "http://schemas.microsoft.com/mapi/proptag/0x10F4000B";
+                pa = folder.PropertyAccessor;
+                object val = pa.GetProperty(PR_ATTR_HIDDEN);
+                return val is bool && (bool)val;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                if (pa != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(pa);
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the folder contains no items.
+        /// Uses folder.Items.Count which is a lightweight property access
+        /// (avoids the expensive Restrict query used by GetContactCount).
+        /// </summary>
+        private static bool IsFolderEmpty(MAPIFolder folder)
+        {
+            Items items = null;
+            try
+            {
+                items = folder.Items;
+                return items.Count == 0;
+            }
+            catch
+            {
+                return true;
+            }
+            finally
+            {
+                if (items != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(items);
+            }
+        }
+
+        /// <summary>
+        /// Returns the number of IPM.Contact items in the folder.
+        /// </summary>
+        private static int GetContactCount(MAPIFolder folder)
+        {
+            Items allItems = null;
+            Items contactItems = null;
+            try
+            {
+                allItems = folder.Items;
+                contactItems = allItems.Restrict("[MessageClass] = 'IPM.Contact'");
+                return contactItems.Count;
+            }
+            catch
+            {
+                return 0;
+            }
+            finally
+            {
+                if (contactItems != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(contactItems);
+                if (allItems != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(allItems);
+            }
+        }
+
+        /// <summary>
+        /// Lists contacts from a specific Outlook folder identified by EntryID and StoreID.
+        /// </summary>
+        public static List<EmployeeModel> ListContactsFromFolder(string entryID, string storeID)
+        {
+            var output = new List<EmployeeModel>();
+            NameSpace nameSpace = null;
+            MAPIFolder folder = null;
+            Items contactItems = null;
+            try
+            {
+                nameSpace = AddinGlobals.OutlookApp.Session;
+                folder = nameSpace.GetFolderFromID(entryID, storeID);
+                contactItems = folder.Items.Restrict("[MessageClass] = 'IPM.Contact'");
+
+                int count = contactItems.Count;
+                for (int i = 1; i <= count; i++)
+                {
+                    var item = contactItems[i] as ContactItem;
+                    try
+                    {
+                        if (item != null && !string.IsNullOrEmpty(item.Email1Address))
+                        {
+                            output.Add(new EmployeeModel
+                            {
+                                EmailAddress = item.Email1Address,
+                                FirstName = item.FirstName,
+                                LastName = item.LastName
+                            });
+                        }
+                    }
+                    finally
+                    {
+                        if (item != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(item);
+                    }
+                }
+            }
+            catch (System.Runtime.InteropServices.COMException)
+            {
+                // Folder could not be read
+            }
+            finally
+            {
+                if (contactItems != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(contactItems);
+                if (folder != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(folder);
+                if (nameSpace != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(nameSpace);
+            }
+            return output;
+        }
+
         public static void FindContact(string inString)
         {
             if (string.IsNullOrWhiteSpace(inString))

@@ -547,7 +547,26 @@ namespace SaveAsPDF
             }
         }
 
-        private void btnRemoveEmployee_Click(object sender, EventArgs e) { }
+        private void btnRemoveEmployee_Click(object sender, EventArgs e)
+        {
+            var row = dgvEmployees.CurrentRow;
+            if (row == null)
+                return;
+
+            var employee = row.DataBoundItem as EmployeeModel;
+            if (employee == null)
+                return;
+
+            _employeesBindingList.Remove(employee);
+
+            // If the removed employee was the leader, clear the leader text
+            if (employee.IsLeader)
+                txtProjectLeader.Clear();
+
+            // Persist the updated employee list to the XML file
+            if (!string.IsNullOrEmpty(settingsModel.XmlEmployeesFile))
+                settingsModel.XmlEmployeesFile.EmployeesModelToXmlFile(_employeesBindingList.ToList());
+        }
 
         private void EmbedProjectFieldsInHtmlBody(MailItem mailItem, string projectId, string projectName)
         {

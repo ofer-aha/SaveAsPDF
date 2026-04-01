@@ -31,8 +31,10 @@ namespace SaveAsPDF
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormContacts));
             this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.splitContainerInner = new System.Windows.Forms.SplitContainer();
             this.lblLoading = new System.Windows.Forms.Label();
             this.dgvContacs = new System.Windows.Forms.DataGridView();
+            this.tvFolders = new System.Windows.Forms.TreeView();
             this.btnCancel = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -42,6 +44,10 @@ namespace SaveAsPDF
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerInner)).BeginInit();
+            this.splitContainerInner.Panel1.SuspendLayout();
+            this.splitContainerInner.Panel2.SuspendLayout();
+            this.splitContainerInner.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvContacs)).BeginInit();
             this.SuspendLayout();
             // 
@@ -54,8 +60,7 @@ namespace SaveAsPDF
             // 
             // splitContainer.Panel1
             // 
-            this.splitContainer.Panel1.Controls.Add(this.lblLoading);
-            this.splitContainer.Panel1.Controls.Add(this.dgvContacs);
+            this.splitContainer.Panel1.Controls.Add(this.splitContainerInner);
             this.splitContainer.Panel1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             // 
             // splitContainer.Panel2
@@ -66,9 +71,27 @@ namespace SaveAsPDF
             this.splitContainer.Panel2.Controls.Add(this.txtFilter);
             this.splitContainer.Panel2.Controls.Add(this.btnOK);
             this.splitContainer.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.splitContainer.Size = new System.Drawing.Size(458, 378);
-            this.splitContainer.SplitterDistance = 313;
+            this.splitContainer.Size = new System.Drawing.Size(664, 418);
+            this.splitContainer.SplitterDistance = 353;
             this.splitContainer.TabIndex = 0;
+            // 
+            // splitContainerInner
+            // 
+            this.splitContainerInner.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainerInner.Location = new System.Drawing.Point(0, 0);
+            this.splitContainerInner.Name = "splitContainerInner";
+            // 
+            // splitContainerInner.Panel1 - DataGridView (left / main area)
+            // 
+            this.splitContainerInner.Panel1.Controls.Add(this.lblLoading);
+            this.splitContainerInner.Panel1.Controls.Add(this.dgvContacs);
+            // 
+            // splitContainerInner.Panel2 - TreeView (right / folder navigation for RTL)
+            // 
+            this.splitContainerInner.Panel2.Controls.Add(this.tvFolders);
+            this.splitContainerInner.Size = new System.Drawing.Size(664, 353);
+            this.splitContainerInner.SplitterDistance = 464;
+            this.splitContainerInner.TabIndex = 0;
             // 
             // lblLoading
             // 
@@ -95,14 +118,25 @@ namespace SaveAsPDF
             this.dgvContacs.Name = "dgvContacs";
             this.dgvContacs.RowHeadersVisible = false;
             this.dgvContacs.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvContacs.Size = new System.Drawing.Size(458, 313);
+            this.dgvContacs.Size = new System.Drawing.Size(464, 353);
             this.dgvContacs.TabIndex = 0;
             this.dgvContacs.DoubleClick += new System.EventHandler(this.dgvContacs_DoubleClick);
+            // 
+            // tvFolders
+            // 
+            this.tvFolders.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tvFolders.Location = new System.Drawing.Point(0, 0);
+            this.tvFolders.Name = "tvFolders";
+            this.tvFolders.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.tvFolders.RightToLeftLayout = true;
+            this.tvFolders.Size = new System.Drawing.Size(196, 353);
+            this.tvFolders.TabIndex = 0;
+            this.tvFolders.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvFolders_AfterSelect);
             // 
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(252, 20);
+            this.btnCancel.Location = new System.Drawing.Point(458, 20);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(94, 24);
             this.btnCancel.TabIndex = 4;
@@ -114,7 +148,7 @@ namespace SaveAsPDF
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(145, 4);
+            this.label2.Location = new System.Drawing.Point(351, 4);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(301, 13);
             this.label2.TabIndex = 3;
@@ -142,7 +176,7 @@ namespace SaveAsPDF
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(352, 20);
+            this.btnOK.Location = new System.Drawing.Point(558, 20);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(94, 24);
             this.btnOK.TabIndex = 0;
@@ -154,7 +188,7 @@ namespace SaveAsPDF
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(458, 378);
+            this.ClientSize = new System.Drawing.Size(664, 418);
             this.Controls.Add(this.splitContainer);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormContacts";
@@ -164,11 +198,15 @@ namespace SaveAsPDF
             this.Activated += new System.EventHandler(this.FormContacts_Activated);
             this.Load += new System.EventHandler(this.FormContacts_Load);
             this.splitContainer.Panel1.ResumeLayout(false);
-            this.splitContainer.Panel1.PerformLayout();
             this.splitContainer.Panel2.ResumeLayout(false);
             this.splitContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
+            this.splitContainerInner.Panel1.ResumeLayout(false);
+            this.splitContainerInner.Panel1.PerformLayout();
+            this.splitContainerInner.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerInner)).EndInit();
+            this.splitContainerInner.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvContacs)).EndInit();
             this.ResumeLayout(false);
 
@@ -177,7 +215,9 @@ namespace SaveAsPDF
         #endregion
 
         private System.Windows.Forms.SplitContainer splitContainer;
+        private System.Windows.Forms.SplitContainer splitContainerInner;
         private System.Windows.Forms.DataGridView dgvContacs;
+        private System.Windows.Forms.TreeView tvFolders;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.TextBox txtFilter;
         private System.Windows.Forms.Label label1;

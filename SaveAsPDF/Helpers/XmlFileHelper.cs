@@ -56,6 +56,14 @@ namespace SaveAsPDF.Helpers
                     Directory.CreateDirectory(directoryPath);
                 }
 
+                // Clear hidden/read-only attributes so the file can be overwritten
+                if (File.Exists(filePath))
+                {
+                    var attrs = File.GetAttributes(filePath);
+                    if ((attrs & (FileAttributes.Hidden | FileAttributes.ReadOnly)) != 0)
+                        File.SetAttributes(filePath, attrs & ~(FileAttributes.Hidden | FileAttributes.ReadOnly));
+                }
+
                 // Use XmlWriter with optimal settings for better performance
                 using (XmlWriter writer = XmlWriter.Create(filePath, WriterSettings))
                 {
@@ -111,6 +119,14 @@ namespace SaveAsPDF.Helpers
                 string dir = Path.GetDirectoryName(path);
                 if (!string.IsNullOrWhiteSpace(dir))
                     FileFoldersHelper.CreateHiddenDirectory(dir);
+
+                // Clear hidden/read-only attributes so the file can be overwritten
+                if (File.Exists(path))
+                {
+                    var attrs = File.GetAttributes(path);
+                    if ((attrs & (FileAttributes.Hidden | FileAttributes.ReadOnly)) != 0)
+                        File.SetAttributes(path, attrs & ~(FileAttributes.Hidden | FileAttributes.ReadOnly));
+                }
 
                 // Use XmlWriter with optimal settings
                 using (XmlWriter writer = XmlWriter.Create(path, WriterSettings))
