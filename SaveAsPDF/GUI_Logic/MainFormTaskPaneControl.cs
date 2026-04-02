@@ -68,10 +68,12 @@ namespace SaveAsPDF
             if (mailItem == null)
             {
                 _mailItem = null;
+                ResetPerMessageDefaults();
                 ClearMailRelatedUi();
                 return;
             }
             _mailItem = mailItem;
+            ResetPerMessageDefaults();
 
             string htmlProjectId, htmlProjectName;
             bool loadedFromHtml = ExtractProjectFieldsFromHtmlBody(_mailItem, out htmlProjectId, out htmlProjectName);
@@ -141,6 +143,11 @@ namespace SaveAsPDF
             cmbSaveLocation.Path = string.Empty;
             rtxtProjectNotes.Clear();
             tvFolders.Nodes.Clear();
+        }
+
+        private void ResetPerMessageDefaults()
+        {
+            chkbSendNote.Checked = Settings.Default.SendNoteToLeader;
         }
 
         private void ValidateAndLoadProjectById(string projectID, bool showErrorDialogs = true)
@@ -283,18 +290,31 @@ namespace SaveAsPDF
                 {
                     cmbSaveLocation.Path = targetPath;
                 }
-                tvFolders.Nodes.Clear();
-                if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
+
+                tvFolders.BeginUpdate();
+                try
                 {
-                    var rootDir = settingsModel.ProjectRootFolder;
-                    var rootNode = new TreeNode(rootDir.Name) { Tag = rootDir.FullName };
-                    rootNode.Nodes.Add("...");
-                    tvFolders.Nodes.Add(rootNode);
-                    tvFolders.SelectedNode = tvFolders.Nodes[0];
+                    tvFolders.Nodes.Clear();
+                    if (settingsModel.ProjectRootFolder != null && settingsModel.ProjectRootFolder.Exists)
+                    {
+                        var rootDir = settingsModel.ProjectRootFolder;
+                        var rootNode = new TreeNode(rootDir.Name) { Tag = rootDir.FullName };
+                        var childNodes = TreeHelpers.GetFolderNodes(rootDir.FullName, expanded: false);
+                        foreach (var n in childNodes)
+                            rootNode.Nodes.Add(n);
+                        tvFolders.Nodes.Add(rootNode);
+                        tvFolders.SelectedNode = rootNode;
+                        _isDoubleClick = false;
+                        rootNode.Expand();
+                    }
+                    else
+                    {
+                        XMessageBox.Show("תיקיית השורש של הפרויקט אינה קיימת.", "שגיאה", XMessageBoxButtons.OK, XMessageBoxIcon.Warning, XMessageAlignment.Right, XMessageLanguage.Hebrew);
+                    }
                 }
-                else
+                finally
                 {
-                    XMessageBox.Show("תיקיית השורש של הפרויקט אינה קיימת.", "שגיאה", XMessageBoxButtons.OK, XMessageBoxIcon.Warning, XMessageAlignment.Right, XMessageLanguage.Hebrew);
+                    tvFolders.EndUpdate();
                 }
             }
             catch (Exception ex)
@@ -335,7 +355,12 @@ namespace SaveAsPDF
                 {
                     var di = new DriveInfo(drive);
                     var node = new TreeNode(drive.Substring(0, 1)) { Tag = drive };
-                    if (di.IsReady) node.Nodes.Add("...");
+                    if (di.IsReady)
+                    {
+                        var childNodes = TreeHelpers.GetFolderNodes(drive, expanded: false);
+                        foreach (var n in childNodes)
+                            node.Nodes.Add(n);
+                    }
                     tvFolders.Nodes.Add(node);
                 }
                 catch { }
@@ -376,10 +401,15 @@ namespace SaveAsPDF
             };
             if (dialog.ShowDialog(Handle) == true)
             {
+                var pickedDir = new DirectoryInfo(dialog.ResultPath);
+                var root = new TreeNode(pickedDir.Name) { Tag = pickedDir.FullName };
+                var childNodes = TreeHelpers.GetFolderNodes(pickedDir.FullName, expanded: false);
+                foreach (var n in childNodes)
+                    root.Nodes.Add(n);
                 tvFolders.Nodes.Clear();
-                var root = new TreeNode(new DirectoryInfo(dialog.ResultPath).Name) { Tag = dialog.ResultPath };
-                root.Nodes.Add("...");
                 tvFolders.Nodes.Add(root);
+                tvFolders.SelectedNode = root;
+                root.Expand();
                 cmbSaveLocation.Path = dialog.ResultPath;
             }
         }
@@ -744,7 +774,7 @@ namespace SaveAsPDF
             cmbSaveLocation.Tag = "בחר מיקום שמירה"; cmbSaveLocation.MouseEnter += MouseEnterStatus; cmbSaveLocation.MouseLeave += MouseLeaveStatus;
             rtxtNotes.Tag = "הערות למייל"; rtxtNotes.MouseEnter += MouseEnterStatus; rtxtNotes.MouseLeave += MouseLeaveStatus;
             rtxtProjectNotes.Tag = "הערות בפרויקט"; rtxtProjectNotes.MouseEnter += MouseEnterStatus; rtxtProjectNotes.MouseLeave += MouseLeaveStatus;
-            chkbSendNote.Tag = "שלח ההערה לראש הפרויקט"; chkbSendNote.MouseEnter += MouseEnterStatus; chkbSendNote.MouseLeave += MouseLeaveStatus;
+            chkbSendNote.Tag = "שלח ההערה למוביל פרויקט"; chkbSendNote.MouseEnter += MouseEnterStatus; chkbSendNote.MouseLeave += MouseLeaveStatus;
             chkbSelectAllAttachments.Tag = "בחר/הסר כל הקבצים"; chkbSelectAllAttachments.MouseEnter += MouseEnterStatus; chkbSelectAllAttachments.MouseLeave += MouseLeaveStatus;
             chbOpenPDF.Tag = "פתח PDF לאחר שמירה"; chbOpenPDF.MouseEnter += MouseEnterStatus; chbOpenPDF.MouseLeave += MouseLeaveStatus;
             tvFolders.Tag = "עץ תיקיות פרויקט"; tvFolders.MouseEnter += MouseEnterStatus; tvFolders.MouseLeave += MouseLeaveStatus;
@@ -795,22 +825,20 @@ namespace SaveAsPDF
         private void tvFolders_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
             if (_isDoubleClick && e.Action == TreeViewAction.Expand) { e.Cancel = true; return; }
-            if (e.Node.Nodes.Count == 1 && e.Node.Nodes[0].Text == "...")
+            try
             {
-                try
+                string basePath = GetNodePath(e.Node);
+                if (!string.IsNullOrEmpty(basePath) && Directory.Exists(basePath))
                 {
-                    string basePath = e.Node.Tag as string;
-                    if (!string.IsNullOrEmpty(basePath) && Directory.Exists(basePath))
-                    {
-                        e.Node.Nodes.Clear();
-                        var nodes = TreeHelpers.GetFolderNodes(basePath, expanded: false);
-                        foreach (var n in nodes) e.Node.Nodes.Add(n);
-                    }
+                    e.Node.Nodes.Clear();
+                    var nodes = TreeHelpers.GetFolderNodes(basePath, expanded: false);
+                    foreach (var n in nodes)
+                        e.Node.Nodes.Add(n);
                 }
-                catch (Exception ex)
-                {
-                    XMessageBox.Show($"שגיאה בטעינת תיקיות: {ex.Message}", "SaveAsPDF:tvFolders_BeforeExpand", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
-                }
+            }
+            catch (Exception ex)
+            {
+                XMessageBox.Show($"שגיאה בטעינת תיקיות: {ex.Message}", "SaveAsPDF:tvFolders_BeforeExpand", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
             }
         }
 
@@ -823,7 +851,8 @@ namespace SaveAsPDF
 
         private void tvFolders_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node.Tag is string basePath)
+            var basePath = GetNodePath(e.Node);
+            if (!string.IsNullOrEmpty(basePath))
             {
                 cmbSaveLocation.Path = basePath;
             }
@@ -831,11 +860,25 @@ namespace SaveAsPDF
 
         private void tvFolders_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node.Tag is string basePath)
+            var basePath = GetNodePath(e.Node);
+            if (!string.IsNullOrEmpty(basePath))
             {
                 System.Diagnostics.Process.Start("explorer.exe", basePath);
                 cmbSaveLocation.Path = basePath;
             }
+        }
+
+        private string GetNodePath(TreeNode node)
+        {
+            if (node == null || node.Tag == null)
+                return string.Empty;
+
+            var path = node.Tag as string;
+            if (!string.IsNullOrEmpty(path))
+                return path;
+
+            var directoryInfo = node.Tag as DirectoryInfo;
+            return directoryInfo != null ? directoryInfo.FullName : string.Empty;
         }
 
         private void dgvEmployees_CurrentCellDirtyStateChanged(object sender, EventArgs e)

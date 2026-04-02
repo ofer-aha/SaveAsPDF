@@ -155,8 +155,8 @@ namespace SaveAsPDF
             txtProjectLeader.Width = 160;
             txtProjectLeader.BackColor = SystemColors.Window;
             txtProjectLeader.ForeColor = SystemColors.WindowText;
-            btnProjectLeader.Text = "...";
-            btnProjectLeader.Width = 30;
+            btnProjectLeader.Text = "בחר מתכנן מוביל";
+            btnProjectLeader.Width = 100;
             btnProjectLeader.BackColor = SystemColors.Control;
             btnProjectLeader.ForeColor = SystemColors.ControlText;
             btnProjectLeader.UseVisualStyleBackColor = true;

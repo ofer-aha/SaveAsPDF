@@ -210,43 +210,43 @@ namespace SaveAsPDF.Helpers
         {
             var nodes = new List<TreeNode>();
 
+            string[] subDirs;
             try
             {
-                foreach (var subDir in Directory.GetDirectories(dir))
-                {
-                    if (!subDir.IsHidden())
-                    {
-                        var directoryInfo = new DirectoryInfo(subDir);
-                        var treeNode = new TreeNode(directoryInfo.Name)
-                        {
-                            Tag = directoryInfo,
-                            ToolTipText = subDir
-                        };
-
-                        if (Directory.GetDirectories(subDir).Any())
-                        {
-                            treeNode.Nodes.Add("...");
-                        }
-
-                        if (expanded)
-                        {
-                            treeNode.Expand();
-                        }
-
-                        nodes.Add(treeNode);
-                    }
-                }
+                subDirs = Directory.GetDirectories(dir);
             }
-            catch (Exception ex)
+            catch
             {
-                XMessageBox.Show(
-                    $"שגיאה בקבלת צמתים של תיקיות: {ex.Message}",
-                    "SaveAsPDF:GetFolderNodes",
-                    XMessageBoxButtons.OK,
-                    XMessageBoxIcon.Error,
-                    XMessageAlignment.Right,
-                    XMessageLanguage.Hebrew
-                );
+                return nodes;
+            }
+
+            foreach (var subDir in subDirs)
+            {
+                try
+                {
+                    if (subDir.IsHiddenOrSystem())
+                        continue;
+
+                    var directoryInfo = new DirectoryInfo(subDir);
+                    var treeNode = new TreeNode(directoryInfo.Name)
+                    {
+                        Tag = directoryInfo.FullName,
+                        ToolTipText = directoryInfo.FullName
+                    };
+
+                    var subNodes = GetFolderNodes(subDir, expanded);
+                    foreach (var subNode in subNodes)
+                        treeNode.Nodes.Add(subNode);
+
+                    if (expanded)
+                        treeNode.Expand();
+
+                    nodes.Add(treeNode);
+                }
+                catch
+                {
+                    // skip inaccessible or restricted folders silently
+                }
             }
 
             return nodes;
@@ -257,10 +257,17 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         /// <param name="sDir">The directory to check.</param>
         /// <returns>True if the directory is hidden; otherwise, false.</returns>
-        private static bool IsHidden(this string sDir)
+        private static bool IsHiddenOrSystem(this string sDir)
         {
-            var dir = new DirectoryInfo(sDir);
-            return dir.Attributes.HasFlag(FileAttributes.Hidden);
+            try
+            {
+                var attr = new DirectoryInfo(sDir).Attributes;
+                return attr.HasFlag(FileAttributes.Hidden) || attr.HasFlag(FileAttributes.System);
+            }
+            catch
+            {
+                return true;
+            }
         }
 
         /// <summary>
