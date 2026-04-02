@@ -47,5 +47,8 @@
     <Setting Name="SettingsModelJson" Type="SaveAsPDF.Models.SettingsModel" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="SendNoteToLeader" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

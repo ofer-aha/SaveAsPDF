@@ -6,14 +6,15 @@ Convert Outlook mail messages to PDF files with ease. SaveAsPDF is a powerful Mi
 
 - **📧 Email to PDF Conversion**: Convert any Outlook email message to a professional PDF file
 - **📎 Attachment Management**: Select and save email attachments alongside the PDF
-- **🏢 Project Management**: Organize emails by project with automatic project ID detection from email subjects
-- **👥 Employee Directory**: Manage project team members with contact information and role assignment
+- **🏢 Project Management**: Organize emails by project with automatic project ID detection from email subjects and forwarded emails
+- **👥 Employee Directory**: Manage project team members with context-menu actions (add, remove, set leader) and leader highlighting
 - **📝 Rich Notes**: Add and maintain both mail-specific and project-specific notes
 - **🌳 Folder Structure**: Browse and manage save locations with an intuitive folder tree view
 - **🎨 Customization**: Configure fonts, colors, and application settings to your preference
 - **🌍 Right-to-Left Support**: Full support for Hebrew and other RTL languages
 - **🌙 Dark Mode Support**: Automatic theme adaptation to Windows system colors (light/dark modes)
 - **⌨️ Quick Access**: Ribbon interface for quick conversion of selected messages
+- **📨 Forward to Leader**: Optionally forward the saved email to the project leader (configurable default in Settings)
 
 ## System Requirements
 
@@ -70,11 +71,16 @@ Convert Outlook mail messages to PDF files with ease. SaveAsPDF is a powerful Mi
    - Set project number, name, and default save location
    - Add team member information
 
-2. **Add Employees**: Click "Add Employee" or access the Employees tab
-   - Manage team member details
+2. **Add Employees**: Click "Add Employee" or right-click the Employees grid
+   - Manage team member details via context menu (Add, Remove, Set as Leader)
+   - Project leader is highlighted with bold text and yellow background
    - Assign project leader role
 
-3. **View Project Notes**: Switch between mail notes and project notes using the tabs
+3. **Forward to Leader**: Check "Send to project leader" in the task pane
+   - After saving, the email is forwarded to the designated project leader
+   - Default on/off is configurable in Settings
+
+4. **View Project Notes**: Switch between mail notes and project notes using the tabs
    - Mail-specific notes for individual emails
    - Project-wide notes for team coordination
 
@@ -85,11 +91,16 @@ Convert Outlook mail messages to PDF files with ease. SaveAsPDF is a powerful Mi
 ```
 SaveAsPDF/
 ├── SaveAsPDF/                    # Main add-in project
+│   ├── GUI/                      # UI layout (partial classes)
+│   │   └── MainFormTaskPaneControl.GUI.cs
+│   ├── GUI_Logic/                # UI business logic (partial classes)
+│   │   └── MainFormTaskPaneControl.cs
 │   ├── Helpers/                  # Helper classes for various operations
 │   │   ├── MailLogic.cs
 │   │   ├── SettingsHelpers.cs
 │   │   ├── XmlFileHelper.cs
 │   │   ├── TreeHelpers.cs
+│   │   ├── HtmlHelper.cs
 │   │   └── ...
 │   ├── Models/                   # Data models
 │   │   ├── ProjectModel.cs
@@ -101,7 +112,6 @@ SaveAsPDF/
 │   │   ├── FormSettings.cs       # Settings dialog
 │   │   ├── FormContacts.cs       # Employee management
 │   │   └── FormNewProject.cs     # New project creation
-│   ├── MainFormTaskPaneControl.cs # Task pane control (Outlook sidebar)
 │   ├── ThisAddIn.cs              # Add-in entry point
 │   ├── SaveAsPDFRibbon.cs        # Ribbon UI definition
 │   └── Properties/               # Project properties and resources
@@ -129,6 +139,9 @@ SaveAsPDF/
   - Dynamic tab structure with nested tabs for notes
   - System color theme adaptation
   - Data grid views for attachments and employees
+  - Employee context menu (add, remove, set leader) with leader row highlighting
+  - Project field extraction from forwarded emails via HTML `id` attributes
+  - Optional email forwarding to project leader after PDF save
 
 - **`MailLogic`**: Email processing and PDF conversion
   - Attachment extraction
@@ -138,7 +151,11 @@ SaveAsPDF/
 - **`SettingsHelpers`**: Project and application settings management
   - XML-based configuration storage
   - Default paths and folders
-  - User preferences
+  - User preferences (including send-note-to-leader default)
+
+- **`HtmlHelper`**: HTML generation for email body
+  - Project field embedding via visible `id`-attributed HTML elements
+  - Outlook 365 compatible (survives send/forward — no hidden meta tags)
 
 - **`XmlFileHelper`**: XML serialization and deserialization
   - Project model persistence
@@ -180,6 +197,7 @@ Email subjects with project IDs are automatically recognized. Example:
    - Font preferences
    - Application behavior
    - PDF conversion options
+   - Send note to project leader (default on/off)
 
 ## Configuration Files
 
@@ -203,14 +221,14 @@ The Outlook sidebar provides:
 
 - **Middle Section**: Tabbed content area
   - **Attachments**: Email file attachments with selection
-  - **Employees**: Project team members directory
+  - **Employees**: Project team members directory (right-click for add/remove/set leader)
   - **Folders**: Hierarchical project folder browser
   - **Notes**: Sub-tabs for mail and project notes
 
-- **Bottom Section**: Action buttons and status
-  - Save to PDF, Cancel, Settings, New Project
-  - Status messages and help text
-  - PDF opening preference checkbox
+- **Bottom Section**: Checkboxes, action buttons, and status
+  - Checkboxes row: "Send to project leader", "Select all attachments", "Open PDF after save"
+  - Buttons row: Save to PDF, Settings, New Project, Folders
+  - Status strip with contextual help messages
 
 ### Theme Support
 
@@ -343,6 +361,6 @@ Future planned features:
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: 2024  
+**Version**: 1.1.0  
+**Last Updated**: 2025  
 **Repository**: [github.com/ofer-aha/SaveAsPDF](https://github.com/ofer-aha/SaveAsPDF)

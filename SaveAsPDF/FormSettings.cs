@@ -112,6 +112,10 @@ namespace SaveAsPDF
             txtMaxProjectCount.Tag = "מס׳ פרויקטים אחרונים";
             txtMaxProjectCount.MouseEnter += ControlMouseEnterStatus;
             txtMaxProjectCount.MouseLeave += ControlMouseLeaveStatus;
+
+            chkSendNoteToLeader.Tag = "שלח הודעה לראש הפרויקט כברירת מחדל";
+            chkSendNoteToLeader.MouseEnter += ControlMouseEnterStatus;
+            chkSendNoteToLeader.MouseLeave += ControlMouseLeaveStatus;
         }
 
         public FormSettings(ISettingsRequester caller)
@@ -247,6 +251,11 @@ namespace SaveAsPDF
 
             // Display the current number of last-projects in the textbox
             txtMaxProjectCount.Text = lsbLastProjects.Items.Count.ToString();
+
+            // Load send-note-to-leader default
+            chkSendNoteToLeader.Checked = _settings_model.SendNoteToLeader;
+            chkSendNoteToLeader.CheckedChanged += chkSendNoteToLeader_CheckedChanged;
+
             _isDirty = false;
 
             // Wire status help hover
@@ -675,6 +684,12 @@ namespace SaveAsPDF
                 txtMinAttSize.Select(0, txtMinAttSize.Text.Length);
                 toolStripStatusLabel.Text = errorProviderSettings.GetError(txtMinAttSize);
             }
+        }
+
+        private void chkSendNoteToLeader_CheckedChanged(object sender, EventArgs e)
+        {
+            _settings_model.SendNoteToLeader = chkSendNoteToLeader.Checked;
+            _isDirty = true;
         }
 
         // Drag & Drop handlers for moving TreeNodes

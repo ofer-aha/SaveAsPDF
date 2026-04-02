@@ -568,37 +568,11 @@ namespace SaveAsPDF
                 settingsModel.XmlEmployeesFile.EmployeesModelToXmlFile(_employeesBindingList.ToList());
         }
 
-        private void EmbedProjectFieldsInHtmlBody(MailItem mailItem, string projectId, string projectName)
-        {
-            if (mailItem == null) return;
-            try
-            {
-                string htmlBody = mailItem.HTMLBody ?? string.Empty;
-                // Remove existing SaveAsPDF comments first to avoid duplicates
-                htmlBody = Regex.Replace(htmlBody, @"<!--\s*SaveAsPDF:ProjectID=.*?-->", string.Empty);
-                htmlBody = Regex.Replace(htmlBody, @"<!--\s*SaveAsPDF:ProjectName=.*?-->", string.Empty);
-
-                string comments = string.Empty;
-                if (!string.IsNullOrWhiteSpace(projectId))
-                    comments += "<!-- SaveAsPDF:ProjectID=" + projectId.Replace("--", "\u2014") + " -->";
-                if (!string.IsNullOrWhiteSpace(projectName))
-                    comments += "<!-- SaveAsPDF:ProjectName=" + projectName.Replace("--", "\u2014") + " -->";
-
-                if (!string.IsNullOrEmpty(comments))
-                {
-                    int bodyClose = htmlBody.LastIndexOf("</body>", StringComparison.OrdinalIgnoreCase);
-                    if (bodyClose >= 0)
-                        htmlBody = htmlBody.Insert(bodyClose, comments);
-                    else
-                        htmlBody += comments;
-                    mailItem.HTMLBody = htmlBody;
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Failed to embed project fields in HTML: {ex.Message}");
-            }
-        }
+        // No-op: project fields are now embedded as visible HTML elements
+        // (with id attributes) by HtmlHelper, so no hidden tags are needed.
+        // Outlook 365 strips HTML comments and <meta> tags when sending,
+        // but preserves id attributes on visible elements.
+        private void EmbedProjectFieldsInHtmlBody(MailItem mailItem, string projectId, string projectName) { }
 
         private bool ExtractProjectFieldsFromHtmlBody(MailItem mailItem, out string projectId, out string projectName)
         {
@@ -608,12 +582,63 @@ namespace SaveAsPDF
             try
             {
                 string htmlBody = mailItem.HTMLBody ?? string.Empty;
-                var idMatch = Regex.Match(htmlBody, @"<!--\s*SaveAsPDF:ProjectID=(.*?)\s*-->");
-                if (idMatch.Success)
-                    projectId = idMatch.Groups[1].Value.Trim();
-                var nameMatch = Regex.Match(htmlBody, @"<!--\s*SaveAsPDF:ProjectName=(.*?)\s*-->");
-                if (nameMatch.Success)
-                    projectName = nameMatch.Groups[1].Value.Trim();
+
+                // 1. Try id-attributed visible elements (current format, survives Outlook 365 send)
+                //    <span id="SaveAsPDF-ProjectID">1000</span>
+                var idElem = Regex.Match(htmlBody,
+                    @"<span\s[^>]*id=""SaveAsPDF-ProjectID""[^>]*>([^<]*)</span>",
+                    RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                if (idElem.Success)
+                    projectId = System.Net.WebUtility.HtmlDecode(idElem.Groups[1].Value).Trim();
+
+                //    <h1 id="SaveAsPDF-ProjectName">Project Name</h1>
+                var nameElem = Regex.Match(htmlBody,
+                    @"<h1\s[^>]*id=""SaveAsPDF-ProjectName""[^>]*>([^<]*)</h1>",
+                    RegexOptions.IgnoreCase | RegexOptions.Singleline);
+                if (nameElem.Success)
+                    projectName = System.Net.WebUtility.HtmlDecode(nameElem.Groups[1].Value).Trim();
+
+                // 2. Fallback: parse visible Hebrew-labelled text from the generated HTML
+                //    "מספר פרויקט: 1000" in any element
+                if (string.IsNullOrWhiteSpace(projectId))
+                {
+                    var idText = Regex.Match(htmlBody, @"מספר פרויקט:\s*(?:<[^>]+>)*\s*([^<]+)");
+                    if (idText.Success)
+                    {
+                        var candidate = idText.Groups[1].Value.Trim();
+                        if (candidate.SafeProjectID())
+                            projectId = System.Net.WebUtility.HtmlDecode(candidate);
+                    }
+                }
+
+                // 3. Legacy fallback: <meta> tags (may survive in local drafts)
+                if (string.IsNullOrWhiteSpace(projectId))
+                {
+                    var idMeta = Regex.Match(htmlBody, @"<meta\s+name=""SaveAsPDF-ProjectID""\s+content=""([^""]*)""\s*/?>", RegexOptions.IgnoreCase);
+                    if (idMeta.Success)
+                        projectId = System.Net.WebUtility.HtmlDecode(idMeta.Groups[1].Value).Trim();
+                }
+                if (string.IsNullOrWhiteSpace(projectName))
+                {
+                    var nameMeta = Regex.Match(htmlBody, @"<meta\s+name=""SaveAsPDF-ProjectName""\s+content=""([^""]*)""\s*/?>", RegexOptions.IgnoreCase);
+                    if (nameMeta.Success)
+                        projectName = System.Net.WebUtility.HtmlDecode(nameMeta.Groups[1].Value).Trim();
+                }
+
+                // 4. Legacy fallback: HTML comments (may survive in local drafts)
+                if (string.IsNullOrWhiteSpace(projectId))
+                {
+                    var idComment = Regex.Match(htmlBody, @"<!--\s*SaveAsPDF:ProjectID=(.*?)\s*-->");
+                    if (idComment.Success)
+                        projectId = idComment.Groups[1].Value.Trim();
+                }
+                if (string.IsNullOrWhiteSpace(projectName))
+                {
+                    var nameComment = Regex.Match(htmlBody, @"<!--\s*SaveAsPDF:ProjectName=(.*?)\s*-->");
+                    if (nameComment.Success)
+                        projectName = nameComment.Groups[1].Value.Trim();
+                }
+
                 return !string.IsNullOrWhiteSpace(projectId);
             }
             catch (Exception ex)
@@ -703,7 +728,6 @@ namespace SaveAsPDF
         private void WireStatusHelp()
         {
             btnOK.Tag = "שמור ל-PDF"; btnOK.MouseEnter += MouseEnterStatus; btnOK.MouseLeave += MouseLeaveStatus;
-            btnCancel.Tag = "בטל וסגור"; btnCancel.MouseEnter += MouseEnterStatus; btnCancel.MouseLeave += MouseLeaveStatus;
             btnSettings.Tag = "הגדרות"; btnSettings.MouseEnter += MouseEnterStatus; btnSettings.MouseLeave += MouseLeaveStatus;
             btnNewProject.Tag = "פרויקט חדש"; btnNewProject.MouseEnter += MouseEnterStatus; btnNewProject.MouseLeave += MouseLeaveStatus;
             btnFolders.Tag = "בחר תיקיית שורש"; btnFolders.MouseEnter += MouseEnterStatus; btnFolders.MouseLeave += MouseLeaveStatus;
@@ -853,11 +877,74 @@ namespace SaveAsPDF
             dgvEmployees.ColumnHeadersDefaultCellStyle.BackColor = SystemColors.Control;
             dgvEmployees.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
             dgvEmployees.EnableHeadersVisualStyles = false;
+
+            // Context menu for employee management
+            var ctxEmployees = new ContextMenuStrip { RightToLeft = RightToLeft.Yes };
+            var mnuAddEmployee = new ToolStripMenuItem("הוסף עובד");        // "Add Employee"
+            var mnuRemoveEmployee = new ToolStripMenuItem("הסר עובד");       // "Remove Employee"
+            var mnuSetLeader = new ToolStripMenuItem("קבע כמתכנן מוביל");    // "Set as Project Leader"
+            mnuAddEmployee.Click += CtxEmployees_AddEmployee_Click;
+            mnuRemoveEmployee.Click += CtxEmployees_RemoveEmployee_Click;
+            mnuSetLeader.Click += CtxEmployees_SetLeader_Click;
+            ctxEmployees.Items.AddRange(new ToolStripItem[] { mnuAddEmployee, mnuRemoveEmployee, new ToolStripSeparator(), mnuSetLeader });
+            dgvEmployees.ContextMenuStrip = ctxEmployees;
+
+            // Row formatting for leader highlighting
+            dgvEmployees.CellFormatting -= DgvEmployees_CellFormatting;
+            dgvEmployees.CellFormatting += DgvEmployees_CellFormatting;
         }
 
         private void DgvEmployees_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
             HideEmployeeIdColumn();
+            dgvEmployees.Invalidate();
+        }
+
+        private void DgvEmployees_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            var row = dgvEmployees.Rows[e.RowIndex];
+            var employee = row.DataBoundItem as EmployeeModel;
+            if (employee != null && employee.IsLeader)
+            {
+                e.CellStyle.BackColor = Color.LightGoldenrodYellow;
+                e.CellStyle.Font = new Font(dgvEmployees.DefaultCellStyle.Font ?? dgvEmployees.Font, FontStyle.Bold);
+            }
+        }
+
+        private void CtxEmployees_AddEmployee_Click(object sender, EventArgs e)
+        {
+            using (var frmContacts = new FormContacts(this)) { frmContacts.ShowDialog(); }
+        }
+
+        private void CtxEmployees_RemoveEmployee_Click(object sender, EventArgs e)
+        {
+            btnRemoveEmployee_Click(sender, e);
+        }
+
+        private void CtxEmployees_SetLeader_Click(object sender, EventArgs e)
+        {
+            var row = dgvEmployees.CurrentRow;
+            if (row == null) return;
+            var employee = row.DataBoundItem as EmployeeModel;
+            if (employee == null) return;
+
+            // Clear existing leader
+            foreach (var emp in _employeesBindingList)
+                emp.IsLeader = false;
+
+            // Set new leader
+            employee.IsLeader = true;
+
+            var fullName = ($"{employee.FirstName} {employee.LastName}").Trim();
+            if (string.IsNullOrWhiteSpace(fullName)) fullName = employee.EmailAddress ?? string.Empty;
+            txtProjectLeader.Text = fullName;
+
+            // Persist
+            if (!string.IsNullOrEmpty(settingsModel.XmlEmployeesFile))
+                settingsModel.XmlEmployeesFile.EmployeesModelToXmlFile(_employeesBindingList.ToList());
+
+            dgvEmployees.Invalidate();
         }
 
         private void HideEmployeeIdColumn()
@@ -938,6 +1025,7 @@ namespace SaveAsPDF
             ConfigureProjectIdAutoComplete();
             LoadSearchHistory();
             settingsModel = SettingsHelpers.LoadProjectSettings();
+            chkbSendNote.Checked = settingsModel.SendNoteToLeader;
             txtSubject.Text = LoadEmailSubject();
             PopulateDriveNodes();
         }

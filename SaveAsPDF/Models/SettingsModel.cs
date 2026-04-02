@@ -53,6 +53,10 @@ namespace SaveAsPDF.Models
         /// </summary>
         public bool OpenPDF { get; set; }
         /// <summary>
+        /// Default state of "send note to project leader" checkbox
+        /// </summary>
+        public bool SendNoteToLeader { get; set; }
+        /// <summary>
         /// The project's root folder
         /// </summary>
         public DirectoryInfo ProjectRootFolder { get; set; }
@@ -70,6 +74,7 @@ namespace SaveAsPDF.Models
             DefaultFolderID = 1;
             ProjectRootTag = "_מספר_פרויקט_";
             OpenPDF = false;
+            SendNoteToLeader = false;
             ProjectRootFolder = new DirectoryInfo($@"{RootDrive}10\1000\");
             DefaultSavePath = $@"{RootDrive}{ProjectRootFolder}Inbox\";
         }

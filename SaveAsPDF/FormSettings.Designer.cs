@@ -253,6 +253,17 @@
             this.gbAttaments.TabStop = false;
             this.gbAttaments.Text = "קבצים מצורפים";
             // 
+            // chkSendNoteToLeader
+            // 
+            this.chkSendNoteToLeader = new System.Windows.Forms.CheckBox();
+            this.chkSendNoteToLeader.AutoSize = true;
+            this.chkSendNoteToLeader.Location = new System.Drawing.Point(136, 300);
+            this.chkSendNoteToLeader.Name = "chkSendNoteToLeader";
+            this.chkSendNoteToLeader.Size = new System.Drawing.Size(245, 17);
+            this.chkSendNoteToLeader.TabIndex = 22;
+            this.chkSendNoteToLeader.Text = "שלח הודעה לראש הפרויקט לאחר שמירה";
+            this.chkSendNoteToLeader.UseVisualStyleBackColor = true;
+            // 
             // textBox2
             // 
             this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -586,6 +597,7 @@
             // 
             this.CancelButton = this.bntCancel;
             this.ClientSize = new System.Drawing.Size(786, 440);
+            this.Controls.Add(this.chkSendNoteToLeader);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.gbAttaments);
@@ -683,5 +695,6 @@
         private System.Windows.Forms.ErrorProvider errorProviderSettings;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
+        private System.Windows.Forms.CheckBox chkSendNoteToLeader;
     }
 }

@@ -41,9 +41,8 @@ namespace SaveAsPDF
             KeyDown += MainFormTaskPaneControl_KeyDown;
             btnProjectLeader.Click += btnProjectLeader_Click;
             
-            // Disable validation on settings/cancel to allow immediate action
+            // Disable validation on settings to allow immediate action
             btnSettings.CausesValidation = false;
-            btnCancel.CausesValidation = false;
             
             // Wire up the Load event for initialization tasks
             Load += MainFormTaskPaneControl_Load;
@@ -447,70 +446,99 @@ namespace SaveAsPDF
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
-                RowCount = 2,
+                RowCount = 4,
                 AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 BackColor = SystemColors.Control
             };
-            bottomPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            bottomPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            
-            // Button panel with primary actions
+            bottomPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));  // Row 0: checkboxes
+            bottomPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));  // Row 1: buttons
+            bottomPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));  // Row 2: status strip
+
+            // --- Row 0: Checkboxes, each on its own line ---
+            var pnlCheckboxes = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.RightToLeft,
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                WrapContents = false,
+                BackColor = SystemColors.Control
+            };
+
+            // Option to open PDF after saving
+            chbOpenPDF.Text = "פתח PDF לאחר שמירה";  // "Open PDF after saving"
+            chbOpenPDF.AutoSize = true;
+            chbOpenPDF.BackColor = SystemColors.Control;
+            chbOpenPDF.ForeColor = SystemColors.ControlText;
+            chbOpenPDF.Margin = new Padding(3, 2, 3, 0);
+            chbOpenPDF.CheckedChanged += chbOpenPDF_CheckedChanged;
+
+            // Option to send note to project leader after saving
+            chkbSendNote.Text = "שלח לראש הפרויקט";  // "Send to project leader"
+            chkbSendNote.AutoSize = true;
+            chkbSendNote.BackColor = SystemColors.Control;
+            chkbSendNote.ForeColor = SystemColors.ControlText;
+            chkbSendNote.Margin = new Padding(3, 2, 3, 0);
+            chkbSendNote.Checked = false;  // Default off; overridden from settings in Load
+
+            pnlCheckboxes.Controls.Add(chbOpenPDF);
+            pnlCheckboxes.Controls.Add(chkbSendNote);
+
+            // --- Row 1: Action buttons ---
             var pnlButtons = new FlowLayoutPanel
             {
                 FlowDirection = FlowDirection.RightToLeft,
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Top,
                 AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                WrapContents = true,
                 BackColor = SystemColors.Control
             };
-            
+
             // Primary action: Save to PDF
             btnOK.Text = "שמור ל-PDF";  // "Save to PDF"
+            btnOK.AutoSize = true;
+            btnOK.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            btnOK.Padding = new Padding(4, 0, 4, 0);
             btnOK.BackColor = SystemColors.Control;
             btnOK.ForeColor = SystemColors.ControlText;
             btnOK.UseVisualStyleBackColor = true;
             btnOK.Click += btnOK_Click;
-            
-            // Cancel button
-            btnCancel.Text = "בטל";  // "Cancel"
-            btnCancel.BackColor = SystemColors.Control;
-            btnCancel.ForeColor = SystemColors.ControlText;
-            btnCancel.UseVisualStyleBackColor = true;
-            btnCancel.Click += btnCancel_Click;
-            
+
             // Settings dialog
             btnSettings.Text = "הגדרות";  // "Settings"
+            btnSettings.AutoSize = true;
+            btnSettings.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            btnSettings.Padding = new Padding(4, 0, 4, 0);
             btnSettings.BackColor = SystemColors.Control;
             btnSettings.ForeColor = SystemColors.ControlText;
             btnSettings.UseVisualStyleBackColor = true;
             btnSettings.Click += BtnSettings_Click;
-            
+
             // New project creation
             btnNewProject.Text = "פרויקט חדש";  // "New Project"
+            btnNewProject.AutoSize = true;
+            btnNewProject.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            btnNewProject.Padding = new Padding(4, 0, 4, 0);
             btnNewProject.BackColor = SystemColors.Control;
             btnNewProject.ForeColor = SystemColors.ControlText;
             btnNewProject.UseVisualStyleBackColor = true;
             btnNewProject.Click += btnNewProject_Click;
-            
-            // Option to open PDF after saving
-            chbOpenPDF.Text = "פתח PDF לאחר שמירה";  // "Open PDF after saving"
-            chbOpenPDF.BackColor = SystemColors.Control;
-            chbOpenPDF.ForeColor = SystemColors.ControlText;
-            chbOpenPDF.CheckedChanged += chbOpenPDF_CheckedChanged;
-            
+
             pnlButtons.Controls.Add(btnOK);
-            pnlButtons.Controls.Add(btnCancel);
             pnlButtons.Controls.Add(btnSettings);
             pnlButtons.Controls.Add(btnNewProject);
-            pnlButtons.Controls.Add(chbOpenPDF);
-            
+
             // Status strip for displaying contextual help and validation messages
             statusStrip.Items.Add(tsslStatus);
             statusStrip.RightToLeft = RightToLeft.Yes;
             statusStrip.BackColor = SystemColors.Control;
             statusStrip.ForeColor = SystemColors.ControlText;
-            
-            bottomPanel.Controls.Add(pnlButtons, 0, 0);
-            bottomPanel.Controls.Add(statusStrip, 0, 1);
+
+            bottomPanel.Controls.Add(pnlCheckboxes, 0, 0);
+            bottomPanel.Controls.Add(pnlButtons, 0, 1);
+            bottomPanel.Controls.Add(statusStrip, 0, 2);
 
             // === ASSEMBLE FINAL LAYOUT ===
             main.Controls.Add(topGroup, 0, 0);      // Top: metadata fields

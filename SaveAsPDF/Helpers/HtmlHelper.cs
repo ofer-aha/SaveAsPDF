@@ -210,7 +210,7 @@ namespace SaveAsPDF.Helpers
             var projectSb = new StringBuilder();
             projectSb.AppendLine("<section class=\"card\"> ");
             projectSb.AppendLine(" <div class=\"header\"> ");
-            projectSb.AppendLine(" <div>\n <h1>" + encProjectName + "</h1>\n <div class=\"meta\">מספר פרויקט: " + encProjectID + "</div>\n </div>");
+            projectSb.AppendLine(" <div>\n <h1 id=\"SaveAsPDF-ProjectName\">" + encProjectName + "</h1>\n <div class=\"meta\">מספר פרויקט: <span id=\"SaveAsPDF-ProjectID\">" + encProjectID + "</span></div>\n </div>");
             projectSb.AppendLine(" <div class=\"meta\">שמירה על ידי: " + encUser + "</div>");
             projectSb.AppendLine(" </div>");
 

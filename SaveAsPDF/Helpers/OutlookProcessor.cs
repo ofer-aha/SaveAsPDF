@@ -15,7 +15,7 @@ namespace SaveAsPDF.Helpers
 
             NameSpace nameSpace = null;
             MAPIFolder contactsFolder = null;
-            Items contactItems = null;
+            Table table = null;
 
             try
             {
@@ -23,30 +23,31 @@ namespace SaveAsPDF.Helpers
                 nameSpace = AddinGlobals.OutlookApp.Session;
                 contactsFolder = nameSpace.GetDefaultFolder(OlDefaultFolders.olFolderContacts);
 
-                // Restrict to contacts only to avoid dist lists and other items
-                contactItems = contactsFolder.Items.Restrict("[MessageClass] = 'IPM.Contact'");
+                const string emailProp = "urn:schemas:contacts:email1";
+                const string firstNameProp = "urn:schemas:contacts:givenName";
+                const string lastNameProp = "urn:schemas:contacts:sn";
 
-                int count = contactItems.Count;
-                for (int i = 1; i <= count; i++)
+                // Use Table for significantly faster enumeration (no per-item COM object)
+                table = contactsFolder.GetTable("[MessageClass] = 'IPM.Contact'");
+                table.Columns.RemoveAll();
+                table.Columns.Add(emailProp);
+                table.Columns.Add(firstNameProp);
+                table.Columns.Add(lastNameProp);
+
+                while (!table.EndOfTable)
                 {
-                    var item = contactItems[i] as ContactItem;
-                    try
+                    Row row = table.GetNextRow();
+                    string email = row[emailProp] as string;
+                    if (!string.IsNullOrEmpty(email))
                     {
-                        if (item != null && !string.IsNullOrEmpty(item.Email1Address))
+                        output.Add(new EmployeeModel
                         {
-                            var employee = new EmployeeModel
-                            {
-                                EmailAddress = item.Email1Address,
-                                FirstName = item.FirstName,
-                                LastName = item.LastName
-                            };
-                            output.Add(employee);
-                        }
+                            EmailAddress = email,
+                            FirstName = row[firstNameProp] as string,
+                            LastName = row[lastNameProp] as string
+                        });
                     }
-                    finally
-                    {
-                        if (item != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(item);
-                    }
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(row);
                 }
             }
             catch (System.Runtime.InteropServices.COMException ex)
@@ -63,7 +64,7 @@ namespace SaveAsPDF.Helpers
             finally
             {
                 // Release COM objects to avoid memory leaks
-                if (contactItems != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(contactItems);
+                if (table != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(table);
                 if (contactsFolder != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(contactsFolder);
                 if (nameSpace != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(nameSpace);
             }
@@ -379,33 +380,37 @@ namespace SaveAsPDF.Helpers
             var output = new List<EmployeeModel>();
             NameSpace nameSpace = null;
             MAPIFolder folder = null;
-            Items contactItems = null;
+            Table table = null;
             try
             {
                 nameSpace = AddinGlobals.OutlookApp.Session;
                 folder = nameSpace.GetFolderFromID(entryID, storeID);
-                contactItems = folder.Items.Restrict("[MessageClass] = 'IPM.Contact'");
 
-                int count = contactItems.Count;
-                for (int i = 1; i <= count; i++)
+                const string emailProp = "urn:schemas:contacts:email1";
+                const string firstNameProp = "urn:schemas:contacts:givenName";
+                const string lastNameProp = "urn:schemas:contacts:sn";
+
+                // Use Table for significantly faster enumeration (no per-item COM object)
+                table = folder.GetTable("[MessageClass] = 'IPM.Contact'");
+                table.Columns.RemoveAll();
+                table.Columns.Add(emailProp);
+                table.Columns.Add(firstNameProp);
+                table.Columns.Add(lastNameProp);
+
+                while (!table.EndOfTable)
                 {
-                    var item = contactItems[i] as ContactItem;
-                    try
+                    Row row = table.GetNextRow();
+                    string email = row[emailProp] as string;
+                    if (!string.IsNullOrEmpty(email))
                     {
-                        if (item != null && !string.IsNullOrEmpty(item.Email1Address))
+                        output.Add(new EmployeeModel
                         {
-                            output.Add(new EmployeeModel
-                            {
-                                EmailAddress = item.Email1Address,
-                                FirstName = item.FirstName,
-                                LastName = item.LastName
-                            });
-                        }
+                            EmailAddress = email,
+                            FirstName = row[firstNameProp] as string,
+                            LastName = row[lastNameProp] as string
+                        });
                     }
-                    finally
-                    {
-                        if (item != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(item);
-                    }
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(row);
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
@@ -414,7 +419,7 @@ namespace SaveAsPDF.Helpers
             }
             finally
             {
-                if (contactItems != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(contactItems);
+                if (table != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(table);
                 if (folder != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(folder);
                 if (nameSpace != null) System.Runtime.InteropServices.Marshal.ReleaseComObject(nameSpace);
             }

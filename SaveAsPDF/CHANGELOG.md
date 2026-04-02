@@ -5,6 +5,63 @@ All notable changes to SaveAsPDF will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-01-XX
+
+### Added
+
+#### Project Field Persistence Across Outlook 365 Send/Forward
+- **Visible HTML `id` Attributes**: Project ID and name are now embedded as `id`-attributed visible HTML elements (`<span id="SaveAsPDF-ProjectID">`, `<h1 id="SaveAsPDF-ProjectName">`) instead of hidden `<meta>` tags or HTML comments
+  - Outlook 365 preserves `id` attributes on visible elements but strips `<meta>` tags and HTML comments when sending
+  - Enables automatic project detection when re-processing forwarded/replied emails
+- **Multi-tier Extraction Fallback**: `ExtractProjectFieldsFromHtmlBody` now uses 4-tier fallback:
+  1. `id`-attributed visible elements (current format, survives Outlook 365 send)
+  2. Hebrew-labelled visible text (e.g., "מספר פרויקט: 1000")
+  3. Legacy `<meta>` tags (local drafts)
+  4. Legacy HTML comments (local drafts)
+
+#### Employee DataGridView Context Menu
+- **Right-click Context Menu** on the Employees grid with three actions:
+  - "הוסף עובד" (Add Employee) — opens the Contacts dialog
+  - "הסר עובד" (Remove Employee) — removes the selected employee
+  - "קבע כמתכנן מוביל" (Set as Project Leader) — designates the selected employee as leader
+- **Leader Row Highlighting**: Project leader rows are displayed with bold font and `Color.LightGoldenrodYellow` background via `CellFormatting` event
+
+#### Send Note to Project Leader
+- **`chkbSendNote` Checkbox**: New checkbox in the task pane bottom section — "שלח ההערה לראש הפרויקט"
+  - When checked, the email is forwarded to the project leader after PDF save
+  - Default state is configurable via Settings
+- **`SendNoteToLeader` Setting**: New boolean setting added end-to-end:
+  - `SettingsModel.SendNoteToLeader` property (default `false`)
+  - `Settings.settings` / `Settings.Designer.cs` persistence
+  - `SettingsHelpers` — all 4 load/save methods updated
+  - `FormSettings` — new "שלח הודעה לראש הפרויקט לאחר שמירה" checkbox
+
+### Changed
+
+#### Task Pane Bottom Section Layout Redesign
+- **Removed Cancel button** from the task pane (was a no-op)
+- **Restructured bottom section** from a single `FlowLayoutPanel` to a 3-row `TableLayoutPanel`:
+  - **Row 0 — Checkboxes**: `FlowLayoutPanel` with `WrapContents = false` containing send-note, select-all-attachments, and open-PDF checkboxes
+  - **Row 1 — Buttons**: `FlowLayoutPanel` with `AutoSize = true` and `AutoSizeMode = GrowAndShrink` on each button to prevent text trimming
+  - **Row 2 — Status Strip**: Contextual help messages
+- **Button `AutoSize` enabled**: All action buttons now use `AutoSize = true` with `Padding(4, 0, 4, 0)` to ensure captions are never truncated
+
+#### HTML Generation
+- `HtmlHelper.GenerateHtmlToFile` now emits `id` attributes on project name (`<h1>`) and project ID (`<span>`) elements
+- `EmbedProjectFieldsInHtmlBody` is now a no-op — project fields are embedded directly by `HtmlHelper`
+
+### Fixed
+- **Outlook 365 Stripping Project Data**: Project ID and name are no longer lost when emails are sent or forwarded via Outlook 365
+- **Button Text Trimming**: Action buttons in the task pane bottom section no longer have truncated captions
+
+### Known Limitations
+- Email body formatting may vary in PDF output depending on HTML complexity
+- Very large attachments may impact performance
+- Batch email processing not yet implemented
+- Cloud storage integration pending (OneDrive, SharePoint)
+
+---
+
 ## [1.0.0] - 2024-01-15
 
 ### Added
@@ -262,7 +319,7 @@ If you're upgrading from earlier versions, note the following changes:
 
 ## Security
 
-No security issues discovered in v1.0.0. All user data is stored locally in XML files.
+No security issues discovered in v1.1.0. All user data is stored locally in XML files.
 
 ## Dependencies
 
@@ -291,7 +348,8 @@ For bugs, feature requests, or questions:
 ---
 
 **Version History**:
-- v1.0.0 - 2024-01-15 (Current)
+- v1.1.0 - 2025-01-XX (Current)
+- v1.0.0 - 2024-01-15
 - v0.9.0 - 2023-12-01 (Initial Development)
 
 For more information, visit the [SaveAsPDF GitHub Repository](https://github.com/ofer-aha/SaveAsPDF).

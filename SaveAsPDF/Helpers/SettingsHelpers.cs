@@ -53,6 +53,10 @@ namespace SaveAsPDF.Helpers
         /// </summary>
         static public readonly bool openPDF = false;
         /// <summary>
+        /// Default state for sending note to project leader.
+        /// </summary>
+        static public readonly bool sendNoteToLeader = false;
+        /// <summary>
         /// The default last projects string.
         /// </summary>
         static public readonly string lastProjects = "1000;";
@@ -98,6 +102,7 @@ namespace SaveAsPDF.Helpers
                 settingsModel.DefaultFolderID = Settings.Default.DefaultFolderID > 0 ? Settings.Default.DefaultFolderID : defaultFolderID;
                 settingsModel.ProjectRootTag = GetSettingOrDefault(Settings.Default.ProjectRootTag, projectRootTag);
                 settingsModel.OpenPDF = Settings.Default.OpenPDF;
+                settingsModel.SendNoteToLeader = Settings.Default.SendNoteToLeader;
 
                 // Set the ProjectRootFolder
                 settingsModel.ProjectRootFolder = !string.IsNullOrEmpty(Settings.Default.sProjectRootFolders)
@@ -138,6 +143,7 @@ namespace SaveAsPDF.Helpers
                 Settings.Default.DefaultFolderID = settingsModel.DefaultFolderID;
                 Settings.Default.ProjectRootTag = settingsModel.ProjectRootTag;
                 Settings.Default.OpenPDF = settingsModel.OpenPDF;
+                Settings.Default.SendNoteToLeader = settingsModel.SendNoteToLeader;
                 Settings.Default.sProjectRootFolders = settingsModel.ProjectRootFolder?.FullName ?? rootDrive;
                 Settings.Default.Save();
             }
@@ -172,6 +178,7 @@ namespace SaveAsPDF.Helpers
                 Settings.Default.DefaultFolderID = defaultFolderID;
                 Settings.Default.ProjectRootTag = projectRootTag;
                 Settings.Default.OpenPDF = openPDF;
+                Settings.Default.SendNoteToLeader = sendNoteToLeader;
                 Settings.Default.sProjectRootFolders = sProjectRootFolders;
                 Settings.Default.Save();
             }
@@ -218,6 +225,7 @@ namespace SaveAsPDF.Helpers
                 MainFormTaskPaneControl.settingsModel.MinAttachmentSize = Settings.Default.MinAttachmentSize > 0 ? Settings.Default.MinAttachmentSize : minAttachmentSize;
                 MainFormTaskPaneControl.settingsModel.DefaultTreeFile = Settings.Default.DefaultTreeFile ?? defaultTreeFile;
                 MainFormTaskPaneControl.settingsModel.OpenPDF = Settings.Default.OpenPDF;
+                MainFormTaskPaneControl.settingsModel.SendNoteToLeader = Settings.Default.SendNoteToLeader;
 
                 if (!string.IsNullOrEmpty(projectID))
                 {

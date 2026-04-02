@@ -200,5 +200,17 @@ namespace SaveAsPDF.Properties {
                 this["SettingsModelJson"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SendNoteToLeader {
+            get {
+                return ((bool)(this["SendNoteToLeader"]));
+            }
+            set {
+                this["SendNoteToLeader"] = value;
+            }
+        }
     }
 }

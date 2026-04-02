@@ -305,9 +305,9 @@ namespace SaveAsPDF
             for (int i = 0; i < employees.Count; i++)
             {
                 var emp = employees[i];
-                if ((emp.EmailAddress != null && emp.EmailAddress.Contains(filter)) ||
-                    (emp.FirstName != null && emp.FirstName.Contains(filter)) ||
-                    (emp.LastName != null && emp.LastName.Contains(filter)))
+                if ((emp.EmailAddress != null && emp.EmailAddress.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (emp.FirstName != null && emp.FirstName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (emp.LastName != null && emp.LastName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0))
                 {
                     result.Add(emp);
                 }
