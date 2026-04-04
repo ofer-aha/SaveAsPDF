@@ -158,59 +158,123 @@ namespace SaveAsPDF
                 tsslStatus.Text = errorProviderMain.GetError(txtProjectID);
                 return;
             }
+
             errorProviderMain.SetError(txtProjectID, string.Empty);
             tsslStatus.Text = string.Empty;
             UpdateAutoCompleteSource(projectID);
+
             var projectRootFolder = projectID.ProjectFullPath(settingsModel.RootDrive);
-            // Refresh to get current state from the file system (important for network drives)
             projectRootFolder.Refresh();
+
+            bool createdNewProjectFolder = false;
             if (!projectRootFolder.Exists)
             {
-                if (showErrorDialogs)
-                {
-                    var createResult = MessageBox.Show(
-                        "הפרויקט לא קיים. האם ליצור תיקיית פרויקט חדשה?",
-                        "SaveAsPDF",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Question,
-                        MessageBoxDefaultButton.Button2,
-                        MessageBoxOptions.RtlReading | MessageBoxOptions.RightAlign);
+                if (!showErrorDialogs)
+                    return;
 
-                    if (createResult == DialogResult.Yes)
+                var createResult = MessageBox.Show(
+                    "תייקת פרויקט לא נימצאה. האם לפתוח פרויקט חדש?",
+                    "SaveAsPDF",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button2,
+                    MessageBoxOptions.RtlReading | MessageBoxOptions.RightAlign);
+
+                if (createResult == DialogResult.No)
+                    return;
+
+                try
+                {
+                    Directory.CreateDirectory(projectRootFolder.FullName);
+                    createdNewProjectFolder = true;
+                }
+                catch (Exception ex)
+                {
+                    projectRootFolder.Refresh();
+                    if (!projectRootFolder.Exists)
                     {
-                        try
-                        {
-                            Directory.CreateDirectory(projectRootFolder.FullName);
-                        }
-                        catch (Exception ex)
-                        {
-                            // On network drives CreateDirectory may throw even when
-                            // the folder already exists. Re-check before giving up.
-                            projectRootFolder.Refresh();
-                            if (!projectRootFolder.Exists)
-                            {
-                                XMessageBox.Show($"שגיאה ביצירת תיקיית פרויקט: {ex.Message}", "שגיאה", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
-                                ClearProjectRelatedUi();
-                                return;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ClearProjectRelatedUi();
+                        XMessageBox.Show($"שגיאה ביצירת תיקיית פרויקט: {ex.Message}", "שגיאה", XMessageBoxButtons.OK, XMessageBoxIcon.Error, XMessageAlignment.Right, XMessageLanguage.Hebrew);
                         return;
                     }
                 }
-                else
-                {
-                    ClearProjectRelatedUi();
-                    return;
-                }
             }
+
             settingsModel = SettingsHelpers.LoadProjectSettings(projectID);
+            EnsureProjectMetadataFiles(projectID, showMissingDataPrompt: showErrorDialogs && !createdNewProjectFolder);
             LoadProjectData();
             LoadEmployeeData();
             UpdateUI();
+        }
+
+        private void EnsureProjectMetadataFiles(string projectID, bool showMissingDataPrompt)
+        {
+            if (settingsModel == null)
+                return;
+
+            try
+            {
+                bool xmlFolderMissing = string.IsNullOrWhiteSpace(settingsModel.XmlSaveAsPDFFolder) || !Directory.Exists(settingsModel.XmlSaveAsPDFFolder);
+                bool projectFileMissing = string.IsNullOrWhiteSpace(settingsModel.XmlProjectFile) || !File.Exists(settingsModel.XmlProjectFile);
+                bool employeesFileMissing = string.IsNullOrWhiteSpace(settingsModel.XmlEmployeesFile) || !File.Exists(settingsModel.XmlEmployeesFile);
+
+                bool metadataMissing = xmlFolderMissing || projectFileMissing || employeesFileMissing;
+                if (metadataMissing && showMissingDataPrompt)
+                {
+                    XMessageBox.Show("תייקת פרויקט קיימת אך נתוני פרויקט חסרים - אנא השלם", "SaveAsPDF", XMessageBoxButtons.OK, XMessageBoxIcon.Warning, XMessageAlignment.Right, XMessageLanguage.Hebrew);
+                }
+
+                if (!string.IsNullOrWhiteSpace(settingsModel.XmlSaveAsPDFFolder))
+                {
+                    FileFoldersHelper.CreateHiddenDirectory(settingsModel.XmlSaveAsPDFFolder);
+                    EnsureHiddenAttribute(settingsModel.XmlSaveAsPDFFolder, isDirectory: true);
+                }
+
+                if (!string.IsNullOrWhiteSpace(settingsModel.XmlProjectFile) && !File.Exists(settingsModel.XmlProjectFile))
+                {
+                    var defaultProjectModel = new ProjectModel
+                    {
+                        ProjectName = "פרויקט ברירת מחדל",
+                        ProjectNumber = projectID,
+                        NoteToProjectLeader = false,
+                        DefaultSaveFolder = settingsModel.DefaultSavePath,
+                        ProjectNotes = "הערות ברירת מחדל",
+                        LastSavePath = settingsModel.DefaultSavePath
+                    };
+                    settingsModel.XmlProjectFile.ProjectModelToXmlFile(defaultProjectModel);
+                }
+
+                if (!string.IsNullOrWhiteSpace(settingsModel.XmlEmployeesFile) && !File.Exists(settingsModel.XmlEmployeesFile))
+                {
+                    settingsModel.XmlEmployeesFile.EmployeesModelToXmlFile(new List<EmployeeModel>());
+                }
+
+                EnsureHiddenAttribute(settingsModel.XmlProjectFile, isDirectory: false);
+                EnsureHiddenAttribute(settingsModel.XmlEmployeesFile, isDirectory: false);
+            }
+            catch (Exception ex)
+            {
+                XMessageBox.Show($"שגיאה ביצירת קבצי פרויקט חסרים: {ex.Message}", "SaveAsPDF", XMessageBoxButtons.OK, XMessageBoxIcon.Warning, XMessageAlignment.Right, XMessageLanguage.Hebrew);
+            }
+        }
+
+        private void EnsureHiddenAttribute(string path, bool isDirectory)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return;
+
+            try
+            {
+                bool exists = isDirectory ? Directory.Exists(path) : File.Exists(path);
+                if (!exists)
+                    return;
+
+                var currentAttributes = File.GetAttributes(path);
+                if ((currentAttributes & FileAttributes.Hidden) == 0)
+                    File.SetAttributes(path, currentAttributes | FileAttributes.Hidden);
+            }
+            catch
+            {
+            }
         }
 
         private void LoadProjectData()
@@ -533,7 +597,15 @@ namespace SaveAsPDF
             _mailItem.Save();
 
             // Now export to PDF (on a cleanly saved message)
-            _mailItem.SaveToPDF(sPath, pdfFileName);
+            try
+            {
+                _mailItem.SaveToPDF(sPath, pdfFileName);
+            }
+            finally
+            {
+                // Ensure WINWORD.EXE is closed after conversion
+                OfficeHelpers.ReleaseWordInstance();
+            }
 
             if (chkbSendNote.Checked)
             {
@@ -568,6 +640,11 @@ namespace SaveAsPDF
                 Marshal.ReleaseComObject(_mailItem);
                 _mailItem = null;
                 ClearMailRelatedUi();
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
             }
             if (chbOpenPDF.Checked)
             {
